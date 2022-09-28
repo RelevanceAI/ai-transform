@@ -1,4 +1,5 @@
 name: black
+on: [pull_request]
 
 jobs:
   lint:
