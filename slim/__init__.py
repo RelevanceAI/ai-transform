@@ -1,1 +1,1 @@
-from slim.api import Client
+from slim.api.client import Client
