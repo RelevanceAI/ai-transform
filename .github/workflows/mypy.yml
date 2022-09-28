@@ -1,11 +1,11 @@
-name: mpypy
+name: mypy
 
 on: [pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Mypy
+    name: lint
     steps:
     - uses: actions/checkout@v1
     - name: Set up Python 3.7
