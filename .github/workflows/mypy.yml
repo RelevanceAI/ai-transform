@@ -1,12 +1,20 @@
-name: mypy
-on: [pull_request]
+name: mpypy
+
+on: [puyll_request]
 
 jobs:
-  lint:
+  build:
     runs-on: ubuntu-latest
+    name: Mypy
     steps:
-
-      - uses: python/mypy@master
-        with:
-          options: "--check --verbose"
-          path: '.'
+    - uses: actions/checkout@v1
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install Dependencies
+      run: |
+        pip install mypy
+    - name: mypy
+      run: |
+        mypy relevance-slim/
