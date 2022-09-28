@@ -1,5 +1,4 @@
 name: mypy
-on: [pull_request]
 
 jobs:
   lint:
