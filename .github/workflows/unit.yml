@@ -3,7 +3,7 @@ name: tests
 on: [pull_request]
 
 jobs:
-  unit tests:
+  unit:
 
     runs-on: ubuntu-latest
     strategy:
