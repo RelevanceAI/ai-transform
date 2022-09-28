@@ -1,10 +1,15 @@
 name: mypy
+
 on: [pull_request]
 
 jobs:
   mypy:
-    name: mypy
+
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7"]
+
     steps:
       - uses: actions/checkout@v2
       - uses: tsuyoshicho/action-mypy@v3
