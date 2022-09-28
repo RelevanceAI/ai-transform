@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, NamedTuple, NewType, str
+from typing import Any, Dict, List, NamedTuple, NewType
 
 
 Vector = NewType("Vector", List[float])

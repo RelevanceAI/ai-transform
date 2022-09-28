@@ -1,4 +1,4 @@
-from ..api.helpers import process_token
+from relevanceai_slim.api import process_token
 
 
 class Client:
