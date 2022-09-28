@@ -1,0 +1,11 @@
+name: black
+on: [pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+          version: 22.3.0
