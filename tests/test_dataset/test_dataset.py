@@ -1,4 +1,4 @@
-from relevanceai_slim import Client
+from slim import Client
 
 
 class TestClient:
