@@ -31,6 +31,13 @@ class TestDataset2:
         series = full_dataset[random.choice(list(schema.keys()))]
         assert True
 
+    def test_update(self, full_dataset: Dataset):
+        old_documents = full_dataset.get_documents(20)["documents"]
+        for document in old_documents:
+            document["sample_1_value"] += 1
+        res = full_dataset.update_documents(old_documents)
+        assert not res["failed_documents"]
+
 
 @pytest.mark.usefixtures("static_dataset")
 class TestFilters:
