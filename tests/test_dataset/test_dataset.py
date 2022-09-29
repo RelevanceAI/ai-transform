@@ -1,6 +1,6 @@
 from slim import Client
 from slim.dataset.dataset import Dataset
-from slim.utils.documents import mock_documents
+from slim.utils import mock_documents
 
 
 class TestDataset:

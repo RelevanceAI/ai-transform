@@ -32,9 +32,8 @@ vector_length: int
 
 .. code-block::
 
-    from slim.utils import MockDocuments
+    from slim.utils import mock_documents
 
-    md = MockDocuments
     documents = mock_documents(10)
 
 """
