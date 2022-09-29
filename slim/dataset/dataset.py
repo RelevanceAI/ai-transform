@@ -1,4 +1,3 @@
-from curses import meta
 from typing import Any, Dict, List
 
 from slim.api.api import API
