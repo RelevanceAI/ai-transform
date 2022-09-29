@@ -14,18 +14,16 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
-        with:
-          TEST_TOKEN: ${{ secrets.TEST_US_TOKEN }}
-          python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest
-          pip install pytest-xdist
-          pip install pytest-cov
-      - name: pytest
+          python -m pip install -e .[tests]
+
+      - name: Run Unit Tests (pytest)
+        env:
+          TEST_TOKEN: ${{ secrets.TEST_US_TOKEN }}
+          python-version: ${{ matrix.python-version }}
         run: |
           python -c "import sys; print(sys.version)"
-          python -m pip install --upgrade pip
-          python -m pip install -e .[tests]
           python -m tests
