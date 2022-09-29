@@ -1,0 +1,1 @@
+from slim.workflow.abstract_workflow import AbstractWorkflow

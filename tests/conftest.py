@@ -7,7 +7,7 @@ import pytest
 
 from slim import Client
 from slim.api.helpers import process_token
-from slim.utils.documents import mock_documents, static_documents
+from slim.utils.random import mock_documents, static_documents
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)

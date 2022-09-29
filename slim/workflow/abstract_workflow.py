@@ -4,12 +4,12 @@ from slim.operator.abstract_operator import AbstractOperator
 
 
 class AbstractWorkflow:
-    def __init__(
-        self, dataset: Dataset, engine: AbstractEngine, operator: AbstractOperator
-    ):
-        self._dataset = dataset
-        self._operator = operator
+    def __init__(self, engine: AbstractEngine):
         self._engine = engine
 
+    @property
+    def engine(self):
+        return self._engine
+
     def run(self):
-        self._engine(self._dataset, self._operator)
+        self._engine.apply()

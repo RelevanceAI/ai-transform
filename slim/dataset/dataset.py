@@ -2,6 +2,7 @@ from typing import Any, Dict, List
 
 from slim.api.api import API
 from slim.types import Document, Schema
+from slim.utils.document import document
 
 
 class Dataset:
@@ -45,9 +46,11 @@ class Dataset:
         )
 
     def get_documents(self, page_size: int, *args, **kwargs) -> Dict[str, Any]:
-        return self._api._get_where(
+        res = self._api._get_where(
             dataset_id=self._dataset_id, page_size=page_size, *args, **kwargs
         )
+        res["documents"] = [document(d) for d in res["documents"]]
+        return res
 
     def len(self, *args, **kwargs):
         """
@@ -55,7 +58,7 @@ class Dataset:
         """
         return self._api._get_where(
             dataset_id=self._dataset_id, page_size=1, *args, **kwargs
-        )
+        )["count"]
 
     def insert_metadata(self, metadata: Dict[str, Any]):
         return self._api._update_metadata(
