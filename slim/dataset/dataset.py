@@ -64,7 +64,8 @@ class Dataset:
         )
 
     def update_metadata(self, metadata: Dict[str, Any]):
-        metadata = self.get_metadata().update(metadata)
+        old_metadata = self.get_metadata()["results"]
+        metadata.update(old_metadata)
         return self._api._update_metadata(
             dataset_id=self._dataset_id,
             metadata=metadata,
