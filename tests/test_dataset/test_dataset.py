@@ -48,13 +48,11 @@ class TestFilters:
         assert res["count"] == 1
         assert documents[0]["numeric_field"] == 5
 
-    @pytest.mark.xfail(reason="api bug")
     def test_less_than(self, static_dataset: Dataset):
         filters = static_dataset["numeric_field"] < 5
         res = static_dataset.get_documents(page_size=20, filters=filters)
         assert res["count"] == 5
 
-    @pytest.mark.xfail(reason="api bug")
     def test_greater_than(self, static_dataset: Dataset):
         filters = static_dataset["numeric_field"] > 5
         res = static_dataset.get_documents(page_size=20, filters=filters)
