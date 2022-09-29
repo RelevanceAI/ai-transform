@@ -25,3 +25,12 @@ class TestDataset:
         schema = full_dataset.schema
         series = full_dataset[random.choice(list(schema.keys()))]
         assert True
+
+
+class TestFilters:
+    def test_equals(self, static_dataset: Dataset):
+        filters = static_dataset["numeric_field"] == 5
+        res = static_dataset.get_documents(page_size=1, filters=filters)
+        documents = res["documents"]
+        assert res["count"] == 1
+        assert documents[0]["numeric_field"] == 5

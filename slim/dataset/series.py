@@ -11,7 +11,7 @@ class Series:
         self._dtype = dataset.schema[field]
         self._filter_type = self._get_filter_type()
 
-    def _get_filter_type(self):
+    def _get_filter_type(self) -> str:
         if self._dtype == "numeric":
             filter_type = "numeric"
         elif self._dtype == "date":
@@ -27,11 +27,107 @@ class Series:
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
+        if self._field == "_id":
+            filter_type == "ids"
         return [
             {
                 "field": self._field,
                 "filter_type": filter_type,
                 "condition": "==",
                 "condition_value": other,
+            }
+        ]
+
+    def __lt__(
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
+    ) -> Filter:
+        if filter_type is None:
+            filter_type = self._filter_type
+        return [
+            {
+                "field": self._field,
+                "filter_type": filter_type,
+                "condition": "<",
+                "condition_value": other,
+            }
+        ]
+
+    def __le__(
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
+    ) -> Filter:
+        if filter_type is None:
+            filter_type = self._filter_type
+        return [
+            {
+                "field": self._field,
+                "filter_type": filter_type,
+                "condition": "<=",
+                "condition_value": other,
+            }
+        ]
+
+    def __gt__(
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
+    ) -> Filter:
+        if filter_type is None:
+            filter_type = self._filter_type
+        return [
+            {
+                "field": self._field,
+                "filter_type": filter_type,
+                "condition": ">",
+                "condition_value": other,
+            }
+        ]
+
+    def __ge__(
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
+    ) -> Filter:
+        if filter_type is None:
+            filter_type = self._filter_type
+        return [
+            {
+                "field": self._field,
+                "filter_type": filter_type,
+                "condition": ">",
+                "condition_value": other,
+            }
+        ]
+
+    def contains(self, other: str) -> Filter:
+        return [
+            {
+                "field": self._field,
+                "filter_type": "contains",
+                "condition": "==",
+                "condition_value": other,
+            }
+        ]
+
+    def exists(self) -> Filter:
+        return [
+            {
+                "field": self._field,
+                "filter_type": "exists",
+                "condition": "==",
+                "condition_value": " ",
+            }
+        ]
+
+    def not_exists(self) -> Filter:
+        return [
+            {
+                "field": self._field,
+                "filter_type": "exists",
+                "condition": "!=",
+                "condition_value": " ",
             }
         ]
