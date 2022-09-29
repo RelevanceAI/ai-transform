@@ -1,6 +1,6 @@
 import requests
 
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from slim.types import Credentials, Document, FieldTransformer, Filter, Schema
 
@@ -112,4 +112,23 @@ class API:
                 is_random=is_random,
                 after_id=[] if after_id is None else after_id,
             ),
+        ).json()
+
+    def _update_metadata(self, dataset_id: str, metadata: Dict[str, Any]):
+        """
+        Edit and add metadata about a dataset. Notably description, data source, etc
+        """
+        return requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/metadata",
+            headers=self._headers,
+            json=dict(
+                dataset_id=dataset_id,
+                metadata=metadata,
+            ),
+        ).json()
+
+    def _get_metadata(self, dataset_id: str) -> Dict[str, Any]:
+        return requests.get(
+            url=self._base_url + f"/datasets/{dataset_id}/metadata",
+            headers=self._headers,
         ).json()
