@@ -24,9 +24,9 @@ jobs:
           pip install pytest
           pip install pytest-xdist
           pip install pytest-cov
-      - name: Test with pytest
+      - name: pytest
         run: |
           python -c "import sys; print(sys.version)"
           python -m pip install --upgrade pip
           python -m pip install -e .[tests]
-          pytest tests
+          python -m tests

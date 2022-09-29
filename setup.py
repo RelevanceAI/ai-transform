@@ -1,7 +1,5 @@
-import os
-from datetime import datetime
 from setuptools import find_packages, setup
-from slim._version import __version__
+from slim import __version__
 
 
 requirements = [
