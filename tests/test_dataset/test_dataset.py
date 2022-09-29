@@ -83,7 +83,17 @@ class TestFilters:
 
     def test_ids(self, static_dataset: Dataset):
         res = static_dataset.get_documents(page_size=20)
-        _ids = list(map(lambda document: document["_id"], res["documents"]))
+        documents = res["documents"]
+        _ids = list(map(lambda document: document["_id"], documents))
         filters = static_dataset["_id"] == random.choice(_ids)
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        assert res["count"] == 1
+
+    @pytest.mark.xfail(reason="api bug")
+    def test_date(self, static_dataset: Dataset):
+        res = static_dataset.get_documents(page_size=20)
+        documents = res["documents"]
+        dates = list(map(lambda document: document["insert_date_"], documents))
+        filters = static_dataset["insert_date_"] == random.choice(dates)
         res = static_dataset.get_documents(page_size=20, filters=filters)
         assert res["count"] == 1
