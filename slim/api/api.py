@@ -50,8 +50,9 @@ class API:
         insert_date: bool = True,
         overwrite: bool = True,
         update_schema: bool = True,
+        wait_for_update: bool = False,
         field_transformers: List[FieldTransformer] = None,
-        ingest_in_background: bool = True,
+        ingest_in_background: bool = False,
     ) -> Any:
         return requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_insert",
@@ -65,6 +66,7 @@ class API:
                 if field_transformers is None
                 else field_transformers,
                 ingest_in_background=ingest_in_background,
+                wait_for_update=wait_for_update,
             ),
         ).json()
 
