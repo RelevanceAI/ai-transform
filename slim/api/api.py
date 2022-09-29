@@ -13,6 +13,11 @@ class API:
             Authorization=f"{self._credentials.project}:{self._credentials.api_key}"
         )
 
+    def _list_datasets(self):
+        return requests.get(
+            url=self._base_url + "/datasets/list", headers=self._headers
+        ).json()
+
     def _create_dataset(
         self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True
     ) -> Any:
