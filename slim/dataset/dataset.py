@@ -1,7 +1,8 @@
+from curses import meta
 from typing import Any, Dict, List
 
 from slim.api.api import API
-from slim.types import Document, Filter, Schema
+from slim.types import Document, Schema
 
 
 class Dataset:
@@ -56,3 +57,19 @@ class Dataset:
         return self._api._get_where(
             dataset_id=self._dataset_id, page_size=1, *args, **kwargs
         )
+
+    def insert_metadata(self, metadata: Dict[str, Any]):
+        return self._api._update_metadata(
+            dataset_id=self._dataset_id,
+            metadata=metadata,
+        )
+
+    def update_metadata(self, metadata: Dict[str, Any]):
+        metadata = self.get_metadata().update(metadata)
+        return self._api._update_metadata(
+            dataset_id=self._dataset_id,
+            metadata=metadata,
+        )
+
+    def get_metadata(self) -> Dict[str, Any]:
+        return self._api._get_metadata(dataset_id=self._dataset_id)
