@@ -39,6 +39,10 @@ class AbstractEngine(ABC):
     def operator(self):
         return self._operator
 
+    @property
+    def dataset(self):
+        return self._dataset
+
     @abstractmethod
     def apply(self, operator: AbstractOperator) -> Any:
         raise NotImplementedError
