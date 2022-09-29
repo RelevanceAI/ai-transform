@@ -73,11 +73,11 @@ class TestFilters:
         filters = static_dataset["text_field"].contains("3")
         res = static_dataset.get_documents(page_size=20, filters=filters)
         documents = res["documents"]
+        values = list(map(lambda document: document["text_field"], documents))
         assert res["count"] == 2
-        assert documents[0]["text_field"] == "3"
-        assert documents[1]["text_field"] == "13"
+        assert all([value in values for value in {"3", "13"}])
 
-    def test_contains(self, static_dataset: Dataset):
+    def test_ids(self, static_dataset: Dataset):
         res = static_dataset.get_documents(page_size=20)
         _ids = list(map(lambda document: document["_id"], res["documents"]))
         filters = static_dataset["_id"] == random.choice(_ids)
