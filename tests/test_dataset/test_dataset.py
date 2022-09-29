@@ -67,3 +67,11 @@ class TestFilters:
         filters = static_dataset["numeric_field"].not_exists()
         res = static_dataset.get_documents(page_size=20, filters=filters)
         assert res["count"] == 0
+
+    def test_contains(self, static_dataset: Dataset):
+        filters = static_dataset["text_field"].contains("3")
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        documents = res["documents"]
+        assert res["count"] == 2
+        assert documents[0]["text_field"] == "3"
+        assert documents[1]["text_field"] == "13"
