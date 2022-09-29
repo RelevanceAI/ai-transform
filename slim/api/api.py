@@ -131,4 +131,4 @@ class API:
         return requests.get(
             url=self._base_url + f"/datasets/{dataset_id}/metadata",
             headers=self._headers,
-        )
+        ).json()

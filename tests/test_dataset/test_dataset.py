@@ -38,6 +38,21 @@ class TestDataset2:
         res = full_dataset.update_documents(old_documents)
         assert not res["failed_documents"]
 
+    def test_metadata(self, full_dataset: Dataset):
+        metadata = full_dataset.get_metadata()["results"]
+        assert metadata == {}
+
+        new_metadata = {"_metadata_": 4}
+        full_dataset.insert_metadata(new_metadata)
+        metadata = full_dataset.get_metadata()["results"]
+        assert metadata == new_metadata
+
+        new_metadata = {"_metadata_": 4, "_metadata1_": 5}
+        full_dataset.update_metadata(new_metadata)
+        metadata = full_dataset.get_metadata()["results"]
+        assert "_metadata1_" in metadata
+        assert "_metadata_" in metadata
+
 
 @pytest.mark.usefixtures("static_dataset")
 class TestFilters:
