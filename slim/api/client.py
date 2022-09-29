@@ -2,7 +2,7 @@ from typing import Optional
 
 from slim.api.api import API
 from slim.api.helpers import process_token
-from slim.dataset.dataset import Dataset
+from slim.dataset import Dataset
 from slim.types import Schema
 from slim.errors import AuthException
 from slim.constants import WELCOME_MESSAGE

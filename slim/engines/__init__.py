@@ -1,1 +1,1 @@
-from slim.engines.abstract_engine import AbstractEngine
+from .abstract_engine import AbstractEngine

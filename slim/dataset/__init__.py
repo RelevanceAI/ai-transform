@@ -1,1 +1,2 @@
-from slim.dataset.dataset import Dataset
+from .dataset import Dataset
+from .series import Series

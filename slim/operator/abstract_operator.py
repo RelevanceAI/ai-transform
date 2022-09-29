@@ -1,9 +1,8 @@
-from abc import ABC, abstractmethod
 from copy import deepcopy
+from abc import ABC, abstractmethod
 
-from typing import Any, List
-from slim.types import Document
-from slim.utils.document import document
+from typing import List
+from slim.utils import Document
 
 
 class AbstractOperator(ABC):
@@ -31,7 +30,7 @@ class AbstractOperator(ABC):
         """
         batch = []
         for old_document, new_document in zip(old_batch, new_batch):
-            pp_document = document()
+            pp_document = Document()
             new_fields = new_document.keys()
             old_fields = old_document.keys()
             for field in new_fields:

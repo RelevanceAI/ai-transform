@@ -1,8 +1,8 @@
 from typing import Any, Dict, List
 
 from slim.api.api import API
-from slim.types import Document, Schema
-from slim.utils.document import document
+from slim.types import Schema
+from slim.utils import Document
 
 
 class Dataset:
@@ -49,7 +49,7 @@ class Dataset:
         res = self._api._get_where(
             dataset_id=self._dataset_id, page_size=page_size, *args, **kwargs
         )
-        res["documents"] = [document(d) for d in res["documents"]]
+        res["documents"] = [Document(d) for d in res["documents"]]
         return res
 
     def len(self, *args, **kwargs):

@@ -1,10 +1,11 @@
 import math
 from typing import Any, List, Optional
 from abc import ABC, abstractmethod
-from slim.types import Document, Filter
 
-from slim.dataset.dataset import Dataset
-from slim.operator.abstract_operator import AbstractOperator
+from slim.types import Filter
+from slim.dataset import Dataset
+from slim.operator import AbstractOperator
+from slim.utils import Document
 
 
 class AbstractEngine(ABC):

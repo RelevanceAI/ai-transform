@@ -2,7 +2,8 @@ import requests
 
 from typing import Any, Dict, List, Optional
 
-from slim.types import Credentials, Document, FieldTransformer, Filter, Schema
+from slim.utils import Document
+from slim.types import Credentials, FieldTransformer, Filter, Schema
 
 
 class API:
@@ -76,7 +77,7 @@ class API:
         documents: List[Document],
         insert_date: bool = True,
         ingest_in_background: bool = True,
-    ):
+    ) -> Any:
         return requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_update",
             headers=self._headers,

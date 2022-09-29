@@ -1,13 +1,11 @@
 import os
 import random
 import string
-from typing import List
 import pytest
 
+from slim.api import Client, process_token
+from slim.utils import Document, mock_documents, static_documents
 
-from slim import Client
-from slim.api.helpers import process_token
-from slim.utils.random import mock_documents, static_documents
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
@@ -57,3 +55,12 @@ def static_dataset(test_client: Client):
     dataset.insert_documents(static_documents(20))
     yield dataset
     test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="function")
+def test_document():
+    raw_dict = {
+        "field1": {"field2": 1},
+        "field3": 3,
+    }
+    return Document(raw_dict)

@@ -1,7 +1,7 @@
 import pytest
 import random
 
-from slim.dataset.dataset import Dataset
+from slim.dataset import Dataset
 from slim.utils import mock_documents
 
 

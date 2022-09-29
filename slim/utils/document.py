@@ -1,11 +1,9 @@
-from copy import deepcopy
-import json
 import pandas as pd
 
 from typing import Any
 
 
-class document(dict):
+class Document(dict):
     def set(self, key: Any, value: Any) -> None:
         try:
             fields = key.split(".")
@@ -50,7 +48,3 @@ class document(dict):
             return key in self.keys()
         except:
             return super().__contains__(key)
-
-    # def __deepcopy__(self, memo):
-    #     str = json.dumps(self)
-    #     return document(json.loads(str))

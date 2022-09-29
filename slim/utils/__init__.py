@@ -1,1 +1,2 @@
-from slim.utils.random import *
+from .document import Document
+from .random import *
