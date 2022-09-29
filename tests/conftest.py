@@ -12,17 +12,22 @@ from slim.types import Document
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
 
-TEST_TOKEN = f"{test_creds.project}:{test_creds.api_key}:{test_creds.api_key}:relevanceai-sdk-test-user"
 
-
-@pytest.fixture
+@pytest.fixture(scope="session")
 def test_token() -> str:
     return TEST_TOKEN
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def test_client(test_token: str):
     return Client(test_token)
+
+
+@pytest.fixture(scope="function")
+def test_dataset_id():
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    return dataset_id
 
 
 @pytest.fixture(scope="function")
