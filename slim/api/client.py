@@ -4,6 +4,8 @@ from slim.api.api import API
 from slim.api.helpers import process_token
 from slim.dataset.dataset import Dataset
 from slim.types import Schema
+from slim.errors import AuthException
+from slim.constants import WELCOME_MESSAGE
 
 
 class Client:
@@ -12,8 +14,15 @@ class Client:
         self._credentials = process_token(token)
         self._api = API(credentials=self._credentials)
 
+        try:
+            self.list_datasets()["datasets"]
+        except:
+            raise AuthException
+        else:
+            print(WELCOME_MESSAGE.format(self._credentials.project))
+
     def list_datasets(self):
-        return
+        return self._api._list_datasets()
 
     def create_dataset(
         self,
