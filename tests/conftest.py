@@ -49,7 +49,7 @@ def full_dataset(test_client: Client):
     test_client.delete_dataset(dataset_id)
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="class")
 def static_dataset(test_client: Client):
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"

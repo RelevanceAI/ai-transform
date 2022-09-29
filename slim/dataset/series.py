@@ -8,7 +8,10 @@ class Series:
     def __init__(self, dataset: Dataset, field: str):
         self._dataset = dataset
         self._field = field
-        self._dtype = dataset.schema[field]
+        if field != "_id":
+            self._dtype = dataset.schema[field]
+        else:
+            self._dtype = None
         self._filter_type = self._get_filter_type()
 
     def _get_filter_type(self) -> str:
@@ -16,6 +19,8 @@ class Series:
             filter_type = "numeric"
         elif self._dtype == "date":
             filter_type = "date"
+        elif self._dtype is None:
+            filter_type = "ids"
         else:
             filter_type = "exact_match"
         return filter_type
@@ -27,8 +32,6 @@ class Series:
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
-        if self._field == "_id":
-            filter_type == "ids"
         return [
             {
                 "field": self._field,

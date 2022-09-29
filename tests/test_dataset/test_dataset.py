@@ -28,6 +28,7 @@ class TestDataset:
         assert True
 
 
+@pytest.mark.usefixtures("static_dataset")
 class TestFilters:
     def test_equals(self, static_dataset: Dataset):
         filters = static_dataset["numeric_field"] == 5
@@ -75,3 +76,10 @@ class TestFilters:
         assert res["count"] == 2
         assert documents[0]["text_field"] == "3"
         assert documents[1]["text_field"] == "13"
+
+    def test_contains(self, static_dataset: Dataset):
+        res = static_dataset.get_documents(page_size=20)
+        _ids = list(map(lambda document: document["_id"], res["documents"]))
+        filters = static_dataset["_id"] == random.choice(_ids)
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        assert res["count"] == 1
