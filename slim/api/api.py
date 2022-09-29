@@ -50,7 +50,7 @@ class API:
         insert_date: bool = True,
         overwrite: bool = True,
         update_schema: bool = True,
-        wait_for_update: bool = False,
+        wait_for_update: bool = True,
         field_transformers: List[FieldTransformer] = None,
         ingest_in_background: bool = False,
     ) -> Any:

@@ -1,7 +1,7 @@
-from typing import List, Union
+from typing import Any, Dict, List
 
 from slim.api.api import API
-from slim.types import Document
+from slim.types import Document, Schema
 
 
 class Dataset:
@@ -9,18 +9,16 @@ class Dataset:
         self._api = api
         self._dataset_id = dataset_id
 
-    def __getitem__(self, index: Union[str, int]):
+    def __getitem__(self, index: str) -> Any:
         if isinstance(index, str):
             from slim.dataset.series import Series
 
             return Series(dataset=self, field=index)
-        elif isinstance(index, int):
-            return
         else:
-            raise NotImplementedError
+            raise NotImplementedError("index must of type `str` (field in dataset)")
 
     @property
-    def schema(self):
+    def schema(self) -> Schema:
         return self._api._get_schema(self._dataset_id)
 
     def create(self):
@@ -29,17 +27,21 @@ class Dataset:
     def delete(self):
         return self._api._delete_dataset(self._dataset_id)
 
-    def insert_documents(self, documents: List[Document], *args, **kwargs) -> None:
+    def insert_documents(
+        self, documents: List[Document], *args, **kwargs
+    ) -> Dict[str, Any]:
         return self._api._bulk_insert(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
 
-    def update_documents(self, documents: List[Document], *args, **kwargs) -> None:
+    def update_documents(
+        self, documents: List[Document], *args, **kwargs
+    ) -> Dict[str, Any]:
         return self._api._bulk_update(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
 
-    def get_documents(self, page_size: int, *args, **kwargs) -> None:
+    def get_documents(self, page_size: int, *args, **kwargs) -> Dict[str, Any]:
         return self._api._get_where(
             dataset_id=self._dataset_id, page_size=page_size, *args, **kwargs
         )

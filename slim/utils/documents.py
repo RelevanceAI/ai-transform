@@ -91,7 +91,9 @@ def vector_document(vector_length: int) -> Document:
     return document
 
 
-def mock_documents(
-    number_of_documents: int = 100, vector_length: int = 5
-) -> List[Document]:
-    return [vector_document(vector_length) for _ in range(number_of_documents)]
+def mock_documents(n: int = 100, vector_length: int = 5) -> List[Document]:
+    return [vector_document(vector_length) for _ in range(n)]
+
+
+def static_documents(n: int = 100) -> List[Document]:
+    return [{"text_field": str(i), "numeric_field": i} for i in range(n)]
