@@ -1,5 +1,6 @@
+import pytest
 import random
-from slim import Client
+
 from slim.dataset.dataset import Dataset
 from slim.utils import mock_documents
 
@@ -34,3 +35,35 @@ class TestFilters:
         documents = res["documents"]
         assert res["count"] == 1
         assert documents[0]["numeric_field"] == 5
+
+    @pytest.xfail(reason="api bug")
+    def test_less_than(self, static_dataset: Dataset):
+        filters = static_dataset["numeric_field"] < 5
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        assert res["count"] == 5
+
+    @pytest.xfail(reason="api bug")
+    def test_greater_than(self, static_dataset: Dataset):
+        filters = static_dataset["numeric_field"] > 5
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        assert res["count"] == 14
+
+    def test_less_than_equal_to(self, static_dataset: Dataset):
+        filters = static_dataset["numeric_field"] >= 5
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        assert res["count"] == 15
+
+    def test_greater_than_equal_to(self, static_dataset: Dataset):
+        filters = static_dataset["numeric_field"] <= 5
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        assert res["count"] == 6
+
+    def test_exists(self, static_dataset: Dataset):
+        filters = static_dataset["numeric_field"].exists()
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        assert res["count"] == 20
+
+    def test_not_exists(self, static_dataset: Dataset):
+        filters = static_dataset["numeric_field"].not_exists()
+        res = static_dataset.get_documents(page_size=20, filters=filters)
+        assert res["count"] == 0

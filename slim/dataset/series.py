@@ -97,7 +97,7 @@ class Series:
             {
                 "field": self._field,
                 "filter_type": filter_type,
-                "condition": ">",
+                "condition": ">=",
                 "condition_value": other,
             }
         ]
