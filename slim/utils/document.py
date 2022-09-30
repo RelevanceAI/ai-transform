@@ -4,7 +4,7 @@ from typing import Any
 
 
 class Document(dict):
-    def set(self, key: Any, value: Any) -> None:
+    def set(self, key: str, value: Any) -> None:
         try:
             fields = key.split(".")
             d = self
@@ -20,7 +20,7 @@ class Document(dict):
         except:
             return super().__setitem__(key, value)
 
-    def get(self, key: Any, default: Any = None) -> Any:
+    def get(self, key: str, default: Any = None) -> Any:
         try:
             return self[key]
         except KeyError:
