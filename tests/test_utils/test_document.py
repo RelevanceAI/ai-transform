@@ -31,3 +31,7 @@ class TestDocument:
         assert test_document.get("field1.feild2") != copy.get("field1.feild2")
         assert copy.get("field1.feild2") == 4
         assert copy.get("field3") == 4
+
+    def test_regular_dict(self, test_document: Document):
+        test_document.set("field1", 1)
+        assert test_document["field1"] == 1

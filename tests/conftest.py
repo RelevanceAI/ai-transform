@@ -1,3 +1,5 @@
+import base64
+import json
 import os
 import random
 import string
@@ -22,19 +24,19 @@ def test_token() -> str:
 
 
 @pytest.fixture(scope="session")
-def test_client(test_token: str):
+def test_client(test_token: str) -> Client:
     return Client(test_token)
 
 
 @pytest.fixture(scope="function")
-def test_dataset_id():
+def test_dataset_id() -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
     return dataset_id
 
 
 @pytest.fixture(scope="class")
-def empty_dataset(test_client: Client):
+def empty_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id)
@@ -43,7 +45,7 @@ def empty_dataset(test_client: Client):
 
 
 @pytest.fixture(scope="class")
-def full_dataset(test_client: Client):
+def full_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id)
@@ -53,7 +55,7 @@ def full_dataset(test_client: Client):
 
 
 @pytest.fixture(scope="class")
-def static_dataset(test_client: Client):
+def static_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id)
@@ -63,7 +65,7 @@ def static_dataset(test_client: Client):
 
 
 @pytest.fixture(scope="function")
-def test_document():
+def test_document() -> Document:
     raw_dict = {
         "field1": {"field2": 1},
         "field3": 3,
@@ -72,7 +74,7 @@ def test_document():
 
 
 @pytest.fixture(scope="function")
-def test_operator():
+def test_operator() -> AbstractOperator:
     class ExampleOperator(AbstractOperator):
         def transform(self, documents: List[Document]) -> List[Document]:
             """
@@ -88,7 +90,9 @@ def test_operator():
 
 
 @pytest.fixture(scope="function")
-def test_engine(full_dataset: Dataset, test_operator: AbstractOperator):
+def test_engine(
+    full_dataset: Dataset, test_operator: AbstractOperator
+) -> AbstractEngine:
     class TestEngine(AbstractEngine):
         def apply(self) -> Any:
 
@@ -100,3 +104,16 @@ def test_engine(full_dataset: Dataset, test_operator: AbstractOperator):
             return
 
     return TestEngine(full_dataset, test_operator)
+
+
+@pytest.fixture(scope="session")
+def test_workflow_token() -> str:
+    config = dict(
+        authorizationToken=os.getenv("TOKEN"),
+        dataset_id="test_dataset",
+        field="feild1.field2",
+    )
+    string = f"{json.dumps(config)}"
+    bytes = string.encode()
+    token = base64.b64encode(bytes).decode()
+    return token
