@@ -42,10 +42,12 @@ import random
 import string
 
 from typing import List
-from slim.types import Vector, Document
+from slim.types import Vector
+from slim.utils import Document
 
 
 def generate_random_string(string_length: int = 5) -> str:
+
     """Generate a random string of letters and numbers"""
     return "".join(
         random.choice(string.ascii_uppercase + string.digits)
@@ -88,7 +90,7 @@ def vector_document(vector_length: int) -> Document:
         ],
     }
 
-    return document
+    return Document(document)
 
 
 def mock_documents(n: int = 100, vector_length: int = 5) -> List[Document]:
