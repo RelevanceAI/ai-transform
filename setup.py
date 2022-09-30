@@ -2,7 +2,6 @@ from setuptools import find_packages, setup
 
 from slim import __version__
 
-
 requirements = [
     "tqdm>=4.49.0",
     "pandas>=1.5.0",
