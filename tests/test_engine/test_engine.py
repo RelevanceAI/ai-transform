@@ -29,3 +29,12 @@ class TestAbstractEngine:
             engine = ExampleEngine(full_dataset, test_operator)
         except:
             assert True
+
+    def test_engine_select_fields(
+        self, full_dataset: Dataset, test_operator: AbstractOperator
+    ):
+        class ExampleEngine(AbstractEngine):
+            def apply(self) -> Any:
+                return
+
+        engine = ExampleEngine(full_dataset, test_operator, select_fields=[""])
