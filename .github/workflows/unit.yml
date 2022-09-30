@@ -12,12 +12,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
+        env:
+          python-version: ${{ matrix.python-version }}
         run: |
           python -c "import sys; print(sys.version)"
           python -m pip install --upgrade pip
@@ -28,7 +31,6 @@ jobs:
         env:
           TEST_TOKEN: ${{ secrets.TEST_TOKEN }}
           python-version: ${{ matrix.python-version }}
-
         run: |
           python -c "import sys; print(sys.version)"
           python -m pytest tests
