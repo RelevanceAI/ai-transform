@@ -1,13 +1,16 @@
-from copy import deepcopy
+import base64
+import json
 import os
 
+from copy import deepcopy
 from typing import Any, List
 
 from slim.api import Client
-from slim.engines import AbstractEngine
+from slim.engine import AbstractEngine
 from slim.workflow import AbstractWorkflow
 from slim.operator import AbstractOperator
 from slim.utils import Document
+from slim.workflow.helpers import decode_workflow_token
 
 TOKEN = os.getenv("TOKEN")
 
@@ -56,11 +59,17 @@ class ExampleWorkflow(AbstractWorkflow):
         print("Finished Workflow")
 
 
-def main():
-    client = Client(token=TOKEN)
+def main(token: str):
+    config = decode_workflow_token(token)
 
-    dataset = client.Dataset("test_dataset")
-    operator = ExampleOperator(field="new_field1.new_field2")
+    token = config["authorizationToken"]
+    datatset_id = config["dataset_id"]
+    field = config["field"]
+
+    client = Client(token=token)
+
+    dataset = client.Dataset(datatset_id)
+    operator = ExampleOperator(field=field)
 
     engine = ExampleEngine(dataset=dataset, operator=operator)
 
@@ -69,4 +78,12 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    config = dict(
+        authorizationToken=os.getenv("TOKEN"),
+        dataset_id="test_dataset",
+        field="feild1.field2",
+    )
+    string = f"{json.dumps(config)}"
+    bytes = string.encode()
+    token = base64.b64encode(bytes).decode()
+    main(token)

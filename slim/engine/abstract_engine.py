@@ -19,12 +19,19 @@ class AbstractEngine(ABC):
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
     ):
+        if select_fields is not None:
+            assert all(
+                field in dataset.schema for field in select_fields
+            ), "Some fields not in dataset schema"
         self._dataset = dataset
-        self._operator = operator
+        self._select_fields = select_fields
+
+        assert chunksize > 0, "Chunksize should be a Positive Integer"
+        self._chunksize = chunksize
 
         self._filters = filters
-        self._select_fields = select_fields
-        self._chunksize = chunksize
+        self._operator = operator
+
         self._refresh = refresh
         self._after_id = after_id
 

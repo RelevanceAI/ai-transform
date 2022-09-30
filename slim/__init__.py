@@ -1,7 +1,7 @@
 from slim.api import *
 from slim.dataset import *
 from slim.operator import *
-from slim.engines import *
+from slim.engine import *
 from slim.workflow import *
 from slim.utils import *
 

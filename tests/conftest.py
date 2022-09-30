@@ -3,8 +3,13 @@ import random
 import string
 import pytest
 
-from slim.api import Client, process_token
+from typing import Any, List, Optional
+
+from slim import Client, Dataset
+from slim.api import process_token
 from slim.utils import Document, mock_documents, static_documents
+from slim.operator import AbstractOperator
+from slim.engine import AbstractEngine
 
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
@@ -64,3 +69,37 @@ def test_document():
         "field3": 3,
     }
     return Document(raw_dict)
+
+
+@pytest.fixture(scope="function")
+def test_operator():
+    class ExampleOperator(AbstractOperator):
+        def __init__(self, field: Optional[str] = None):
+            self._field = field
+
+        def transform(self, documents: List[Document]) -> List[Document]:
+            """
+            Main transform function
+            """
+
+            for document in documents:
+                document.set(self._field, document.get(self._field) + 1)
+
+            return documents
+
+    return ExampleOperator()
+
+
+@pytest.fixture(scope="function")
+def test_engine(full_dataset: Dataset, test_operator: AbstractOperator):
+    class TestEngine(AbstractEngine):
+        def apply(self) -> Any:
+
+            for _ in range(self.nb):
+                batch = self.get_chunk()
+                new_batch = self.operator(batch)
+                self.update_chunk(new_batch)
+
+            return
+
+    return TestEngine(full_dataset, test_operator)

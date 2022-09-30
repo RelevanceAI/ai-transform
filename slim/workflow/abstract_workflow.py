@@ -1,6 +1,6 @@
 from typing import Any
 
-from slim.engines import AbstractEngine
+from slim.engine import AbstractEngine
 
 
 class AbstractWorkflow:

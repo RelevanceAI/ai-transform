@@ -1,1 +1,2 @@
-from slim.workflow.abstract_workflow import AbstractWorkflow
+from .abstract_workflow import AbstractWorkflow
+from .helpers import *
