@@ -74,16 +74,13 @@ def test_document():
 @pytest.fixture(scope="function")
 def test_operator():
     class ExampleOperator(AbstractOperator):
-        def __init__(self, field: Optional[str] = None):
-            self._field = field
-
         def transform(self, documents: List[Document]) -> List[Document]:
             """
             Main transform function
             """
 
             for document in documents:
-                document.set(self._field, document.get(self._field) + 1)
+                document.set("new_field", 3)
 
             return documents
 

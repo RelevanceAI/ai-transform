@@ -21,7 +21,9 @@ class AbstractEngine(ABC):
     ):
         if select_fields is not None:
             assert all(
-                field in dataset.schema for field in select_fields
+                field in dataset.schema
+                for field in select_fields
+                if field not in {"_id", "insert_date_"}
             ), "Some fields not in dataset schema"
         self._dataset = dataset
         self._select_fields = select_fields

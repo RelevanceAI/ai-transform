@@ -17,7 +17,10 @@ class TestAbstractEngine:
                 return
 
         engine = ExampleEngine(full_dataset, test_operator)
-        assert True
+
+        assert engine.nb > 0
+        assert isinstance(engine.operator, AbstractOperator)
+        assert len(ExampleEngine.__abstractmethods__) == 0
 
     def test_engine_abstract(
         self, full_dataset: Dataset, test_operator: AbstractOperator
@@ -37,4 +40,5 @@ class TestAbstractEngine:
             def apply(self) -> Any:
                 return
 
-        engine = ExampleEngine(full_dataset, test_operator, select_fields=[""])
+        engine = ExampleEngine(full_dataset, test_operator, select_fields=["_id"])
+        assert True
