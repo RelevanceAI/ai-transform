@@ -9,7 +9,7 @@ class TestAbstractEngine:
         class ExampleEngine(AbstractEngine):
             def apply(self) -> Any:
 
-                for _ in range(self.nb):
+                for _ in range(self.num_chunks):
                     batch = self.get_chunk()
                     new_batch = self.operator(batch)
                     self.update_chunk(new_batch)
@@ -18,7 +18,7 @@ class TestAbstractEngine:
 
         engine = ExampleEngine(full_dataset, test_operator)
 
-        assert engine.nb > 0
+        assert engine.num_chunks > 0
         assert isinstance(engine.operator, AbstractOperator)
         assert len(ExampleEngine.__abstractmethods__) == 0
 

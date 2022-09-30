@@ -96,9 +96,8 @@ def test_engine(
     class TestEngine(AbstractEngine):
         def apply(self) -> Any:
 
-            for _ in range(self.nb):
-                batch = self.get_chunk()
-                new_batch = self.operator(batch)
+            for chunk in self.iterate():
+                new_batch = self.operator(chunk)
                 self.update_chunk(new_batch)
 
             return

@@ -1,11 +1,16 @@
+import pandas as pd
+import pyarrow as pa
+
+from ray.data.block import Block
+
 from copy import deepcopy
 from abc import ABC, abstractmethod
 
 from typing import List
-from slim.utils import Document
+from slim.utils import Document, DocumentUtils
 
 
-class AbstractOperator(ABC):
+class AbstractOperator(ABC, DocumentUtils):
     @abstractmethod
     def transform(self, documents: List[Document]) -> List[Document]:
         """
@@ -21,8 +26,7 @@ class AbstractOperator(ABC):
 
     @staticmethod
     def _postprocess(
-        new_batch: List[Document],
-        old_batch: List[Document],
+        new_batch: List[Document], old_batch: List[Document]
     ) -> List[Document]:
         """
         Removes fields from `new_batch` that are present in the `old_keys` list.
@@ -42,3 +46,13 @@ class AbstractOperator(ABC):
             batch.append(pp_document)
 
         return batch
+
+
+class AbstractRayOperator(AbstractOperator):
+    def __call__(self, batch: pd.DataFrame) -> Block:
+        old_documents = batch.to_dict("records")
+        new_documents = [Document(document) for document in deepcopy(old_documents)]
+        self.transform(new_documents)
+        new_documents = AbstractOperator._postprocess(new_documents, old_documents)
+        new_documents = [dict(document) for document in deepcopy(old_documents)]
+        return pa.Table.from_pylist(new_documents)

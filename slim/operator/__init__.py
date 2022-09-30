@@ -1,1 +1,1 @@
-from slim.operator.abstract_operator import AbstractOperator
+from slim.operator.abstract_operator import *

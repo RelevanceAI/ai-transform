@@ -38,11 +38,11 @@ class AbstractEngine(ABC):
         self._after_id = after_id
 
         self._size = dataset.len(filters=filters)
-        self._nb = math.ceil(self._size / chunksize)
+        self._num_chunks = math.ceil(self._size / chunksize)
 
     @property
-    def nb(self):
-        return self._nb
+    def num_chunks(self):
+        return self._num_chunks
 
     @property
     def operator(self):
@@ -52,6 +52,14 @@ class AbstractEngine(ABC):
     def dataset(self):
         return self._dataset
 
+    @property
+    def chunksize(self):
+        return self._chunksize
+
+    @property
+    def size(self):
+        return self._size
+
     @abstractmethod
     def apply(self, operator: AbstractOperator) -> Any:
         raise NotImplementedError
@@ -59,15 +67,24 @@ class AbstractEngine(ABC):
     def __call__(self, operator: AbstractOperator) -> Any:
         raise self.apply(operator)
 
-    def get_chunk(self):
-        chunk = self._dataset.get_documents(
-            self._chunksize,
-            filters=self._filters,
-            select_fields=self._select_fields,
-            after_id=self._after_id,
-        )
-        self._after_id = chunk["after_id"]
-        return chunk["documents"]
+    def iterate(
+        self,
+        filters: Optional[List[Filter]] = None,
+        select_fields: Optional[List[str]] = None,
+    ):
+        while True:
+            chunk = self._dataset.get_documents(
+                self._chunksize,
+                filters=filters if filters is not None else self._filters,
+                select_fields=select_fields
+                if select_fields is not None
+                else self._select_fields,
+                after_id=self._after_id,
+            )
+            self._after_id = chunk["after_id"]
+            if not chunk["documents"]:
+                break
+            yield chunk["documents"]
 
     def update_chunk(self, chunk: List[Document]):
         return self._dataset.update_documents(documents=chunk)

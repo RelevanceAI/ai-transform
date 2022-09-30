@@ -1,21 +1,24 @@
-import base64
-import json
 import os
+import json
+import base64
+from typing import List
 
-from copy import deepcopy
-from typing import Any, List
+import pandas as pd
+import pyarrow as pa
+
+from ray.data.block import Block
 
 from slim.api import Client
-from slim.engine import AbstractEngine
+from slim.engine import RayEngine
+from slim.operator import AbstractRayOperator
 from slim.workflow import AbstractWorkflow
-from slim.operator import AbstractOperator
 from slim.utils import Document
 from slim.workflow.helpers import decode_workflow_token
 
 TOKEN = os.getenv("TOKEN")
 
 
-class ExampleOperator(AbstractOperator):
+class RayOperator(AbstractRayOperator):
     def __init__(self, field: str):
         self._field = field
 
@@ -24,23 +27,9 @@ class ExampleOperator(AbstractOperator):
         Main transform function
         """
         for document in documents:
-            before = deepcopy(document)
-            document.set(self._field, document.get(self._field) / 2)
-            after = document
-            print(before.get(self._field), after.get(self._field))
+            document.set(self._field, document.get(self._field) + 1)
 
         return documents
-
-
-class ExampleEngine(AbstractEngine):
-    def apply(self) -> Any:
-
-        iterator = self.iterate()
-        for chunk in iterator:
-            new_batch = self.operator(chunk)
-            self.update_chunk(new_batch)
-
-        return
 
 
 class ExampleWorkflow(AbstractWorkflow):
@@ -69,9 +58,9 @@ def main(token: str):
     client = Client(token=token)
 
     dataset = client.Dataset(datatset_id)
-    operator = ExampleOperator(field=field)
+    operator = RayOperator(field=field)
 
-    engine = ExampleEngine(dataset=dataset, operator=operator)
+    engine = RayEngine(dataset=dataset, operator=operator)
 
     workflow = ExampleWorkflow(engine)
     workflow.run()
