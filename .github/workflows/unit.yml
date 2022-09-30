@@ -17,8 +17,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install .[tests]
+          python -c "import sys; print(sys.version)"
+          python -m pip install --upgrade pip
+          python -m pip install .
+          python -m pip install .[tests]
 
       - name: Run Unit Tests (pytest)
         env:
@@ -27,4 +29,4 @@ jobs:
 
         run: |
           python -c "import sys; print(sys.version)"
-          pytest tests
+          python -m pytest tests
