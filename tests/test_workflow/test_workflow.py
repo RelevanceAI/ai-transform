@@ -10,7 +10,7 @@ class TestWorkflow:
 
         workflow = ExampleWorkflow(test_engine)
         res = workflow.run()
-        assert res == 0
+        assert res is None
 
 
 class TestHelpers:
