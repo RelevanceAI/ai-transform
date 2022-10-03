@@ -35,4 +35,4 @@ class AbstractWorkflow:
         self.pre_hook()
         self.engine.apply()
         self.post_hook()
-        return 0
+        return

@@ -6,7 +6,7 @@ from copy import deepcopy
 from typing import Any, List
 
 from slim.api import Client
-from slim.engine import AbstractEngine
+from slim.engine import StableEngine
 from slim.workflow import AbstractWorkflow
 from slim.operator import AbstractOperator
 from slim.utils import Document
@@ -24,23 +24,12 @@ class ExampleOperator(AbstractOperator):
         Main transform function
         """
         for document in documents:
-            before = deepcopy(document)
-            document.set(self._field, document.get(self._field) / 2)
+            before = document.get(self._field)
+            document.set(self._field, document.get(self._field) * 2)
             after = document
-            print(before.get(self._field), after.get(self._field))
+            print(before, after.get(self._field))
 
         return documents
-
-
-class ExampleEngine(AbstractEngine):
-    def apply(self) -> Any:
-
-        iterator = self.iterate()
-        for chunk in iterator:
-            new_batch = self.operator(chunk)
-            self.update_chunk(new_batch)
-
-        return
 
 
 class ExampleWorkflow(AbstractWorkflow):
@@ -49,13 +38,13 @@ class ExampleWorkflow(AbstractWorkflow):
         Optional Method
         """
         print("Starting Workflow")
-        print(f"Using {type(self.operator).__name__} as Operator")
+        print(f"Using `{type(self.operator).__name__}` as Operator")
 
     def post_hook(self):
         """
         Optional Method
         """
-        print(f"Dataset has {len(self.dataset)} documents")
+        print(f"Dataset has `{len(self.dataset)}` documents")
         print("Finished Workflow")
 
 
@@ -71,7 +60,7 @@ def main(token: str):
     dataset = client.Dataset(datatset_id)
     operator = ExampleOperator(field=field)
 
-    engine = ExampleEngine(dataset=dataset, operator=operator)
+    engine = StableEngine(dataset=dataset, operator=operator)
 
     workflow = ExampleWorkflow(engine)
     workflow.run()
