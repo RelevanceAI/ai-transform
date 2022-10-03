@@ -22,14 +22,13 @@ class RayOperator(AbstractRayOperator):
     def __init__(self, field: str):
         self._field = field
 
-    def transform(self, documents: List[Document]) -> List[Document]:
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Main transform function
         """
-        for document in documents:
-            document.set(self._field, document.get(self._field) + 1)
+        df[self._field] += 1
 
-        return documents
+        return df
 
 
 class ExampleWorkflow(AbstractWorkflow):

@@ -50,9 +50,15 @@ class AbstractOperator(ABC, DocumentUtils):
 
 class AbstractRayOperator(AbstractOperator):
     def __call__(self, batch: pd.DataFrame) -> Block:
-        old_documents = batch.to_dict("records")
-        new_documents = [Document(document) for document in deepcopy(old_documents)]
-        self.transform(new_documents)
-        new_documents = AbstractOperator._postprocess(new_documents, old_documents)
-        new_documents = [dict(document) for document in deepcopy(old_documents)]
-        return pa.Table.from_pylist(new_documents)
+        batch = pd.json_normalize(batch.to_dict("records"))
+        old = batch.copy()
+        new = self.transform(batch)
+        new = self._postprocess(new, old)
+        return pa.Table.from_pandas(new)
+
+    @staticmethod
+    def _postprocess(new: pd.DataFrame, old: pd.DataFrame):
+        import pdb
+
+        pdb.set_trace()
+        return new
