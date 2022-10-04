@@ -4,7 +4,7 @@ from core import __version__
 
 requirements = [
     "tqdm>=4.49.0",
-    "numpy==1.23.3",
+    "numpy>=1.19.0",
     "pandas>=1.0.0",
     "requests>=2.0.0",
     "pytest==7.1.3",
