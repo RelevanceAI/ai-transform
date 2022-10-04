@@ -70,11 +70,13 @@ class AbstractEngine(ABC):
         return self._size
 
     @abstractmethod
-    def apply(self, operator: AbstractOperator) -> Any:
+    def apply(self) -> Any:
         raise NotImplementedError
 
-    def __call__(self, operator: AbstractOperator) -> Any:
-        raise self.apply(operator)
+    def __call__(self) -> Any:
+        self.operator.pre_hooks(self._dataset)
+        self.apply()
+        self.operator.post_hooks(self._dataset)
 
     def iterate(
         self,

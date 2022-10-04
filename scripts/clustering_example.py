@@ -6,6 +6,7 @@ import numpy as np
 from typing import List, Optional
 
 from workflows_core.api.client import Client
+from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.stable_engine import StableEngine
 
 from workflows_core.utils.random import mock_documents
@@ -48,35 +49,25 @@ class ClusterOperator(AbstractOperator):
 
         return documents
 
-
-class ClusterWorkflow(AbstractWorkflow):
-    operator: ClusterOperator
-
-    def pre_hook(self):
+    def post_hooks(self, dataset: Dataset):
         """
-        Optional Method
-        """
-        print("Starting Workflow")
-        print(f"Using `{type(self.operator).__name__}` as Operator")
-
-    def post_hook(self):
-        """
-        Optional Method
+        Insert the centroids after clustering
         """
         centroid_documents = [
             dict(_id=f"cluster_{_id}", centroid_vector=centroid_vector)
-            for _id, centroid_vector in enumerate(
-                self.operator._model.cluster_centers_.tolist()
-            )
+            for _id, centroid_vector in enumerate(self._model.cluster_centers_.tolist())
         ]
 
-        alias = self.operator._alias
-        vector_field = self.operator._vector_field
+        alias = self._alias
+        vector_field = self._vector_field
 
-        self.dataset[vector_field].insert_centroids(
+        dataset[vector_field].insert_centroids(
             centroid_documents=centroid_documents, alias=alias
         )
-        print(f"Successfully inserted `{len(centroid_documents)}` centroids")
+
+
+class ClusterWorkflow(AbstractWorkflow):
+    pass
 
 
 def main(token: str):
