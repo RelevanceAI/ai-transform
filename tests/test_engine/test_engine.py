@@ -9,9 +9,9 @@ class TestAbstractEngine:
         class ExampleEngine(AbstractEngine):
             def apply(self) -> Any:
 
-                for _ in range(self.num_chunks):
-                    batch = self.get_chunk()
-                    new_batch = self.operator(batch)
+                iterator = self.iterate()
+                for chunk in iterator:
+                    new_batch = self.operator(chunk)
                     self.update_chunk(new_batch)
 
                 return
