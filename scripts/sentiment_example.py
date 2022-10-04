@@ -70,20 +70,7 @@ class SentimentOperator(AbstractOperator):
 
 
 class SentimentWorkflow(AbstractWorkflow):
-    operator: SentimentOperator
-
-    def pre_hook(self):
-        """
-        Optional Method
-        """
-        print("Starting Workflow")
-        print(f"Using `{type(self.operator).__name__}` as Operator")
-
-    def post_hook(self):
-        """
-        Optional Method
-        """
-        print("Finished Workflow!")
+    pass
 
 
 def main(token: str):
