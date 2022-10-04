@@ -6,7 +6,6 @@ import base64
 from typing import List, Optional
 
 from core.api.client import Client
-from core.dataset.dataset import Dataset
 from core.engine.stable_engine import StableEngine
 
 from core.utils.random import mock_documents
