@@ -1,4 +1,4 @@
-from slim import Client
+from core import Client
 
 
 class TestClient:

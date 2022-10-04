@@ -42,8 +42,8 @@ import random
 import string
 
 from typing import List
-from slim.types import Vector
-from slim.utils import Document
+from core.types import Vector
+from core.utils import Document
 
 
 def generate_random_string(string_length: int = 5) -> str:

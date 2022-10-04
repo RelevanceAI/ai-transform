@@ -2,10 +2,10 @@ from copy import deepcopy
 from abc import ABC, abstractmethod
 
 from typing import List
-from slim.utils import Document
+from core.utils import Document, DocumentUtils
 
 
-class AbstractOperator(ABC):
+class AbstractOperator(ABC, DocumentUtils):
     @abstractmethod
     def transform(self, documents: List[Document]) -> List[Document]:
         """
@@ -21,8 +21,7 @@ class AbstractOperator(ABC):
 
     @staticmethod
     def _postprocess(
-        new_batch: List[Document],
-        old_batch: List[Document],
+        new_batch: List[Document], old_batch: List[Document]
     ) -> List[Document]:
         """
         Removes fields from `new_batch` that are present in the `old_keys` list.

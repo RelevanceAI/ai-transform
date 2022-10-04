@@ -1,8 +1,8 @@
 from typing import Any, Dict, List
 
-from slim.api.api import API
-from slim.types import Schema
-from slim.utils import Document
+from core.api.api import API
+from core.types import Schema
+from core.utils import Document
 
 
 class Dataset:
@@ -12,7 +12,7 @@ class Dataset:
 
     def __getitem__(self, index: str) -> Any:
         if isinstance(index, str):
-            from slim.dataset.series import Series
+            from core.dataset.series import Series
 
             return Series(dataset=self, field=index)
         else:

@@ -1,6 +1,6 @@
 from typing import Any
 
-from slim.engine import AbstractEngine
+from core.engine import AbstractEngine
 
 
 class AbstractWorkflow:
@@ -35,4 +35,4 @@ class AbstractWorkflow:
         self.pre_hook()
         self.engine.apply()
         self.post_hook()
-        return 0
+        return

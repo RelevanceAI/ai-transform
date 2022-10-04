@@ -1,4 +1,4 @@
-from slim.types import Credentials
+from core.types import Credentials
 
 
 def process_token(token: str) -> Credentials:

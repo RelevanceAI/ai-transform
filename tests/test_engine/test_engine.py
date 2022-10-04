@@ -1,7 +1,8 @@
 from typing import Any
-from slim.dataset import Dataset
-from slim.operator import AbstractOperator
-from slim.engine import AbstractEngine
+
+from core.dataset import Dataset
+from core.operator import AbstractOperator
+from core.engine import AbstractEngine
 
 
 class TestAbstractEngine:
@@ -9,16 +10,16 @@ class TestAbstractEngine:
         class ExampleEngine(AbstractEngine):
             def apply(self) -> Any:
 
-                for _ in range(self.nb):
-                    batch = self.get_chunk()
-                    new_batch = self.operator(batch)
+                iterator = self.iterate()
+                for chunk in iterator:
+                    new_batch = self.operator(chunk)
                     self.update_chunk(new_batch)
 
                 return
 
         engine = ExampleEngine(full_dataset, test_operator)
 
-        assert engine.nb > 0
+        assert engine.num_chunks > 0
         assert isinstance(engine.operator, AbstractOperator)
         assert len(ExampleEngine.__abstractmethods__) == 0
 

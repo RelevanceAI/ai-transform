@@ -48,3 +48,7 @@ class Document(dict):
             return key in self.keys()
         except:
             return super().__contains__(key)
+
+
+class DocumentUtils:
+    pass

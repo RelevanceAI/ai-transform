@@ -1,8 +1,8 @@
 import pytest
 import random
 
-from slim.dataset import Dataset
-from slim.utils import mock_documents
+from core.dataset import Dataset
+from core.utils import mock_documents
 
 
 @pytest.mark.usefixtures("empty_dataset")

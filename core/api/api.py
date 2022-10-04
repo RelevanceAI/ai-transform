@@ -2,8 +2,8 @@ import requests
 
 from typing import Any, Dict, List, Optional
 
-from slim.utils import Document
-from slim.types import Credentials, FieldTransformer, Filter, Schema
+from core.utils import Document
+from core.types import Credentials, FieldTransformer, Filter, Schema
 
 
 class API:

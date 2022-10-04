@@ -1,17 +1,17 @@
-import base64
-import json
 import os
+import json
+import base64
 import random
 import string
 import pytest
 
-from typing import Any, List, Optional
+from typing import Any, List
 
-from slim import Client, Dataset
-from slim.api import process_token
-from slim.utils import Document, mock_documents, static_documents
-from slim.operator import AbstractOperator
-from slim.engine import AbstractEngine
+from core import Client, Dataset
+from core.api import process_token
+from core.utils import Document, mock_documents, static_documents
+from core.operator import AbstractOperator
+from core.engine import AbstractEngine
 
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
@@ -96,9 +96,8 @@ def test_engine(
     class TestEngine(AbstractEngine):
         def apply(self) -> Any:
 
-            for _ in range(self.nb):
-                batch = self.get_chunk()
-                new_batch = self.operator(batch)
+            for chunk in self.iterate():
+                new_batch = self.operator(chunk)
                 self.update_chunk(new_batch)
 
             return

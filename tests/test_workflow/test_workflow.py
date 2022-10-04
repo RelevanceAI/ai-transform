@@ -1,6 +1,6 @@
-from slim.engine import AbstractEngine
-from slim.workflow import AbstractWorkflow
-from slim.workflow.helpers import decode_workflow_token
+from core.engine import AbstractEngine
+from core.workflow import AbstractWorkflow
+from core.workflow.helpers import decode_workflow_token
 
 
 class TestWorkflow:
@@ -10,7 +10,7 @@ class TestWorkflow:
 
         workflow = ExampleWorkflow(test_engine)
         res = workflow.run()
-        assert res == 0
+        assert res is None
 
 
 class TestHelpers:

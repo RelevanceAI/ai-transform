@@ -1,7 +1,7 @@
 from typing import Optional, Union
 
-from slim.types import Filter
-from slim.dataset.dataset import Dataset
+from core.types import Filter
+from core.dataset.dataset import Dataset
 
 
 class Series:

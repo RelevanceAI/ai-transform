@@ -4,10 +4,10 @@ Run this file if you want to generate coverage.cfg and you want to exclude many 
 
 RUN_EXCLUDE = [
     "*__init__.py",
-    "slim/api/api.py",
-    "slim/api/endpoints.py",
-    "slim/constants.py",
-    "slim/types.py",
+    "core/api/api.py",
+    "core/api/endpoints.py",
+    "core/constants.py",
+    "core/types.py",
 ]
 REPORT_EXCLUDE = RUN_EXCLUDE
 

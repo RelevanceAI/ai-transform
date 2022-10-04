@@ -1,35 +1,34 @@
-import base64
-import json
 import os
+import json
+import base64
+from typing import List
 
-from copy import deepcopy
-from typing import Any, List
+import pandas as pd
+import pyarrow as pa
+
+from ray.data.block import Block
 
 from core.api import Client
-from core.engine import StableEngine
+from core.engine import RayEngine
+from core.operator import AbstractRayOperator
 from core.workflow import AbstractWorkflow
-from core.operator import AbstractOperator
 from core.utils import Document
 from core.workflow.helpers import decode_workflow_token
 
 TOKEN = os.getenv("TOKEN")
 
 
-class ExampleOperator(AbstractOperator):
+class RayOperator(AbstractRayOperator):
     def __init__(self, field: str):
         self._field = field
 
-    def transform(self, documents: List[Document]) -> List[Document]:
+    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Main transform function
         """
-        for document in documents:
-            before = document.get(self._field)
-            document.set(self._field, document.get(self._field) * 2)
-            after = document
-            print(before, after.get(self._field))
+        df[self._field] += 1
 
-        return documents
+        return df
 
 
 class ExampleWorkflow(AbstractWorkflow):
@@ -38,13 +37,13 @@ class ExampleWorkflow(AbstractWorkflow):
         Optional Method
         """
         print("Starting Workflow")
-        print(f"Using `{type(self.operator).__name__}` as Operator")
+        print(f"Using {type(self.operator).__name__} as Operator")
 
     def post_hook(self):
         """
         Optional Method
         """
-        print(f"Dataset has `{len(self.dataset)}` documents")
+        print(f"Dataset has {len(self.dataset)} documents")
         print("Finished Workflow")
 
 
@@ -58,9 +57,9 @@ def main(token: str):
     client = Client(token=token)
 
     dataset = client.Dataset(datatset_id)
-    operator = ExampleOperator(field=field)
+    operator = RayOperator(field=field)
 
-    engine = StableEngine(dataset=dataset, operator=operator)
+    engine = RayEngine(dataset=dataset, operator=operator)
 
     workflow = ExampleWorkflow(engine)
     workflow.run()
