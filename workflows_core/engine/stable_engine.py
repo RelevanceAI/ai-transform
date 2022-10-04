@@ -6,17 +6,17 @@ from tqdm.auto import tqdm
 
 
 class StableEngine(AbstractEngine):
-    def __init__(self, show_progress_bar: bool = True, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self._show_progress_bar = show_progress_bar
+        self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
     def apply(self) -> Any:
 
         iterator = self.iterate()
 
         for chunk in tqdm(
-            iterator, disable=(not self._show_progress_bar), total=len(iterator)
+            iterator, disable=(not self._show_progress_bar), total=self.num_chunks
         ):
             new_batch = self.operator(chunk)
             self.update_chunk(new_batch)
