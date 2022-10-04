@@ -14,7 +14,10 @@ class StableEngine(AbstractEngine):
     def apply(self) -> Any:
 
         iterator = self.iterate()
-        for chunk in tqdm(iterator, disable=(not self._show_progress_bar)):
+
+        for chunk in tqdm(
+            iterator, disable=(not self._show_progress_bar), total=len(iterator)
+        ):
             new_batch = self.operator(chunk)
             self.update_chunk(new_batch)
 
