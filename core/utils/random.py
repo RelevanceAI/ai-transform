@@ -43,7 +43,7 @@ import string
 
 from typing import List
 from core.types import Vector
-from core.utils import Document
+from core.utils.document import Document
 
 
 def generate_random_string(string_length: int = 5) -> str:

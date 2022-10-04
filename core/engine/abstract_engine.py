@@ -1,11 +1,13 @@
 import math
+import warnings
+
 from typing import Any, List, Optional
 from abc import ABC, abstractmethod
 
 from core.types import Filter
-from core.dataset import Dataset
-from core.operator import AbstractOperator
-from core.utils import Document
+from core.dataset.dataset import Dataset
+from core.operator.abstract_operator import AbstractOperator
+from core.utils.document import Document
 
 
 class AbstractEngine(ABC):
@@ -15,7 +17,7 @@ class AbstractEngine(ABC):
         operator: AbstractOperator,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
-        chunksize: int = 8,
+        chunksize: Optional[int] = 8,
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
     ):
@@ -25,11 +27,21 @@ class AbstractEngine(ABC):
                 for field in select_fields
                 if field not in {"_id", "insert_date_"}
             ), "Some fields not in dataset schema"
+
         self._dataset = dataset
         self._select_fields = select_fields
+        self._size = dataset.len(filters=filters)
 
-        assert chunksize > 0, "Chunksize should be a Positive Integer"
-        self._chunksize = chunksize
+        if isinstance(chunksize, int):
+            assert chunksize > 0, "Chunksize should be a Positive Integer"
+            self._chunksize = chunksize
+            self._num_chunks = math.ceil(self._size / chunksize)
+        else:
+            warnings.warn(
+                f"`chunksize=None` assumes the operation transforms on the entire dataset at once"
+            )
+            self._chunksize = self._size
+            self._num_chunks = 1
 
         self._filters = filters
         self._operator = operator
@@ -37,27 +49,24 @@ class AbstractEngine(ABC):
         self._refresh = refresh
         self._after_id = after_id
 
-        self._size = dataset.len(filters=filters)
-        self._num_chunks = math.ceil(self._size / chunksize)
-
     @property
-    def num_chunks(self):
+    def num_chunks(self) -> int:
         return self._num_chunks
 
     @property
-    def operator(self):
+    def operator(self) -> AbstractOperator:
         return self._operator
 
     @property
-    def dataset(self):
+    def dataset(self) -> Dataset:
         return self._dataset
 
     @property
-    def chunksize(self):
+    def chunksize(self) -> int:
         return self._chunksize
 
     @property
-    def size(self):
+    def size(self) -> int:
         return self._size
 
     @abstractmethod

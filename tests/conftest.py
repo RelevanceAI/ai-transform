@@ -7,11 +7,13 @@ import pytest
 
 from typing import Any, List
 
-from core import Client, Dataset
-from core.api import process_token
-from core.utils import Document, mock_documents, static_documents
-from core.operator import AbstractOperator
-from core.engine import AbstractEngine
+from core.api.client import Client
+from core.dataset.dataset import Dataset
+from core.api.helpers import process_token
+from core.utils.document import Document
+from core.utils.random import mock_documents, static_documents
+from core.operator.abstract_operator import AbstractOperator
+from core.engine.abstract_engine import AbstractEngine
 
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")

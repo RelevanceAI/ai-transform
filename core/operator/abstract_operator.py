@@ -2,7 +2,7 @@ from copy import deepcopy
 from abc import ABC, abstractmethod
 
 from typing import List
-from core.utils import Document, DocumentUtils
+from core.utils.document import Document, DocumentUtils
 
 
 class AbstractOperator(ABC, DocumentUtils):

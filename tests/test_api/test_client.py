@@ -1,4 +1,4 @@
-from core import Client
+from core.api.client import Client
 
 
 class TestClient:

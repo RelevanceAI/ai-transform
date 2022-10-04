@@ -2,7 +2,7 @@ from typing import Optional
 
 from core.api.api import API
 from core.api.helpers import process_token
-from core.dataset import Dataset
+from core.dataset.dataset import Dataset
 from core.types import Schema
 from core.errors import AuthException
 from core.constants import WELCOME_MESSAGE
@@ -39,6 +39,6 @@ class Client:
     def delete_dataset(self, dataset_id: str) -> None:
         return self._api._delete_dataset(dataset_id=dataset_id)
 
-    def Dataset(self, dataset_id: str) -> "Dataset":
+    def Dataset(self, dataset_id: str) -> Dataset:
         self.create_dataset(dataset_id=dataset_id)
         return Dataset(api=self._api, dataset_id=dataset_id)

@@ -1,6 +1,8 @@
 from typing import Any
 
-from core.engine import AbstractEngine
+from core.dataset.dataset import Dataset
+
+from core.engine.abstract_engine import AbstractEngine
 
 
 class AbstractWorkflow:
@@ -8,11 +10,11 @@ class AbstractWorkflow:
         self._engine = engine
 
     @property
-    def engine(self):
+    def engine(self) -> AbstractEngine:
         return self._engine
 
     @property
-    def dataset(self):
+    def dataset(self) -> Dataset:
         return self.engine.dataset
 
     @property

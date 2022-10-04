@@ -2,7 +2,9 @@ from typing import Any, Dict, List
 
 from core.api.api import API
 from core.types import Schema
-from core.utils import Document
+from core.utils import document
+
+from core.dataset.field import Field, VectorField
 
 
 class Dataset:
@@ -10,11 +12,12 @@ class Dataset:
         self._api = api
         self._dataset_id = dataset_id
 
-    def __getitem__(self, index: str) -> Any:
+    def __getitem__(self, index: str) -> Field:
         if isinstance(index, str):
-            from core.dataset.series import Series
-
-            return Series(dataset=self, field=index)
+            if "_vector_" in index:
+                return VectorField(dataset=self, field=index)
+            else:
+                return Field(dataset=self, field=index)
         else:
             raise NotImplementedError("index must of type `str` (field in dataset)")
 
@@ -22,8 +25,16 @@ class Dataset:
         return self.get_documents(1, *args, **kwargs)["count"]
 
     @property
+    def dataset_id(self) -> str:
+        return self._dataset_id
+
+    @property
     def schema(self) -> Schema:
         return self._api._get_schema(self._dataset_id)
+
+    @property
+    def api(self) -> API:
+        return self._api
 
     def create(self):
         return self._api._create_dataset(self._dataset_id)
@@ -32,14 +43,14 @@ class Dataset:
         return self._api._delete_dataset(self._dataset_id)
 
     def insert_documents(
-        self, documents: List[Document], *args, **kwargs
+        self, documents: List[document.Document], *args, **kwargs
     ) -> Dict[str, Any]:
         return self._api._bulk_insert(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
 
     def update_documents(
-        self, documents: List[Document], *args, **kwargs
+        self, documents: List[document.Document], *args, **kwargs
     ) -> Dict[str, Any]:
         return self._api._bulk_update(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
@@ -49,7 +60,7 @@ class Dataset:
         res = self._api._get_where(
             dataset_id=self._dataset_id, page_size=page_size, *args, **kwargs
         )
-        res["documents"] = [Document(d) for d in res["documents"]]
+        res["documents"] = [document.Document(d) for d in res["documents"]]
         return res
 
     def len(self, *args, **kwargs):
