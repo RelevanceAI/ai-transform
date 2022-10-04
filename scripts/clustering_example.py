@@ -5,15 +5,17 @@ import numpy as np
 
 from typing import List, Optional
 
-from core.api import Client
+from core.api.client import Client
 from core.dataset.dataset import Dataset
-from core.dataset.vector_field import VectorField
-from core.engine import StableEngine
+from core.engine.stable_engine import StableEngine
+
 from core.utils.random import mock_documents
-from core.workflow import AbstractWorkflow
-from core.operator import AbstractOperator
-from core.utils import Document
-from core.workflow import decode_workflow_token
+from core.workflow.helpers import decode_workflow_token
+
+from core.workflow.abstract_workflow import AbstractWorkflow
+from core.operator.abstract_operator import AbstractOperator
+
+from core.utils.random import Document
 
 from sklearn.cluster import KMeans
 
@@ -58,7 +60,7 @@ class ClusterWorkflow(AbstractWorkflow):
         Optional Method
         """
         centroid_documents = [
-            dict(_id=_id, centroid_vector=centroid_vector)
+            dict(_id=f"cluster_{_id}", centroid_vector=centroid_vector)
             for _id, centroid_vector in enumerate(
                 self.operator._model.cluster_centers_.tolist()
             )
@@ -70,21 +72,22 @@ class ClusterWorkflow(AbstractWorkflow):
         self.dataset[vector_field].insert_centroids(
             centroid_documents=centroid_documents, alias=alias
         )
-        print(f"Successfully inserted {len(centroid_documents)} documents")
+        print(f"Successfully inserted `{len(centroid_documents)}` centroids")
 
 
 def main(token: str):
     config = decode_workflow_token(token)
 
     token = config["authorizationToken"]
-    datatset_id = config["dataset_id"]
+    dataset_id = config["dataset_id"]
     vector_field = config["vector_field"]
     alias = config.get("alias", None)
     n_clusters = config.get("n_clusters", 8)
 
     client = Client(token=token)
 
-    dataset = client.Dataset(datatset_id)
+    client.delete_dataset(dataset_id)
+    dataset = client.Dataset(dataset_id)
     dataset.insert_documents(mock_documents())
 
     operator = ClusterOperator(

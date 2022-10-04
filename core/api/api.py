@@ -142,7 +142,7 @@ class API:
         alias: str,
     ):
         return requests.post(
-            url=f"/datasets/{dataset_id}/cluster/centroids/insert",
+            url=self._base_url + f"/datasets/{dataset_id}/cluster/centroids/insert",
             headers=self._headers,
             json=dict(
                 dataset_id=dataset_id,
@@ -150,7 +150,7 @@ class API:
                 vector_fields=vector_fields,
                 alias=alias,
             ),
-        )
+        ).json()
 
     def _get_centroids(
         self,
@@ -163,7 +163,7 @@ class API:
         include_vector: bool = False,
     ):
         return requests.post(
-            url=f"/datasets/{dataset_id}/cluster/centroids/documents",
+            url=self._base_url + f"/datasets/{dataset_id}/cluster/centroids/documents",
             headers=self._headers,
             json=dict(
                 cluster_ids=[] if cluster_ids is None else cluster_ids,
@@ -173,4 +173,4 @@ class API:
                 page=page,
                 include_vector=include_vector,
             ),
-        )
+        ).json()
