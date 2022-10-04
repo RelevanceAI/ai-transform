@@ -7,11 +7,14 @@ requirements = [
     "numpy==1.23.3",
     "pandas>=1.0.0",
     "requests>=2.0.0",
-    "pyarrow==9.0.0",
     "pytest==7.1.3",
-    "ray==2.0.0",
     "requests==2.28.1",
     "setuptools==65.3.0",
+]
+
+ray_requirements = [
+    "pyarrow==9.0.0",
+    "ray==2.0.0",
 ]
 
 test_requirements = [
@@ -36,5 +39,6 @@ setup(
     },
     extras_require=dict(
         tests=test_requirements,
+        ray=ray_requirements,
     ),
 )
