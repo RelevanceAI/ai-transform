@@ -9,7 +9,9 @@ from core.types import Credentials, FieldTransformer, Filter, Schema
 class API:
     def __init__(self, credentials: Credentials) -> None:
         self._credentials = credentials
-        self._base_url = f"https://api-1e3042.stack.relevance.ai/latest"
+        self._base_url = (
+            f"https://api-{self._credentials.region}.stack.relevance.ai/latest"
+        )
         self._headers = dict(
             Authorization=f"{self._credentials.project}:{self._credentials.api_key}"
         )
