@@ -1,11 +1,11 @@
-import base64
-import json
 import os
+import json
+import base64
 import random
 import string
 import pytest
 
-from typing import Any, List, Optional
+from typing import Any, List
 
 from core import Client, Dataset
 from core.api import process_token
