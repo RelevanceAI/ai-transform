@@ -15,7 +15,8 @@ class Document(dict):
                     if f in d.keys():
                         d = d[f]
                     else:
-                        d.update({f: {}})
+                        if f not in d:
+                            d.update({f: {}})
                         d = d[f]
         except:
             return super().__setitem__(key, value)
@@ -39,7 +40,7 @@ class Document(dict):
     def keys(self):
         try:
             df = pd.json_normalize(self, sep=".")
-            return list(df.columns)
+            return list(set(list(super().keys()) + list(df.columns)))
         except:
             return super().keys()
 

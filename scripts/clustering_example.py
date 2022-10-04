@@ -6,7 +6,6 @@ import numpy as np
 from typing import List, Optional
 
 from core.api.client import Client
-from core.dataset.dataset import Dataset
 from core.engine.stable_engine import StableEngine
 
 from core.utils.random import mock_documents
@@ -19,12 +18,17 @@ from core.utils.random import Document
 
 from sklearn.cluster import KMeans
 
-TOKEN = os.getenv("TOKEN")
-
 
 class ClusterOperator(AbstractOperator):
-    def __init__(self, n_clusters: int, vector_field: str, alias: Optional[str] = None):
+    def __init__(
+        self,
+        n_clusters: int,
+        vector_field: str,
+        alias: Optional[str] = None,
+    ):
+
         self._model = KMeans(n_clusters=n_clusters)
+
         self._vector_field = vector_field
         self._alias = f"kmeans-{n_clusters}" if alias is None else alias
         self._output_field = f"_cluster_.{vector_field}.{self._alias}"
