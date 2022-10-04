@@ -4,15 +4,12 @@ from core import __version__
 
 requirements = [
     "tqdm>=4.49.0",
-    "numpy>=1.19.0",
-    "pandas>=1.0.0",
     "requests>=2.0.0",
-    "pytest==7.1.3",
-    "requests==2.28.1",
-    "setuptools==65.3.0",
 ]
 
 ray_requirements = [
+    "numpy>=1.19.0",
+    "pandas>=1.0.0",
     "pyarrow==9.0.0",
     "ray==2.0.0",
 ]
