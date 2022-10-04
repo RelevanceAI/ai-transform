@@ -8,12 +8,12 @@ import pyarrow as pa
 
 from ray.data.block import Block
 
-from core.api import Client
-from core.engine import RayEngine
-from core.operator import AbstractRayOperator
-from core.workflow import AbstractWorkflow
-from core.utils import Document
-from core.workflow.helpers import decode_workflow_token
+from workflows_core.api import Client
+from workflows_core.engine import RayEngine
+from workflows_core.operator import AbstractRayOperator
+from workflows_core.workflow import AbstractWorkflow
+from workflows_core.utils import Document
+from workflows_core.workflow.helpers import decode_workflow_token
 
 TOKEN = os.getenv("TOKEN")
 

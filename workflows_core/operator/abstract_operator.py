@@ -2,7 +2,9 @@ from copy import deepcopy
 from abc import ABC, abstractmethod
 
 from typing import List
-from core.utils.document import Document, DocumentUtils
+
+from workflows_core.dataset.dataset import Dataset
+from workflows_core.utils.document import Document, DocumentUtils
 
 
 class AbstractOperator(ABC, DocumentUtils):
@@ -41,3 +43,9 @@ class AbstractOperator(ABC, DocumentUtils):
             batch.append(pp_document)
 
         return batch
+
+    def pre_hooks(self, dataset: Dataset):
+        pass
+
+    def post_hooks(self, dataset: Dataset):
+        pass

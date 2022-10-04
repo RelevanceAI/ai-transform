@@ -1,8 +1,8 @@
 from typing import Any
 
-from core.dataset.dataset import Dataset
-from core.operator.abstract_operator import AbstractOperator
-from core.engine.abstract_engine import AbstractEngine
+from workflows_core.dataset.dataset import Dataset
+from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.engine.abstract_engine import AbstractEngine
 
 
 class TestAbstractEngine:

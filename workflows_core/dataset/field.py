@@ -1,12 +1,12 @@
 from typing import List, Optional, Union
 
-from core.types import Filter
-from core.utils.document import Document
+from workflows_core.types import Filter
+from workflows_core.utils.document import Document
 
 
 class Field:
     def __init__(self, dataset, field: str):
-        from core.dataset.dataset import Dataset
+        from workflows_core.dataset.dataset import Dataset
 
         self._dataset: Dataset = dataset
         self._field = field

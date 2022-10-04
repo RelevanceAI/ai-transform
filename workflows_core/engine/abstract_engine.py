@@ -4,10 +4,10 @@ import warnings
 from typing import Any, List, Optional
 from abc import ABC, abstractmethod
 
-from core.types import Filter
-from core.dataset.dataset import Dataset
-from core.operator.abstract_operator import AbstractOperator
-from core.utils.document import Document
+from workflows_core.types import Filter
+from workflows_core.dataset.dataset import Dataset
+from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.utils.document import Document
 
 
 class AbstractEngine(ABC):
@@ -70,11 +70,13 @@ class AbstractEngine(ABC):
         return self._size
 
     @abstractmethod
-    def apply(self, operator: AbstractOperator) -> Any:
+    def apply(self) -> Any:
         raise NotImplementedError
 
-    def __call__(self, operator: AbstractOperator) -> Any:
-        raise self.apply(operator)
+    def __call__(self) -> Any:
+        self.operator.pre_hooks(self._dataset)
+        self.apply()
+        self.operator.post_hooks(self._dataset)
 
     def iterate(
         self,

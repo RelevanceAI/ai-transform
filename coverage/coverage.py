@@ -4,10 +4,10 @@ Run this file if you want to generate coverage.cfg and you want to exclude many 
 
 RUN_EXCLUDE = [
     "*__init__.py",
-    "core/api/api.py",
-    "core/api/endpoints.py",
-    "core/constants.py",
-    "core/types.py",
+    "workflows_core/api/api.py",
+    "workflows_core/api/endpoints.py",
+    "workflows_core/constants.py",
+    "workflows_core/types.py",
 ]
 REPORT_EXCLUDE = RUN_EXCLUDE
 

@@ -2,7 +2,7 @@ import pandas as pd
 import pyarrow as pa
 
 from ray.data.block import Block
-from core.operator import AbstractOperator
+from workflows_core.operator import AbstractOperator
 
 
 class AbstractRayOperator(AbstractOperator):

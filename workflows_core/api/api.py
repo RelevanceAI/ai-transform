@@ -2,8 +2,8 @@ import requests
 
 from typing import Any, Dict, List, Optional
 
-from core.utils import document
-from core.types import Credentials, FieldTransformer, Filter, Schema
+from workflows_core.utils import document
+from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 
 
 class API:

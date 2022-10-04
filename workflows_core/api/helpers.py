@@ -1,4 +1,4 @@
-from core.types import Credentials
+from workflows_core.types import Credentials
 
 
 def process_token(token: str) -> Credentials:

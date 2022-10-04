@@ -5,10 +5,10 @@ import pyarrow as pa
 from functools import partial
 from typing import Any, Dict, List, Optional
 
-from core.types import Filter
-from core.constants import ONE_MB
-from core.dataset import Dataset
-from core.engine import AbstractEngine
+from workflows_core.types import Filter
+from workflows_core.constants import ONE_MB
+from workflows_core.dataset import Dataset
+from workflows_core.engine import AbstractEngine
 
 from ray.data.datasource import Datasource, ReadTask, Reader
 from ray.data.context import DatasetContext

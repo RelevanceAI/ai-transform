@@ -42,8 +42,8 @@ import random
 import string
 
 from typing import List
-from core.types import Vector
-from core.utils.document import Document
+from workflows_core.types import Vector
+from workflows_core.utils.document import Document
 
 
 def generate_random_string(string_length: int = 5) -> str:

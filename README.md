@@ -1,2 +1,2 @@
-# relevance-slim
-Relevance AI Slim
+# relevance-workflows-core
+Relevance AI Workflows Core

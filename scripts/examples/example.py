@@ -2,15 +2,14 @@ import base64
 import json
 import os
 
-from copy import deepcopy
-from typing import Any, List
+from typing import List
 
-from core.api import Client
-from core.engine import StableEngine
-from core.workflow import AbstractWorkflow
-from core.operator import AbstractOperator
-from core.utils import Document
-from core.workflow.helpers import decode_workflow_token
+from workflows_core.api.client import Client
+from workflows_core.engine.stable_engine import StableEngine
+from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.utils.document import Document
+from workflows_core.workflow.helpers import decode_workflow_token
 
 TOKEN = os.getenv("TOKEN")
 
@@ -25,7 +24,7 @@ class ExampleOperator(AbstractOperator):
         """
         for document in documents:
             before = document.get(self._field)
-            document.set(self._field, document.get(self._field) * 2)
+            document.set(self._field, document.get(self._field, 3) * 2)
             after = document
             print(before, after.get(self._field))
 
@@ -33,19 +32,7 @@ class ExampleOperator(AbstractOperator):
 
 
 class ExampleWorkflow(AbstractWorkflow):
-    def pre_hook(self):
-        """
-        Optional Method
-        """
-        print("Starting Workflow")
-        print(f"Using `{type(self.operator).__name__}` as Operator")
-
-    def post_hook(self):
-        """
-        Optional Method
-        """
-        print(f"Dataset has `{len(self.dataset)}` documents")
-        print("Finished Workflow")
+    pass
 
 
 def main(token: str):

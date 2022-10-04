@@ -1,10 +1,10 @@
 from typing import Any, Dict, List
 
-from core.api.api import API
-from core.types import Schema
-from core.utils import document
+from workflows_core.api.api import API
+from workflows_core.types import Schema
+from workflows_core.utils import document
 
-from core.dataset.field import Field, VectorField
+from workflows_core.dataset.field import Field, VectorField
 
 
 class Dataset:

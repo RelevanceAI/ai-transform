@@ -1,11 +1,11 @@
 from typing import Optional
 
-from core.api.api import API
-from core.api.helpers import process_token
-from core.dataset.dataset import Dataset
-from core.types import Schema
-from core.errors import AuthException
-from core.constants import WELCOME_MESSAGE
+from workflows_core.api.api import API
+from workflows_core.api.helpers import process_token
+from workflows_core.dataset.dataset import Dataset
+from workflows_core.types import Schema
+from workflows_core.errors import AuthException
+from workflows_core.constants import WELCOME_MESSAGE
 
 
 class Client:
