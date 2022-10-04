@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from core.utils import Document
+from core.utils.document import Document
 
 
 class TestDocument:

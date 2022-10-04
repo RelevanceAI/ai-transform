@@ -2,7 +2,7 @@ import requests
 
 from typing import Any, Dict, List, Optional
 
-from core.utils import Document
+from core.utils import document
 from core.types import Credentials, FieldTransformer, Filter, Schema
 
 
@@ -47,7 +47,7 @@ class API:
     def _bulk_insert(
         self,
         dataset_id: str,
-        documents: List[Document],
+        documents: List[document.Document],
         insert_date: bool = True,
         overwrite: bool = True,
         update_schema: bool = True,
@@ -74,7 +74,7 @@ class API:
     def _bulk_update(
         self,
         dataset_id: str,
-        documents: List[Document],
+        documents: List[document.Document],
         insert_date: bool = True,
         ingest_in_background: bool = True,
     ) -> Any:
@@ -133,3 +133,44 @@ class API:
             url=self._base_url + f"/datasets/{dataset_id}/metadata",
             headers=self._headers,
         ).json()
+
+    def _insert_centroids(
+        self,
+        dataset_id: str,
+        cluster_centers: List[document.Document],
+        vector_fields: List[str],
+        alias: str,
+    ):
+        return requests.post(
+            url=f"/datasets/{dataset_id}/cluster/centroids/insert",
+            headers=self._headers,
+            json=dict(
+                dataset_id=dataset_id,
+                cluster_centers=cluster_centers,
+                vector_fields=vector_fields,
+                alias=alias,
+            ),
+        )
+
+    def _get_centroids(
+        self,
+        dataset_id: str,
+        vector_fields: List[str],
+        alias: str,
+        page_size: int = 5,
+        page: int = 1,
+        cluster_ids: Optional[List] = None,
+        include_vector: bool = False,
+    ):
+        return requests.post(
+            url=f"/datasets/{dataset_id}/cluster/centroids/documents",
+            headers=self._headers,
+            json=dict(
+                cluster_ids=[] if cluster_ids is None else cluster_ids,
+                vector_fields=vector_fields,
+                alias=alias,
+                page_size=page_size,
+                page=page,
+                include_vector=include_vector,
+            ),
+        )

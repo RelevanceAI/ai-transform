@@ -1,5 +1,5 @@
-from core.engine import AbstractEngine
-from core.workflow import AbstractWorkflow
+from core.engine.abstract_engine import AbstractEngine
+from core.workflow.abstract_workflow import AbstractWorkflow
 from core.workflow.helpers import decode_workflow_token
 
 

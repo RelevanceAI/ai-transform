@@ -1,6 +1,6 @@
 from typing import Any
 
-from core.engine import AbstractEngine
+from core.engine.abstract_engine import AbstractEngine
 
 
 class StableEngine(AbstractEngine):

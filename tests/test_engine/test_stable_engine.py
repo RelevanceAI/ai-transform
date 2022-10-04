@@ -1,7 +1,8 @@
-from core.dataset import Dataset
-from core.operator import AbstractOperator
-from core.engine import StableEngine
-from core.workflow import AbstractWorkflow
+from core.dataset.dataset import Dataset
+from core.engine.stable_engine import StableEngine
+
+from core.operator.abstract_operator import AbstractOperator
+from core.workflow.abstract_workflow import AbstractWorkflow
 
 
 class TestStableEngine:

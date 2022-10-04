@@ -1,18 +1,28 @@
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from core.types import Filter
-from core.dataset.dataset import Dataset
+from core.utils.document import Document
 
 
-class Series:
-    def __init__(self, dataset: Dataset, field: str):
-        self._dataset = dataset
+class Field:
+    def __init__(self, dataset, field: str):
+        from core.dataset.dataset import Dataset
+
+        self._dataset: Dataset = dataset
         self._field = field
         if field != "_id":
             self._dtype = dataset.schema[field]
         else:
             self._dtype = None
         self._filter_type = self._get_filter_type()
+
+    @property
+    def dataset_id(self):
+        return self._dataset.dataset_id
+
+    @property
+    def field(self):
+        return self._field
 
     def _get_filter_type(self) -> str:
         if self._dtype == "numeric":
@@ -134,3 +144,33 @@ class Series:
                 "condition_value": " ",
             }
         ]
+
+    def insert_centroids(self, centroid_documents: List[Document], alias: str):
+        raise NotImplementedError(
+            "`insert_centroids` not available for non vector_fields"
+        )
+
+    def get_centroids(self, alias: str):
+        raise NotImplementedError(
+            "`insert_centroids` not available for non vector_fields"
+        )
+
+
+class VectorField(Field):
+    def __init__(self, dataset, field: str):
+        super().__init__(dataset=dataset, field=field)
+
+    def insert_centroids(self, centroid_documents: List[Document], alias: str):
+        return self._dataset.api._insert_centroids(
+            dataset_id=self.dataset_id,
+            cluster_centers=centroid_documents,
+            vector_fields=[self.field],
+            alias=alias,
+        )
+
+    def get_centroids(self, alias: str):
+        return self._dataset.api._get_centroids(
+            dataset_id=self.dataset_id,
+            vector_fields=[self.field],
+            alias=alias,
+        )
