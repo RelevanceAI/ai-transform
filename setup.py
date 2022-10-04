@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-from slim import __version__
+from core import __version__
 
 requirements = [
     "tqdm>=4.49.0",
@@ -24,7 +24,7 @@ test_requirements = [
 ]
 
 setup(
-    name="RelevanceAI Slim",
+    name="RelevanceAI Workflows Core",
     version=__version__,
     url="https://relevance.ai/",
     author="Relevance AI",

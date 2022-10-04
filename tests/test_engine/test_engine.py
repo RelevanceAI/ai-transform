@@ -1,7 +1,7 @@
 from typing import Any
-from slim.dataset import Dataset
-from slim.operator import AbstractOperator
-from slim.engine import AbstractEngine
+from core.dataset import Dataset
+from core.operator import AbstractOperator
+from core.engine import AbstractEngine
 
 
 class TestAbstractEngine:

@@ -5,12 +5,12 @@ import os
 from copy import deepcopy
 from typing import Any, List
 
-from slim.api import Client
-from slim.engine import StableEngine
-from slim.workflow import AbstractWorkflow
-from slim.operator import AbstractOperator
-from slim.utils import Document
-from slim.workflow.helpers import decode_workflow_token
+from core.api import Client
+from core.engine import StableEngine
+from core.workflow import AbstractWorkflow
+from core.operator import AbstractOperator
+from core.utils import Document
+from core.workflow.helpers import decode_workflow_token
 
 TOKEN = os.getenv("TOKEN")
 

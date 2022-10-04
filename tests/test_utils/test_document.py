@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from slim.utils import Document
+from core.utils import Document
 
 
 class TestDocument:

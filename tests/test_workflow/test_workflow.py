@@ -1,6 +1,6 @@
-from slim.engine import AbstractEngine
-from slim.workflow import AbstractWorkflow
-from slim.workflow.helpers import decode_workflow_token
+from core.engine import AbstractEngine
+from core.workflow import AbstractWorkflow
+from core.workflow.helpers import decode_workflow_token
 
 
 class TestWorkflow:

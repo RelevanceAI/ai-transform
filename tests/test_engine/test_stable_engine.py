@@ -1,7 +1,7 @@
-from slim.dataset import Dataset
-from slim.operator import AbstractOperator
-from slim.engine import StableEngine
-from slim.workflow import AbstractWorkflow
+from core.dataset import Dataset
+from core.operator import AbstractOperator
+from core.engine import StableEngine
+from core.workflow import AbstractWorkflow
 
 
 class TestStableEngine:
