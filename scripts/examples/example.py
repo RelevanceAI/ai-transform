@@ -5,12 +5,12 @@ import os
 from copy import deepcopy
 from typing import Any, List
 
-from core.api import Client
-from core.engine import StableEngine
-from core.workflow import AbstractWorkflow
-from core.operator import AbstractOperator
-from core.utils import Document
-from core.workflow.helpers import decode_workflow_token
+from workflows_core.api import Client
+from workflows_core.engine import StableEngine
+from workflows_core.workflow import AbstractWorkflow
+from workflows_core.operator import AbstractOperator
+from workflows_core.utils import Document
+from workflows_core.workflow.helpers import decode_workflow_token
 
 TOKEN = os.getenv("TOKEN")
 

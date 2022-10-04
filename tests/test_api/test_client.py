@@ -1,4 +1,4 @@
-from core.api.client import Client
+from workflows_core.api.client import Client
 
 
 class TestClient:

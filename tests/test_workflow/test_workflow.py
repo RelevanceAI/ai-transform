@@ -1,6 +1,6 @@
-from core.engine.abstract_engine import AbstractEngine
-from core.workflow.abstract_workflow import AbstractWorkflow
-from core.workflow.helpers import decode_workflow_token
+from workflows_core.engine.abstract_engine import AbstractEngine
+from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from workflows_core.workflow.helpers import decode_workflow_token
 
 
 class TestWorkflow:

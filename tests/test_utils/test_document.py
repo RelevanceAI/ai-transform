@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from core.utils.document import Document
+from workflows_core.utils.document import Document
 
 
 class TestDocument:

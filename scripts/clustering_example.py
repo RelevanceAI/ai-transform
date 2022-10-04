@@ -5,16 +5,16 @@ import numpy as np
 
 from typing import List, Optional
 
-from core.api.client import Client
-from core.engine.stable_engine import StableEngine
+from workflows_core.api.client import Client
+from workflows_core.engine.stable_engine import StableEngine
 
-from core.utils.random import mock_documents
-from core.workflow.helpers import decode_workflow_token
+from workflows_core.utils.random import mock_documents
+from workflows_core.workflow.helpers import decode_workflow_token
 
-from core.workflow.abstract_workflow import AbstractWorkflow
-from core.operator.abstract_operator import AbstractOperator
+from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from workflows_core.operator.abstract_operator import AbstractOperator
 
-from core.utils.random import Document
+from workflows_core.utils.random import Document
 
 from sklearn.cluster import KMeans
 

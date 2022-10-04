@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-from core import __version__
+from workflows_core import __version__
 
 requirements = [
     "tqdm>=4.49.0",

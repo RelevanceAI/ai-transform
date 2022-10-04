@@ -1,8 +1,8 @@
 import pytest
 import random
 
-from core.dataset.dataset import Dataset
-from core.utils.random import mock_documents
+from workflows_core.dataset.dataset import Dataset
+from workflows_core.utils.random import mock_documents
 
 
 @pytest.mark.usefixtures("empty_dataset")
