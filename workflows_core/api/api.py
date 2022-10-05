@@ -180,7 +180,7 @@ class API:
     def _workflow_status(
         self,
         workflow_id: str,
-        metadata: dict,
+        metadata: Dict[str, Any],
         workflow_name: str,
         additional_information: str = "",
         status: str = "inprogress",
@@ -206,8 +206,8 @@ class API:
         dataset_id: str,
         fieldchildren_id: str,
         field: str,
-        field_children: List,
-        metadata: dict = None,
+        field_children: List[str],
+        metadata: Optional[Dict[str, Any]] = None,
     ):
         return requests.post(
             url=f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
