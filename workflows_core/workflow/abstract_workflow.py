@@ -1,5 +1,3 @@
-from typing import Any
-
 from workflows_core.dataset.dataset import Dataset
 
 from workflows_core.engine.abstract_engine import AbstractEngine
