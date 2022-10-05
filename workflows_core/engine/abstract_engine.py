@@ -98,4 +98,5 @@ class AbstractEngine(ABC):
             yield chunk["documents"]
 
     def update_chunk(self, chunk: List[Document]):
-        return self._dataset.update_documents(documents=chunk)
+        if chunk:
+            return self._dataset.update_documents(documents=chunk)

@@ -16,7 +16,10 @@ class StableEngine(AbstractEngine):
         iterator = self.iterate()
 
         for chunk in tqdm(
-            iterator, disable=(not self._show_progress_bar), total=self.num_chunks
+            iterator,
+            desc=repr(self.operator),
+            disable=(not self._show_progress_bar),
+            total=self.num_chunks,
         ):
             new_batch = self.operator(chunk)
             self.update_chunk(new_batch)

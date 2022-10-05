@@ -15,6 +15,9 @@ class AbstractOperator(ABC, DocumentUtils):
         """
         raise NotImplementedError
 
+    def __repr__(self):
+        return str(type(self).__name__)
+
     def __call__(self, old_documents: List[Document]) -> List[Document]:
         new_documents = deepcopy(old_documents)
         self.transform(new_documents)
@@ -40,7 +43,9 @@ class AbstractOperator(ABC, DocumentUtils):
                 value_diff = old_value != new_value
                 if field not in old_fields or value_diff or field == "_id":
                     pp_document.set(field, new_value)
-            batch.append(pp_document)
+
+            if pp_document:
+                batch.append(pp_document)
 
         return batch
 
