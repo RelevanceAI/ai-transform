@@ -176,3 +176,44 @@ class API:
                 include_vector=include_vector,
             ),
         ).json()
+
+    def _workflow_status(
+        self,
+        workflow_id: str,
+        metadata: Dict[str, Any],
+        workflow_name: str,
+        additional_information: str = "",
+        status: str = "inprogress",
+    ):
+        if status not in {"inprogress", "complete", "failed"}:
+            raise ValueError(
+                "state should be in the `['inprogress', 'complete', 'failed']`"
+            )
+        return requests.post(
+            url=f"/workflows/{workflow_id}/status",
+            headers=self._headers,
+            json=dict(
+                metadata={},  # TODO: why is this empty
+                status=status,
+                workflow_name=workflow_name,
+                additional_information=additional_information,
+            ),
+        ).json()
+
+    def _set_field_children(
+        self,
+        dataset_id: str,
+        fieldchildren_id: str,
+        field: str,
+        field_children: List[str],
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        return requests.post(
+            url=f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
+            headers=self._headers,
+            json=dict(
+                field=field,
+                field_children=field_children,
+                metadata={} if metadata is None else metadata,
+            ),
+        ).json()
