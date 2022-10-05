@@ -187,7 +187,7 @@ class API:
     ):
         if status not in {"inprogress", "complete", "failed"}:
             raise ValueError(
-                "state should be in the `['inprogress', 'complete', 'failed']`"
+                "state should be one of `['inprogress', 'complete', 'failed']`"
             )
         return requests.post(
             url=f"/workflows/{workflow_id}/status",
