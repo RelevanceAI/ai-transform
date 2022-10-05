@@ -89,7 +89,11 @@ class BatchClusterPredictOperator(AbstractOperator):
         )
 
 
-class ClusterWorkflow(AbstractWorkflow):
+class BatchClusterFitWorkflow(AbstractWorkflow):
+    pass
+
+
+class BatchClusterPredictWorkflow(AbstractWorkflow):
     pass
 
 
@@ -135,10 +139,10 @@ def main(token: str):
         filters=filters,
     )
 
-    fit_workflow = ClusterWorkflow(fit_engine)
+    fit_workflow = BatchClusterFitOperator(fit_engine)
     fit_workflow.run()
 
-    predict_workflow = ClusterWorkflow(predict_engine)
+    predict_workflow = BatchClusterPredictOperator(predict_engine)
     predict_workflow.run()
 
 
