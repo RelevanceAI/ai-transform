@@ -197,7 +197,6 @@ class API:
                 status=status,
                 workflow_name=workflow_name,
                 additional_information=additional_information,
-                metadata=metadata,
             ),
         ).json()
 
