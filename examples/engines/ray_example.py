@@ -32,19 +32,7 @@ class RayOperator(AbstractRayOperator):
 
 
 class ExampleWorkflow(AbstractWorkflow):
-    def pre_hook(self):
-        """
-        Optional Method
-        """
-        print("Starting Workflow")
-        print(f"Using {type(self.operator).__name__} as Operator")
-
-    def post_hook(self):
-        """
-        Optional Method
-        """
-        print(f"Dataset has {len(self.dataset)} documents")
-        print("Finished Workflow")
+    pass
 
 
 def main(token: str):
