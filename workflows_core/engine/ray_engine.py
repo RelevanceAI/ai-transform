@@ -7,8 +7,8 @@ from typing import Any, Dict, List, Optional
 
 from workflows_core.types import Filter
 from workflows_core.constants import ONE_MB
-from workflows_core.dataset import Dataset
-from workflows_core.engine import AbstractEngine
+from workflows_core.dataset.dataset import Dataset
+from workflows_core.engine.abstract_engine import AbstractEngine
 
 from ray.data.datasource import Datasource, ReadTask, Reader
 from ray.data.context import DatasetContext

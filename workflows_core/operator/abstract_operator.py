@@ -37,10 +37,12 @@ class AbstractOperator(ABC, DocumentUtils):
             pp_document = Document()
             new_fields = new_document.keys()
             old_fields = old_document.keys()
+
             for field in new_fields:
                 old_value = old_document.get(field, None)
                 new_value = new_document.get(field, None)
                 value_diff = old_value != new_value
+
                 if field not in old_fields or value_diff or field == "_id":
                     pp_document.set(field, new_value)
 

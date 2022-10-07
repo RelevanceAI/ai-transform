@@ -40,7 +40,7 @@ class Document(dict):
     def keys(self):
         try:
             df = pd.json_normalize(self, sep=".")
-            return list(set(list(super().keys()) + list(df.columns)))
+            return list(set(list(self.keys()) + list(df.columns)))
         except:
             return super().keys()
 

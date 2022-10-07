@@ -1,34 +1,30 @@
 import os
 import json
 import base64
+
 from typing import List
-
-import pandas as pd
-import pyarrow as pa
-
-from ray.data.block import Block
 
 from workflows_core.api.client import Client
 from workflows_core.engine.ray_engine import RayEngine
 from workflows_core.operator.ray_operator import AbstractRayOperator
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.utils.document import Document
+from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.workflow.helpers import decode_workflow_token
-
-TOKEN = os.getenv("TOKEN")
 
 
 class RayOperator(AbstractRayOperator):
     def __init__(self, field: str):
         self._field = field
 
-    def transform(self, df: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, documents: List[Document]) -> List[Document]:
         """
         Main transform function
         """
-        df[self._field] += 1
+        # import pdb; pdb.set_trace()
+        for document in documents:
+            document.set(self._field, 1)
 
-        return df
+        return documents
 
 
 class ExampleWorkflow(AbstractWorkflow):

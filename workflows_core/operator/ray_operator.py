@@ -1,21 +1,23 @@
+from copy import deepcopy
 import pandas as pd
 import pyarrow as pa
 
 from ray.data.block import Block
-from workflows_core.operator import AbstractOperator
+
+from workflows_core.utils.document import Document
+from workflows_core.utils.json_encoder import json_encoder
+from workflows_core.operator.abstract_operator import AbstractOperator
 
 
 class AbstractRayOperator(AbstractOperator):
     def __call__(self, batch: pd.DataFrame) -> Block:
-        batch = pd.json_normalize(batch.to_dict("records"))
-        old = batch.copy()
-        new = self.transform(batch)
-        new = self._postprocess(new, old)
-        return pa.Table.from_pandas(new)
-
-    @staticmethod
-    def _postprocess(new: pd.DataFrame, old: pd.DataFrame):
-        import pdb
-
-        pdb.set_trace()
-        return new
+        new = [
+            Document(document) for document in json_encoder(batch.to_dict("records"))
+        ]
+        old = deepcopy(new)
+        new = self.transform(new)
+        new = self._postprocess(
+            new, old
+        )  # TODO: optimise avoiding conversion to python objects
+        new = [dict(document) for document in new]
+        return pa.Table.from_pylist(new)
