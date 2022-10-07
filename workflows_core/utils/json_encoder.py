@@ -56,32 +56,9 @@ ENCODERS_BY_TYPE = {
 }
 
 
-def json_encoder(obj: Any, force_string: bool = False):
-    """Converts object so it is json serializable
-    If you want to add your own mapping,
-    customize it this way;
-
-    Parameters
-    ------------
-    obj: Any
-        The object to convert
-    force_string: bool
-        If True, forces the object to a string representation. Used mainly for
-        analytics tracking.
-
-    Example
-    --------
-
-    YOu can use our JSON encoder easily.
-    >>> documents = [{"value": np.nan}]
-    >>> client.json_encoder(documents)
-
-    If you want to use FastAPI's json encoder, do this:
-    >>> from fastapi import jsonable_encoder
-    >>> client.json_encoder = jsonable_encoder
-
-    """
-    # Loop through iterators and convert
+def json_encoder(
+    obj: Any, force_string: bool = False
+):  # Loop through iterators and convert
     if isinstance(obj, (list, set, frozenset, GeneratorType, tuple, collections.deque)):
         encoded_list = []
         for item in obj:
