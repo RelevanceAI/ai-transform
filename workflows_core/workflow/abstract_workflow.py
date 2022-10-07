@@ -1,6 +1,7 @@
 from workflows_core.dataset.dataset import Dataset
 
 from workflows_core.engine.abstract_engine import AbstractEngine
+from workflows_core.workflow.context import WorkflowContext
 
 
 class AbstractWorkflow:
