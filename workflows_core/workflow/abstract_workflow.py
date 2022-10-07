@@ -20,5 +20,6 @@ class AbstractWorkflow:
         return self.engine.operator
 
     def run(self):
-        self.engine()
+        with WorkflowContext():
+            self.engine()
         return
