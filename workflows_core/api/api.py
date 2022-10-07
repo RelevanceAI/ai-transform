@@ -177,7 +177,7 @@ class API:
             ),
         ).json()
 
-    def _workflow_status(
+    def _set_workflow_status(
         self,
         workflow_id: str,
         metadata: Dict[str, Any],
