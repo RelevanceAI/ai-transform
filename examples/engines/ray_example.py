@@ -1,21 +1,12 @@
-import os
-import json
-import base64
-from typing import List
+import argparse
 
 import pandas as pd
-import pyarrow as pa
 
-from ray.data.block import Block
-
-from workflows_core.api import Client
-from workflows_core.engine import RayEngine
-from workflows_core.operator import AbstractRayOperator
-from workflows_core.workflow import AbstractWorkflow
-from workflows_core.utils import Document
+from workflows_core.api.client import Client
+from workflows_core.engine.ray_engine import RayEngine
+from workflows_core.operator.ray_operator import AbstractRayOperator
+from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.workflow.helpers import decode_workflow_token
-
-TOKEN = os.getenv("TOKEN")
 
 
 class RayOperator(AbstractRayOperator):
@@ -35,8 +26,8 @@ class ExampleWorkflow(AbstractWorkflow):
     pass
 
 
-def main(token: str):
-    config = decode_workflow_token(token)
+def main(args):
+    config = decode_workflow_token(args.workflow_token)
 
     token = config["authorizationToken"]
     datatset_id = config["dataset_id"]
@@ -54,12 +45,11 @@ def main(token: str):
 
 
 if __name__ == "__main__":
-    config = dict(
-        authorizationToken=os.getenv("TOKEN"),
-        dataset_id="test_dataset",
-        field="new_field1.new_field2",
+    parser = argparse.ArgumentParser(description="An example workflow.")
+    parser.add_argument(
+        "--workflow-token",
+        type=str,
+        help="a base64 encoded token that contains parameters for running the workflow",
     )
-    string = f"{json.dumps(config)}"
-    bytes = string.encode()
-    token = base64.b64encode(bytes).decode()
-    main(token)
+    args = parser.parse_args()
+    main(args)

@@ -1,18 +1,12 @@
-import os
-import json
-import base64
+import argparse
 
 from typing import List, Optional
 
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
-
-from workflows_core.utils.random import mock_documents
 from workflows_core.workflow.helpers import decode_workflow_token
-
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
-
 from workflows_core.utils.random import Document
 
 from sentence_transformers import SentenceTransformer
@@ -58,10 +52,7 @@ def main(token: str):
     alias = config.get("alias", None)
 
     client = Client(token=token)
-
-    client.delete_dataset(dataset_id)
     dataset = client.Dataset(dataset_id)
-    dataset.insert_documents(mock_documents())
 
     operator = VectorizeTextOperator(text_field=text_field, alias=alias)
 
@@ -79,12 +70,11 @@ def main(token: str):
 
 
 if __name__ == "__main__":
-    config = dict(
-        authorizationToken=os.getenv("TOKEN"),
-        dataset_id="test_dataset",
-        text_field="sample_1_label",
+    parser = argparse.ArgumentParser(description="An example workflow.")
+    parser.add_argument(
+        "--workflow-token",
+        type=str,
+        help="a base64 encoded token that contains parameters for running the workflow",
     )
-    string = f"{json.dumps(config)}"
-    bytes = string.encode()
-    token = base64.b64encode(bytes).decode()
-    main(token)
+    args = parser.parse_args()
+    main(args)
