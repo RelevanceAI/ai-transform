@@ -1,13 +1,21 @@
 from copy import deepcopy
 from abc import ABC, abstractmethod
 
-from typing import List
+from typing import List, Optional
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document, DocumentUtils
 
 
 class AbstractOperator(ABC, DocumentUtils):
+    def __init__(
+        self,
+        input_fields: Optional[List[str]] = None,
+        output_fields: Optional[List[str]] = None,
+    ):
+        self._input_fields = input_fields
+        self._output_fields = output_fields
+
     @abstractmethod
     def transform(self, documents: List[Document]) -> List[Document]:
         """

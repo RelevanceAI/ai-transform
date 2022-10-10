@@ -101,6 +101,7 @@ class API:
         random_state: int = 0,
         is_random: bool = False,
         after_id: Optional[List] = None,
+        worker_number: int = 0
     ):
         return requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/get_where",
@@ -114,6 +115,7 @@ class API:
                 random_state=random_state,
                 is_random=is_random,
                 after_id=[] if after_id is None else after_id,
+                worker_number=worker_number
             ),
         ).json()
 
@@ -177,7 +179,7 @@ class API:
             ),
         ).json()
 
-    def _workflow_status(
+    def _set_workflow_status(
         self,
         workflow_id: str,
         metadata: Dict[str, Any],
@@ -190,7 +192,7 @@ class API:
                 "state should be one of `['inprogress', 'complete', 'failed']`"
             )
         return requests.post(
-            url=f"/workflows/{workflow_id}/status",
+            url=self._base_url + f"/workflows/{workflow_id}/status",
             headers=self._headers,
             json=dict(
                 metadata={},  # TODO: why is this empty
@@ -208,12 +210,30 @@ class API:
         field_children: List[str],
         metadata: Optional[Dict[str, Any]] = None,
     ):
+        """
+        fieldchildren_id: The name of the workflow or operation
+
+        field: the input field of the operation
+
+        field_children: a list of output fields, taken from the most nested level
+        i.e. ["_sentiment_.text_field.alias"]
+
+        metadata: extra parameters associated with operation
+        i.e. n_clusters, n_init, softmax_temperature, etc...
+        """
         return requests.post(
-            url=f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
+            url=self._base_url
+            + "/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
             headers=self._headers,
             json=dict(
                 field=field,
                 field_children=field_children,
                 metadata={} if metadata is None else metadata,
             ),
+        ).json()
+
+    def _get_health(self, dataset_id: str):
+        return requests.get(
+            url=self._base_url + f"/datasets/{dataset_id}/monitor/health",
+            headers=self._headers,
         ).json()

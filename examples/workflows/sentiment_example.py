@@ -1,22 +1,18 @@
-import os
-import json
+# For this workflow to to run, you need the following;
+# transformers[torch]==4.18.0
+# relevance-workflows-core
+
 import torch
-import base64
 
 from typing import List, Optional
 
+from transformers import pipeline
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
-
-from workflows_core.utils.random import mock_documents
 from workflows_core.workflow.helpers import decode_workflow_token
-
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
-
 from workflows_core.utils.random import Document
-
-from transformers import pipeline
 
 
 class SentimentOperator(AbstractOperator):
@@ -41,6 +37,15 @@ class SentimentOperator(AbstractOperator):
         self._text_field = text_field
         self._alias = model.replace("/", "-") if alias is None else alias
         self._output_field = f"_sentiment_.{text_field}.{self._alias}"
+
+        output_fields = [
+            f"{self._output_field}.sentiment",
+            f"{self._output_field}.overall_sentiment_score",
+        ]
+        super().__init__(
+            input_fields=[text_field],
+            output_fields=output_fields,
+        )
 
     def transform(self, documents: List[Document]) -> List[Document]:
         """
@@ -73,42 +78,45 @@ class SentimentWorkflow(AbstractWorkflow):
     pass
 
 
-def main(token: str):
+def execute(token, logger, worker_number=0, *args, **kwargs):
     config = decode_workflow_token(token)
 
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
+
     alias = config.get("alias", None)
 
     client = Client(token=token)
-
-    client.delete_dataset(dataset_id)
     dataset = client.Dataset(dataset_id)
-    dataset.insert_documents(mock_documents())
 
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
     filters = dataset[text_field].exists()
+
     engine = StableEngine(
         dataset=dataset,
         operator=operator,
         chunksize=8,
         select_fields=[text_field],
         filters=filters,
+        worker_number=worker_number,
     )
 
     workflow = SentimentWorkflow(engine)
     workflow.run()
+    # Run workflow example
 
 
 if __name__ == "__main__":
-    config = dict(
-        authorizationToken=os.getenv("TOKEN"),
-        dataset_id="test_dataset",
-        text_field="sample_1_label",
+    # For script things
+    import argparse
+
+    parser = argparse.ArgumentParser(description="An example workflow.")
+    parser.add_argument(
+        "--workflow-token",
+        type=str,
+        help="a base64 encoded token that contains parameters for running the workflow",
     )
-    string = f"{json.dumps(config)}"
-    bytes = string.encode()
-    token = base64.b64encode(bytes).decode()
-    main(token)
+    args = parser.parse_args()
+    execute(args.workflow_token, print)

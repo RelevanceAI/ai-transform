@@ -1,6 +1,4 @@
-import os
-import json
-import base64
+import argparse
 import numpy as np
 
 from typing import List, Optional
@@ -8,10 +6,7 @@ from typing import List, Optional
 from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.stable_engine import StableEngine
-
-from workflows_core.utils.random import mock_documents
 from workflows_core.workflow.helpers import decode_workflow_token
-
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
 
@@ -32,7 +27,8 @@ class BatchClusterFitOperator(AbstractOperator):
 
         self._vector_field = vector_field
         self._alias = f"minibatchkmeans-{n_clusters}" if alias is None else alias
-        self._output_field = f"_cluster_.{vector_field}.{self._alias}"
+
+        super().__init__(input_fields=[self._vector_field])
 
     def transform(self, documents: List[Document]) -> List[Document]:
         """
@@ -56,6 +52,8 @@ class BatchClusterPredictOperator(AbstractOperator):
         self._vector_field = vector_field
         self._alias = f"minibatchkmeans-{model.n_clusters}" if alias is None else alias
         self._output_field = f"_cluster_.{vector_field}.{self._alias}"
+
+        super().__init__(output_fields=[self._output_field])
 
     def transform(self, documents: List[Document]) -> List[Document]:
         """
@@ -97,8 +95,8 @@ class BatchClusterPredictWorkflow(AbstractWorkflow):
     pass
 
 
-def main(token: str):
-    config = decode_workflow_token(token)
+def main(args):
+    config = decode_workflow_token(args.workflow_token)
 
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
@@ -139,20 +137,19 @@ def main(token: str):
         filters=filters,
     )
 
-    fit_workflow = BatchClusterFitOperator(fit_engine)
+    fit_workflow = BatchClusterFitWorkflow(fit_engine)
     fit_workflow.run()
 
-    predict_workflow = BatchClusterPredictOperator(predict_engine)
+    predict_workflow = BatchClusterPredictWorkflow(predict_engine)
     predict_workflow.run()
 
 
 if __name__ == "__main__":
-    config = dict(
-        authorizationToken=os.getenv("TOKEN"),
-        dataset_id="test_dataset",
-        vector_field="sample_1_label_sentence-transformers-all-mpnet-base-v2_vector_",
+    parser = argparse.ArgumentParser(description="An example workflow.")
+    parser.add_argument(
+        "--workflow-token",
+        type=str,
+        help="a base64 encoded token that contains parameters for running the workflow",
     )
-    string = f"{json.dumps(config)}"
-    bytes = string.encode()
-    token = base64.b64encode(bytes).decode()
-    main(token)
+    args = parser.parse_args()
+    main(args)
