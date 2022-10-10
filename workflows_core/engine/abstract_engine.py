@@ -82,6 +82,7 @@ class AbstractEngine(ABC):
         self,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
+        worker_number: int = 0
     ):
         while True:
             chunk = self._dataset.get_documents(
@@ -91,6 +92,7 @@ class AbstractEngine(ABC):
                 if select_fields is not None
                 else self._select_fields,
                 after_id=self._after_id,
+                worker_number=worker_number
             )
             self._after_id = chunk["after_id"]
             if not chunk["documents"]:
