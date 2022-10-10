@@ -101,6 +101,7 @@ class API:
         random_state: int = 0,
         is_random: bool = False,
         after_id: Optional[List] = None,
+        worker_number: int = 0
     ):
         return requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/get_where",
@@ -114,6 +115,7 @@ class API:
                 random_state=random_state,
                 is_random=is_random,
                 after_id=[] if after_id is None else after_id,
+                worker_number=worker_number
             ),
         ).json()
 

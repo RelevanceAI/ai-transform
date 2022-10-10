@@ -1,18 +1,18 @@
+# For this workflow to to run, you need the following; 
+# transformers[torch]==4.18.0
+# relevance-workflows-core
+
 import torch
-import argparse
 
 from typing import List, Optional
 
+from transformers import pipeline
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.helpers import decode_workflow_token
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
-
 from workflows_core.utils.random import Document
-
-from transformers import pipeline
-
 
 class SentimentOperator(AbstractOperator):
     LABELS = {
@@ -76,33 +76,39 @@ class SentimentWorkflow(AbstractWorkflow):
     pass
 
 
-def main(args):
-    config = decode_workflow_token(args.workflow_token)
+def execute(token, logger, worker_number=0, *args, **kwargs):
+    config = decode_workflow_token(token)
 
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
+
     alias = config.get("alias", None)
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
-
+    
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
     filters = dataset[text_field].exists()
+
     engine = StableEngine(
         dataset=dataset,
         operator=operator,
         chunksize=8,
         select_fields=[text_field],
         filters=filters,
+        worker_number=worker_number
     )
 
     workflow = SentimentWorkflow(engine)
     workflow.run()
+    # Run workflow example
 
 
 if __name__ == "__main__":
+    # For script things
+    import argparse
     parser = argparse.ArgumentParser(description="An example workflow.")
     parser.add_argument(
         "--workflow-token",
@@ -110,4 +116,4 @@ if __name__ == "__main__":
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    main(args)
+    execute(args.workflow_token, print)
