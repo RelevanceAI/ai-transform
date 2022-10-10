@@ -20,7 +20,7 @@ core_test_requirements = [
     "pytest-cov",
 ]
 
-example_test_requirements = [
+example_test_requirements = core_test_requirements + [
     "torch",
     "transformers",
 ]
