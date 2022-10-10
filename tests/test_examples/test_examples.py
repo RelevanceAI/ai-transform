@@ -29,3 +29,5 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
 
     workflow = SentimentWorkflow(engine)
     workflow.run()
+
+    assert operator._output_field in dataset.schema

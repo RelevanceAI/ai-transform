@@ -18,6 +18,8 @@ test_requirements = [
     "pytest",
     "pytest-xdist",
     "pytest-cov",
+    "torch",
+    "transformers",
 ]
 
 setup(
