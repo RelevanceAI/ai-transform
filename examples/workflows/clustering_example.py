@@ -29,6 +29,10 @@ class ClusterOperator(AbstractOperator):
         self._alias = f"kmeans-{n_clusters}" if alias is None else alias
         self._output_field = f"_cluster_.{vector_field}.{self._alias}"
 
+        super().__init__(
+            input_fields=[self._vector_field], output_fields=[self._output_field]
+        )
+
     def transform(self, documents: List[Document]) -> List[Document]:
         """
         Main transform function

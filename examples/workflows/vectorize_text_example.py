@@ -26,6 +26,11 @@ class VectorizeTextOperator(AbstractOperator):
         self._alias = model.replace("/", "-") if alias is None else alias
         self._output_field = f"{text_field}_{self._alias}_vector_"
 
+        super().__init__(
+            input_fields=[self._text_field],
+            output_fields=[self._output_field],
+        )
+
     def transform(self, documents: List[Document]) -> List[Document]:
         """
         Main transform function
