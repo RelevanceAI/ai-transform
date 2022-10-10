@@ -208,6 +208,17 @@ class API:
         field_children: List[str],
         metadata: Optional[Dict[str, Any]] = None,
     ):
+        """
+        fieldchildren_id: The name of the workflow or operation
+
+        field: the input field of the operation
+
+        field_children: a list of output fields, taken from the most nested level
+        i.e. ["_sentiment_.text_field.alias"]
+
+        metadata: extra parameters associated with operation
+        i.e. n_clusters, n_init, softmax_temperature, etc...
+        """
         return requests.post(
             url=f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
             headers=self._headers,

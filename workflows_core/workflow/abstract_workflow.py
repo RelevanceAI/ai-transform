@@ -2,7 +2,7 @@ from ast import operator
 from workflows_core.dataset.dataset import Dataset
 
 from workflows_core.engine.abstract_engine import AbstractEngine
-from workflows_core.workflow.context import WorkflowContext
+from workflows_core.workflow.context_manager import WorkflowContextManager
 from workflows_core.operator.abstract_operator import AbstractOperator
 
 
@@ -26,7 +26,7 @@ class AbstractWorkflow:
         return self.engine.operator
 
     def run(self):
-        with WorkflowContext(
+        with WorkflowContextManager(
             workflow_name=repr(self),
             engine=self.engine,
             dataset=self.dataset,

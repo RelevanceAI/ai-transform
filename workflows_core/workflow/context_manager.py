@@ -1,3 +1,4 @@
+from ast import operator
 import os
 
 from inspect import Traceback
@@ -9,7 +10,7 @@ from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.operator.abstract_operator import AbstractOperator
 
 
-class WorkflowContext(API):
+class WorkflowContextManager(API):
 
     FAILED = "failed"
     COMPLETED = "completed"
@@ -28,6 +29,12 @@ class WorkflowContext(API):
         self._engine = engine
         self._operator = operator
         self._dataset = dataset
+        self._dataset_id = dataset.dataset_id
+
+        self._update_field_children = (
+            self._operator._input_fields is not None
+            and self._operator._output_fields is not None
+        )
 
         workflow_id = os.getenv("WORKFLOW_ID")
         self._workflow_id = (
@@ -43,6 +50,15 @@ class WorkflowContext(API):
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
+
+        if self._update_field_children:
+            self._set_field_children(
+                self._dataset_id,
+                self._workflow_name,
+                self._operator._input_fields,
+                self._operator._output_fields,
+            )
+
         if self._workflow_id is not None:
             if exc_type is not None:
                 # Handle the except, let user know etc...
