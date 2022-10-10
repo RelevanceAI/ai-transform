@@ -54,7 +54,7 @@ class WorkflowContextManager(API):
         if self._update_field_children:
             self._set_field_children(
                 self._dataset_id,
-                self._workflow_name,
+                self._workflow_name.lower().replace("workflow", ""),
                 self._operator._input_fields,
                 self._operator._output_fields,
             )

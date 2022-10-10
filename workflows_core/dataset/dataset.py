@@ -33,12 +33,11 @@ class Dataset:
         return self._api._get_schema(self._dataset_id)
 
     @property
-    def health(self) -> Dict[str, Any]:
-        return self._api._get_health(self._dataset_id)
-
-    @property
     def api(self) -> API:
         return self._api
+
+    def health(self) -> Dict[str, Any]:
+        return self._api._get_health(self._dataset_id)
 
     def create(self):
         return self._api._create_dataset(self._dataset_id)

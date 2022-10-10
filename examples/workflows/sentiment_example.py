@@ -39,7 +39,10 @@ class SentimentOperator(AbstractOperator):
 
         super().__init__(
             input_fields=[text_field],
-            output_fields=[self._output_field],
+            output_fields=[
+                f"{self._output_field}.sentiment",
+                f"{self._output_field}.overall_sentiment_score",
+            ],
         )
 
     def transform(self, documents: List[Document]) -> List[Document]:
