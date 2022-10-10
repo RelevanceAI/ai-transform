@@ -217,3 +217,9 @@ class API:
                 metadata={} if metadata is None else metadata,
             ),
         ).json()
+
+    def _get_health(self, dataset_id: str):
+        return requests.get(
+            url=f"/datasets/{dataset_id}/monitor/health",
+            headers=self._headers,
+        ).json()

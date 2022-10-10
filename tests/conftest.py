@@ -107,14 +107,19 @@ def test_engine(
     return TestEngine(full_dataset, test_operator)
 
 
-@pytest.fixture(scope="session")
-def test_workflow_token() -> str:
+@pytest.fixture(scope="function")
+def test_sentiment_workflow_token(test_client: Client) -> str:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    dataset.insert_documents(mock_documents(100))
     config = dict(
-        authorizationToken=os.getenv("TOKEN"),
-        dataset_id="test_dataset",
-        field="feild1.field2",
+        authorizationToken=test_client._token,
+        dataset_id=dataset_id,
+        text_field="sample_1_label",
     )
-    string = f"{json.dumps(config)}"
-    bytes = string.encode()
-    token = base64.b64encode(bytes).decode()
-    return token
+    config_string = json.dumps(config)
+    config_bytes = config_string.encode()
+    workflow_token = base64.b64encode(config_bytes).decode()
+    yield workflow_token
+    test_client.delete_dataset(dataset_id)

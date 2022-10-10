@@ -12,6 +12,7 @@ class Client:
     def __init__(self, token: str) -> None:
 
         self._credentials = process_token(token)
+        self._token = token
         self._api = API(credentials=self._credentials)
 
         try:

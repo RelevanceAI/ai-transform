@@ -68,8 +68,8 @@ class SentimentWorkflow(AbstractWorkflow):
     pass
 
 
-def main(token: str):
-    config = decode_workflow_token(token)
+def main(args):
+    config = decode_workflow_token(args.workflow_token)
 
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]

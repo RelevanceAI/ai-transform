@@ -28,7 +28,11 @@ class WorkflowContext(API):
         self._engine = engine
         self._operator = operator
         self._dataset = dataset
-        self._workflow_id = os.getenv("WORKFLOW_ID")
+
+        workflow_id = os.getenv("WORKFLOW_ID")
+        self._workflow_id = (
+            workflow_id if workflow_id != "" and workflow_id is not None else None
+        )
 
     def __enter__(self):
         """
