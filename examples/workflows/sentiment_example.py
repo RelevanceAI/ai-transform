@@ -4,7 +4,7 @@
 
 import torch
 
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from transformers import pipeline
 from workflows_core.api.client import Client
@@ -77,8 +77,10 @@ class SentimentWorkflow(AbstractWorkflow):
     pass
 
 
-def execute(token, logger, worker_number=0, *args, **kwargs):
-    config = decode_workflow_token(token)
+def execute(
+    workflow_token: str, logger: Callable, worker_number: int = 0, *args, **kwargs
+):
+    config = decode_workflow_token(workflow_token)
 
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]

@@ -1,5 +1,5 @@
 import argparse
-from typing import List
+from typing import Callable, List
 
 
 from workflows_core.utils.document import Document
@@ -18,7 +18,6 @@ class RayOperator(AbstractRayOperator):
         """
         Main transform function
         """
-        # import pdb; pdb.set_trace()
         for document in documents:
             document.set(self._field, 1)
 
@@ -29,8 +28,10 @@ class ExampleWorkflow(AbstractWorkflow):
     pass
 
 
-def main(args):
-    config = decode_workflow_token(args.workflow_token)
+def execute(
+    workflow_token: str, logger: Callable, worker_number: int = 0, *args, **kwargs
+):
+    config = decode_workflow_token(workflow_token)
 
     token = config["authorizationToken"]
     datatset_id = config["dataset_id"]
@@ -55,4 +56,4 @@ if __name__ == "__main__":
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    main(args)
+    execute(args.workflow_token, print)

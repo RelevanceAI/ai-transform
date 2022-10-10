@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
@@ -70,8 +70,10 @@ class ClusterWorkflow(AbstractWorkflow):
     pass
 
 
-def main(args):
-    config = decode_workflow_token(args.workflow_token)
+def execute(
+    workflow_token: str, logger: Callable, worker_number: int = 0, *args, **kwargs
+):
+    config = decode_workflow_token(workflow_token)
 
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
@@ -107,4 +109,4 @@ if __name__ == "__main__":
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    main(args)
+    execute(args.workflow_token)
