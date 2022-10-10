@@ -14,10 +14,13 @@ ray_requirements = [
     "ray==2.0.0",
 ]
 
-test_requirements = [
+core_test_requirements = [
     "pytest",
     "pytest-xdist",
     "pytest-cov",
+]
+
+example_test_requirements = [
     "torch",
     "transformers",
 ]
@@ -37,7 +40,8 @@ setup(
         ]
     },
     extras_require=dict(
-        tests=test_requirements,
+        core_tests=core_test_requirements,
+        example_tests=example_test_requirements,
         ray=ray_requirements,
     ),
 )
