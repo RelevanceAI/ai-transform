@@ -3,7 +3,7 @@ name: tests
 on: [pull_request]
 
 jobs:
-  unit:
+  examples:
 
     runs-on: ubuntu-latest
     strategy:
@@ -24,7 +24,7 @@ jobs:
         run: |
           python -c "import sys; print(sys.version)"
           python -m pip install --upgrade pip
-          python -m pip install .[core_tests]
+          python -m pip install .[example_tests]
 
       - name: Run Unit Tests (pytest)
         env:
