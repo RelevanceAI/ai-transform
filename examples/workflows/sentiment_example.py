@@ -1,4 +1,4 @@
-# For this workflow to to run, you need the following; 
+# For this workflow to to run, you need the following;
 # transformers[torch]==4.18.0
 # relevance-workflows-core
 
@@ -13,6 +13,7 @@ from workflows_core.workflow.helpers import decode_workflow_token
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.random import Document
+
 
 class SentimentOperator(AbstractOperator):
     LABELS = {
@@ -37,12 +38,13 @@ class SentimentOperator(AbstractOperator):
         self._alias = model.replace("/", "-") if alias is None else alias
         self._output_field = f"_sentiment_.{text_field}.{self._alias}"
 
+        output_fields = [
+            f"{self._output_field}.sentiment",
+            f"{self._output_field}.overall_sentiment_score",
+        ]
         super().__init__(
             input_fields=[text_field],
-            output_fields=[
-                f"{self._output_field}.sentiment",
-                f"{self._output_field}.overall_sentiment_score",
-            ],
+            output_fields=output_fields,
         )
 
     def transform(self, documents: List[Document]) -> List[Document]:
@@ -87,7 +89,7 @@ def execute(token, logger, worker_number=0, *args, **kwargs):
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
-    
+
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
     filters = dataset[text_field].exists()
@@ -98,7 +100,7 @@ def execute(token, logger, worker_number=0, *args, **kwargs):
         chunksize=8,
         select_fields=[text_field],
         filters=filters,
-        worker_number=worker_number
+        worker_number=worker_number,
     )
 
     workflow = SentimentWorkflow(engine)
@@ -109,6 +111,7 @@ def execute(token, logger, worker_number=0, *args, **kwargs):
 if __name__ == "__main__":
     # For script things
     import argparse
+
     parser = argparse.ArgumentParser(description="An example workflow.")
     parser.add_argument(
         "--workflow-token",
