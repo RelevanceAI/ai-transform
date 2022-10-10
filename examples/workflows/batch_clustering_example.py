@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
@@ -95,7 +95,7 @@ class BatchClusterPredictWorkflow(AbstractWorkflow):
     pass
 
 
-def main(args):
+def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(args.workflow_token)
 
     token = config["authorizationToken"]
@@ -145,6 +145,8 @@ def main(args):
 
 
 if __name__ == "__main__":
+    import argparse
+
     parser = argparse.ArgumentParser(description="An example workflow.")
     parser.add_argument(
         "--workflow-token",
@@ -152,4 +154,4 @@ if __name__ == "__main__":
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    main(args)
+    execute(args.workflow_token, print)
