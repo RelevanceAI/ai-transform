@@ -31,3 +31,6 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     workflow.run()
 
     assert operator._output_field in dataset.schema
+
+    for output_field in operator._output_fields:
+        assert dataset.health[output_field] == engine.size

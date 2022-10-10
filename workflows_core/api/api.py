@@ -190,7 +190,7 @@ class API:
                 "state should be one of `['inprogress', 'complete', 'failed']`"
             )
         return requests.post(
-            url=f"/workflows/{workflow_id}/status",
+            url=self._base_url + f"/workflows/{workflow_id}/status",
             headers=self._headers,
             json=dict(
                 metadata={},  # TODO: why is this empty
@@ -220,7 +220,8 @@ class API:
         i.e. n_clusters, n_init, softmax_temperature, etc...
         """
         return requests.post(
-            url=f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
+            url=self._base_url
+            + "/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
             headers=self._headers,
             json=dict(
                 field=field,
@@ -231,6 +232,6 @@ class API:
 
     def _get_health(self, dataset_id: str):
         return requests.get(
-            url=f"/datasets/{dataset_id}/monitor/health",
+            url=self._base_url + f"/datasets/{dataset_id}/monitor/health",
             headers=self._headers,
         ).json()
