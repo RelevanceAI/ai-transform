@@ -13,7 +13,7 @@ class StableEngine(AbstractEngine):
 
     def apply(self) -> Any:
 
-        iterator = self.iterate(self.worker_number)
+        iterator = self.iterate()
 
         for chunk in tqdm(
             iterator,
