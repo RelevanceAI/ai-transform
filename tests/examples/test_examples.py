@@ -1,3 +1,4 @@
+import time
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.helpers import decode_workflow_token
@@ -30,8 +31,9 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     workflow = SentimentWorkflow(engine)
     workflow.run()
 
-    assert operator._output_field in dataset.schema
+    time.sleep(2)
 
+    assert operator._output_field in dataset.schema
     health = dataset.health()
     for output_field in operator._output_fields:
         assert health[output_field]["exists"] == engine.size
