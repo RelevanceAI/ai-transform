@@ -38,13 +38,12 @@ class SentimentOperator(AbstractOperator):
         self._alias = model.replace("/", "-") if alias is None else alias
         self._output_field = f"_sentiment_.{text_field}.{self._alias}"
 
-        output_fields = [
-            f"{self._output_field}.sentiment",
-            f"{self._output_field}.overall_sentiment_score",
-        ]
         super().__init__(
             input_fields=[text_field],
-            output_fields=output_fields,
+            output_fields=[
+                f"{self._output_field}.sentiment",
+                f"{self._output_field}.overall_sentiment_score",
+            ],
         )
 
     def transform(self, documents: List[Document]) -> List[Document]:
