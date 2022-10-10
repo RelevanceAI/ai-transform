@@ -76,7 +76,7 @@ class SentimentWorkflow(AbstractWorkflow):
     pass
 
 
-def execute(token, logger, worker_number, *args, **kwargs):
+def execute(token, logger, worker_number=0, *args, **kwargs):
     config = decode_workflow_token(token)
 
     token = config["authorizationToken"]
