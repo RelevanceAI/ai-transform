@@ -98,6 +98,7 @@ def execute(token, logger, worker_number, *args, **kwargs):
         chunksize=8,
         select_fields=[text_field],
         filters=filters,
+        worker_number=worker_number
     )
 
     workflow = SentimentWorkflow(engine)
@@ -115,4 +116,4 @@ if __name__ == "__main__":
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    execute(args)
+    execute(args.workflow_token, print)
