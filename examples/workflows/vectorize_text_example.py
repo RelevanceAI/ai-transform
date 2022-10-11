@@ -44,10 +44,6 @@ class VectorizeTextOperator(AbstractOperator):
         return documents
 
 
-class VectorizeTextWorkflow(AbstractWorkflow):
-    pass
-
-
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
@@ -70,7 +66,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         filters=filters,
     )
 
-    workflow = VectorizeTextWorkflow(engine)
+    workflow = AbstractWorkflow(engine)
     workflow.run()
 
 

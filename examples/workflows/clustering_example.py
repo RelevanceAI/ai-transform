@@ -21,7 +21,6 @@ class ClusterOperator(AbstractOperator):
         vector_field: str,
         alias: Optional[str] = None,
     ):
-
         self._model = KMeans(n_clusters=n_clusters)
 
         self._vector_field = vector_field
@@ -65,10 +64,6 @@ class ClusterOperator(AbstractOperator):
         )
 
 
-class ClusterWorkflow(AbstractWorkflow):
-    pass
-
-
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
 
     config = decode_workflow_token(args.workflow_token)
@@ -95,7 +90,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         filters=filters,
     )
 
-    workflow = ClusterWorkflow(engine)
+    workflow = AbstractWorkflow(engine)
     workflow.run()
 
 

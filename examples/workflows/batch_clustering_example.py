@@ -1,4 +1,3 @@
-import argparse
 import numpy as np
 
 from typing import Callable, List, Optional
@@ -87,14 +86,6 @@ class BatchClusterPredictOperator(AbstractOperator):
         )
 
 
-class BatchClusterFitWorkflow(AbstractWorkflow):
-    pass
-
-
-class BatchClusterPredictWorkflow(AbstractWorkflow):
-    pass
-
-
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(args.workflow_token)
 
@@ -137,10 +128,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         filters=filters,
     )
 
-    fit_workflow = BatchClusterFitWorkflow(fit_engine)
+    fit_workflow = AbstractWorkflow(fit_engine)
     fit_workflow.run()
 
-    predict_workflow = BatchClusterPredictWorkflow(predict_engine)
+    predict_workflow = AbstractWorkflow(predict_engine)
     predict_workflow.run()
 
 

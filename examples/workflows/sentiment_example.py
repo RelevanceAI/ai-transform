@@ -73,10 +73,6 @@ class SentimentOperator(AbstractOperator):
         return documents
 
 
-class SentimentWorkflow(AbstractWorkflow):
-    pass
-
-
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
@@ -102,9 +98,8 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         worker_number=worker_number,
     )
 
-    workflow = SentimentWorkflow(engine)
+    workflow = AbstractWorkflow(engine)
     workflow.run()
-    # Run workflow example
 
 
 if __name__ == "__main__":

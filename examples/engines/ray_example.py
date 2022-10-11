@@ -1,4 +1,3 @@
-import argparse
 from typing import Callable
 
 import pandas as pd
@@ -23,10 +22,6 @@ class RayOperator(AbstractRayOperator):
         return df
 
 
-class ExampleWorkflow(AbstractWorkflow):
-    pass
-
-
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(args.workflow_token)
 
@@ -41,7 +36,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 
     engine = RayEngine(dataset=dataset, operator=operator)
 
-    workflow = ExampleWorkflow(engine)
+    workflow = AbstractWorkflow(engine)
     workflow.run()
 
 
