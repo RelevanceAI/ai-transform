@@ -22,6 +22,9 @@ class WorkflowContextManager(API):
         engine: AbstractEngine,
         dataset: Dataset,
         operator: AbstractOperator,
+        metadata: Optional[Dict[str, Any]] = None,
+        additional_information: str = "",
+        send_email: bool = True,
     ) -> None:
         super().__init__(dataset.api._credentials)
 
@@ -40,6 +43,10 @@ class WorkflowContextManager(API):
         self._workflow_id = (
             workflow_id if workflow_id != "" and workflow_id is not None else None
         )
+
+        self._metadata = metadata
+        self._additional_information = additional_information
+        self._send_email = send_email
 
     def __enter__(self):
         """
@@ -72,19 +79,15 @@ class WorkflowContextManager(API):
             # If not workflow id in env, we simply exit
             return True
 
-    def _set_status(
-        self,
-        status: str,
-        metadata: Optional[Dict[str, Any]] = None,
-        additional_information: str = "",
-    ):
+    def _set_status(self, status: str):
         """
         Set the status of the workflow
         """
         return self._set_workflow_status(
-            workflow_id=self._workflow_id,
-            metadata={} if metadata is not None else metadata,
-            workflow_name=self._workflow_name,
-            additional_information=additional_information,
             status=status,
+            workflow_id=self._workflow_id,
+            metadata={} if self._metadata is not None else self._metadata,
+            workflow_name=self._workflow_name,
+            additional_information=self._additional_information,
+            send_email=self._send_email,
         )
