@@ -1,6 +1,6 @@
 import argparse
-from typing import Callable, List
 
+from typing import Callable, List
 
 from workflows_core.utils.document import Document
 from workflows_core.api.client import Client
