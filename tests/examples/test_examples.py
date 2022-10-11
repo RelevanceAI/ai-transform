@@ -1,9 +1,11 @@
 import time
+
+from examples.workflows.sentiment_example import SentimentOperator
+
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
+from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.workflow.helpers import decode_workflow_token
-
-from examples.workflows.sentiment_example import SentimentOperator, SentimentWorkflow
 
 
 def test_sentiment_example(test_sentiment_workflow_token: str):
@@ -28,7 +30,7 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         filters=filters,
     )
 
-    workflow = SentimentWorkflow(engine)
+    workflow = AbstractWorkflow(engine)
     workflow.run()
 
     time.sleep(2)
