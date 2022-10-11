@@ -14,6 +14,8 @@ class RayOperator(AbstractRayOperator):
     def __init__(self, field: str):
         self._field = field
 
+        super().__init__(input_fields=[field])
+
     def transform(self, documents: List[Document]) -> List[Document]:
         """
         Main transform function
