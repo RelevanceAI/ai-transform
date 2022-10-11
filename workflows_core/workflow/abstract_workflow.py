@@ -7,8 +7,9 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 
 
 class AbstractWorkflow:
-    def __init__(self, engine: AbstractEngine):
+    def __init__(self, engine: AbstractEngine, **kwargs):
         self._engine = engine
+        self._kwargs = kwargs
 
     def __repr__(self):
         return str(type(self).__name__)
@@ -31,6 +32,7 @@ class AbstractWorkflow:
             engine=self.engine,
             dataset=self.dataset,
             operator=self.operator,
+            **self._kwargs
         ):
             self.engine()
         return

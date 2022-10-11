@@ -4,7 +4,7 @@
 
 import torch
 
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from transformers import pipeline
 from workflows_core.api.client import Client
@@ -15,18 +15,13 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.random import Document
 
 
-class SentimentOperator(AbstractOperator):
-    LABELS = {
-        "LABEL_0": "negative",
-        "LABEL_1": "neutral",
-        "LABEL_2": "positive",
-    }
-
+class EmotionOperator(AbstractOperator):
     def __init__(
         self,
         text_field: str,
-        model: str = "cardiffnlp/twitter-roberta-base-sentiment",
+        model: str = "Emanuel/bertweet-emotion-base",
         alias: Optional[str] = None,
+        min_score: float = 0.1,
     ):
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -36,15 +31,15 @@ class SentimentOperator(AbstractOperator):
 
         self._text_field = text_field
         self._alias = model.replace("/", "-") if alias is None else alias
-        self._output_field = f"_sentiment_.{text_field}.{self._alias}"
+        self._output_field = f"_emotion_.{text_field}.{self._alias}"
+        self._min_score = min_score
 
-        output_fields = [
-            f"{self._output_field}.sentiment",
-            f"{self._output_field}.overall_sentiment_score",
-        ]
         super().__init__(
             input_fields=[text_field],
-            output_fields=output_fields,
+            output_fields=[
+                f"{self._output_field}.label",
+                f"{self._output_field}.score",
+            ],
         )
 
     def transform(self, documents: List[Document]) -> List[Document]:
@@ -56,54 +51,63 @@ class SentimentOperator(AbstractOperator):
         labels = self._model(batch)
 
         for index in range(len(labels)):
-            _labels = [l for i, l in enumerate(labels[index]) if i != 1]
+            _labels = labels[index]
             _label = max(_labels, key=lambda logit: logit["score"])
 
-            label = SentimentOperator.LABELS[_label["label"]]
+            score = _label["score"]
+            if score < self._min_score:
+                emotion = dict(label="No emotion detected")
 
-            _score = _label["score"]
-            if label == "positive":
-                score = score
+            else:
+                label = _label["label"]
+                emotion = dict(label=label, score=score)
 
-            elif label == "negative":
-                score = -_score
-
-            sentiment = dict(sentiment=score, overall_sentiment_score=label)
-            documents[index].set(self._output_field, sentiment)
+            documents[index].set(self._output_field, emotion)
 
         return documents
 
 
-class SentimentWorkflow(AbstractWorkflow):
-    pass
-
-
-def execute(token, logger, worker_number=0, *args, **kwargs):
-    config = decode_workflow_token(token)
+def execute(
+    workflow_token: str, logger: Callable, worker_number: int = 0, *args, **kwargs
+):
+    config = decode_workflow_token(workflow_token)
 
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
-    text_field = config["text_field"]
+    text_fields: list = config["text_fields"]
+    model: str = config.get("model_id", "Emanuel/bertweet-emotion-base")
+    alias: list = config.get("alias", None)
+    min_score = float(config.get("min_score", 0.1))
+    filters: list = config.get("filters", [])
+    chunksize: int = 8
+    send_email: bool = config.get("send_email", True)
+    additional_information: str = config.get("additional_information", "")
 
     alias = config.get("alias", None)
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = SentimentOperator(text_field=text_field, alias=alias)
+    operator = EmotionOperator(
+        text_field=text_fields[0], model=model, alias=alias, min_score=min_score
+    )
 
-    filters = dataset[text_field].exists()
+    filters = dataset[text_fields[0]].exists()
 
     engine = StableEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=8,
-        select_fields=[text_field],
+        chunksize=chunksize,
+        select_fields=text_fields,
         filters=filters,
         worker_number=worker_number,
     )
 
-    workflow = SentimentWorkflow(engine)
+    workflow = AbstractWorkflow(
+        engine,
+        send_email=send_email,
+        additional_information=additional_information,
+    )
     workflow.run()
     # Run workflow example
 
