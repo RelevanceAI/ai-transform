@@ -20,10 +20,14 @@ core_test_requirements = [
     "pytest-cov",
 ]
 
-example_test_requirements = core_test_requirements + [
-    "torch",
-    "transformers",
-]
+example_test_requirements = (
+    ray_requirements
+    + core_test_requirements
+    + [
+        "torch",
+        "transformers",
+    ]
+)
 
 setup(
     name="RelevanceAI Workflows Core",
