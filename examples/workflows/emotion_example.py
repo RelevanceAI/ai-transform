@@ -86,7 +86,6 @@ def execute(
     chunksize: int = 8
     send_email: bool = config.get("send_email", True)
     additional_information: str = config.get("additional_information", "")
-    job_id: str = config.get("job_id", "")
 
     alias = config.get("alias", None)
 
@@ -108,7 +107,11 @@ def execute(
         worker_number=worker_number,
     )
 
-    workflow = SentimentWorkflow(engine)
+    workflow = SentimentWorkflow(
+        engine,
+        send_email=send_email,
+        additional_information=additional_information,
+    )
     workflow.run()
     # Run workflow example
 
