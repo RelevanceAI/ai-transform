@@ -67,10 +67,6 @@ class EmotionOperator(AbstractOperator):
         return documents
 
 
-class SentimentWorkflow(AbstractWorkflow):
-    pass
-
-
 def execute(
     workflow_token: str, logger: Callable, worker_number: int = 0, *args, **kwargs
 ):
@@ -107,7 +103,7 @@ def execute(
         worker_number=worker_number,
     )
 
-    workflow = SentimentWorkflow(
+    workflow = AbstractWorkflow(
         engine,
         send_email=send_email,
         additional_information=additional_information,
