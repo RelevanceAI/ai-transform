@@ -41,4 +41,5 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     for output_field in operator._output_fields:
         assert health[output_field]["exists"] == engine.size
 
-    assert workflow.get_status()["job_status"].lower() == "complete"
+    status_dict = workflow.get_status()
+    assert status_dict["status"].lower() == "complete"
