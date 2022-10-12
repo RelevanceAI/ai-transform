@@ -106,9 +106,9 @@ if __name__ == "__main__":
     # For script things
     import argparse
 
-    parser = argparse.ArgumentParser(description="An example workflow.")
+    parser = argparse.ArgumentParser(description="Sentiment workflow.")
     parser.add_argument(
-        "--workflow-token",
+        "token",
         type=str,
         help="a base64 encoded token that contains parameters for running the workflow",
     )

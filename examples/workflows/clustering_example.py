@@ -97,9 +97,9 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="An example workflow.")
+    parser = argparse.ArgumentParser(description="Clustering workflow.")
     parser.add_argument(
-        "--workflow-token",
+        "token",
         type=str,
         help="a base64 encoded token that contains parameters for running the workflow",
     )
