@@ -1,4 +1,5 @@
 from typing import Callable, List
+import uuid
 
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
@@ -26,8 +27,9 @@ class ExampleOperator(AbstractOperator):
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
-    config = decode_workflow_token(args.workflow_token)
+    config = decode_workflow_token(token)
 
+    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     datatset_id = config["dataset_id"]
     field = config["field"]
@@ -39,7 +41,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 
     engine = StableEngine(dataset=dataset, operator=operator)
 
-    workflow = AbstractWorkflow(engine)
+    workflow = AbstractWorkflow(workflow_id, engine)
     workflow.run()
 
 

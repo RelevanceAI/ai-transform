@@ -11,6 +11,7 @@ from workflows_core.workflow.helpers import decode_workflow_token
 def test_sentiment_example(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
+    workflow_id = config["workflow_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -30,7 +31,7 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         filters=filters,
     )
 
-    workflow = AbstractWorkflow(engine)
+    workflow = AbstractWorkflow(workflow_id, engine)
     workflow.run()
 
     time.sleep(2)
@@ -39,3 +40,5 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     health = dataset.health()
     for output_field in operator._output_fields:
         assert health[output_field]["exists"] == engine.size
+
+    assert workflow.get_status()["job_status"].lower() == "complete"

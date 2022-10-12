@@ -3,6 +3,7 @@ import json
 import base64
 import random
 import string
+import uuid
 import pytest
 
 from typing import Any, List
@@ -114,6 +115,7 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     dataset = test_client.Dataset(dataset_id)
     dataset.insert_documents(mock_documents(20))
     config = dict(
+        workflow_id=str(uuid.uuid4()),
         authorizationToken=test_client._token,
         dataset_id=dataset_id,
         text_field="sample_1_label",

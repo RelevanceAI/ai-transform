@@ -47,6 +47,7 @@ class VectorizeTextOperator(AbstractOperator):
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
+    workflow_id = config["workflow_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -66,7 +67,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         filters=filters,
     )
 
-    workflow = AbstractWorkflow(engine)
+    workflow = AbstractWorkflow(workflow_id, engine)
     workflow.run()
 
 

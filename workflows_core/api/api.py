@@ -239,3 +239,9 @@ class API:
             url=self._base_url + f"/datasets/{dataset_id}/monitor/health",
             headers=self._headers,
         ).json()
+
+    def _get_workflow_status(self, workflow_id: str):
+        return requests.post(
+            url=self._base_url + f"/workflows/{workflow_id}/get",
+            headers=self._headers,
+        ).json()

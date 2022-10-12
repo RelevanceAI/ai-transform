@@ -19,6 +19,7 @@ class WorkflowContextManager(API):
     def __init__(
         self,
         workflow_name: str,
+        workflow_id: str,
         engine: AbstractEngine,
         dataset: Dataset,
         operator: AbstractOperator,
@@ -39,10 +40,7 @@ class WorkflowContextManager(API):
             and self._operator._output_fields is not None
         )
 
-        workflow_id = os.getenv("WORKFLOW_ID")
-        self._workflow_id = (
-            workflow_id if workflow_id != "" and workflow_id is not None else None
-        )
+        self._workflow_id = workflow_id
 
         self._metadata = metadata
         self._additional_information = additional_information

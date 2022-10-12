@@ -5,6 +5,7 @@
 # sentence-splitter==1.4.0
 # protobuf==3.20.1
 
+import uuid
 import numpy as np
 
 from typing import Callable, List, Optional
@@ -117,11 +118,10 @@ class TaggingOperator(AbstractOperator):
         return documents
 
 
-def execute(
-    workflow_token: str, logger: Callable, worker_number: int = 0, *args, **kwargs
-):
-    config = decode_workflow_token(workflow_token)
+def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
+    config = decode_workflow_token(token)
 
+    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     survey_question = config.get("surveyQuestion", "")
@@ -160,7 +160,7 @@ def execute(
         worker_number=worker_number,
     )
 
-    workflow = AbstractWorkflow(engine)
+    workflow = AbstractWorkflow(workflow_id, engine)
     workflow.run()
 
 

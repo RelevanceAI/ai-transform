@@ -2,6 +2,7 @@
 # transformers[torch]==4.18.0
 # relevance-workflows-core
 
+import uuid
 import torch
 
 from typing import Callable, List, Optional
@@ -76,6 +77,7 @@ class SentimentOperator(AbstractOperator):
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
+    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]

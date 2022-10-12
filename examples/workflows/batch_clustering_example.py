@@ -1,3 +1,4 @@
+import uuid
 import numpy as np
 
 from typing import Callable, List, Optional
@@ -86,6 +87,7 @@ class BatchClusterPredictOperator(AbstractOperator):
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(args.workflow_token)
 
+    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     vector_field = config["vector_field"]
@@ -125,10 +127,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         filters=filters,
     )
 
-    fit_workflow = AbstractWorkflow(fit_engine)
+    fit_workflow = AbstractWorkflow(f"{workflow_id}_fit", fit_engine)
     fit_workflow.run()
 
-    predict_workflow = AbstractWorkflow(predict_engine)
+    predict_workflow = AbstractWorkflow(f"{workflow_id}_predict", predict_engine)
     predict_workflow.run()
 
 
