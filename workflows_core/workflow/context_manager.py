@@ -13,7 +13,7 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 class WorkflowContextManager(API):
 
     FAILED = "failed"
-    COMPLETED = "complete"
+    COMPLETED = "completed"
     IN_PROGRESS = "inprogress"
 
     def __init__(
