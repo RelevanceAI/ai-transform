@@ -29,7 +29,7 @@ class SentimentOperator(AbstractOperator):
         alias: Optional[str] = None,
     ):
 
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        device = 0 if torch.cuda.is_available() else -1
         self._model = pipeline(
             "sentiment-analysis", model=model, device=device, return_all_scores=True
         )
