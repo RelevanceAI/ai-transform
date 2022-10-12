@@ -41,7 +41,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 
     engine = StableEngine(dataset=dataset, operator=operator)
 
-    workflow = AbstractWorkflow(workflow_id, engine)
+    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
     workflow.run()
 
 

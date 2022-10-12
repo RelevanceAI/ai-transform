@@ -100,7 +100,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         worker_number=worker_number,
     )
 
-    workflow = AbstractWorkflow(engine)
+    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
     workflow.run()
 
 
