@@ -225,7 +225,7 @@ class API:
         """
         return requests.post(
             url=self._base_url
-            + "/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
+            + f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
             headers=self._headers,
             json=dict(
                 field=field,
