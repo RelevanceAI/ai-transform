@@ -142,4 +142,4 @@ if __name__ == "__main__":
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    execute(args.workflow_token, print)
+    execute(args.token, print)
