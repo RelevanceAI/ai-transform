@@ -13,7 +13,7 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 class WorkflowContextManager(API):
 
     FAILED = "failed"
-    COMPLETED = "complete"
+    COMPLETE = "complete"
     IN_PROGRESS = "inprogress"
 
     def __init__(
@@ -73,7 +73,7 @@ class WorkflowContextManager(API):
                 return False
             else:
                 # Workflow must have run successfully
-                self._set_status(status=self.COMPLETED)
+                self._set_status(status=self.COMPLETE)
                 return True
         else:
             # If not workflow id in env, we simply exit
