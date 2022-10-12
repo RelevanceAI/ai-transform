@@ -4,6 +4,9 @@ from typing import Any
 
 
 class Document(dict):
+    def __repr__(self):
+        return repr(dict(self))
+
     def set(self, key: str, value: Any) -> None:
         try:
             fields = key.split(".")
@@ -40,7 +43,7 @@ class Document(dict):
     def keys(self):
         try:
             df = pd.json_normalize(self, sep=".")
-            return list(set(list(super().keys()) + list(df.columns)))
+            return list(df.columns)
         except:
             return super().keys()
 
