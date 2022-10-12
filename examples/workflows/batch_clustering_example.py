@@ -19,13 +19,10 @@ class BatchClusterFitOperator(AbstractOperator):
         self,
         n_clusters: int,
         vector_field: str,
-        alias: Optional[str] = None,
     ):
 
         self._model = MiniBatchKMeans(n_clusters=n_clusters)
-
         self._vector_field = vector_field
-        self._alias = f"minibatchkmeans-{n_clusters}" if alias is None else alias
 
         super().__init__(input_fields=[self._vector_field])
 
