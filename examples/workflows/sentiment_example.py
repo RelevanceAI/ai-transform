@@ -2,9 +2,10 @@
 # transformers[torch]==4.18.0
 # relevance-workflows-core
 
+import uuid
 import torch
 
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from transformers import pipeline
 from workflows_core.api.client import Client
@@ -29,7 +30,7 @@ class SentimentOperator(AbstractOperator):
         alias: Optional[str] = None,
     ):
 
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        device = 0 if torch.cuda.is_available() else -1
         self._model = pipeline(
             "sentiment-analysis", model=model, device=device, return_all_scores=True
         )
@@ -38,13 +39,12 @@ class SentimentOperator(AbstractOperator):
         self._alias = model.replace("/", "-") if alias is None else alias
         self._output_field = f"_sentiment_.{text_field}.{self._alias}"
 
-        output_fields = [
-            f"{self._output_field}.sentiment",
-            f"{self._output_field}.overall_sentiment_score",
-        ]
         super().__init__(
             input_fields=[text_field],
-            output_fields=output_fields,
+            output_fields=[
+                f"{self._output_field}.sentiment",
+                f"{self._output_field}.overall_sentiment_score",
+            ],
         )
 
     def transform(self, documents: List[Document]) -> List[Document]:
@@ -74,13 +74,10 @@ class SentimentOperator(AbstractOperator):
         return documents
 
 
-class SentimentWorkflow(AbstractWorkflow):
-    pass
-
-
-def execute(token, logger, worker_number=0, *args, **kwargs):
+def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
+    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -103,20 +100,19 @@ def execute(token, logger, worker_number=0, *args, **kwargs):
         worker_number=worker_number,
     )
 
-    workflow = SentimentWorkflow(engine)
+    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
     workflow.run()
-    # Run workflow example
 
 
 if __name__ == "__main__":
     # For script things
     import argparse
 
-    parser = argparse.ArgumentParser(description="An example workflow.")
+    parser = argparse.ArgumentParser(description="Sentiment workflow.")
     parser.add_argument(
-        "--workflow-token",
+        "token",
         type=str,
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    execute(args.workflow_token, print)
+    execute(args.token, print)

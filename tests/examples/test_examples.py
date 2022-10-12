@@ -1,14 +1,17 @@
 import time
+
+from examples.workflows.sentiment_example import SentimentOperator
+
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
+from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.workflow.helpers import decode_workflow_token
-
-from examples.workflows.sentiment_example import SentimentOperator, SentimentWorkflow
 
 
 def test_sentiment_example(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
+    workflow_id = config["workflow_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -28,7 +31,7 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         filters=filters,
     )
 
-    workflow = SentimentWorkflow(engine)
+    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
     workflow.run()
 
     time.sleep(2)
@@ -37,3 +40,6 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     health = dataset.health()
     for output_field in operator._output_fields:
         assert health[output_field]["exists"] == engine.size
+
+    status_dict = workflow.get_status()
+    assert status_dict["status"].lower() == "complete"

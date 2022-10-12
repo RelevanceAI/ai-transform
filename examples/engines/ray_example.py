@@ -1,4 +1,5 @@
-import argparse
+from typing import Callable
+import uuid
 
 import pandas as pd
 
@@ -22,13 +23,10 @@ class RayOperator(AbstractRayOperator):
         return df
 
 
-class ExampleWorkflow(AbstractWorkflow):
-    pass
-
-
-def main(args):
+def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(args.workflow_token)
 
+    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     datatset_id = config["dataset_id"]
     field = config["field"]
@@ -40,16 +38,18 @@ def main(args):
 
     engine = RayEngine(dataset=dataset, operator=operator)
 
-    workflow = ExampleWorkflow(engine)
+    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
     workflow.run()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="An example workflow.")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Ray Example workflow.")
     parser.add_argument(
-        "--workflow-token",
+        "token",
         type=str,
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    main(args)
+    execute(args.token, print)

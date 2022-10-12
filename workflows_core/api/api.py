@@ -225,7 +225,7 @@ class API:
         """
         return requests.post(
             url=self._base_url
-            + "/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
+            + f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
             headers=self._headers,
             json=dict(
                 field=field,
@@ -237,5 +237,11 @@ class API:
     def _get_health(self, dataset_id: str):
         return requests.get(
             url=self._base_url + f"/datasets/{dataset_id}/monitor/health",
+            headers=self._headers,
+        ).json()
+
+    def _get_workflow_status(self, workflow_id: str):
+        return requests.post(
+            url=self._base_url + f"/workflows/{workflow_id}/get",
             headers=self._headers,
         ).json()

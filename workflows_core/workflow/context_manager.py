@@ -13,12 +13,13 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 class WorkflowContextManager(API):
 
     FAILED = "failed"
-    COMPLETED = "complete"
+    COMPLETE = "complete"
     IN_PROGRESS = "inprogress"
 
     def __init__(
         self,
         workflow_name: str,
+        workflow_id: str,
         engine: AbstractEngine,
         dataset: Dataset,
         operator: AbstractOperator,
@@ -39,10 +40,7 @@ class WorkflowContextManager(API):
             and self._operator._output_fields is not None
         )
 
-        workflow_id = os.getenv("WORKFLOW_ID")
-        self._workflow_id = (
-            workflow_id if workflow_id != "" and workflow_id is not None else None
-        )
+        self._workflow_id = workflow_id
 
         self._metadata = metadata
         self._additional_information = additional_information
@@ -73,7 +71,7 @@ class WorkflowContextManager(API):
                 return False
             else:
                 # Workflow must have run successfully
-                self._set_status(status=self.COMPLETED)
+                self._set_status(status=self.COMPLETE)
                 return True
         else:
             # If not workflow id in env, we simply exit

@@ -22,7 +22,7 @@ core_test_requirements = [
 
 example_test_requirements = core_test_requirements + [
     "torch",
-    "transformers",
+    "transformers[torch]==4.18.0",
 ]
 
 setup(

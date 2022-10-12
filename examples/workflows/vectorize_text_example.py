@@ -1,6 +1,6 @@
 import argparse
 
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
@@ -44,13 +44,10 @@ class VectorizeTextOperator(AbstractOperator):
         return documents
 
 
-class VectorizeTextWorkflow(AbstractWorkflow):
-    pass
-
-
-def main(token: str):
+def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
+    workflow_id = config["workflow_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -70,16 +67,18 @@ def main(token: str):
         filters=filters,
     )
 
-    workflow = VectorizeTextWorkflow(engine)
+    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
     workflow.run()
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="An example workflow.")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Vectorize Text Workflow.")
     parser.add_argument(
-        "--workflow-token",
+        "token",
         type=str,
         help="a base64 encoded token that contains parameters for running the workflow",
     )
     args = parser.parse_args()
-    main(args)
+    execute(args.token, print)
