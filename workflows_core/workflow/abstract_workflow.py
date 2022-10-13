@@ -14,6 +14,7 @@ class AbstractWorkflow:
         self,
         engine: AbstractEngine,
         workflow_id: Optional[str] = None,
+        workflow_name: Optional[str] = None,
         **kwargs,
     ):
         self._engine = engine
@@ -23,6 +24,12 @@ class AbstractWorkflow:
             warnings.warn(f"No workflow id supplied, using {workflow_id}")
 
         self._workflow_id = workflow_id
+        # This gets emailed to the user - so we want to set it to
+        # something sensible
+        if workflow_name is not None:
+            self.workflow_name = workflow_name
+        else:
+            self.workflow_name = "Workflow"
 
         self._kwargs = kwargs
         self._api = engine.dataset.api
@@ -44,7 +51,7 @@ class AbstractWorkflow:
 
     def run(self):
         with WorkflowContextManager(
-            workflow_name=repr(self),
+            workflow_name=self.workflow_name,
             workflow_id=self._workflow_id,
             engine=self.engine,
             dataset=self.dataset,
