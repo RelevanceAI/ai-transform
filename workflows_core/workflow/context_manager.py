@@ -67,6 +67,9 @@ class WorkflowContextManager(API):
         if self._workflow_id is not None:
             if exc_type is not None:
                 # Handle the except, let user know etc...
+                # print the error (ideally logged but this is good enough for now)
+                import traceback
+                traceback.print_exc()
                 self._set_status(status=self.FAILED)
                 return False
             else:
