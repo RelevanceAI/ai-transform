@@ -1,6 +1,4 @@
-from ast import operator
-import os
-
+import logging
 from inspect import Traceback
 from typing import Any, Dict, Optional
 
@@ -8,6 +6,8 @@ from workflows_core.api.api import API
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.operator.abstract_operator import AbstractOperator
+
+logger = logging.getLogger(__file__)
 
 
 class WorkflowContextManager(API):
@@ -57,12 +57,17 @@ class WorkflowContextManager(API):
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
 
         if self._update_field_children:
-            self._set_field_children(
-                self._dataset_id,
-                self._workflow_name.lower().replace("workflow", ""),
-                self._operator._input_fields,
-                self._operator._output_fields,
-            )
+            if self._operator._input_fields is not None:
+                for input_field in self._operator._input_fields:
+                    result = self._set_field_children(
+                        dataset_id=self._dataset_id,
+                        fieldchildren_id=self._workflow_name.lower().replace(
+                            "workflow", ""
+                        ),
+                        field=input_field,
+                        field_children=self._operator._output_fields,
+                    )
+                    logger.debug(result)
 
         if self._workflow_id is not None:
             if exc_type is not None:
