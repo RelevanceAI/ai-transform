@@ -32,7 +32,7 @@ class SentimentOperator(AbstractOperator):
 
         device = 0 if torch.cuda.is_available() else -1
         self._model = pipeline(
-            "sentiment-analysis", model=model, device=device, return_all_scores=True
+            "sentiment-analysis", model=model, device=device, return_all_scores=False
         )
 
         self._text_field = text_field
@@ -54,23 +54,8 @@ class SentimentOperator(AbstractOperator):
 
         batch = [document[self._text_field] for document in documents]
         labels = self._model(batch)
-
-        for index in range(len(labels)):
-            _labels = [l for i, l in enumerate(labels[index]) if i != 1]
-            _label = max(_labels, key=lambda logit: logit["score"])
-
-            label = SentimentOperator.LABELS[_label["label"]]
-
-            _score = _label["score"]
-            if label == "positive":
-                score = score
-
-            elif label == "negative":
-                score = -_score
-
-            sentiment = dict(sentiment=label, overall_sentiment_score=float(score))
-            documents[index][self._output_field] = sentiment
-
+        for i, doc in enumerate(documents):
+            doc[self._output_field] = labels[i]
         return documents
 
 
