@@ -47,6 +47,9 @@ class Document(UserDict):
         except:
             return default
 
+    def set(self, key: Any, value: Any) -> None:
+        self.__setitem__(key, value)
+
     def keys(self):
         try:
             df = pd.json_normalize(self.data, sep=".")
