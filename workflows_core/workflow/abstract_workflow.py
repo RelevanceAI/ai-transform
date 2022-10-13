@@ -1,4 +1,3 @@
-from ast import operator
 from typing import Optional
 import uuid
 import warnings
@@ -56,3 +55,5 @@ class AbstractWorkflow:
 
     def get_status(self):
         return self._api._get_workflow_status(self._workflow_id)
+
+Workflow = AbstractWorkflow
