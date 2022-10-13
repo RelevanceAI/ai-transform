@@ -48,6 +48,9 @@ class Dataset:
     def insert_documents(
         self, documents: List[document.Document], *args, **kwargs
     ) -> Dict[str, Any]:
+        for index, document in enumerate(documents):
+            if hasattr(document, "to_dict"):
+                documents[index] = document.to_dict()
         return self._api._bulk_insert(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
@@ -55,6 +58,9 @@ class Dataset:
     def update_documents(
         self, documents: List[document.Document], *args, **kwargs
     ) -> Dict[str, Any]:
+        for index, document in enumerate(documents):
+            if hasattr(document, "to_dict"):
+                documents[index] = document.to_dict()
         return self._api._bulk_update(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )

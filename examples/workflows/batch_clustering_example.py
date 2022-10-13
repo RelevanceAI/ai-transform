@@ -32,7 +32,7 @@ class BatchClusterFitOperator(AbstractOperator):
         Main transform function
         """
         vectors = np.array(
-            [np.array(document.get(self._vector_field)) for document in documents]
+            [np.array(document[self._vector_field]) for document in documents]
         )
         self._model.partial_fit(vectors)
         return documents

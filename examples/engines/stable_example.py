@@ -18,10 +18,10 @@ class ExampleOperator(AbstractOperator):
         Main transform function
         """
         for document in documents:
-            before = document.get(self._field)
-            document.set(self._field, document.get(self._field, 3) * 2)
+            before = document[self._field]
+            document[self._field] = document.get(self._field, 3) * 2
             after = document
-            print(before, after.get(self._field))
+            print(before, after[self._field])
 
         return documents
 

@@ -56,7 +56,7 @@ class AbstractOperator(ABC, DocumentUtils):
                 new_value = new_document.get(field, None)
                 value_diff = old_value != new_value
                 if field not in old_fields or value_diff or field == "_id":
-                    pp_document.set(field, new_value)
+                    pp_document[field] = new_value
 
             if pp_document:
                 batch.append(pp_document)
