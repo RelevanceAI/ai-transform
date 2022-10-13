@@ -20,7 +20,7 @@ class AbstractEngine(ABC):
         chunksize: Optional[int] = 8,
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
-        worker_number: int = 0
+        worker_number: int = 0,
     ):
         if select_fields is not None:
             assert all(
@@ -93,7 +93,7 @@ class AbstractEngine(ABC):
                 if select_fields is not None
                 else self._select_fields,
                 after_id=self._after_id,
-                worker_number=self.worker_number
+                worker_number=self.worker_number,
             )
             self._after_id = chunk["after_id"]
             if not chunk["documents"]:
