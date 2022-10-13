@@ -68,7 +68,7 @@ class SentimentOperator(AbstractOperator):
             elif label == "negative":
                 score = -_score
 
-            sentiment = dict(sentiment=score, overall_sentiment_score=label)
+            sentiment = dict(sentiment=label, overall_sentiment_score=float(score))
             documents[index][self._output_field] = sentiment
 
         return documents
