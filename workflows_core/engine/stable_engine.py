@@ -1,8 +1,11 @@
+import logging
 from typing import Any
 
 from workflows_core.engine.abstract_engine import AbstractEngine
 
 from tqdm.auto import tqdm
+
+logger = logging.getLogger(__file__)
 
 class StableEngine(AbstractEngine):
     def __init__(self, *args, **kwargs):
@@ -22,6 +25,6 @@ class StableEngine(AbstractEngine):
         ):
             new_batch = self.operator(chunk)
             result = self.update_chunk(new_batch)
-            print(result)
+            logging.debug(result)
 
         return
