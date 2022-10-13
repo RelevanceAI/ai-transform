@@ -7,6 +7,19 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document, DocumentUtils
 
 
+def get_document_diff(old_document: Document, new_document: Document) -> Document:
+    pp_document = Document()
+    new_fields = new_document.keys()
+    old_fields = old_document.keys()
+    for field in new_fields:
+        old_value = old_document.get(field, None)
+        new_value = new_document.get(field, None)
+        value_diff = old_value != new_value
+        if field not in old_fields or value_diff or field == "_id":
+            pp_document[field] = new_value
+    return pp_document
+
+
 class AbstractOperator(ABC, DocumentUtils):
     def __init__(
         self,
@@ -48,18 +61,9 @@ class AbstractOperator(ABC, DocumentUtils):
         """
         batch = []
         for old_document, new_document in zip(old_batch, new_batch):
-            pp_document = Document()
-            new_fields = new_document.keys()
-            old_fields = old_document.keys()
-            for field in new_fields:
-                old_value = old_document.get(field, None)
-                new_value = new_document.get(field, None)
-                value_diff = old_value != new_value
-                if field not in old_fields or value_diff or field == "_id":
-                    pp_document.set(field, new_value)
-
-            if pp_document:
-                batch.append(pp_document)
+            document_diff = get_document_diff(old_document, new_document)
+            if document_diff:
+                batch.append(document_diff)
 
         return batch
 

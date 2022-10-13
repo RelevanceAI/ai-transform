@@ -85,7 +85,7 @@ def test_operator() -> AbstractOperator:
             """
 
             for document in documents:
-                document.set("new_field", 3)
+                document["new_field"] = 3
 
             return documents
 

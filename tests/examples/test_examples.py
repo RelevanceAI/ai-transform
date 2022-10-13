@@ -36,7 +36,6 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
 
     time.sleep(2)
 
-    assert operator._output_field in dataset.schema
     health = dataset.health()
     for output_field in operator._output_fields:
         assert health[output_field]["exists"] == engine.size

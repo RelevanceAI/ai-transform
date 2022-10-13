@@ -52,7 +52,7 @@ class SentimentOperator(AbstractOperator):
         Main transform function
         """
 
-        batch = [document.get(self._text_field) for document in documents]
+        batch = [document[self._text_field] for document in documents]
         labels = self._model(batch)
 
         for index in range(len(labels)):
@@ -69,7 +69,7 @@ class SentimentOperator(AbstractOperator):
                 score = -_score
 
             sentiment = dict(sentiment=score, overall_sentiment_score=label)
-            documents[index].set(self._output_field, sentiment)
+            documents[index][self._output_field] = sentiment
 
         return documents
 
@@ -80,7 +80,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     workflow_id = config.get("workflow_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
-    text_field = config["text_field"]
+    text_field = config["textFields"]
 
     alias = config.get("alias", None)
 

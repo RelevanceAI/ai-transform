@@ -39,12 +39,12 @@ class ClusterOperator(AbstractOperator):
         """
 
         vectors = np.array(
-            [np.array(document.get(self._vector_field)) for document in documents]
+            [np.array(document[self._vector_field]) for document in documents]
         )
         labels = self._model.fit_predict(vectors).tolist()
 
         for document, label in zip(documents, labels):
-            document.set(self._output_field, f"cluster_{label}")
+            document[self._output_field] = f"cluster_{label}"
 
         return documents
 

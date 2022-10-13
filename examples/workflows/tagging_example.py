@@ -132,10 +132,6 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     alias = config.get("alias", None)
     max_number_of_labels = int(config.get("max_number_of_labels", 5))
     filters = config.get("filters", None)
-    after_id = config.get("after_id")
-    pull_limit = config.get("pull_limit")
-    parallel_job_id = config.get("parallel_job_id", "")
-
     alias = config.get("alias", None)
 
     client = Client(token=token)
@@ -160,7 +156,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         worker_number=worker_number,
     )
 
-    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
+    workflow = AbstractWorkflow(engine, workflow_id)
     workflow.run()
 
 
