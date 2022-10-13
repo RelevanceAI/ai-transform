@@ -1,5 +1,4 @@
-from ast import operator
-import os
+import logging
 
 from inspect import Traceback
 from typing import Any, Dict, Optional
@@ -9,6 +8,12 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.operator.abstract_operator import AbstractOperator
 
+logging.basicConfig(
+    level=logging.DEBUG, 
+    format='%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+)
+
+logger = logging.getLogger(__file__)
 
 class WorkflowContextManager(API):
 
@@ -66,7 +71,7 @@ class WorkflowContextManager(API):
 
         if self._workflow_id is not None:
             if exc_type is not None:
-                # Handle the except, let user know etc...
+                logger.exception("Exception")
                 self._set_status(status=self.FAILED)
                 return False
             else:
@@ -80,7 +85,7 @@ class WorkflowContextManager(API):
     def _set_status(self, status: str):
         """
         Set the status of the workflow
-        """
+        """ 
         return self._set_workflow_status(
             status=status,
             workflow_id=self._workflow_id,
