@@ -7,8 +7,11 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.operator.abstract_operator import AbstractOperator
 
-logger = logging.getLogger(__file__)
-
+logging.basicConfig(
+    level=logging.DEBUG, 
+    format='%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+)
+logger = logging.getLogger(__name__)
 
 class WorkflowContextManager(API):
 
