@@ -55,3 +55,11 @@ workflow = Workflow(engine)
 
 workflow.run()
 ```
+
+## Workflow IDs and Job IDs
+
+Workflows have Workflow IDs such as sentiment  - for example:
+sentiment.py is called sentiment and this is how the frontend triggers it.
+Workflow Name is what we call the workflow like Extract Sentiment .
+Each instance of a workflow is a job and these have job_id so we can track their status.
+
