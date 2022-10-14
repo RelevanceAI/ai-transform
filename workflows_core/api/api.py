@@ -208,6 +208,7 @@ class API:
     def _set_field_children(
         self,
         dataset_id: str,
+        fieldchildren_id: str,
         field: str,
         field_children: List[str],
         metadata: Optional[Dict[str, Any]] = None,
@@ -225,7 +226,7 @@ class API:
         """
         return requests.post(
             url=self._base_url
-            + f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
+            + f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
             headers=self._headers,
             json=dict(
                 field=field,

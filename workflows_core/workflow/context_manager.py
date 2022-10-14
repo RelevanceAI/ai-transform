@@ -62,7 +62,9 @@ class WorkflowContextManager(API):
             for input_field in self._operator._input_fields:
                 self._set_field_children(
                     dataset_id=self._dataset_id,
-                    workflow_id=self._workflow_name.lower().replace("workflow", ""),
+                    fieldchildren_id=self._workflow_name.lower().replace(
+                        "workflow", ""
+                    ),
                     field=input_field,
                     field_children=self._operator._output_fields,
                 )
