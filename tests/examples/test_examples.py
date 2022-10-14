@@ -1,5 +1,4 @@
 import time
-
 from examples.workflows.sentiment_example import SentimentOperator
 
 from workflows_core.api.client import Client
@@ -11,7 +10,7 @@ from workflows_core.workflow.helpers import decode_workflow_token
 def test_sentiment_example(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
-    workflow_id = config["workflow_id"]
+    job_id = config["job_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -31,7 +30,10 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         filters=filters,
     )
 
-    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
+    workflow = AbstractWorkflow(
+        engine=engine,
+        job_id=job_id,
+    )
     workflow.run()
 
     time.sleep(2)
