@@ -50,7 +50,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     job_id = config["job_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
-    text_field = config["text_field"]
+    text_field = config["textFields"]
     alias = config.get("alias", None)
 
     client = Client(token=token)
