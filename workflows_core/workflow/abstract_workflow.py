@@ -17,7 +17,7 @@ class AbstractWorkflow:
         name: Optional[str] = None,
         **kwargs,
     ):
-        self._name = "Workflow" if name is not None else name
+        self._name = "Workflow" if name is None else name
         self._engine = engine
 
         if job_id is None:
