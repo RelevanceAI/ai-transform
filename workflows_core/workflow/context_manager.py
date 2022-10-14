@@ -56,9 +56,6 @@ class WorkflowContextManager(API):
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
 
         if self._update_field_children:
-            import pdb
-
-            pdb.set_trace()
             for input_field in self._operator._input_fields:
                 self._set_field_children(
                     dataset_id=self._dataset_id,
