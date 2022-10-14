@@ -35,11 +35,11 @@ class VectorizeTextOperator(AbstractOperator):
         """
         Main transform function
         """
-        batch = [document.get(self._text_field) for document in documents]
+        batch = [document[self._text_field] for document in documents]
         vectors = self._model.encode(batch).tolist()
 
         for index in range(len(vectors)):
-            documents[index].set(self._output_field, vectors[index])
+            documents[index][self._output_field] = vectors[index]
 
         return documents
 
@@ -56,7 +56,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = VectorizeTextOperator(text_field=text_field, alias=alias)
+    operator = VectorizeTextOperator(
+        text_field=text_field,
+        alias=alias,
+    )
 
     filters = dataset[text_field].exists()
     engine = StableEngine(
@@ -67,7 +70,11 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         filters=filters,
     )
 
-    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
+    workflow = AbstractWorkflow(
+        name="Vectorize Text",
+        engine=engine,
+        workflow_id=workflow_id,
+    )
     workflow.run()
 
 

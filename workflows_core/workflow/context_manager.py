@@ -29,7 +29,6 @@ class WorkflowContextManager(API):
     ) -> None:
         super().__init__(dataset.api._credentials)
 
-        self._workflow_name = workflow_name
         self._engine = engine
         self._operator = operator
         self._dataset = dataset
@@ -39,7 +38,7 @@ class WorkflowContextManager(API):
             self._operator._input_fields is not None
             and self._operator._output_fields is not None
         )
-
+        self._workflow_name = workflow_name
         self._workflow_id = workflow_id
 
         self._metadata = metadata
@@ -57,12 +56,13 @@ class WorkflowContextManager(API):
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
 
         if self._update_field_children:
-            self._set_field_children(
-                self._dataset_id,
-                self._workflow_name.lower().replace("workflow", ""),
-                self._operator._input_fields,
-                self._operator._output_fields,
-            )
+            for input_field in self._operator._input_fields:
+                self._set_field_children(
+                    self._dataset_id,
+                    self._workflow_name.lower().replace("workflow", ""),
+                    input_field,
+                    self._operator._output_fields,
+                )
 
         if self._workflow_id is not None:
             if exc_type is not None:

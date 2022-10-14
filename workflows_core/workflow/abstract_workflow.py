@@ -12,10 +12,12 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 class AbstractWorkflow:
     def __init__(
         self,
+        name: str,
         engine: AbstractEngine,
         workflow_id: Optional[str] = None,
         **kwargs,
     ):
+        self._name = name
         self._engine = engine
 
         if workflow_id is None:
@@ -27,8 +29,9 @@ class AbstractWorkflow:
         self._kwargs = kwargs
         self._api = engine.dataset.api
 
-    def __repr__(self):
-        return str(type(self).__name__)
+    @property
+    def name(self):
+        return self._name
 
     @property
     def engine(self) -> AbstractEngine:
@@ -44,7 +47,7 @@ class AbstractWorkflow:
 
     def run(self):
         with WorkflowContextManager(
-            workflow_name=repr(self),
+            workflow_name=self._name,
             workflow_id=self._workflow_id,
             engine=self.engine,
             dataset=self.dataset,
