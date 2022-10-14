@@ -8,6 +8,10 @@ class TestWorkflow:
         class ExampleWorkflow(AbstractWorkflow):
             pass
 
-        workflow = ExampleWorkflow(test_engine)
+        workflow = ExampleWorkflow(
+            name="test_workflow",
+            engine=test_engine,
+            job_id="test_job",
+        )
         res = workflow.run()
         assert res is None

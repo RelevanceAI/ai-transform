@@ -1,5 +1,4 @@
 import time
-
 from examples.workflows.sentiment_example import SentimentOperator
 
 from workflows_core.api.client import Client
