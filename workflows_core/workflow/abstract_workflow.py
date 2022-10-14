@@ -22,7 +22,7 @@ class AbstractWorkflow:
 
         if job_id is None:
             job_id = str(uuid.uuid4())
-            warnings.warn(f"No workflow id supplied, using {job_id}")
+            warnings.warn(f"No job id supplied, using {job_id}")
 
         self._workflow_id = job_id
 
