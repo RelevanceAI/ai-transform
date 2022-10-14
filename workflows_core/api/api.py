@@ -1,4 +1,3 @@
-from unicodedata import category
 import uuid
 import requests
 
