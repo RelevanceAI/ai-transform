@@ -1,3 +1,4 @@
+from unicodedata import category
 import uuid
 import requests
 
@@ -226,11 +227,12 @@ class API:
         """
         return requests.post(
             url=self._base_url
-            + f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/update",
+            + f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
             headers=self._headers,
             json=dict(
                 field=field,
                 field_children=field_children,
+                category=fieldchildren_id,
                 metadata={} if metadata is None else metadata,
             ),
         ).json()
