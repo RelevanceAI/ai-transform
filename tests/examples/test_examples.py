@@ -31,7 +31,6 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     )
 
     workflow = AbstractWorkflow(
-        name="Sentiment Test Workflow",
         engine=engine,
         job_id=job_id,
     )
