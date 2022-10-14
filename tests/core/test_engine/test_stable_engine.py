@@ -10,6 +10,10 @@ class TestStableEngine:
         self, full_dataset: Dataset, test_operator: AbstractOperator
     ):
         engine = StableEngine(full_dataset, test_operator)
-        workflow = AbstractWorkflow(engine)
+        workflow = AbstractWorkflow(
+            name="workflow_test123",
+            engine=engine,
+            job_id="test_job123",
+        )
         workflow.run()
         assert True

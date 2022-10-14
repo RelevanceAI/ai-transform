@@ -48,7 +48,7 @@ class EmotionOperator(AbstractOperator):
         Main transform function
         """
 
-        batch = [document.get(self._text_field) for document in documents]
+        batch = [document[self._text_field] for document in documents]
         labels = self._model(batch)
 
         for index in range(len(labels)):
@@ -63,7 +63,7 @@ class EmotionOperator(AbstractOperator):
                 label = _label["label"]
                 emotion = dict(label=label, score=score)
 
-            documents[index].set(self._output_field, emotion)
+            documents[index][self._output_field] = emotion
 
         return documents
 
@@ -71,7 +71,7 @@ class EmotionOperator(AbstractOperator):
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
-    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
+    job_id = config.get("job_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_fields: list = config["text_fields"]
@@ -87,7 +87,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     dataset = client.Dataset(dataset_id)
 
     operator = EmotionOperator(
-        text_field=text_fields[0], model=model, alias=alias, min_score=min_score
+        text_field=text_fields[0],
+        model=model,
+        alias=alias,
+        min_score=min_score,
     )
 
     filters = dataset[text_fields[0]].exists()
@@ -101,7 +104,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         worker_number=worker_number,
     )
 
-    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
+    workflow = AbstractWorkflow(
+        engine=engine,
+        job_id=job_id,
+    )
     workflow.run()
 
 

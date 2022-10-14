@@ -69,7 +69,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 
     config = decode_workflow_token(args.workflow_token)
 
-    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
+    job_id = config.get("job_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     vector_field = config["vector_field"]
@@ -92,7 +92,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         filters=filters,
     )
 
-    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
+    workflow = AbstractWorkflow(
+        engine=engine,
+        job_id=job_id,
+    )
     workflow.run()
 
 

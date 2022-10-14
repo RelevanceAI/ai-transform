@@ -107,11 +107,10 @@ class TaggingOperator(AbstractOperator):
                     "score": scores[max_index],
                 }
                 document = documents[batch_index_mapping[batch_index]]
-                document_tags = document.get(self._output_field)
-                document.set(self._output_field, document_tags + [prediction])
+                document[self._output_field] += [prediction]
 
         for document in documents:
-            document_tags = document.get(self._output_field)
+            document_tags = document[self._output_field]
             if len(document_tags) == 0:
                 document.set(self._output_field, [{"label": "[No Tag]"}])
 
@@ -121,7 +120,7 @@ class TaggingOperator(AbstractOperator):
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
-    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
+    job_id = config.get("job_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     survey_question = config.get("surveyQuestion", "")
@@ -156,7 +155,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         worker_number=worker_number,
     )
 
-    workflow = AbstractWorkflow(engine, workflow_id)
+    workflow = AbstractWorkflow(
+        engine=engine,
+        job_id=job_id,
+    )
     workflow.run()
 
 
