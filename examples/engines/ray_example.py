@@ -39,7 +39,6 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     engine = RayEngine(dataset=dataset, operator=operator)
 
     workflow = AbstractWorkflow(
-        name="Ray Example",
         engine=engine,
         job_id=job_id,
     )

@@ -127,10 +127,16 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         filters=filters,
     )
 
-    fit_workflow = AbstractWorkflow(f"{job_id}_fit", fit_engine)
+    fit_workflow = AbstractWorkflow(
+        engine=fit_engine,
+        job_id=f"{job_id}_fit",
+    )
     fit_workflow.run()
 
-    predict_workflow = AbstractWorkflow(f"{job_id}_predict", predict_engine)
+    predict_workflow = AbstractWorkflow(
+        engine=predict_engine,
+        job_id=f"{job_id}_predict",
+    )
     predict_workflow.run()
 
 

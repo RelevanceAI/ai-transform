@@ -104,7 +104,6 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     )
 
     workflow = AbstractWorkflow(
-        name="Sentiment Example",
         engine=engine,
         job_id=job_id,
     )

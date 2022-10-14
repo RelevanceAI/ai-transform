@@ -42,7 +42,6 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     engine = StableEngine(dataset=dataset, operator=operator)
 
     workflow = AbstractWorkflow(
-        name="Stable Example",
         engine=engine,
         job_id=job_id,
     )

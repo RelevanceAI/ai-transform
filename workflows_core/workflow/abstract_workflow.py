@@ -12,12 +12,12 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 class AbstractWorkflow:
     def __init__(
         self,
-        name: str,
         engine: AbstractEngine,
         job_id: Optional[str] = None,
+        name: Optional[str] = None,
         **kwargs,
     ):
-        self._name = name
+        self._name = "Workflow" if name is not None else name
         self._engine = engine
 
         if job_id is None:
