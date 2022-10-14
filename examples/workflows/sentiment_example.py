@@ -77,7 +77,7 @@ class SentimentOperator(AbstractOperator):
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
-    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
+    job_id = config.get("job_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["textFields"]
@@ -87,7 +87,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = SentimentOperator(text_field=text_field, alias=alias)
+    operator = SentimentOperator(
+        text_field=text_field,
+        alias=alias,
+    )
 
     filters = dataset[text_field].exists()
 
@@ -100,7 +103,11 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         worker_number=worker_number,
     )
 
-    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
+    workflow = AbstractWorkflow(
+        name="Sentiment Example",
+        engine=engine,
+        job_id=job_id,
+    )
     workflow.run()
 
 

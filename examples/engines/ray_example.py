@@ -26,7 +26,7 @@ class RayOperator(AbstractRayOperator):
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(args.workflow_token)
 
-    workflow_id = config.get("workflow_id", str(uuid.uuid4()))
+    job_id = config.get("workflow_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     datatset_id = config["dataset_id"]
     field = config["field"]
@@ -38,7 +38,11 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 
     engine = RayEngine(dataset=dataset, operator=operator)
 
-    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
+    workflow = AbstractWorkflow(
+        name="Ray Example",
+        engine=engine,
+        job_id=job_id,
+    )
     workflow.run()
 
 

@@ -14,17 +14,17 @@ class AbstractWorkflow:
         self,
         name: str,
         engine: AbstractEngine,
-        workflow_id: Optional[str] = None,
+        job_id: Optional[str] = None,
         **kwargs,
     ):
         self._name = name
         self._engine = engine
 
-        if workflow_id is None:
-            workflow_id = str(uuid.uuid4())
-            warnings.warn(f"No workflow id supplied, using {workflow_id}")
+        if job_id is None:
+            job_id = str(uuid.uuid4())
+            warnings.warn(f"No workflow id supplied, using {job_id}")
 
-        self._workflow_id = workflow_id
+        self._workflow_id = job_id
 
         self._kwargs = kwargs
         self._api = engine.dataset.api

@@ -31,7 +31,7 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         filters=filters,
     )
 
-    workflow = AbstractWorkflow(engine=engine, workflow_id=workflow_id)
+    workflow = AbstractWorkflow(engine=engine, job_id=workflow_id)
     workflow.run()
 
     time.sleep(2)
