@@ -26,7 +26,7 @@ class ExampleOperator(AbstractOperator):
         return documents
 
 
-def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
+def execute(token: str, logger: Callable, *args, **kwargs):
     config = decode_workflow_token(token)
 
     job_id = config.get("job_id", str(uuid.uuid4()))

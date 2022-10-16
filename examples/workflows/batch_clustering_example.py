@@ -84,8 +84,8 @@ class BatchClusterPredictOperator(AbstractOperator):
         )
 
 
-def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
-    config = decode_workflow_token(args.workflow_token)
+def execute(token: str, logger: Callable, *args, **kwargs):
+    config = decode_workflow_token(token)
 
     job_id = config.get("job_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
