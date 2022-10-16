@@ -1,4 +1,5 @@
 import math
+import os
 import warnings
 
 from typing import Any, List, Optional
@@ -79,12 +80,30 @@ class AbstractEngine(ABC):
         self.operator.pre_hooks(self._dataset)
         self.apply()
         self.operator.post_hooks(self._dataset)
+    
+    def _get_workflow_filter(
+        self, field
+    ):
+        # Get the required workflow filter as an environment variable
+        WORKER_NUMBER = os.getenv("_WORKER_NUMBER_")
+        TOTAL_WORKERS = os.getenv("_TOTAL_WORKERS_")
+        if WORKER_NUMBER or TOTAL_WORKERS is None:
+            return []
+        else:
+            return [
+                {"matchModulo": {"field": field, "modulo": WORKER_NUMBER, "value": TOTAL_WORKERS}}
+            ]
 
+    @property
     def iterate(
         self,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
     ):
+        if filters is not None:
+            filters += self._get_workflow_filter(select_fields[0])
+        else:
+            filters = self._get_workflow_filter(select_fields[0])
         while True:
             chunk = self._dataset.get_documents(
                 self._chunksize,
@@ -103,3 +122,4 @@ class AbstractEngine(ABC):
     def update_chunk(self, chunk: List[Document]):
         if chunk:
             return self._dataset.update_documents(documents=chunk)
+ 
