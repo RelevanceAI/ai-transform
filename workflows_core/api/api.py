@@ -182,10 +182,10 @@ class API:
 
     def _set_workflow_status(
         self,
-        workflow_id: str,
-        metadata: Dict[str, Any],
+        job_id: str,
         workflow_name: str,
         additional_information: str = "",
+        metadata: Dict[str, Any] = None,
         status: str = "inprogress",
         send_email: bool = True,
     ):
@@ -193,11 +193,13 @@ class API:
             raise ValueError(
                 "state should be one of `['inprogress', 'complete', 'failed']`"
             )
+        if metadata is None:
+            metadata = {}
         return requests.post(
-            url=self._base_url + f"/workflows/{workflow_id}/status",
+            url=self._base_url + f"/workflows/{job_id}/status",
             headers=self._headers,
             json=dict(
-                metadata={},  # TODO: why is this empty
+                metadata=metadata,
                 status=status,
                 workflow_name=workflow_name,
                 additional_information=additional_information,
@@ -242,8 +244,8 @@ class API:
             headers=self._headers,
         ).json()
 
-    def _get_workflow_status(self, workflow_id: str):
+    def _get_workflow_status(self, job_id: str):
         return requests.post(
-            url=self._base_url + f"/workflows/{workflow_id}/get",
+            url=self._base_url + f"/workflows/{job_id}/get",
             headers=self._headers,
         ).json()

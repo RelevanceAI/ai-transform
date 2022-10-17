@@ -23,7 +23,15 @@ class AbstractWorkflow:
             job_id = str(uuid.uuid4())
             warnings.warn(f"No job id supplied, using {job_id}")
 
-        self._workflow_id = job_id
+        self._job_id = job_id
+
+        # make it backwards compatible to avoid duplicate parameters being in the
+        # same function call
+        if "job_id" in kwargs:
+            kwargs.pop("job_id")
+
+        if "workflow_id" in kwargs:
+            kwargs.pop("workflow_id")
 
         self._kwargs = kwargs
         self._api = engine.dataset.api
@@ -47,7 +55,7 @@ class AbstractWorkflow:
     def run(self):
         with WorkflowContextManager(
             workflow_name=self._name,
-            workflow_id=self._workflow_id,
+            job_id=self._job_id,
             engine=self.engine,
             dataset=self.dataset,
             operator=self.operator,
@@ -57,7 +65,7 @@ class AbstractWorkflow:
         return
 
     def get_status(self):
-        return self._api._get_workflow_status(self._workflow_id)
+        return self._api._get_workflow_status(self._job_id)
 
 
 Workflow = AbstractWorkflow
