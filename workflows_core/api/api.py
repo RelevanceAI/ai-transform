@@ -189,6 +189,9 @@ class API:
         status: str = "inprogress",
         send_email: bool = True,
     ):
+        # add edge case for API
+        if job_id == "":
+            return
         if status not in {"inprogress", "complete", "failed"}:
             raise ValueError(
                 "state should be one of `['inprogress', 'complete', 'failed']`"
