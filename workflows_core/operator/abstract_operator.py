@@ -1,3 +1,4 @@
+import logging
 from copy import deepcopy
 from abc import ABC, abstractmethod
 
@@ -5,6 +6,8 @@ from typing import List, Optional
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document, DocumentUtils
+
+logger = logging.getLogger(__file__)
 
 
 def get_document_diff(old_document: Document, new_document: Document) -> Document:
@@ -42,9 +45,10 @@ class AbstractOperator(ABC, DocumentUtils):
     def __call__(self, old_documents: List[Document]) -> List[Document]:
         new_documents = deepcopy(old_documents)
         try:
-            self.transform(new_documents)
+            new_documents = self.transform(new_documents)
+            logger.debug(new_documents)
         except Exception as e:
-            print(e)
+            logger.exception(e)
             raise e
         else:
             new_documents = AbstractOperator._postprocess(new_documents, old_documents)
