@@ -52,6 +52,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
     alias = config.get("alias", None)
+    total_workers = config.get('total_workers', None)
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
@@ -68,6 +69,8 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         chunksize=8,
         select_fields=[text_field],
         filters=filters,
+        worker_number=worker_number,
+        total_workers=total_workers
     )
 
     workflow = AbstractWorkflow(

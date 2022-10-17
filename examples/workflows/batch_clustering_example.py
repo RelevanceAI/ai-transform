@@ -93,6 +93,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     vector_field = config["vector_field"]
     alias = config.get("alias", None)
     n_clusters = config.get("n_clusters", 8)
+    total_workers = config.get('total_workers', None)
 
     client = Client(token=token)
 
@@ -125,6 +126,8 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         chunksize=chunksize,
         select_fields=[vector_field],
         filters=filters,
+        worker_number=worker_number,
+        total_workers=total_workers
     )
 
     fit_workflow = AbstractWorkflow(

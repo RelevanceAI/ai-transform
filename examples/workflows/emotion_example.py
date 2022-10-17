@@ -80,6 +80,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     min_score = float(config.get("min_score", 0.1))
     filters: list = config.get("filters", [])
     chunksize: int = 8
+    total_workers: int = total_workers
 
     alias = config.get("alias", None)
 
@@ -102,6 +103,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         select_fields=text_fields,
         filters=filters,
         worker_number=worker_number,
+        total_workers=total_workers
     )
 
     workflow = AbstractWorkflow(
