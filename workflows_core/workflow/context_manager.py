@@ -24,7 +24,7 @@ class WorkflowContextManager(API):
     def __init__(
         self,
         workflow_name: str,
-        workflow_id: str,
+        job_id: str,
         engine: AbstractEngine,
         dataset: Dataset,
         operator: AbstractOperator,
@@ -44,7 +44,7 @@ class WorkflowContextManager(API):
             and self._operator._output_fields is not None
         )
         self._workflow_name = workflow_name
-        self._job_id = workflow_id
+        self._job_id = job_id
 
         self._metadata = metadata
         self._additional_information = additional_information
