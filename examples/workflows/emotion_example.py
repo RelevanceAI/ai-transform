@@ -103,7 +103,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         select_fields=text_fields,
         filters=filters,
         worker_number=worker_number,
-        total_workers=total_workers
+        total_workers=total_workers,
     )
 
     workflow = AbstractWorkflow(

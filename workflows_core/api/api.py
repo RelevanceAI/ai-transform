@@ -185,7 +185,7 @@ class API:
         job_id: str,
         workflow_name: str,
         additional_information: str = "",
-        metadata: Dict[str, Any]=None,
+        metadata: Dict[str, Any] = None,
         status: str = "inprogress",
         send_email: bool = True,
     ):
@@ -194,7 +194,7 @@ class API:
                 "state should be one of `['inprogress', 'complete', 'failed']`"
             )
         if metadata is None:
-            metadata = {} 
+            metadata = {}
         return requests.post(
             url=self._base_url + f"/workflows/{job_id}/status",
             headers=self._headers,
