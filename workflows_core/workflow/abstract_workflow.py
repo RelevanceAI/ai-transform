@@ -25,6 +25,14 @@ class AbstractWorkflow:
 
         self._job_id = job_id
 
+        # make it backwards compatible to avoid duplicate parameters being in the 
+        # same function call
+        if "job_id" in kwargs:
+            kwargs.pop("job_id")
+
+        if "workflow_id" in kwargs:
+            kwargs.pop("workflow_id")
+
         self._kwargs = kwargs
         self._api = engine.dataset.api
 
