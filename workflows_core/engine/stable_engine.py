@@ -7,6 +7,7 @@ from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
 
+
 class StableEngine(AbstractEngine):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

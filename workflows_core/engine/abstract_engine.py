@@ -22,6 +22,7 @@ class AbstractEngine(ABC):
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
         worker_number: int = 0,
+        total_workers: int = 0,
     ):
         if select_fields is not None:
             assert all(
@@ -34,6 +35,7 @@ class AbstractEngine(ABC):
         self._select_fields = select_fields
         self._size = dataset.len(filters=filters)
         self.worker_number = worker_number
+        self.total_workers = total_workers
 
         if isinstance(chunksize, int):
             assert chunksize > 0, "Chunksize should be a Positive Integer"
@@ -80,19 +82,21 @@ class AbstractEngine(ABC):
         self.operator.pre_hooks(self._dataset)
         self.apply()
         self.operator.post_hooks(self._dataset)
-    
-    def _get_workflow_filter(
-        self, field
-    ):
+
+    def _get_workflow_filter(self, field):
         # Get the required workflow filter as an environment variable
-        WORKER_NUMBER = os.getenv("_WORKER_NUMBER_")
-        TOTAL_WORKERS = os.getenv("_TOTAL_WORKERS_")
-        if WORKER_NUMBER or TOTAL_WORKERS is None:
-            return []
-        else:
+        # WORKER_NUMBER is passed into execute function
+        if self.worker_number and self.total_workers:
             return [
-                {"matchModulo": {"field": field, "modulo": WORKER_NUMBER, "value": TOTAL_WORKERS}}
+                {
+                    "matchModulo": {
+                        "field": field,
+                        "modulo": self.worker_number,
+                        "value": self.total_workers,
+                    }
+                }
             ]
+        return []
 
     @property
     def iterate(
@@ -122,4 +126,3 @@ class AbstractEngine(ABC):
     def update_chunk(self, chunk: List[Document]):
         if chunk:
             return self._dataset.update_documents(documents=chunk)
- 
