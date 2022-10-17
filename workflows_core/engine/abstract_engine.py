@@ -91,8 +91,8 @@ class AbstractEngine(ABC):
                 {
                     "matchModulo": {
                         "field": field,
-                        "modulo": self.worker_number,
-                        "value": self.total_workers,
+                        "modulo": self.total_workers,
+                        "value": self.worker_number,
                     }
                 }
             ]
