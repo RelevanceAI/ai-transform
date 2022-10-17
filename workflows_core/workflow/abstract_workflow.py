@@ -55,7 +55,7 @@ class AbstractWorkflow:
     def run(self):
         with WorkflowContextManager(
             workflow_name=self._name,
-            workflow_id=self._job_id,
+            job_id=self._job_id,
             engine=self.engine,
             dataset=self.dataset,
             operator=self.operator,

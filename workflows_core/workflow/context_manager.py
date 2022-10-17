@@ -90,7 +90,7 @@ class WorkflowContextManager(API):
         """
         return self._set_workflow_status(
             status=status,
-            workflow_id=self._job_id,
+            job_id=self._job_id,
             metadata={} if self._metadata is not None else self._metadata,
             workflow_name=self._workflow_name,
             additional_information=self._additional_information,

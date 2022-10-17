@@ -244,8 +244,8 @@ class API:
             headers=self._headers,
         ).json()
 
-    def _get_workflow_status(self, workflow_id: str):
+    def _get_workflow_status(self, job_id: str):
         return requests.post(
-            url=self._base_url + f"/workflows/{workflow_id}/get",
+            url=self._base_url + f"/workflows/{job_id}/get",
             headers=self._headers,
         ).json()
