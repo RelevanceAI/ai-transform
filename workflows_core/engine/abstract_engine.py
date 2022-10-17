@@ -98,7 +98,6 @@ class AbstractEngine(ABC):
             ]
         return []
 
-    @property
     def iterate(
         self,
         filters: Optional[List[Filter]] = None,
