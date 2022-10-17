@@ -1,4 +1,5 @@
 import math
+import os
 import warnings
 
 from typing import Any, List, Optional
@@ -21,6 +22,7 @@ class AbstractEngine(ABC):
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
         worker_number: int = 0,
+        total_workers: int = 0,
     ):
         if select_fields is not None:
             assert all(
@@ -33,6 +35,7 @@ class AbstractEngine(ABC):
         self._select_fields = select_fields
         self._size = dataset.len(filters=filters)
         self.worker_number = worker_number
+        self.total_workers = total_workers
 
         if isinstance(chunksize, int):
             assert chunksize > 0, "Chunksize should be a Positive Integer"
@@ -80,11 +83,30 @@ class AbstractEngine(ABC):
         self.apply()
         self.operator.post_hooks(self._dataset)
 
+    def _get_workflow_filter(self, field: str="_id"):
+        # Get the required workflow filter as an environment variable
+        # WORKER_NUMBER is passed into execute function
+        if self.worker_number and self.total_workers:
+            return [
+                {
+                    "matchModulo": {
+                        "field": field,
+                        "modulo": self.total_workers,
+                        "value": self.worker_number,
+                    }
+                }
+            ]
+        return []
+
     def iterate(
         self,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
     ):
+        if filters is not None:
+            filters += self._get_workflow_filter()
+        else:
+            filters = self._get_workflow_filter()
         while True:
             chunk = self._dataset.get_documents(
                 self._chunksize,

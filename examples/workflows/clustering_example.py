@@ -75,6 +75,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     vector_field = config["vector_field"]
     alias = config.get("alias", None)
     n_clusters = config.get("n_clusters", 8)
+    total_workers = config.get('total_workers')
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
@@ -90,6 +91,8 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         chunksize=None,
         select_fields=[vector_field],
         filters=filters,
+        worker_number=worker_number,
+        total_workers=total_workers
     )
 
     workflow = AbstractWorkflow(
