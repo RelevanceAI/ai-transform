@@ -83,7 +83,7 @@ class AbstractEngine(ABC):
         self.apply()
         self.operator.post_hooks(self._dataset)
 
-    def _get_workflow_filter(self, field):
+    def _get_workflow_filter(self, field: str="_id"):
         # Get the required workflow filter as an environment variable
         # WORKER_NUMBER is passed into execute function
         if self.worker_number and self.total_workers:
@@ -105,9 +105,9 @@ class AbstractEngine(ABC):
         select_fields: Optional[List[str]] = None,
     ):
         if filters is not None:
-            filters += self._get_workflow_filter(select_fields[0])
+            filters += self._get_workflow_filter()
         else:
-            filters = self._get_workflow_filter(select_fields[0])
+            filters = self._get_workflow_filter()
         while True:
             chunk = self._dataset.get_documents(
                 self._chunksize,
