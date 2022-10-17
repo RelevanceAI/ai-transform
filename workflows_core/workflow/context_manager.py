@@ -44,7 +44,7 @@ class WorkflowContextManager(API):
             and self._operator._output_fields is not None
         )
         self._workflow_name = workflow_name
-        self._workflow_id = workflow_id
+        self._job_id = workflow_id
 
         self._metadata = metadata
         self._additional_information = additional_information
@@ -54,7 +54,7 @@ class WorkflowContextManager(API):
         """
         The workflow is in progress
         """
-        if self._workflow_id is not None:
+        if self._job_id is not None:
             self._set_status(status=self.IN_PROGRESS)
         return
 
@@ -71,7 +71,7 @@ class WorkflowContextManager(API):
                     field_children=self._operator._output_fields,
                 )
 
-        if self._workflow_id is not None:
+        if self._job_id is not None:
             if exc_type is not None:
                 logger.exception("Exception")
                 self._set_status(status=self.FAILED)
@@ -90,7 +90,7 @@ class WorkflowContextManager(API):
         """
         return self._set_workflow_status(
             status=status,
-            workflow_id=self._workflow_id,
+            workflow_id=self._job_id,
             metadata={} if self._metadata is not None else self._metadata,
             workflow_name=self._workflow_name,
             additional_information=self._additional_information,
