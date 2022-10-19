@@ -8,7 +8,7 @@ from workflows_core.workflow.context_manager import WorkflowContextManager
 from workflows_core.operator.abstract_operator import AbstractOperator
 
 
-class AbstractWorkflow:
+class Workflow:
     def __init__(
         self,
         engine: AbstractEngine,
@@ -68,4 +68,5 @@ class AbstractWorkflow:
         return self._api._get_workflow_status(self._job_id)
 
 
-Workflow = AbstractWorkflow
+# For backwards compatibility
+AbstractWorkflow = Workflow

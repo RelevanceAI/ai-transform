@@ -37,7 +37,7 @@ class AbstractEngine(ABC):
                 field in dataset.schema
                 for field in select_fields
                 if field not in {"_id", "insert_date_"}
-            ), "Some fields not in dataset schema"
+            ), f"Some fields not in dataset schema {select_fields}"
 
         self._dataset = dataset
         self._select_fields = select_fields
