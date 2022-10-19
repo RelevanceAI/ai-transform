@@ -49,7 +49,7 @@ class AbstractEngine(ABC):
                 for field in select_fields:
                     if field not in ["_id", "insert_date_"]:
                         if field not in dataset.schema:
-                            warnings.warn(f"Not all fields were found. Missing {f}")
+                            warnings.warn(f"Not all fields were found. Missing {field}")
 
         self._dataset = dataset
         self._select_fields = select_fields
