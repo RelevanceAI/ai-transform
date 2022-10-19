@@ -10,6 +10,7 @@ from workflows_core.types import Filter
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.document import Document
+from workflows_core.errors import MaxRetriesError
 
 
 logging.basicConfig(
@@ -55,7 +56,10 @@ class AbstractEngine(ABC):
             self._chunksize = self._size
             self._num_chunks = 1
 
-        self._filters = filters
+        if filters is None:
+            self._filters = []
+        self._filters += self._get_workflow_filter()
+
         self._operator = operator
 
         self._refresh = refresh
@@ -111,28 +115,27 @@ class AbstractEngine(ABC):
         select_fields: Optional[List[str]] = None,
         max_retries: int = 3,
     ):
-        if filters is not None:
-            filters += self._get_workflow_filter()
-        else:
-            filters = self._get_workflow_filter()
+        if filters is None:
+            filters = self._filters
+
+        if select_fields is None:
+            select_fields = self._select_fields
 
         retry_count = 0
         while True:
             try:
                 chunk = self._dataset.get_documents(
                     self._chunksize,
-                    filters=filters if filters is not None else self._filters,
-                    select_fields=select_fields
-                    if select_fields is not None
-                    else self._select_fields,
+                    filters=filters,
+                    select_fields=select_fields,
                     after_id=self._after_id,
                     worker_number=self.worker_number,
                 )
-            except Exception as e:
+            except ConnectionError as e:
                 logger.error(e)
                 retry_count += 1
                 if retry_count >= max_retries:
-                    raise ValueError("max number of retries exceed")
+                    raise MaxRetriesError("max number of retries exceeded")
             else:
                 self._after_id = chunk["after_id"]
                 if not chunk["documents"]:
@@ -150,4 +153,4 @@ class AbstractEngine(ABC):
                 else:
                     return update_json
 
-            raise ValueError("max number of retries exceed")
+            raise MaxRetriesError("max number of retries exceeded")
