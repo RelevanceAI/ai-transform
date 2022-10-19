@@ -1,3 +1,4 @@
+import logging
 import math
 import os
 import warnings
@@ -9,6 +10,12 @@ from workflows_core.types import Filter
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.document import Document
+
+
+logging.basicConfig(
+    level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
+)
+logger = logging.getLogger(__name__)
 
 
 class AbstractEngine(ABC):
@@ -102,26 +109,45 @@ class AbstractEngine(ABC):
         self,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
+        max_retries: int = 3,
     ):
         if filters is not None:
             filters += self._get_workflow_filter()
         else:
             filters = self._get_workflow_filter()
-        while True:
-            chunk = self._dataset.get_documents(
-                self._chunksize,
-                filters=filters if filters is not None else self._filters,
-                select_fields=select_fields
-                if select_fields is not None
-                else self._select_fields,
-                after_id=self._after_id,
-                worker_number=self.worker_number,
-            )
-            self._after_id = chunk["after_id"]
-            if not chunk["documents"]:
-                break
-            yield chunk["documents"]
 
-    def update_chunk(self, chunk: List[Document]):
+        retry_count = 0
+        while True:
+            try:
+                chunk = self._dataset.get_documents(
+                    self._chunksize,
+                    filters=filters if filters is not None else self._filters,
+                    select_fields=select_fields
+                    if select_fields is not None
+                    else self._select_fields,
+                    after_id=self._after_id,
+                    worker_number=self.worker_number,
+                )
+            except Exception as e:
+                logger.error(e)
+                retry_count += 1
+                if retry_count >= max_retries:
+                    raise ValueError("max number of retries exceed")
+            else:
+                self._after_id = chunk["after_id"]
+                if not chunk["documents"]:
+                    break
+                yield chunk["documents"]
+                retry_count = 0
+
+    def update_chunk(self, chunk: List[Document], max_retries: int = 3):
         if chunk:
-            return self._dataset.update_documents(documents=chunk)
+            for _ in range(max_retries):
+                try:
+                    update_json = self._dataset.update_documents(documents=chunk)
+                except Exception as e:
+                    logger.error(e)
+                else:
+                    return update_json
+
+            raise ValueError("max number of retries exceed")
