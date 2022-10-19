@@ -58,6 +58,8 @@ class AbstractEngine(ABC):
 
         if filters is None:
             self._filters = []
+        else:
+            self._filters = filters
         self._filters += self._get_workflow_filter()
 
         self._operator = operator
