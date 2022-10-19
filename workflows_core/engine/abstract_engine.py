@@ -31,13 +31,25 @@ class AbstractEngine(ABC):
         after_id: Optional[List[str]] = None,
         worker_number: int = 0,
         total_workers: int = 0,
+        check_for_missing_fields: bool = True
     ):
         if select_fields is not None:
-            assert all(
-                field in dataset.schema
-                for field in select_fields
-                if field not in {"_id", "insert_date_"}
-            ), "Some fields not in dataset schema"
+            # We set this to a warning so that workflows that are adding 
+            # onto an existing field don't need this. For example - adding tags 
+            # to existing tags. If existing tags don't exist - it shouldn't break 
+            # the whole workflow. This allows for multiple workflows to be run in parallel
+            # without worrying about breaking things.
+            if check_for_missing_fields:
+                assert all(
+                    field in dataset.schema
+                    for field in select_fields
+                    if field not in {"_id", "insert_date_"}
+                ), f"Some fields not in dataset schema - namely {select_fields}. If this is not desired behavior, set check_for_missing_fields=False."
+            else:
+                for field in select_fields:
+                    if field not in ["_id", "insert_date_"]:
+                        if field not in dataset.schema:
+                            warnings.warn(f"Not all fields were found. Missing {f}")
 
         self._dataset = dataset
         self._select_fields = select_fields
