@@ -1,6 +1,6 @@
-import logging
 import math
-import os
+import time
+import logging
 import warnings
 
 from typing import Any, List, Optional
@@ -136,6 +136,8 @@ class AbstractEngine(ABC):
             except ConnectionError as e:
                 logger.error(e)
                 retry_count += 1
+                time.sleep(1)
+
                 if retry_count >= max_retries:
                     raise MaxRetriesError("max number of retries exceeded")
             else:
