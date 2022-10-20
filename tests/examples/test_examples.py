@@ -1,6 +1,6 @@
 import time
 
-from typing import List
+from examples.fail_example import BadOperator
 from examples.workflows.sentiment_example import SentimentOperator
 
 from workflows_core.api.client import Client
@@ -59,10 +59,6 @@ def test_fail_example(test_sentiment_workflow_token: str):
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
-
-    class BadOperator(SentimentOperator):
-        def transform(self, documents: List[Document]) -> List[Document]:
-            raise ValueError
 
     operator = BadOperator(text_field=text_field, alias=alias)
 
