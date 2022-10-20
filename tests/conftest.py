@@ -11,6 +11,7 @@ from typing import Any, List
 from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.api.helpers import process_token
+from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.utils.document import Document
 from workflows_core.utils.random import mock_documents, static_documents
 from workflows_core.operator.abstract_operator import AbstractOperator
@@ -93,19 +94,11 @@ def test_operator() -> AbstractOperator:
 
 
 @pytest.fixture(scope="function")
-def test_engine(
-    full_dataset: Dataset, test_operator: AbstractOperator
-) -> AbstractEngine:
-    class TestEngine(AbstractEngine):
-        def apply(self) -> Any:
-
-            for chunk in self.iterate():
-                new_batch = self.operator(chunk)
-                self.update_chunk(new_batch)
-
-            return
-
-    return TestEngine(full_dataset, test_operator)
+def test_engine(full_dataset: Dataset, test_operator: AbstractOperator) -> StableEngine:
+    return StableEngine(
+        dataset=full_dataset,
+        operator=test_operator,
+    )
 
 
 @pytest.fixture(scope="function")
