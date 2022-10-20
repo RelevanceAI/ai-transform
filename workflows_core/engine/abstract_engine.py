@@ -79,6 +79,9 @@ class AbstractEngine(ABC):
         self._refresh = refresh
         self._after_id = after_id
 
+        self._success_ratio = None
+        self._error_logs = None
+
     @property
     def num_chunks(self) -> int:
         return self._num_chunks
@@ -100,14 +103,13 @@ class AbstractEngine(ABC):
         return self._size
 
     @abstractmethod
-    def apply(self) -> float:
+    def apply(self) -> None:
         raise NotImplementedError
 
     def __call__(self) -> Any:
         self.operator.pre_hooks(self._dataset)
-        success_ratio = self.apply()
+        self.apply()
         self.operator.post_hooks(self._dataset)
-        return success_ratio
 
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable

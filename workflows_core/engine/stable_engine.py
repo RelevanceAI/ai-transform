@@ -15,13 +15,14 @@ class StableEngine(AbstractEngine):
 
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
-    def apply(self) -> float:
+    def apply(self) -> None:
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
 
         iterator = self.iterate()
         successful_chunks = 0
+        error_logs = []
 
         for chunk in tqdm(
             iterator,
@@ -32,6 +33,12 @@ class StableEngine(AbstractEngine):
             try:
                 new_batch = self.operator(chunk)
             except Exception as e:
+                chunk_error_log = {
+                    "exception": str(e),
+                    "traceback": traceback.format_exc(),
+                    "chunk": chunk,
+                }
+                error_logs.append(chunk_error_log)
                 logger.error(chunk)
                 logger.error(traceback.format_exc())
             else:
@@ -39,4 +46,5 @@ class StableEngine(AbstractEngine):
                 successful_chunks += 1
                 logger.debug(result)
 
-        return successful_chunks / self.num_chunks
+        self._error_logs = error_logs
+        self._success_ratio = successful_chunks / self.num_chunks

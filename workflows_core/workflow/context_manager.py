@@ -68,6 +68,7 @@ class WorkflowContextManager(API):
                     _error_=dict(
                         exc_value=str(exc_value),
                         traceback=str(traceback),
+                        logs=self._engine._error_logs,
                     ),
                 ),
             )

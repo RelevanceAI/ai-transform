@@ -257,5 +257,5 @@ class API:
         return requests.post(
             url=self._base_url + f"/workflows/{job_id}/metadata",
             headers=self._headers,
-            json=dict(metadat=metadata),
+            json=dict(metadata=metadata),
         ).json()
