@@ -17,7 +17,7 @@ class BadOperator(AbstractOperator):
         model: str = "cardiffnlp/twitter-roberta-base-sentiment",
         alias: Optional[str] = None,
     ):
-        super.__init__()
+        super().__init__()
 
     def transform(self, documents: List[Document]) -> List[Document]:
         raise ValueError
