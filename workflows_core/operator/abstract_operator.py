@@ -5,7 +5,8 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from workflows_core.dataset.dataset import Dataset
-from workflows_core.utils.document import Document, DocumentUtils
+from workflows_core.utils.document import Document
+from workflows_core.utils.documents import Documents
 
 logger = logging.getLogger(__file__)
 
@@ -23,7 +24,7 @@ def get_document_diff(old_document: Document, new_document: Document) -> Documen
     return pp_document
 
 
-class AbstractOperator(ABC, DocumentUtils):
+class AbstractOperator(ABC):
     def __init__(
         self,
         input_fields: Optional[List[str]] = None,
@@ -33,7 +34,7 @@ class AbstractOperator(ABC, DocumentUtils):
         self._output_fields = output_fields
 
     @abstractmethod
-    def transform(self, documents: List[Document]) -> List[Document]:
+    def transform(self, documents: Documents) -> Documents:
         """
         Every Operator needs a transform function
         """
@@ -42,7 +43,7 @@ class AbstractOperator(ABC, DocumentUtils):
     def __repr__(self):
         return str(type(self).__name__)
 
-    def __call__(self, old_documents: List[Document]) -> List[Document]:
+    def __call__(self, old_documents: Documents) -> Documents:
         new_documents = deepcopy(old_documents)
         try:
             new_documents = self.transform(new_documents)
@@ -56,9 +57,7 @@ class AbstractOperator(ABC, DocumentUtils):
             return new_documents
 
     @staticmethod
-    def _postprocess(
-        new_batch: List[Document], old_batch: List[Document]
-    ) -> List[Document]:
+    def _postprocess(new_batch: Documents, old_batch: Documents) -> Documents:
         """
         Removes fields from `new_batch` that are present in the `old_keys` list.
         Necessary to avoid bloating the upload payload with unnecesary information.

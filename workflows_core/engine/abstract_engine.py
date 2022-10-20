@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from workflows_core.types import Filter
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.document import Document
+from workflows_core.utils.documents import Documents
 from workflows_core.errors import MaxRetriesError
 
 
@@ -31,12 +31,12 @@ class AbstractEngine(ABC):
         after_id: Optional[List[str]] = None,
         worker_number: int = 0,
         total_workers: int = 0,
-        check_for_missing_fields: bool = True
+        check_for_missing_fields: bool = True,
     ):
         if select_fields is not None:
-            # We set this to a warning so that workflows that are adding 
-            # onto an existing field don't need this. For example - adding tags 
-            # to existing tags. If existing tags don't exist - it shouldn't break 
+            # We set this to a warning so that workflows that are adding
+            # onto an existing field don't need this. For example - adding tags
+            # to existing tags. If existing tags don't exist - it shouldn't break
             # the whole workflow. This allows for multiple workflows to be run in parallel
             # without worrying about breaking things.
             if check_for_missing_fields:
@@ -159,7 +159,7 @@ class AbstractEngine(ABC):
                 yield chunk["documents"]
                 retry_count = 0
 
-    def update_chunk(self, chunk: List[Document], max_retries: int = 3):
+    def update_chunk(self, chunk: Documents, max_retries: int = 3):
         if chunk:
             for _ in range(max_retries):
                 try:

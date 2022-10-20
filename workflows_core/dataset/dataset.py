@@ -5,6 +5,7 @@ from workflows_core.types import Schema
 from workflows_core.utils import document
 
 from workflows_core.dataset.field import Field, VectorField
+from workflows_core.utils.documents import Documents
 
 
 class Dataset:
@@ -69,8 +70,7 @@ class Dataset:
         res = self._api._get_where(
             dataset_id=self._dataset_id, page_size=page_size, *args, **kwargs
         )
-        res["documents"] = [document.Document(d) for d in res["documents"]]
-        return res
+        return Documents(res["documents"])
 
     def len(self, *args, **kwargs):
         """

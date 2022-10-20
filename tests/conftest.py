@@ -1,17 +1,18 @@
 import os
 import json
+import uuid
 import base64
 import random
-import string
-import uuid
 import pytest
+import string
 
-from typing import Any, List
+from typing import Any
 
 from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.api.helpers import process_token
 from workflows_core.utils.document import Document
+from workflows_core.utils.documents import Documents
 from workflows_core.utils.random import mock_documents, static_documents
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
@@ -79,7 +80,7 @@ def test_document() -> Document:
 @pytest.fixture(scope="function")
 def test_operator() -> AbstractOperator:
     class ExampleOperator(AbstractOperator):
-        def transform(self, documents: List[Document]) -> List[Document]:
+        def transform(self, documents: Documents) -> Documents:
             """
             Main transform function
             """
