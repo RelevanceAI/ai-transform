@@ -65,7 +65,3 @@ class Document(UserDict):
 
     def to_dict(self):
         return deepcopy(self.data)
-
-
-class DocumentUtils:
-    pass
