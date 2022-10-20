@@ -120,7 +120,7 @@ class API:
             ),
         ).json()
 
-    def _update_metadata(self, dataset_id: str, metadata: Dict[str, Any]):
+    def _update_dataset_metadata(self, dataset_id: str, metadata: Dict[str, Any]):
         """
         Edit and add metadata about a dataset. Notably description, data source, etc
         """
@@ -251,4 +251,11 @@ class API:
         return requests.post(
             url=self._base_url + f"/workflows/{job_id}/get",
             headers=self._headers,
+        ).json()
+
+    def _update_workflow_metadata(self, job_id: str, metadata: Dict[str, Any]):
+        return requests.post(
+            url=self._base_url + f"/workflows/{job_id}/metadata",
+            headers=self._headers,
+            json=dict(metadat=metadata),
         ).json()

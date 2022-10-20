@@ -1,4 +1,5 @@
 import logging
+import traceback
 from typing import Any
 
 from workflows_core.engine.abstract_engine import AbstractEngine
@@ -14,9 +15,13 @@ class StableEngine(AbstractEngine):
 
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
-    def apply(self) -> Any:
+    def apply(self) -> float:
+        """
+        Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
+        """
 
         iterator = self.iterate()
+        successful_chunks = 0
 
         for chunk in tqdm(
             iterator,
@@ -24,8 +29,14 @@ class StableEngine(AbstractEngine):
             disable=(not self._show_progress_bar),
             total=self.num_chunks,
         ):
-            new_batch = self.operator(chunk)
-            result = self.update_chunk(new_batch)
-            logging.debug(result)
+            try:
+                new_batch = self.operator(chunk)
+            except Exception as e:
+                logger.error(chunk)
+                logger.error(traceback.format_exc())
+            else:
+                result = self.update_chunk(new_batch)
+                successful_chunks += 1
+                logger.debug(result)
 
-        return
+        return successful_chunks / self.num_chunks

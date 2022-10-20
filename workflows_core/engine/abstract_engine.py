@@ -88,13 +88,14 @@ class AbstractEngine(ABC):
         return self._size
 
     @abstractmethod
-    def apply(self) -> Any:
+    def apply(self) -> float:
         raise NotImplementedError
 
     def __call__(self) -> Any:
         self.operator.pre_hooks(self._dataset)
-        self.apply()
+        success_ratio = self.apply()
         self.operator.post_hooks(self._dataset)
+        return success_ratio
 
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable

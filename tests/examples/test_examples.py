@@ -1,4 +1,6 @@
 import time
+from typing import List
+from xml.dom.minidom import Document
 from examples.workflows.sentiment_example import SentimentOperator
 
 from workflows_core.api.client import Client
@@ -44,3 +46,41 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
 
     status_dict = workflow.get_status()
     assert status_dict["status"].lower() == "complete"
+
+
+def test_fail_example(test_sentiment_workflow_token: str):
+    config = decode_workflow_token(test_sentiment_workflow_token)
+
+    job_id = config["job_id"] + "_fail"
+    token = config["authorizationToken"]
+    dataset_id = config["dataset_id"]
+    text_field = config["text_field"]
+    alias = config.get("alias", None)
+
+    client = Client(token=token)
+    dataset = client.Dataset(dataset_id)
+
+    class BadOperator(SentimentOperator):
+        def transform(self, documents: List[Document]) -> List[Document]:
+            raise ValueError
+
+    operator = BadOperator(text_field=text_field, alias=alias)
+
+    filters = dataset[text_field].exists()
+    engine = StableEngine(
+        dataset=dataset,
+        operator=operator,
+        chunksize=8,
+        select_fields=[text_field],
+        filters=filters,
+    )
+
+    workflow = AbstractWorkflow(
+        engine=engine,
+        job_id=job_id,
+    )
+    workflow.run()
+
+    time.sleep(2)
+
+    assert workflow.get_status()["status"] == "failed"
