@@ -1,6 +1,6 @@
 import argparse
 
-from typing import Callable, List
+from typing import Callable, List, Optional
 
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
@@ -12,6 +12,14 @@ from examples.workflows.sentiment_example import SentimentOperator
 
 
 class BadOperator(SentimentOperator):
+    def __init__(
+        self,
+        text_field: str,
+        model: str = "cardiffnlp/twitter-roberta-base-sentiment",
+        alias: Optional[str] = None,
+    ):
+        pass
+
     def transform(self, documents: List[Document]) -> List[Document]:
         raise ValueError
 
