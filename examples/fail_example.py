@@ -6,19 +6,18 @@ from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.helpers import decode_workflow_token
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.random import Document
 
-from examples.workflows.sentiment_example import SentimentOperator
 
-
-class BadOperator(SentimentOperator):
+class BadOperator(AbstractOperator):
     def __init__(
         self,
         text_field: str,
         model: str = "cardiffnlp/twitter-roberta-base-sentiment",
         alias: Optional[str] = None,
     ):
-        pass
+        super.__init__()
 
     def transform(self, documents: List[Document]) -> List[Document]:
         raise ValueError
