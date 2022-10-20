@@ -1,6 +1,6 @@
 import time
+
 from typing import List
-from xml.dom.minidom import Document
 from examples.workflows.sentiment_example import SentimentOperator
 
 from workflows_core.api.client import Client
