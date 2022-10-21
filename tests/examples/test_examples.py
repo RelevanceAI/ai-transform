@@ -59,12 +59,13 @@ def test_cluster_example(test_cluster_workflow_token: str):
     job_id = config["job_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
-    vector_field = config["vector_field"]
+    vector_fields = config["vector_fields"]
     alias = config.get("alias", None)
     n_clusters = config.get("n_clusters", 8)
     total_workers = config.get("total_workers")
     worker_number = config.get("worker_number")
 
+    vector_field = vector_fields[0]
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
