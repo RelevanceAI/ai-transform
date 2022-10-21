@@ -29,14 +29,14 @@ class AbstractEngine(ABC):
         chunksize: Optional[int] = 8,
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
-        worker_number: int = 0,
-        total_workers: int = 0,
-        check_for_missing_fields: bool = True
+        worker_number: int = None,
+        total_workers: int = None,
+        check_for_missing_fields: bool = True,
     ):
         if select_fields is not None:
-            # We set this to a warning so that workflows that are adding 
-            # onto an existing field don't need this. For example - adding tags 
-            # to existing tags. If existing tags don't exist - it shouldn't break 
+            # We set this to a warning so that workflows that are adding
+            # onto an existing field don't need this. For example - adding tags
+            # to existing tags. If existing tags don't exist - it shouldn't break
             # the whole workflow. This allows for multiple workflows to be run in parallel
             # without worrying about breaking things.
             if check_for_missing_fields:
@@ -72,7 +72,6 @@ class AbstractEngine(ABC):
             self._filters = []
         else:
             self._filters = filters
-        self._filters += self._get_workflow_filter()
 
         self._operator = operator
 
@@ -111,16 +110,18 @@ class AbstractEngine(ABC):
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable
         # WORKER_NUMBER is passed into execute function
-        if self.worker_number and self.total_workers:
-            return [
-                {
-                    "matchModulo": {
-                        "field": field,
-                        "modulo": self.total_workers,
-                        "value": self.worker_number,
+        # total number of workers must be greater than 1 for data sharding to work
+        if self.worker_number is not None and self.total_workers is not None:
+            if self.total_workers > 1:
+                return [
+                    {
+                        "matchModulo": {
+                            "field": field,
+                            "modulo": self.total_workers,
+                            "value": self.worker_number,
+                        }
                     }
-                }
-            ]
+                ]
         return []
 
     def iterate(
@@ -131,6 +132,8 @@ class AbstractEngine(ABC):
     ):
         if filters is None:
             filters = self._filters
+
+        filters += self._get_workflow_filter()
 
         if select_fields is None:
             select_fields = self._select_fields
