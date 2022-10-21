@@ -70,7 +70,8 @@ class Dataset:
         res = self._api._get_where(
             dataset_id=self._dataset_id, page_size=page_size, *args, **kwargs
         )
-        return Documents(res["documents"])
+        res["documents"] = Documents(res["documents"])
+        return res
 
     def len(self, *args, **kwargs):
         """
