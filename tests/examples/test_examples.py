@@ -20,6 +20,8 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     alias = config.get("alias")
     total_workers = config.get("total_workers")
     worker_number = config.get("worker_number")
+    send_email = config.get("send_email", False)
+    additional_information = config.get("additional_information", "")
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
@@ -40,6 +42,8 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     workflow = AbstractWorkflow(
         engine=engine,
         job_id=job_id,
+        send_email=send_email,
+        additional_information=additional_information,
     )
     workflow.run()
 
@@ -64,6 +68,8 @@ def test_cluster_example(test_cluster_workflow_token: str):
     n_clusters = config.get("n_clusters", 8)
     total_workers = config.get("total_workers")
     worker_number = config.get("worker_number")
+    send_email = config.get("send_email", False)
+    additional_information = config.get("additional_information", "")
 
     vector_field = vector_fields[0]
     client = Client(token=token)
@@ -87,6 +93,8 @@ def test_cluster_example(test_cluster_workflow_token: str):
     workflow = AbstractWorkflow(
         engine=engine,
         job_id=job_id,
+        send_email=send_email,
+        additional_information=additional_information,
     )
     workflow.run()
 
