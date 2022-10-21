@@ -72,7 +72,6 @@ class AbstractEngine(ABC):
             self._filters = []
         else:
             self._filters = filters
-        self._filters += self._get_workflow_filter()
 
         self._operator = operator
 
@@ -131,6 +130,8 @@ class AbstractEngine(ABC):
     ):
         if filters is None:
             filters = self._filters
+
+        filters += self._get_workflow_filter()
 
         if select_fields is None:
             select_fields = self._select_fields
