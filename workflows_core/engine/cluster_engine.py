@@ -28,14 +28,14 @@ class ClusterEngine(AbstractEngine):
 
         new_batch = self.operator(documents)
 
-        payloads = []
-        for i in range(self._num_chunks):
-            payload = new_batch[i * self._chunksize : (i + 1) * self._chunksize]
-            payloads.append(payload)
+        def payload_generator():
+            for i in range(self._num_chunks):
+                yield new_batch[i * self._chunksize : (i + 1) * self._chunksize]
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
-                executor.submit(self.update_chunk, payload) for payload in payloads
+                executor.submit(self.update_chunk, payload)
+                for payload in payload_generator()
             ]
 
             for future in concurrent.futures.as_completed(futures):
