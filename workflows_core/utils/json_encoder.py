@@ -7,14 +7,10 @@ To invoke JSON encoder:
 ```
 
 """
+import math
 import datetime
 import dataclasses
-from enum import Enum
-from pathlib import PurePath
-from types import GeneratorType
-import numpy as np
 import collections
-import pandas as pd
 
 from ipaddress import (
     IPv4Address,
@@ -27,10 +23,12 @@ from ipaddress import (
 
 from enum import Enum
 from types import GeneratorType
-import datetime
 from uuid import UUID
 from collections import deque
 from pathlib import Path
+from pathlib import PurePath
+from types import GeneratorType
+from enum import Enum
 from typing import Any
 
 # Taken from pydanitc.json
@@ -100,10 +98,6 @@ def json_encoder(obj: Any, force_string: bool = False):
     # Custom conversions
     if dataclasses.is_dataclass(obj):
         return dataclasses.asdict(obj)
-    if isinstance(obj, (np.ndarray, np.generic)):
-        return json_encoder(obj.tolist(), force_string=force_string)
-    if isinstance(obj, pd.DataFrame):
-        return json_encoder(obj.to_dict(), force_string=force_string)
     if isinstance(obj, Enum):
         return obj.value
     if isinstance(obj, PurePath):
@@ -111,10 +105,9 @@ def json_encoder(obj: Any, force_string: bool = False):
     if isinstance(obj, (str, int, type(None))):
         return obj
     if isinstance(obj, float):
-        if pd.isna(obj):
+        if math.isnan(obj):
             return None
-        else:
-            return obj
+        return obj
 
     if type(obj) in ENCODERS_BY_TYPE:
         return ENCODERS_BY_TYPE[type(obj)](obj)  # type: ignore
