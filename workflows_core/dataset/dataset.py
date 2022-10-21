@@ -46,24 +46,20 @@ class Dataset:
     def delete(self):
         return self._api._delete_dataset(self._dataset_id)
 
-    def insert_documents(
-        self, documents: List[document.Document], *args, **kwargs
-    ) -> Dict[str, Any]:
-        for index, document in enumerate(documents):
-            if hasattr(document, "to_dict"):
-                documents[index] = document.to_dict()
+    def insert_documents(self, documents: Documents, *args, **kwargs) -> Dict[str, Any]:
         return self._api._bulk_insert(
-            dataset_id=self._dataset_id, documents=documents, *args, **kwargs
+            dataset_id=self._dataset_id,
+            documents=documents.serialize(),
+            *args,
+            **kwargs
         )
 
-    def update_documents(
-        self, documents: List[document.Document], *args, **kwargs
-    ) -> Dict[str, Any]:
-        for index, document in enumerate(documents):
-            if hasattr(document, "to_dict"):
-                documents[index] = document.to_dict()
+    def update_documents(self, documents: Documents, *args, **kwargs) -> Dict[str, Any]:
         return self._api._bulk_update(
-            dataset_id=self._dataset_id, documents=documents, *args, **kwargs
+            dataset_id=self._dataset_id,
+            documents=documents.serialize(),
+            *args,
+            **kwargs
         )
 
     def get_documents(self, page_size: int, *args, **kwargs) -> Dict[str, Any]:

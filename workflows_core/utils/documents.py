@@ -5,6 +5,8 @@ from workflows_core.utils.document import Document
 
 
 class Documents(UserList):
+    data: List[Document]
+
     def __init__(self, initlist=None):
         if initlist is not None:
             initlist = [Document(document) for document in initlist]
@@ -26,3 +28,6 @@ class Documents(UserList):
                 document[key] = value
         elif isinstance():
             self.data[key] = value
+
+    def serialize(self):
+        return [document.to_dict() for document in self.data]
