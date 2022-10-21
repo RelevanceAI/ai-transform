@@ -56,7 +56,7 @@ class API:
         update_schema: bool = True,
         wait_for_update: bool = True,
         field_transformers: List[FieldTransformer] = None,
-        ingest_in_background: bool = False,
+        ingest_in_background: bool = True,
     ) -> Any:
         return requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_insert",
