@@ -36,7 +36,7 @@ class StableEngine(AbstractEngine):
                 chunk_error_log = {
                     "exception": str(e),
                     "traceback": traceback.format_exc(),
-                    "chunk": chunk,
+                    "chunk_ids": [document["_id"] for document in chunk],
                 }
                 error_logs.append(chunk_error_log)
                 logger.error(chunk)
