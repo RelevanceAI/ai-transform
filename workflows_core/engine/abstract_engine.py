@@ -110,7 +110,7 @@ class AbstractEngine(ABC):
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable
         # WORKER_NUMBER is passed into execute function
-        if self.worker_number and self.total_workers:
+        if self.worker_number is not None and self.total_workers is not None:
             return [
                 {
                     "matchModulo": {
