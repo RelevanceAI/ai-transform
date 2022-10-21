@@ -68,7 +68,7 @@ class AbstractOperator(ABC):
             if document_diff:
                 batch.append(document_diff)
 
-        return batch
+        return Documents(batch)
 
     def pre_hooks(self, dataset: Dataset):
         pass

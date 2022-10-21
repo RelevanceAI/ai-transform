@@ -9,7 +9,9 @@ class Documents(UserList):
 
     def __init__(self, initlist=None):
         if initlist is not None:
-            initlist = [Document(document) for document in initlist]
+            for index, document in enumerate(initlist):
+                if not isinstance(document, Document):
+                    initlist[index] = Document(document)
         super().__init__(initlist)
 
     def __repr__(self):
@@ -18,15 +20,17 @@ class Documents(UserList):
     def __getitem__(self, key: Union[str, int]):
         if isinstance(key, str):
             return [document[key] for document in self.data]
-        if isinstance(key, slice):
+        elif isinstance(key, slice):
             return self.__class__(self.data[key])
+        elif isinstance(key, int):
+            return self.data[key]
 
     def __setitem__(self, key: Union[str, int], value: Union[Any, List[Any]]):
         if isinstance(key, str):
             assert len(value) == len(self.data)
             for document, value in zip(self.data, value):
                 document[key] = value
-        elif isinstance():
+        elif isinstance(key, int):
             self.data[key] = value
 
     def serialize(self):
