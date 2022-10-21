@@ -29,14 +29,14 @@ class AbstractEngine(ABC):
         chunksize: Optional[int] = 8,
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
-        worker_number: int = 0,
-        total_workers: int = 0,
-        check_for_missing_fields: bool = True
+        worker_number: int = None,
+        total_workers: int = None,
+        check_for_missing_fields: bool = True,
     ):
         if select_fields is not None:
-            # We set this to a warning so that workflows that are adding 
-            # onto an existing field don't need this. For example - adding tags 
-            # to existing tags. If existing tags don't exist - it shouldn't break 
+            # We set this to a warning so that workflows that are adding
+            # onto an existing field don't need this. For example - adding tags
+            # to existing tags. If existing tags don't exist - it shouldn't break
             # the whole workflow. This allows for multiple workflows to be run in parallel
             # without worrying about breaking things.
             if check_for_missing_fields:
