@@ -1,5 +1,6 @@
 from collections import UserList
-from typing import Any, List, Union
+from hashlib import new
+from typing import Any, Dict, List, Union
 
 from workflows_core.utils.document import Document
 
@@ -17,7 +18,7 @@ class Documents(UserList):
     def __repr__(self):
         return repr(self.data)
 
-    def __getitem__(self, key: Union[str, int]) -> Union[Document, List[Document]]:
+    def __getitem__(self, key: Union[str, int]) -> Union[Document, "Documents"]:
         if isinstance(key, str):
             return [document[key] for document in self.data]
         elif isinstance(key, slice):
@@ -38,3 +39,31 @@ class Documents(UserList):
 
     def serialize(self):
         return [document.to_dict() for document in self.data]
+
+    def remove_tag(self, field: str, tag: str) -> None:
+        for document in self.data:
+            new_tags = []
+            for tag_json in document[field]:
+                if tag_json["label"] != tag:
+                    new_tags.append(tag_json)
+            document[field] = new_tags
+
+    def append_tag(
+        self, field: str, value: Union[Dict[str, Any], List[Dict[str, Any]]]
+    ) -> None:
+        if isinstance(value, list):
+            for document, tag in zip(self.data, value):
+                document[field].append(tag)
+        else:
+            for document in self.data:
+                document[field].append(value)
+
+    def sort_tags(
+        self, field: str, sort_field: str = "label", reverse: bool = False
+    ) -> None:
+        for document in self.data:
+            document[field] = sorted(
+                document[field],
+                key=lambda tag_json: tag_json[sort_field],
+                reverse=reverse,
+            )

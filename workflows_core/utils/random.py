@@ -99,3 +99,20 @@ def mock_documents(n: int = 100, vector_length: int = 5) -> Documents:
 
 def static_documents(n: int = 100) -> Documents:
     return Documents([{"text_field": str(i), "numeric_field": i} for i in range(n)])
+
+
+def tag_document(n_tags: int = 5):
+    document = {
+        "text": "This is some random text",
+        "_surveytag_": {
+            "text": [
+                {"label": generate_random_label(), "value": random.random()}
+                for _ in range(random.randint(0, n_tags))
+            ]
+        },
+    }
+    return Document(document)
+
+
+def tag_documents(n: int = 100):
+    return Documents([tag_document() for _ in range(n)])
