@@ -52,4 +52,4 @@ class StableEngine(AbstractEngine):
                 self.dataset.api._update_workflow_metadata(job_id=self._job_id, metadata={"progress": process_ratio})
 
         self._error_logs = error_logs
-        self._success_ratio = successful_chunks / self.num_chunks # we can delete this line now?
+        self._success_ratio = successful_chunks / self.num_chunks
