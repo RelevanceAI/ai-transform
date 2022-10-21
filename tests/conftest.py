@@ -78,6 +78,11 @@ def test_document() -> Document:
 
 
 @pytest.fixture(scope="function")
+def test_documents() -> Documents:
+    return mock_documents()
+
+
+@pytest.fixture(scope="function")
 def test_operator() -> AbstractOperator:
     class ExampleOperator(AbstractOperator):
         def transform(self, documents: Documents) -> Documents:

@@ -17,7 +17,7 @@ class Documents(UserList):
     def __repr__(self):
         return repr(self.data)
 
-    def __getitem__(self, key: Union[str, int]):
+    def __getitem__(self, key: Union[str, int]) -> Union[Document, List[Document]]:
         if isinstance(key, str):
             return [document[key] for document in self.data]
         elif isinstance(key, slice):
@@ -27,9 +27,12 @@ class Documents(UserList):
 
     def __setitem__(self, key: Union[str, int], value: Union[Any, List[Any]]):
         if isinstance(key, str):
-            assert len(value) == len(self.data)
-            for document, value in zip(self.data, value):
-                document[key] = value
+            if isinstance(value, list):
+                for document, value in zip(self.data, value):
+                    document[key] = value
+            else:
+                for document in self.data:
+                    document[key] = value
         elif isinstance(key, int):
             self.data[key] = value
 
