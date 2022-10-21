@@ -10,9 +10,9 @@ logger = logging.getLogger(__file__)
 
 
 class StableEngine(AbstractEngine):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, job_id: str, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        self._job_id = job_id
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
     def apply(self) -> None:
@@ -22,6 +22,7 @@ class StableEngine(AbstractEngine):
 
         iterator = self.iterate()
         successful_chunks = 0
+        proecssed_chunks = 0
         error_logs = []
 
         for chunk in tqdm(
@@ -30,6 +31,7 @@ class StableEngine(AbstractEngine):
             disable=(not self._show_progress_bar),
             total=self.num_chunks,
         ):
+            proecssed_chunks += 1
             try:
                 new_batch = self.operator(chunk)
             except Exception as e:
@@ -46,5 +48,8 @@ class StableEngine(AbstractEngine):
                 successful_chunks += 1
                 logger.debug(result)
 
+                process_ratio = proecssed_chunks / self.num_chunks
+                self.dataset.api._update_workflow_metadata(job_id=self._job_id, metadata={"progress": process_ratio})
+
         self._error_logs = error_logs
-        self._success_ratio = successful_chunks / self.num_chunks
+        self._success_ratio = successful_chunks / self.num_chunks # we can delete this line now?
