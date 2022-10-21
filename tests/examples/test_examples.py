@@ -98,5 +98,8 @@ def test_cluster_example(test_cluster_workflow_token: str):
     )
     workflow.run()
 
+    time.sleep(2)
+
     health = dataset.health()
-    assert health["_cluster_.sample_1_vector_.kmeans-20"]["exists"] == 20
+    cluster_field = operator._output_field
+    assert health[cluster_field]["exists"] == 20
