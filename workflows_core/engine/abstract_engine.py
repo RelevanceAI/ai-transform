@@ -110,16 +110,18 @@ class AbstractEngine(ABC):
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable
         # WORKER_NUMBER is passed into execute function
+        # total number of workers must be greater than 1 for data sharding to work
         if self.worker_number is not None and self.total_workers is not None:
-            return [
-                {
-                    "matchModulo": {
-                        "field": field,
-                        "modulo": self.total_workers,
-                        "value": self.worker_number,
+            if self.total_workers > 1:
+                return [
+                    {
+                        "matchModulo": {
+                            "field": field,
+                            "modulo": self.total_workers,
+                            "value": self.worker_number,
+                        }
                     }
-                }
-            ]
+                ]
         return []
 
     def iterate(
