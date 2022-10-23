@@ -47,29 +47,35 @@ class Dataset:
         return self._api._delete_dataset(self._dataset_id)
 
     def insert_documents(
-        self, documents: List[document.Document], *args, **kwargs
+        self,
+        documents: List[document.Document],
+        use_json_encoder: bool = True,
+        *args,
+        **kwargs
     ) -> Dict[str, Any]:
         for index, document in enumerate(documents):
             if hasattr(document, "to_dict"):
                 documents[index] = document.to_dict()
+        if use_json_encoder:
+            documents = json_encoder(documents)
         return self._api._bulk_insert(
-            dataset_id=self._dataset_id,
-            documents=json_encoder(documents),
-            *args,
-            **kwargs
+            dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
 
     def update_documents(
-        self, documents: List[document.Document], *args, **kwargs
+        self,
+        documents: List[document.Document],
+        use_json_encoder: bool = True,
+        *args,
+        **kwargs
     ) -> Dict[str, Any]:
         for index, document in enumerate(documents):
             if hasattr(document, "to_dict"):
                 documents[index] = document.to_dict()
+        if use_json_encoder:
+            documents = json_encoder(documents)
         return self._api._bulk_update(
-            dataset_id=self._dataset_id,
-            documents=json_encoder(documents),
-            *args,
-            **kwargs
+            dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
 
     def get_documents(self, page_size: int, *args, **kwargs) -> Dict[str, Any]:
