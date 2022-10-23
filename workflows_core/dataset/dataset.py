@@ -1,7 +1,7 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from workflows_core.api.api import API
-from workflows_core.types import Schema
+from workflows_core.types import Filter, Schema
 from workflows_core.utils import document
 
 from workflows_core.utils.json_encoder import json_encoder
@@ -66,8 +66,8 @@ class Dataset:
         self,
         documents: List[document.Document],
         use_json_encoder: bool = True,
-        *args,
-        **kwargs
+        insert_date: bool = True,
+        ingest_in_background: bool = True,
     ) -> Dict[str, Any]:
         for index, document in enumerate(documents):
             if hasattr(document, "to_dict"):
@@ -75,12 +75,35 @@ class Dataset:
         if use_json_encoder:
             documents = json_encoder(documents)
         return self._api._bulk_update(
-            dataset_id=self._dataset_id, documents=documents, *args, **kwargs
+            dataset_id=self._dataset_id,
+            documents=documents,
+            insert_date=insert_date,
+            ingest_in_background=ingest_in_background,
         )
 
-    def get_documents(self, page_size: int, *args, **kwargs) -> Dict[str, Any]:
+    def get_documents(
+        self,
+        page_size: int,
+        filters: Optional[List[Filter]] = None,
+        sort: Optional[list] = None,
+        select_fields: Optional[List[str]] = None,
+        include_vector: bool = True,
+        random_state: int = 0,
+        is_random: bool = False,
+        after_id: Optional[List] = None,
+        worker_number: int = 0,
+    ) -> Dict[str, Any]:
         res = self._api._get_where(
-            dataset_id=self._dataset_id, page_size=page_size, *args, **kwargs
+            dataset_id=self._dataset_id,
+            page_size=page_size,
+            filters=filters,
+            sort=sort,
+            select_fields=select_fields,
+            include_vector=include_vector,
+            random_state=random_state,
+            is_random=is_random,
+            after_id=after_id,
+            worker_number=worker_number,
         )
         res["documents"] = [document.Document(d) for d in res["documents"]]
         return res
