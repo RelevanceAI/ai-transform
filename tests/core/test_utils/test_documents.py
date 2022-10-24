@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from workflows_core.utils.documents import DocumentList
+from workflows_core.utils.document_list import DocumentList
 
 
 class TestDocumentList:
