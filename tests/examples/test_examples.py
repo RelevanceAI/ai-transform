@@ -1,5 +1,6 @@
 import time
 
+from examples.fail_example import BadOperator
 from examples.workflows.sentiment_example import SentimentOperator
 from examples.workflows.clustering_example import ClusterOperator
 
@@ -103,3 +104,37 @@ def test_cluster_example(test_cluster_workflow_token: str):
     health = dataset.health()
     cluster_field = operator._output_field
     assert health[cluster_field]["exists"] == 20
+
+
+def test_fail_example(test_sentiment_workflow_token: str):
+    config = decode_workflow_token(test_sentiment_workflow_token)
+
+    job_id = config["job_id"] + "_fail"
+    token = config["authorizationToken"]
+    dataset_id = config["dataset_id"]
+    text_field = config["text_field"]
+    alias = config.get("alias", None)
+
+    client = Client(token=token)
+    dataset = client.Dataset(dataset_id)
+
+    operator = BadOperator(text_field=text_field, alias=alias)
+
+    filters = dataset[text_field].exists()
+    engine = StableEngine(
+        dataset=dataset,
+        operator=operator,
+        chunksize=8,
+        select_fields=[text_field],
+        filters=filters,
+    )
+
+    workflow = AbstractWorkflow(
+        engine=engine,
+        job_id=job_id,
+    )
+    workflow.run()
+
+    time.sleep(2)
+
+    assert workflow.get_status()["status"] == "failed"
