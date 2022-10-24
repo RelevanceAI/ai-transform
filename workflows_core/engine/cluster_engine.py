@@ -12,13 +12,6 @@ logger = logging.getLogger(__file__)
 
 
 class InMemoryEngine(AbstractEngine):
-    """
-    This Engine is intended to be used when operations are done on the whole dataset at once.
-    The advantage this has over `StableEngine` with `chunksize=None` is that the pulling and
-    pushing documents is done in batch, but the operation is done in bulk. With `StableEngine`,
-    this would have involved extremely large API calls with larger datasets.
-    """
-
     def __init__(self, show_progress_bar: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
