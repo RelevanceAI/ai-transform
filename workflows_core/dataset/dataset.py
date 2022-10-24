@@ -63,10 +63,7 @@ class Dataset:
         if use_json_encoder:
             documents = json_encoder(documents)
         return self._api._bulk_insert(
-            dataset_id=self._dataset_id,
-            documents=documents.serialize(),
-            *args,
-            **kwargs
+            dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
 
     def update_documents(
