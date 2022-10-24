@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from workflows_core.api.api import API
 from workflows_core.types import Filter, Schema
@@ -49,14 +49,17 @@ class Dataset:
 
     def insert_documents(
         self,
-        documents: List[document.Document],
+        documents: Union[List[document.Document], DocumentList],
         use_json_encoder: bool = True,
         *args,
         **kwargs
     ) -> Dict[str, Any]:
-        for index, document in enumerate(documents):
-            if hasattr(document, "to_dict"):
-                documents[index] = document.to_json()
+        if hasattr(documents, "to_json"):
+            documents = documents.to_json()
+        else:
+            for index in range(len(documents)):
+                if hasattr(documents[index], "to_json"):
+                    documents[index] = documents[index].to_json()
         if use_json_encoder:
             documents = json_encoder(documents)
         return self._api._bulk_insert(
@@ -68,14 +71,17 @@ class Dataset:
 
     def update_documents(
         self,
-        documents: List[document.Document],
+        documents: Union[List[document.Document], DocumentList],
         use_json_encoder: bool = True,
         insert_date: bool = True,
         ingest_in_background: bool = True,
     ) -> Dict[str, Any]:
-        for index, document in enumerate(documents):
-            if hasattr(document, "to_dict"):
-                documents[index] = document.to_json()
+        if hasattr(documents, "to_json"):
+            documents = documents.to_json()
+        else:
+            for index in range(len(documents)):
+                if hasattr(documents[index], "to_json"):
+                    documents[index] = documents[index].to_json()
         if use_json_encoder:
             documents = json_encoder(documents)
         return self._api._bulk_update(
