@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document
-from workflows_core.utils.documents import Documents
+from workflows_core.utils.documents import DocumentList
 
 logger = logging.getLogger(__file__)
 
@@ -34,7 +34,7 @@ class AbstractOperator(ABC):
         self._output_fields = output_fields
 
     @abstractmethod
-    def transform(self, documents: Documents) -> Documents:
+    def transform(self, documents: DocumentList) -> DocumentList:
         """
         Every Operator needs a transform function
         """
@@ -43,14 +43,14 @@ class AbstractOperator(ABC):
     def __repr__(self):
         return str(type(self).__name__)
 
-    def __call__(self, old_documents: Documents) -> Documents:
+    def __call__(self, old_documents: DocumentList) -> DocumentList:
         new_documents = deepcopy(old_documents)
         new_documents = self.transform(new_documents)
         new_documents = AbstractOperator._postprocess(new_documents, old_documents)
         return new_documents
 
     @staticmethod
-    def _postprocess(new_batch: Documents, old_batch: Documents) -> Documents:
+    def _postprocess(new_batch: DocumentList, old_batch: DocumentList) -> DocumentList:
         """
         Removes fields from `new_batch` that are present in the `old_keys` list.
         Necessary to avoid bloating the upload payload with unnecesary information.
@@ -61,7 +61,7 @@ class AbstractOperator(ABC):
             if document_diff:
                 batch.append(document_diff)
 
-        return Documents(batch)
+        return DocumentList(batch)
 
     def pre_hooks(self, dataset: Dataset):
         pass

@@ -1,10 +1,10 @@
 from copy import deepcopy
 
-from workflows_core.utils.documents import Documents
+from workflows_core.utils.documents import DocumentList
 
 
-class TestDocuments:
-    def test_deepcopy(self, test_documents: Documents):
+class TestDocumentList:
+    def test_deepcopy(self, test_documents: DocumentList):
         copy_test_documents = deepcopy(test_documents)
         copy_test_documents["field3"] = 4
         copy_test_documents["field1.field2"] = 4
@@ -22,6 +22,6 @@ class TestDocuments:
             )
         )
 
-    def test_serializer(self, test_documents: Documents):
+    def test_serializer(self, test_documents: DocumentList):
         serialized = test_documents.serialize()
         assert True

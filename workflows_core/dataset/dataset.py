@@ -6,7 +6,7 @@ from workflows_core.utils import document
 
 from workflows_core.utils.json_encoder import json_encoder
 from workflows_core.dataset.field import Field, VectorField
-from workflows_core.utils.documents import Documents
+from workflows_core.utils.documents import DocumentList
 
 
 class Dataset:
@@ -109,7 +109,7 @@ class Dataset:
             after_id=after_id,
             worker_number=worker_number,
         )
-        res["documents"] = Documents(res["documents"])
+        res["documents"] = DocumentList(res["documents"])
         return res
 
     def len(self, *args, **kwargs):

@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from workflows_core.types import Filter
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.documents import Documents
+from workflows_core.utils.documents import DocumentList
 from workflows_core.errors import MaxRetriesError
 
 
@@ -165,7 +165,7 @@ class AbstractEngine(ABC):
                 yield chunk["documents"]
                 retry_count = 0
 
-    def update_chunk(self, chunk: Documents, max_retries: int = 3):
+    def update_chunk(self, chunk: DocumentList, max_retries: int = 3):
         if chunk:
             for _ in range(max_retries):
                 try:

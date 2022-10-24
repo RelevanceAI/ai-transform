@@ -13,7 +13,7 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.api.helpers import process_token
 from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.utils.document import Document
-from workflows_core.utils.documents import Documents
+from workflows_core.utils.documents import DocumentList
 from workflows_core.utils.random import mock_documents, static_documents
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.engine.stable_engine import StableEngine
@@ -79,14 +79,14 @@ def test_document() -> Document:
 
 
 @pytest.fixture(scope="function")
-def test_documents() -> Documents:
+def test_documents() -> DocumentList:
     return mock_documents()
 
 
 @pytest.fixture(scope="function")
 def test_operator() -> AbstractOperator:
     class ExampleOperator(AbstractOperator):
-        def transform(self, documents: Documents) -> Documents:
+        def transform(self, documents: DocumentList) -> DocumentList:
             """
             Main transform function
             """

@@ -43,7 +43,7 @@ class EmotionOperator(AbstractOperator):
             ],
         )
 
-    def transform(self, documents: Documents) -> Documents:
+    def transform(self, documents: DocumentList) -> DocumentList:
         """
         Main transform function
         """

@@ -5,7 +5,7 @@ from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.documents import Documents
+from workflows_core.utils.documents import DocumentList
 from workflows_core.workflow.helpers import decode_workflow_token
 
 
@@ -13,7 +13,7 @@ class ExampleOperator(AbstractOperator):
     def __init__(self, field: str):
         self._field = field
 
-    def transform(self, documents: Documents) -> Documents:
+    def transform(self, documents: DocumentList) -> DocumentList:
         """
         Main transform function
         """

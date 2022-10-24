@@ -43,7 +43,7 @@ import string
 
 from workflows_core.types import Vector
 from workflows_core.utils.document import Document
-from workflows_core.utils.documents import Documents
+from workflows_core.utils.documents import DocumentList
 
 
 def generate_random_string(string_length: int = 5) -> str:
@@ -93,12 +93,12 @@ def vector_document(vector_length: int) -> Document:
     return Document(document)
 
 
-def mock_documents(n: int = 100, vector_length: int = 5) -> Documents:
-    return Documents([vector_document(vector_length) for _ in range(n)])
+def mock_documents(n: int = 100, vector_length: int = 5) -> DocumentList:
+    return DocumentList([vector_document(vector_length) for _ in range(n)])
 
 
-def static_documents(n: int = 100) -> Documents:
-    return Documents([{"text_field": str(i), "numeric_field": i} for i in range(n)])
+def static_documents(n: int = 100) -> DocumentList:
+    return DocumentList([{"text_field": str(i), "numeric_field": i} for i in range(n)])
 
 
 def tag_document(n_tags: int = 5):
@@ -115,4 +115,4 @@ def tag_document(n_tags: int = 5):
 
 
 def tag_documents(n: int = 100):
-    return Documents([tag_document() for _ in range(n)])
+    return DocumentList([tag_document() for _ in range(n)])

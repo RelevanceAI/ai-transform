@@ -1,7 +1,7 @@
 from typing import List, Optional, Union
 
 from workflows_core.types import Filter
-from workflows_core.utils.documents import Documents
+from workflows_core.utils.documents import DocumentList
 
 
 class Field:
@@ -145,7 +145,7 @@ class Field:
             }
         ]
 
-    def insert_centroids(self, centroid_documents: Documents, alias: str):
+    def insert_centroids(self, centroid_documents: DocumentList, alias: str):
         raise NotImplementedError(
             "`insert_centroids` not available for non vector_fields"
         )
@@ -160,7 +160,7 @@ class VectorField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
 
-    def insert_centroids(self, centroid_documents: Documents, alias: str):
+    def insert_centroids(self, centroid_documents: DocumentList, alias: str):
         return self._dataset.api._insert_centroids(
             dataset_id=self.dataset_id,
             cluster_centers=centroid_documents,
