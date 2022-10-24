@@ -17,6 +17,10 @@ class TestDataset1:
         result = empty_dataset.insert_documents(documents)
         assert result["inserted"] == 100
 
+    def test_get_all(self, full_dataset: Dataset):
+        res = full_dataset.get_all_documents()
+        assert len(res["documents"]) == 20
+
 
 @pytest.mark.usefixtures("full_dataset")
 class TestDataset2:
