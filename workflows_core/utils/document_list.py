@@ -40,11 +40,11 @@ class DocumentList(UserList):
     def to_json(self):
         return [document.to_json() for document in self.data]
 
-    def remove_tag(self, field: str, tag: str) -> None:
+    def remove_tag(self, field: str, tag: str, label_field: str = "label") -> None:
         for document in self.data:
             new_tags = []
             for tag_json in document[field]:
-                if tag_json["label"] != tag:
+                if tag_json[label_field] != tag:
                     new_tags.append(tag_json)
             document[field] = new_tags
 
