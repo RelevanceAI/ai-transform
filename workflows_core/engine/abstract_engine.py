@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from workflows_core.types import Filter
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.documents import DocumentList
+from workflows_core.utils.document_list import DocumentList
 from workflows_core.errors import MaxRetriesError
 
 

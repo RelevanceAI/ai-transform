@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document
-from workflows_core.utils.documents import DocumentList
+from workflows_core.utils.document_list import DocumentList
 
 logger = logging.getLogger(__file__)
 

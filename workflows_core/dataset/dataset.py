@@ -6,7 +6,7 @@ from workflows_core.utils import document
 
 from workflows_core.utils.json_encoder import json_encoder
 from workflows_core.dataset.field import Field, VectorField
-from workflows_core.utils.documents import DocumentList
+from workflows_core.utils.document_list import DocumentList
 
 
 class Dataset:

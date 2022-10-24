@@ -43,7 +43,7 @@ import string
 
 from workflows_core.types import Vector
 from workflows_core.utils.document import Document
-from workflows_core.utils.documents import DocumentList
+from workflows_core.utils.document_list import DocumentList
 
 
 def generate_random_string(string_length: int = 5) -> str:
