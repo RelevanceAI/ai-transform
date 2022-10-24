@@ -60,5 +60,3 @@ class InMemoryEngine(AbstractEngine):
                     logging.error(traceback.format_exc())
                 else:
                     logging.debug(result)
-
-        return
