@@ -54,34 +54,38 @@ class WorkflowContextManager(API):
         """
         The workflow is in progress
         """
-        if self._job_id is not None:
-            self._set_status(status=self.IN_PROGRESS)
+        self._set_status(status=self.IN_PROGRESS)
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
 
-        if self._update_field_children:
-            for input_field in self._operator._input_fields:
-                self._set_field_children(
-                    dataset_id=self._dataset_id,
-                    fieldchildren_id=self._workflow_name.lower().replace(
-                        "workflow", ""
+        if exc_type is not None:
+            logger.exception("Exception")
+            self._set_status(status=self.FAILED)
+            self._update_workflow_metadata(
+                job_id=self._job_id,
+                metadata=dict(
+                    _error_=dict(
+                        exc_value=str(exc_value),
+                        traceback=str(traceback),
+                        logs=self._engine._error_logs,
                     ),
-                    field=input_field,
-                    field_children=self._operator._output_fields,
-                )
-
-        if self._job_id is not None:
-            if exc_type is not None:
-                logger.exception("Exception")
-                self._set_status(status=self.FAILED)
-                return False
-            else:
-                # Workflow must have run successfully
-                self._set_status(status=self.COMPLETE)
-                return True
+                ),
+            )
+            return False
         else:
-            # If not workflow id in env, we simply exit
+            # Workflow must have run successfully
+            self._set_status(status=self.COMPLETE)
+            if self._update_field_children:
+                for input_field in self._operator._input_fields:
+                    self._set_field_children(
+                        dataset_id=self._dataset_id,
+                        fieldchildren_id=self._workflow_name.lower().replace(
+                            "workflow", ""
+                        ),
+                        field=input_field,
+                        field_children=self._operator._output_fields,
+                    )
             return True
 
     def _set_status(self, status: str):

@@ -78,6 +78,9 @@ class AbstractEngine(ABC):
         self._refresh = refresh
         self._after_id = after_id
 
+        self._success_ratio = None
+        self._error_logs = None
+
     @property
     def num_chunks(self) -> int:
         return self._num_chunks
@@ -99,7 +102,7 @@ class AbstractEngine(ABC):
         return self._size
 
     @abstractmethod
-    def apply(self) -> Any:
+    def apply(self) -> None:
         raise NotImplementedError
 
     def __call__(self) -> Any:
