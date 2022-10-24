@@ -21,12 +21,26 @@ class InMemoryEngine(AbstractEngine):
     def apply(self) -> Any:
 
         iterator = self.iterate()
+        error_logs = []
 
         documents = []
         for chunk in iterator:
             documents += chunk
 
-        new_batch = self.operator(documents)
+        try:
+            new_batch = self.operator(documents)
+        except Exception as e:
+            chunk_error_log = {
+                "exception": str(e),
+                "traceback": traceback.format_exc(),
+                "chunk_ids": [document["_id"] for document in chunk],
+            }
+            error_logs.append(chunk_error_log)
+            logger.error(chunk)
+            logger.error(traceback.format_exc())
+            self._success_ratio = 0.0
+        else:
+            self._success_ratio = 1.0
 
         def payload_generator():
             for i in range(self._num_chunks):
