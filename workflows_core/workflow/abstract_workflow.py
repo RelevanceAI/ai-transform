@@ -1,11 +1,17 @@
 import uuid
+import logging
 import warnings
-from typing import Optional
+
+from typing import Any, Dict, Optional
 from workflows_core.dataset.dataset import Dataset
 
 from workflows_core.engine.abstract_engine import AbstractEngine
+from workflows_core.errors import WorkflowFailedError
 from workflows_core.workflow.context_manager import WorkflowContextManager
 from workflows_core.operator.abstract_operator import AbstractOperator
+
+
+logger = logging.getLogger(__name__)
 
 
 class Workflow:
@@ -14,7 +20,10 @@ class Workflow:
         engine: AbstractEngine,
         job_id: Optional[str] = None,
         name: Optional[str] = None,
-        **kwargs,
+        metadata: Optional[Dict[str, Any]] = None,
+        additional_information: str = "",
+        send_email: bool = True,
+        success_threshold: float = 0.5,
     ):
         self._name = "Workflow" if name is None else name
         self._engine = engine
@@ -24,17 +33,13 @@ class Workflow:
             warnings.warn(f"No job id supplied, using {job_id}")
 
         self._job_id = job_id
-
-        # make it backwards compatible to avoid duplicate parameters being in the
-        # same function call
-        if "job_id" in kwargs:
-            kwargs.pop("job_id")
-
-        if "workflow_id" in kwargs:
-            kwargs.pop("workflow_id")
-
-        self._kwargs = kwargs
         self._api = engine.dataset.api
+
+        self._metadata = metadata
+        self._additional_information = additional_information
+        self._send_email = send_email
+
+        self._success_threshold = success_threshold
 
     @property
     def name(self):
@@ -53,19 +58,33 @@ class Workflow:
         return self.engine.operator
 
     def run(self):
-        with WorkflowContextManager(
-            workflow_name=self._name,
-            job_id=self._job_id,
-            engine=self.engine,
-            dataset=self.dataset,
-            operator=self.operator,
-            **self._kwargs,
-        ):
-            self.engine()
+        try:
+            with WorkflowContextManager(
+                workflow_name=self._name,
+                job_id=self._job_id,
+                engine=self.engine,
+                dataset=self.dataset,
+                operator=self.operator,
+                metadata=self._metadata,
+                additional_information=self._additional_information,
+                send_email=self._send_email,
+            ):
+                self.engine()
+                success_ratio = self.engine._success_ratio
+                if success_ratio < self._success_threshold:
+                    raise WorkflowFailedError(
+                        f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self._success_threshold:.2f}% threshold"
+                    )
+        except WorkflowFailedError as e:
+            logger.error(e)
+
         return
 
     def get_status(self):
         return self._api._get_workflow_status(self._job_id)
+
+    def update_metadata(self, metadata: Dict[str, Any]):
+        return self._api._update_workflow_metadata(self._job_id, metadata=metadata)
 
 
 # For backwards compatibility

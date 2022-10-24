@@ -44,16 +44,9 @@ class AbstractOperator(ABC, DocumentUtils):
 
     def __call__(self, old_documents: List[Document]) -> List[Document]:
         new_documents = deepcopy(old_documents)
-        try:
-            new_documents = self.transform(new_documents)
-            logger.debug(new_documents)
-        except Exception as e:
-            logger.exception(e)
-            raise e
-        else:
-            new_documents = AbstractOperator._postprocess(new_documents, old_documents)
-        finally:
-            return new_documents
+        new_documents = self.transform(new_documents)
+        new_documents = AbstractOperator._postprocess(new_documents, old_documents)
+        return new_documents
 
     @staticmethod
     def _postprocess(
