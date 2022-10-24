@@ -23,5 +23,5 @@ class TestDocumentList:
         )
 
     def test_serializer(self, test_documents: DocumentList):
-        serialized = test_documents.serialize()
+        serialized = test_documents.to_json()
         assert True

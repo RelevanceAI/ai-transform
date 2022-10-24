@@ -63,5 +63,5 @@ class Document(UserDict):
         except:
             return super().__contains__(key)
 
-    def to_dict(self):
+    def to_json(self):
         return deepcopy(self.data)

@@ -56,7 +56,7 @@ class Dataset:
     ) -> Dict[str, Any]:
         for index, document in enumerate(documents):
             if hasattr(document, "to_dict"):
-                documents[index] = document.to_dict()
+                documents[index] = document.to_json()
         if use_json_encoder:
             documents = json_encoder(documents)
         return self._api._bulk_insert(
@@ -75,7 +75,7 @@ class Dataset:
     ) -> Dict[str, Any]:
         for index, document in enumerate(documents):
             if hasattr(document, "to_dict"):
-                documents[index] = document.to_dict()
+                documents[index] = document.to_json()
         if use_json_encoder:
             documents = json_encoder(documents)
         return self._api._bulk_update(

@@ -37,8 +37,8 @@ class DocumentList(UserList):
         elif isinstance(key, int):
             self.data[key] = value
 
-    def serialize(self):
-        return [document.to_dict() for document in self.data]
+    def to_json(self):
+        return [document.to_json() for document in self.data]
 
     def remove_tag(self, field: str, tag: str) -> None:
         for document in self.data:
