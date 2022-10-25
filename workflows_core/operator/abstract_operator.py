@@ -16,9 +16,9 @@ def get_value_diff(
     field: str, value1: Any, value2: Any, vector_diff_threshold: float = 1e-5
 ):
     if "_vector_" in field and isinstance(value1, list) and isinstance(value2, list):
-        element_wise_diff = np.array(value1) - np.array(value2)
-        sum_of_squares = np.sum(np.square(element_wise_diff))
-        return np.sqrt(sum_of_squares) > vector_diff_threshold
+        element_wise_diff = abs(np.array(value1)) - abs(np.array(value2))
+        sums = np.sum(element_wise_diff)
+        return sums > 0
 
     else:
         return value1 != value2
