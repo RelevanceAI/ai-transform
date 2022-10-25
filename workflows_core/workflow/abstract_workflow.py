@@ -21,25 +21,35 @@ class Workflow:
         job_id: Optional[str] = None,
         name: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None,
-        additional_information: str = "",
-        send_email: bool = True,
+        additional_information: Optional[str] = None,
+        send_email: Optional[bool] = None,
         success_threshold: float = 0.5,
     ):
-        self._name = "Workflow" if name is None else name
         self._engine = engine
+        self._success_threshold = success_threshold
+        self._api = engine.dataset.api
+        self._metadata = metadata
 
         if job_id is None:
-            job_id = str(uuid.uuid4())
+            self._job_id = str(uuid.uuid4())
             warnings.warn(f"No job id supplied, using {job_id}")
+        else:
+            self._job_id = job_id
 
-        self._job_id = job_id
-        self._api = engine.dataset.api
+        if name is None:
+            self._name = "Workflow"
+        else:
+            self._name = name
 
-        self._metadata = metadata
-        self._additional_information = additional_information
-        self._send_email = send_email
+        if additional_information is None:
+            self._additional_information = ""
+        else:
+            self._additional_information = additional_information
 
-        self._success_threshold = success_threshold
+        if send_email is None:
+            self._send_email = True
+        else:
+            self._send_email = send_email
 
     @property
     def name(self):

@@ -7,7 +7,7 @@ from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.helpers import decode_workflow_token
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from workflows_core.workflow.abstract_workflow import Workflow
 from workflows_core.operator.abstract_operator import AbstractOperator
 
 from workflows_core.utils.random import Document
@@ -85,15 +85,17 @@ class BatchClusterPredictOperator(AbstractOperator):
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
-    config = decode_workflow_token(args.workflow_token)
+    config = decode_workflow_token(token)
 
-    job_id = config.get("job_id", str(uuid.uuid4()))
+    job_id = config.get("job_id")
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     vector_field = config["vector_field"]
     alias = config.get("alias", None)
     n_clusters = config.get("n_clusters", 8)
-    total_workers = config.get("total_workers", None)
+    total_workers = config.get("total_workers")
+    send_email = config.get("send_email")
+    additional_information = config.get("additional_information")
 
     client = Client(token=token)
 
@@ -130,15 +132,19 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         total_workers=total_workers,
     )
 
-    fit_workflow = AbstractWorkflow(
+    fit_workflow = Workflow(
         engine=fit_engine,
         job_id=f"{job_id}_fit",
+        send_email=send_email,
+        additional_information=additional_information,
     )
     fit_workflow.run()
 
-    predict_workflow = AbstractWorkflow(
+    predict_workflow = Workflow(
         engine=predict_engine,
         job_id=f"{job_id}_predict",
+        send_email=send_email,
+        additional_information=additional_information,
     )
     predict_workflow.run()
 

@@ -11,7 +11,7 @@ from transformers import pipeline
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.helpers import decode_workflow_token
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from workflows_core.workflow.abstract_workflow import Workflow
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.random import Document
 
@@ -77,11 +77,13 @@ class SentimentOperator(AbstractOperator):
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
-    job_id = config.get("job_id", str(uuid.uuid4()))
+    job_id = config.get("job_id")
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["textFields"]
-    total_workers = config.get("total_workers", None)
+    total_workers = config.get("total_workers")
+    send_email = config.get("send_email")
+    additional_information = config.get("additional_information")
 
     alias = config.get("alias", None)
 
@@ -105,9 +107,11 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         total_workers=total_workers,
     )
 
-    workflow = AbstractWorkflow(
+    workflow = Workflow(
         engine=engine,
         job_id=job_id,
+        send_email=send_email,
+        additional_information=additional_information,
     )
     workflow.run()
 
