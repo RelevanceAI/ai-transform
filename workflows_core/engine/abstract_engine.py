@@ -166,10 +166,10 @@ class AbstractEngine(ABC):
         if chunk:
             for _ in range(max_retries):
                 try:
-                    update_json = self._dataset.update_documents(documents=chunk)
+                    result = self._dataset.update_documents(documents=chunk)
                 except Exception as e:
                     logger.exception(e, stack_info=True)
                 else:
-                    return update_json
+                    return result
 
             raise MaxRetriesError("max number of retries exceeded")

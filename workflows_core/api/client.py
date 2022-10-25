@@ -1,11 +1,16 @@
 from typing import Optional
 
+from structlog import get_logger
+
 from workflows_core.api.api import API
 from workflows_core.api.helpers import process_token
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.types import Schema
 from workflows_core.errors import AuthException
 from workflows_core.constants import WELCOME_MESSAGE
+
+
+logger = get_logger(__file__)
 
 
 class Client:
@@ -17,8 +22,8 @@ class Client:
 
         try:
             self.list_datasets()["datasets"]
-        except:
-            raise AuthException
+        except Exception as e:
+            logger.exception(e, stack_info=True)
         else:
             print(WELCOME_MESSAGE.format(self._credentials.project))
 

@@ -41,9 +41,8 @@ class StableEngine(AbstractEngine):
                 error_logs.append(chunk_error_log)
                 logger.exception(e, stack_info=True)
             else:
-                result = self.update_chunk(new_batch)
+                self.update_chunk(new_batch)
                 successful_chunks += 1
-                logger.debug(result)
 
         self._error_logs = error_logs
         self._success_ratio = successful_chunks / self.num_chunks

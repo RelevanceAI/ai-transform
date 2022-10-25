@@ -97,5 +97,4 @@ class WorkflowContextManager(API):
             additional_information=self._additional_information,
             send_email=self._send_email,
         )
-        logger.info(res)
         return res

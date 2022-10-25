@@ -7,7 +7,7 @@ from examples.workflows.clustering_example import ClusterOperator
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
-from workflows_core.engine.cluster_engine import InMemoryEngine
+from workflows_core.engine.inmemory_engine import InMemoryEngine
 from workflows_core.workflow.helpers import decode_workflow_token
 
 

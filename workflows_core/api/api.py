@@ -1,10 +1,35 @@
+import json
 import uuid
+import inspect
 import requests
 
 from typing import Any, Dict, List, Optional
 
+from structlog import get_logger
 from workflows_core.utils import document
 from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
+
+
+logger = get_logger(__file__)
+
+
+def make_request(hide_auth: bool = True, include_stacktrace: bool = False, **kwargs):
+    """
+    Helper function for processing
+    """
+    if hide_auth:
+        debug_kwargs = {key: value for key, value in kwargs.items() if key != "headers"}
+    else:
+        debug_kwargs = kwargs
+    if include_stacktrace:
+        debug_kwargs["stacktrace"] = [
+            dict(filename=frame.filename, function=frame.function, lineno=frame.lineno)
+            for frame in inspect.stack()[1:4]
+        ]
+    logger.debug(json.dumps(debug_kwargs, indent=4))
+    response = requests.request(**kwargs).json()
+    logger.debug(json.dumps(response, indent=4))
+    return response
 
 
 class API:
@@ -18,14 +43,17 @@ class API:
         )
 
     def _list_datasets(self):
-        return requests.get(
-            url=self._base_url + "/datasets/list", headers=self._headers
-        ).json()
+        return make_request(
+            method="get",
+            url=self._base_url + "/datasets/list",
+            headers=self._headers,
+        )
 
     def _create_dataset(
         self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True
     ) -> Any:
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/datasets/create",
             headers=self._headers,
             json=dict(
@@ -33,19 +61,21 @@ class API:
                 schema=schema,
                 upsert=upsert,
             ),
-        ).json()
+        )
 
     def _delete_dataset(self, dataset_id: str) -> Any:
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/datasets/{dataset_id}/delete",
             headers=self._headers,
-        ).json()
+        )
 
     def _get_schema(self, dataset_id: str) -> Schema:
-        return requests.get(
+        return make_request(
+            method="get",
             url=self._base_url + f"/datasets/{dataset_id}/schema",
             headers=self._headers,
-        ).json()
+        )
 
     def _bulk_insert(
         self,
@@ -58,7 +88,8 @@ class API:
         field_transformers: List[FieldTransformer] = None,
         ingest_in_background: bool = False,
     ) -> Any:
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_insert",
             headers=self._headers,
             json=dict(
@@ -72,7 +103,7 @@ class API:
                 ingest_in_background=ingest_in_background,
                 wait_for_update=wait_for_update,
             ),
-        ).json()
+        )
 
     def _bulk_update(
         self,
@@ -81,7 +112,8 @@ class API:
         insert_date: bool = True,
         ingest_in_background: bool = True,
     ) -> Any:
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_update",
             headers=self._headers,
             json=dict(
@@ -89,7 +121,7 @@ class API:
                 insert_date=insert_date,
                 ingest_in_background=ingest_in_background,
             ),
-        ).json()
+        )
 
     def _get_where(
         self,
@@ -104,7 +136,8 @@ class API:
         after_id: Optional[List] = None,
         worker_number: int = 0,
     ):
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/datasets/{dataset_id}/documents/get_where",
             headers=self._headers,
             json=dict(
@@ -118,26 +151,28 @@ class API:
                 after_id=[] if after_id is None else after_id,
                 worker_number=worker_number,
             ),
-        ).json()
+        )
 
     def _update_dataset_metadata(self, dataset_id: str, metadata: Dict[str, Any]):
         """
         Edit and add metadata about a dataset. Notably description, data source, etc
         """
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/datasets/{dataset_id}/metadata",
             headers=self._headers,
             json=dict(
                 dataset_id=dataset_id,
                 metadata=metadata,
             ),
-        ).json()
+        )
 
     def _get_metadata(self, dataset_id: str) -> Dict[str, Any]:
-        return requests.get(
+        return make_request(
+            method="get",
             url=self._base_url + f"/datasets/{dataset_id}/metadata",
             headers=self._headers,
-        ).json()
+        )
 
     def _insert_centroids(
         self,
@@ -146,7 +181,8 @@ class API:
         vector_fields: List[str],
         alias: str,
     ):
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/datasets/{dataset_id}/cluster/centroids/insert",
             headers=self._headers,
             json=dict(
@@ -155,7 +191,7 @@ class API:
                 vector_fields=vector_fields,
                 alias=alias,
             ),
-        ).json()
+        )
 
     def _get_centroids(
         self,
@@ -167,7 +203,8 @@ class API:
         cluster_ids: Optional[List] = None,
         include_vector: bool = False,
     ):
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/datasets/{dataset_id}/cluster/centroids/documents",
             headers=self._headers,
             json=dict(
@@ -178,7 +215,7 @@ class API:
                 page=page,
                 include_vector=include_vector,
             ),
-        ).json()
+        )
 
     def _set_workflow_status(
         self,
@@ -198,7 +235,8 @@ class API:
             )
         if metadata is None:
             metadata = {}
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/workflows/{job_id}/status",
             headers=self._headers,
             json=dict(
@@ -208,7 +246,7 @@ class API:
                 additional_information=additional_information,
                 send_email=send_email,
             ),
-        ).json()
+        )
 
     def _set_field_children(
         self,
@@ -229,7 +267,8 @@ class API:
         metadata: extra parameters associated with operation
         i.e. n_clusters, n_init, softmax_temperature, etc...
         """
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url
             + f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
             headers=self._headers,
@@ -239,23 +278,26 @@ class API:
                 category=fieldchildren_id,
                 metadata={} if metadata is None else metadata,
             ),
-        ).json()
+        )
 
     def _get_health(self, dataset_id: str):
-        return requests.get(
+        return make_request(
+            method="get",
             url=self._base_url + f"/datasets/{dataset_id}/monitor/health",
             headers=self._headers,
-        ).json()
+        )
 
     def _get_workflow_status(self, job_id: str):
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/workflows/{job_id}/get",
             headers=self._headers,
-        ).json()
+        )
 
     def _update_workflow_metadata(self, job_id: str, metadata: Dict[str, Any]):
-        return requests.post(
+        return make_request(
+            method="post",
             url=self._base_url + f"/workflows/{job_id}/metadata",
             headers=self._headers,
             json=dict(metadata=metadata),
-        ).json()
+        )
