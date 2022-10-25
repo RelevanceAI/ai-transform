@@ -79,3 +79,27 @@ This Engine is intended to be used when operations are done on the whole dataset
 The advantage this has over `StableEngine` with `chunksize=None` is that the pulling and
 pushing documents is done in batch, but the operation is done in bulk. With `StableEngine`,
 this would have involved extremely large API calls with larger datasets.
+
+# Logging
+
+When developing, it is important that we maintain a good logging practice.
+
+To do so, we should be import structlog and making use of `logger`
+
+```python
+import structlog
+
+logger = structlog.get_logger()
+```
+
+if you wish to log the output of your code to a file, simply call the workflow as such
+
+```bash
+python PATH_TO_WORKFLOW TOKEN > LOG_FILE
+```
+
+This will output all logs to a file such that you can communicate your debugging to process
+to the API / backend team
+
+If you need to see the stacktraces, head to `workflows_core\api\api.py` line 16
+and set `include_stacktrace=True`. This will include stacktraces in each logging update
