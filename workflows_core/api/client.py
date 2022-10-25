@@ -6,7 +6,6 @@ from workflows_core.api.api import API
 from workflows_core.api.helpers import process_token
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.types import Schema
-from workflows_core.errors import AuthException
 from workflows_core.constants import WELCOME_MESSAGE
 
 
