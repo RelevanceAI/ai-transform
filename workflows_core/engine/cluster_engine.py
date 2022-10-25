@@ -1,14 +1,15 @@
 import concurrent.futures
 
-import logging
 import traceback
+
+from structlog import get_logger
 from typing import Any
 
 from workflows_core.engine.abstract_engine import AbstractEngine
 from tqdm.auto import tqdm
 
 
-logger = logging.getLogger(__file__)
+logger = get_logger(__file__)
 
 
 class InMemoryEngine(AbstractEngine):
@@ -36,8 +37,7 @@ class InMemoryEngine(AbstractEngine):
                 "chunk_ids": [document["_id"] for document in chunk],
             }
             error_logs.append(chunk_error_log)
-            logger.error(chunk)
-            logger.error(traceback.format_exc())
+            logger.exception(e, stack_info=True)
             self._success_ratio = 0.0
         else:
             self._success_ratio = 1.0
@@ -56,7 +56,6 @@ class InMemoryEngine(AbstractEngine):
                 try:
                     result = future.result()
                 except Exception as e:
-                    logging.error(e)
-                    logging.error(traceback.format_exc())
+                    logger.exception(e, stack_info=True)
                 else:
-                    logging.debug(result)
+                    logger.debug(result)

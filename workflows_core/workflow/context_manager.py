@@ -1,4 +1,4 @@
-import logging
+from structlog import get_logger
 
 from inspect import Traceback
 from typing import Any, Dict, Optional
@@ -8,11 +8,8 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.operator.abstract_operator import AbstractOperator
 
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
-)
 
-logger = logging.getLogger(__file__)
+logger = get_logger(__file__)
 
 
 class WorkflowContextManager(API):
@@ -60,7 +57,7 @@ class WorkflowContextManager(API):
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
 
         if exc_type is not None:
-            logger.exception("Exception")
+            logger.exception(exc_value, stack_info=True)
             self._set_status(status=self.FAILED)
             self._update_workflow_metadata(
                 job_id=self._job_id,
@@ -92,7 +89,7 @@ class WorkflowContextManager(API):
         """
         Set the status of the workflow
         """
-        return self._set_workflow_status(
+        res = self._set_workflow_status(
             status=status,
             job_id=self._job_id,
             metadata={} if self._metadata is not None else self._metadata,
@@ -100,3 +97,5 @@ class WorkflowContextManager(API):
             additional_information=self._additional_information,
             send_email=self._send_email,
         )
+        logger.info(res)
+        return res

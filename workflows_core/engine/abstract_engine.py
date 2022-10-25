@@ -1,8 +1,8 @@
 import math
 import time
-import logging
 import warnings
 
+from structlog import get_logger
 from typing import Any, List, Optional
 from abc import ABC, abstractmethod
 
@@ -13,10 +13,7 @@ from workflows_core.utils.document import Document
 from workflows_core.errors import MaxRetriesError
 
 
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__file__)
 
 
 class AbstractEngine(ABC):
@@ -152,7 +149,7 @@ class AbstractEngine(ABC):
                     worker_number=self.worker_number,
                 )
             except ConnectionError as e:
-                logger.error(e)
+                logger.exception(e, stack_info=True)
                 retry_count += 1
                 time.sleep(1)
 
@@ -171,7 +168,7 @@ class AbstractEngine(ABC):
                 try:
                     update_json = self._dataset.update_documents(documents=chunk)
                 except Exception as e:
-                    logger.error(e)
+                    logger.exception(e, stack_info=True)
                 else:
                     return update_json
 

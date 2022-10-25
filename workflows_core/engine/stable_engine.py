@@ -1,12 +1,12 @@
-import logging
 import traceback
-from typing import Any
+
+from structlog import get_logger
 
 from workflows_core.engine.abstract_engine import AbstractEngine
 
 from tqdm.auto import tqdm
 
-logger = logging.getLogger(__file__)
+logger = get_logger(__file__)
 
 
 class StableEngine(AbstractEngine):
@@ -39,8 +39,7 @@ class StableEngine(AbstractEngine):
                     "chunk_ids": [document["_id"] for document in chunk],
                 }
                 error_logs.append(chunk_error_log)
-                logger.error(chunk)
-                logger.error(traceback.format_exc())
+                logger.exception(e, stack_info=True)
             else:
                 result = self.update_chunk(new_batch)
                 successful_chunks += 1
