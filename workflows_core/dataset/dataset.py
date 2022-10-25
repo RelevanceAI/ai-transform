@@ -1,6 +1,8 @@
-import logging
 import time
-from typing import Any, Dict, List, Optional
+import logging
+import requests
+
+from typing import Any, Dict, List, Optional, Union
 
 from workflows_core.api.api import API
 from workflows_core.types import Filter, Schema
@@ -187,14 +189,24 @@ class Dataset:
     def get_metadata(self) -> Dict[str, Any]:
         return self._api._get_metadata(dataset_id=self._dataset_id)
 
-    def insert_medias(self, file_paths: List[str]) -> Dict[str, Any]:
-        response = self._api._get_file_upload_urls(self.dataset_id, files=file_paths)
-        results = []
+    def insert_medias(
+        self, file_paths: List[str]
+    ) -> Dict[str, Union[List[str], List[requests.models.Response]]]:
+        response = self._api._get_file_upload_urls(
+            self.dataset_id,
+            files=file_paths,
+        )
+        results = {"urls": [], "response": []}
         for index, file_path in enumerate(file_paths):
             url = response["files"][index]["url"]
+            upload_url = response["files"][index]["upload_url"]
             with open(file_path, "rb") as fn_byte:
                 media_content = bytes(fn_byte.read())
-            results.append(
-                self._api._upload_media(presigned_url=url, media_content=media_content)
+            results["urls"].append(url)
+            results["response"].append(
+                self._api._upload_media(
+                    presigned_url=upload_url,
+                    media_content=media_content,
+                )
             )
         return results

@@ -121,3 +121,11 @@ class TestFilters:
         filters = static_dataset["insert_date_"] == random.choice(dates)
         res = static_dataset.get_documents(page_size=20, filters=filters)
         assert res["count"] == 1
+
+
+class TestDatasetMedia:
+    def test_upload_medias(self, empty_dataset: Dataset):
+        responses = empty_dataset.insert_medias(
+            ["hierarchy.png", "hierarchy.png", "hierarchy.png"]
+        )
+        assert all(res.status_code == 200 for res in responses["response"])
