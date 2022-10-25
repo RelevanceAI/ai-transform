@@ -13,7 +13,7 @@ from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.helpers import decode_workflow_token
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.random import Document
+from workflows_core.utils.example_documents import DocumentList
 
 
 class EmotionOperator(AbstractOperator):
