@@ -1,6 +1,7 @@
 from collections import UserList
 from hashlib import new
 from typing import Any, Dict, List, Union
+import warnings
 
 from workflows_core.utils.document import Document
 
@@ -41,6 +42,7 @@ class DocumentList(UserList):
         return [document.to_json() for document in self.data]
 
     def remove_tag(self, field: str, tag: str, label_field: str = "label") -> None:
+        warnings.warn("This behaivour is experimental and is subject to change")
         for document in self.data:
             new_tags = []
             for tag_json in document[field]:
@@ -51,6 +53,7 @@ class DocumentList(UserList):
     def append_tag(
         self, field: str, value: Union[Dict[str, Any], List[Dict[str, Any]]]
     ) -> None:
+        warnings.warn("This behaivour is experimental and is subject to change")
         if isinstance(value, list):
             for document, tag in zip(self.data, value):
                 document[field].append(tag)
@@ -61,9 +64,12 @@ class DocumentList(UserList):
     def sort_tags(
         self, field: str, sort_field: str = "label", reverse: bool = False
     ) -> None:
+        warnings.warn("This behaivour is experimental and is subject to change")
         for document in self.data:
-            document[field] = sorted(
-                document[field],
-                key=lambda tag_json: tag_json[sort_field],
-                reverse=reverse,
-            )
+            tags = document.get(field)
+            if tags is not None:
+                document[field] = sorted(
+                    document[field],
+                    key=lambda tag_json: tag_json[sort_field],
+                    reverse=reverse,
+                )

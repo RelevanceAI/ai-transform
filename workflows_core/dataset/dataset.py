@@ -48,11 +48,7 @@ class Dataset:
         return self._api._delete_dataset(self._dataset_id)
 
     def insert_documents(
-        self,
-        documents: Union[List[document.Document], DocumentList],
-        use_json_encoder: bool = True,
-        *args,
-        **kwargs
+        self, documents: Union[List[document.Document], DocumentList], *args, **kwargs
     ) -> Dict[str, Any]:
         if hasattr(documents, "to_json"):
             documents = documents.to_json()
@@ -60,8 +56,6 @@ class Dataset:
             for index in range(len(documents)):
                 if hasattr(documents[index], "to_json"):
                     documents[index] = documents[index].to_json()
-        if use_json_encoder:
-            documents = json_encoder(documents)
         return self._api._bulk_insert(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
@@ -69,7 +63,6 @@ class Dataset:
     def update_documents(
         self,
         documents: Union[List[document.Document], DocumentList],
-        use_json_encoder: bool = True,
         insert_date: bool = True,
         ingest_in_background: bool = True,
     ) -> Dict[str, Any]:
@@ -79,8 +72,6 @@ class Dataset:
             for index in range(len(documents)):
                 if hasattr(documents[index], "to_json"):
                     documents[index] = documents[index].to_json()
-        if use_json_encoder:
-            documents = json_encoder(documents)
         return self._api._bulk_update(
             dataset_id=self._dataset_id,
             documents=documents,
