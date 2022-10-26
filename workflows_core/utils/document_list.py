@@ -1,7 +1,7 @@
-from collections import UserList
-from hashlib import new
-from typing import Any, Dict, List, Union
 import warnings
+
+from collections import UserList
+from typing import Any, Dict, List, Union
 
 from workflows_core.utils.document import Document
 

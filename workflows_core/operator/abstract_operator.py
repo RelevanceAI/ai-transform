@@ -1,14 +1,33 @@
+import json
 import logging
+import numpy as np
+
 from copy import deepcopy
 from abc import ABC, abstractmethod
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 
 logger = logging.getLogger(__file__)
+
+
+def is_different(field: str, value1: Any, value2: Any) -> bool:
+    """
+    An all purpose function that checks if two values are different
+    """
+    if "_vector_" in field and isinstance(value1, list) and isinstance(value2, list):
+        element_wise_diff = abs(np.array(value1)) - abs(np.array(value2))
+        sums = np.sum(element_wise_diff)
+        return sums > 0
+
+    elif isinstance(value1, dict) and isinstance(value2, dict):
+        return json.dumps(value1, sort_keys=True) != json.dumps(value2, sort_keys=True)
+
+    else:
+        return value1 != value2
 
 
 def get_document_diff(old_document: Document, new_document: Document) -> Document:
@@ -18,7 +37,7 @@ def get_document_diff(old_document: Document, new_document: Document) -> Documen
     for field in new_fields:
         old_value = old_document.get(field, None)
         new_value = new_document.get(field, None)
-        value_diff = old_value != new_value
+        value_diff = is_different(field, old_value, new_value)
         if field not in old_fields or value_diff or field == "_id":
             pp_document[field] = new_value
     return pp_document
