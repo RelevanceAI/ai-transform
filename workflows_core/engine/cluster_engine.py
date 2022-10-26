@@ -16,7 +16,11 @@ class InMemoryEngine(AbstractEngine):
         super().__init__(*args, **kwargs)
 
         self._show_progress_bar = show_progress_bar
-        self._progress = tqdm(desc=repr(self.operator), total=self.num_chunks * 2)
+        self._progress = tqdm(
+            desc=repr(self.operator),
+            total=self.num_chunks * 2,
+            disable=(not show_progress_bar),
+        )
 
     def apply(self) -> Any:
 
@@ -26,6 +30,7 @@ class InMemoryEngine(AbstractEngine):
         documents = []
         for chunk in iterator:
             documents += chunk
+            self._progress.update(1)
 
         try:
             new_batch = self.operator(documents)
@@ -45,6 +50,7 @@ class InMemoryEngine(AbstractEngine):
         def payload_generator():
             for i in range(self._num_chunks):
                 yield new_batch[i * self._chunksize : (i + 1) * self._chunksize]
+                self._progress.update(1)
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [

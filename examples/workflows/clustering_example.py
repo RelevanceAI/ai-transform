@@ -10,7 +10,7 @@ from workflows_core.workflow.helpers import decode_workflow_token
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
 
-from workflows_core.utils.random import Document
+from workflows_core.utils.document_list import DocumentList
 
 from sklearn.cluster import KMeans
 
@@ -33,7 +33,7 @@ class ClusterOperator(AbstractOperator):
             output_fields=[self._output_field],
         )
 
-    def transform(self, documents: List[Document]) -> List[Document]:
+    def transform(self, documents: DocumentList) -> DocumentList:
         """
         Main transform function
         """
@@ -66,16 +66,18 @@ class ClusterOperator(AbstractOperator):
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
+    config = decode_workflow_token(token)
 
-    config = decode_workflow_token(args.workflow_token)
-
-    job_id = config.get("job_id", str(uuid.uuid4()))
+    job_id = config.get("job_id")
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
-    vector_field = config["vector_field"]
+    vector_fields = config["vector_fields"]
+    vector_field = vector_fields[0]
     alias = config.get("alias", None)
     n_clusters = config.get("n_clusters", 8)
     total_workers = config.get("total_workers")
+    send_email = config.get("send_email", True)
+    additional_information = config.get("additional_information", "")
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
@@ -88,7 +90,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     engine = InMemoryEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=None,
+        chunksize=16,
         select_fields=[vector_field],
         filters=filters,
         worker_number=worker_number,
@@ -96,8 +98,11 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     )
 
     workflow = AbstractWorkflow(
+        name="Example Clustering Workflow",
         engine=engine,
         job_id=job_id,
+        send_email=send_email,
+        additional_information=additional_information,
     )
     workflow.run()
 

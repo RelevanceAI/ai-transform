@@ -259,3 +259,16 @@ class API:
             headers=self._headers,
             json=dict(metadata=metadata),
         ).json()
+
+    def _get_file_upload_urls(self, dataset_id: str, files: List[str]):
+        return requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/get_file_upload_urls",
+            headers=self._headers,
+            json=dict(files=files),
+        ).json()
+
+    def _upload_media(self, presigned_url: str, media_content: bytes):
+        return requests.put(
+            presigned_url,
+            data=media_content,
+        )
