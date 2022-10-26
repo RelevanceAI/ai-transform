@@ -1,7 +1,7 @@
 import uuid
-import logging
 import warnings
 
+from structlog import get_logger
 from typing import Any, Dict, Optional
 from workflows_core.dataset.dataset import Dataset
 
@@ -11,7 +11,7 @@ from workflows_core.workflow.context_manager import WorkflowContextManager
 from workflows_core.operator.abstract_operator import AbstractOperator
 
 
-logger = logging.getLogger(__name__)
+logger = get_logger()
 
 
 class Workflow:
@@ -86,7 +86,7 @@ class Workflow:
                         f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self._success_threshold:.2f}% threshold"
                     )
         except WorkflowFailedError as e:
-            logger.error(e)
+            logger.exception(e, stack_info=True)
 
         return
 

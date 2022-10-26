@@ -1,9 +1,8 @@
 import time
-import logging
-import requests
 
 from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Union
+from structlog import get_logger
 
 from workflows_core.api.api import API
 from workflows_core.types import Filter, Schema
@@ -13,8 +12,7 @@ from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger()
+logger = get_logger()
 
 
 class Dataset:
@@ -144,7 +142,7 @@ class Dataset:
                     is_random=is_random,
                 )
             except ConnectionError as e:
-                logger.error(e)
+                logger.exception(e, stack_info=True)
                 retry_count += 1
                 time.sleep(1)
 
@@ -152,7 +150,7 @@ class Dataset:
                     raise MaxRetriesError("max number of retries exceeded")
 
             except JSONDecodeError as e:
-                logger.error(e)
+                logger.exception(e, stack_info=True)
                 retry_count += 1
                 time.sleep(1)
 

@@ -1,5 +1,4 @@
 import json
-import logging
 import numpy as np
 
 from copy import deepcopy
@@ -10,8 +9,6 @@ from typing import Any, Dict, List, Optional
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
-
-logger = logging.getLogger(__file__)
 
 
 def is_different(field: str, value1: Any, value2: Any) -> bool:
