@@ -7,42 +7,20 @@ from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.workflow.helpers import decode_workflow_token
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.document_list import DocumentList
-
-from sentence_transformers import SentenceTransformer
+from workflows_core.utils.example_documents import Document
 
 
-class VectorizeTextOperator(AbstractOperator):
+class BadOperator(AbstractOperator):
     def __init__(
         self,
         text_field: str,
-        model: str = "sentence-transformers/all-mpnet-base-v2",
+        model: str = "cardiffnlp/twitter-roberta-base-sentiment",
         alias: Optional[str] = None,
     ):
+        super().__init__()
 
-        self._model = SentenceTransformer(model)
-        self._model.eval()
-
-        self._text_field = text_field
-        self._alias = model.replace("/", "-") if alias is None else alias
-        self._output_field = f"{text_field}_{self._alias}_vector_"
-
-        super().__init__(
-            input_fields=[self._text_field],
-            output_fields=[self._output_field],
-        )
-
-    def transform(self, documents: DocumentList) -> DocumentList:
-        """
-        Main transform function
-        """
-        batch = [document[self._text_field] for document in documents]
-        vectors = self._model.encode(batch).tolist()
-
-        for index in range(len(vectors)):
-            documents[index][self._output_field] = vectors[index]
-
-        return documents
+    def transform(self, documents: List[Document]) -> List[Document]:
+        raise ValueError
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
@@ -58,10 +36,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = VectorizeTextOperator(
-        text_field=text_field,
-        alias=alias,
-    )
+    operator = BadOperator(text_field=text_field, alias=alias)
 
     filters = dataset[text_field].exists()
     engine = StableEngine(

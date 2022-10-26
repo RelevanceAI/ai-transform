@@ -22,6 +22,7 @@ core_test_requirements = [
 
 example_test_requirements = core_test_requirements + [
     "torch",
+    "scikit-learn>=0.20.0",
     "transformers[torch]==4.18.0",
 ]
 

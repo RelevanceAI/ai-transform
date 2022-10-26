@@ -2,7 +2,7 @@ import pytest
 import random
 
 from workflows_core.dataset.dataset import Dataset
-from workflows_core.utils.random import mock_documents
+from workflows_core.utils.example_documents import mock_documents
 
 
 @pytest.mark.usefixtures("empty_dataset")
@@ -16,6 +16,10 @@ class TestDataset1:
         documents = mock_documents(100)
         result = empty_dataset.insert_documents(documents)
         assert result["inserted"] == 100
+
+    def test_get_all(self, full_dataset: Dataset):
+        res = full_dataset.get_all_documents()
+        assert len(res["documents"]) == 20
 
 
 @pytest.mark.usefixtures("full_dataset")
@@ -117,3 +121,11 @@ class TestFilters:
         filters = static_dataset["insert_date_"] == random.choice(dates)
         res = static_dataset.get_documents(page_size=20, filters=filters)
         assert res["count"] == 1
+
+
+class TestDatasetMedia:
+    def test_upload_medias(self, empty_dataset: Dataset):
+        urls = empty_dataset.insert_local_medias(
+            ["hierarchy.png", "hierarchy.png", "hierarchy.png"]
+        )
+        assert len(urls) == 3
