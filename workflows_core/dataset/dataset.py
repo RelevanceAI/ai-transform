@@ -196,14 +196,14 @@ class Dataset:
         return self._api._get_metadata(dataset_id=self._dataset_id)
 
     def insert_local_medias(self, file_paths: List[str]) -> List[str]:
-        response = self._api._get_file_upload_urls(
+        presigned_urls = self._api._get_file_upload_urls(
             self.dataset_id,
             files=file_paths,
         )
         urls = []
         for index, file_path in enumerate(file_paths):
-            url = response["files"][index]["url"]
-            upload_url = response["files"][index]["upload_url"]
+            url = presigned_urls["files"][index]["url"]
+            upload_url = presigned_urls["files"][index]["upload_url"]
             with open(file_path, "rb") as fn_byte:
                 media_content = bytes(fn_byte.read())
             urls.append(url)
