@@ -4,3 +4,7 @@ class AuthException(Exception):
 
 class MaxRetriesError(Exception):
     pass
+
+
+class WorkflowFailedError(Exception):
+    pass

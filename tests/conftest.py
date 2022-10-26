@@ -1,20 +1,24 @@
 import os
 import json
+import uuid
 import base64
 import random
-import string
-import uuid
 import pytest
-
-from typing import Any, List
+import string
 
 from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.api.helpers import process_token
+from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.utils.document import Document
-from workflows_core.utils.random import mock_documents, static_documents
+from workflows_core.utils.document_list import DocumentList
 from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.engine.abstract_engine import AbstractEngine
+from workflows_core.engine.stable_engine import StableEngine
+from workflows_core.utils.example_documents import (
+    mock_documents,
+    static_documents,
+    tag_documents,
+)
 
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
@@ -77,9 +81,19 @@ def test_document() -> Document:
 
 
 @pytest.fixture(scope="function")
+def test_documents() -> DocumentList:
+    return mock_documents()
+
+
+@pytest.fixture(scope="function")
+def test_tag_documents() -> DocumentList:
+    return tag_documents()
+
+
+@pytest.fixture(scope="function")
 def test_operator() -> AbstractOperator:
     class ExampleOperator(AbstractOperator):
-        def transform(self, documents: List[Document]) -> List[Document]:
+        def transform(self, documents: DocumentList) -> DocumentList:
             """
             Main transform function
             """
@@ -93,19 +107,11 @@ def test_operator() -> AbstractOperator:
 
 
 @pytest.fixture(scope="function")
-def test_engine(
-    full_dataset: Dataset, test_operator: AbstractOperator
-) -> AbstractEngine:
-    class TestEngine(AbstractEngine):
-        def apply(self) -> Any:
-
-            for chunk in self.iterate():
-                new_batch = self.operator(chunk)
-                self.update_chunk(new_batch)
-
-            return
-
-    return TestEngine(full_dataset, test_operator)
+def test_engine(full_dataset: Dataset, test_operator: AbstractOperator) -> StableEngine:
+    return StableEngine(
+        dataset=full_dataset,
+        operator=test_operator,
+    )
 
 
 @pytest.fixture(scope="function")
@@ -119,6 +125,25 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
         authorizationToken=test_client._token,
         dataset_id=dataset_id,
         text_field="sample_1_label",
+    )
+    config_string = json.dumps(config)
+    config_bytes = config_string.encode()
+    workflow_token = base64.b64encode(config_bytes).decode()
+    yield workflow_token
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="function")
+def test_cluster_workflow_token(test_client: Client) -> str:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    dataset.insert_documents(mock_documents(20))
+    config = dict(
+        job_id=str(uuid.uuid4()),
+        authorizationToken=test_client._token,
+        dataset_id=dataset_id,
+        vector_fields=["sample_1_vector_"],
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
