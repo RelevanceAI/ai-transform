@@ -77,6 +77,10 @@ class WorkflowContextManager(API):
                     field_children=self._operator._output_fields,
                 )
             )
+
+        else:
+            # Workflow must have run successfully
+            self._set_status(status=self.COMPLETE)
             if self._update_field_children:
                 for input_field in self._operator._input_fields:
                     self._set_field_children(
