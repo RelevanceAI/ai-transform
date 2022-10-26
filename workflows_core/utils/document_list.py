@@ -79,8 +79,8 @@ class DocumentList(UserList):
             tags = document.get(tag_field)
 
             if tags is not None:
-                document[field] = sorted(
-                    document[field],
+                document[tag_field] = sorted(
+                    document[tag_field],
                     key=lambda tag_json: tag_json[sort_field],
                     reverse=reverse,
                 )
