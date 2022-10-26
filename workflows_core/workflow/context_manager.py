@@ -49,13 +49,15 @@ class WorkflowContextManager(API):
         self._metadata = metadata
         self._additional_information = additional_information
         self._send_email = send_email
+        self._worker_number = self._engine.worker_number
 
     def __enter__(self):
         """
         The workflow is in progress
         """
+        worker_number = self._engine.worker_number
         if self._job_id is not None:
-            self._set_status(status=self.IN_PROGRESS)
+            self._set_status(status=self.IN_PROGRESS, worker_number=worker_number)
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
@@ -74,17 +76,17 @@ class WorkflowContextManager(API):
         if self._job_id is not None:
             if exc_type is not None:
                 logger.exception("Exception")
-                self._set_status(status=self.FAILED)
+                self._set_status(status=self.FAILED, worker_number=self._worker_number)
                 return False
             else:
                 # Workflow must have run successfully
-                self._set_status(status=self.COMPLETE)
+                self._set_status(status=self.COMPLETE, worker_number=self._worker_number)
                 return True
         else:
             # If not workflow id in env, we simply exit
             return True
 
-    def _set_status(self, status: str):
+    def _set_status(self, status: str, worker_number: int=None):
         """
         Set the status of the workflow
         """
@@ -95,4 +97,5 @@ class WorkflowContextManager(API):
             workflow_name=self._workflow_name,
             additional_information=self._additional_information,
             send_email=self._send_email,
+            worker_number=worker_number
         )
