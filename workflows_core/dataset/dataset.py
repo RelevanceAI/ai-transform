@@ -167,7 +167,7 @@ class Dataset:
                 retry_count = 0
 
         res = {}
-        res["documents"] = [Document(d) for d in documents]
+        res["documents"] = DocumentList(documents)
         return res
 
     def len(self, *args, **kwargs):
