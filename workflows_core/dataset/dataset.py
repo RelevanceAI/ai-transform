@@ -200,16 +200,16 @@ class Dataset:
             self.dataset_id,
             files=file_paths,
         )
-        results = {"urls": [], "response": []}
+        urls = []
         for index, file_path in enumerate(file_paths):
             url = response["files"][index]["url"]
             upload_url = response["files"][index]["upload_url"]
             with open(file_path, "rb") as fn_byte:
                 media_content = bytes(fn_byte.read())
-            results["urls"].append(url)
+            urls.append(url)
             response = self._api._upload_media(
                 presigned_url=upload_url,
                 media_content=media_content,
             )
             assert response.status_code == 200
-        return results
+        return urls
