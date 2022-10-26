@@ -1,4 +1,5 @@
 import json
+import os
 import uuid
 import inspect
 import requests
@@ -13,7 +14,7 @@ from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 logger = get_logger(__file__)
 
 
-def make_request(hide_auth: bool = True, include_stacktrace: bool = False, **kwargs):
+def make_request(hide_auth: bool = True, **kwargs):
     """
     Helper function for processing
     """
@@ -21,14 +22,25 @@ def make_request(hide_auth: bool = True, include_stacktrace: bool = False, **kwa
         debug_kwargs = {key: value for key, value in kwargs.items() if key != "headers"}
     else:
         debug_kwargs = kwargs
-    if include_stacktrace:
-        debug_kwargs["stacktrace"] = [
-            dict(filename=frame.filename, function=frame.function, lineno=frame.lineno)
-            for frame in inspect.stack()[1:4]
-        ]
-    logger.debug(json.dumps(debug_kwargs, indent=4))
+
+    stack = inspect.stack()
+    name = stack[1].function
+
     response = requests.request(**kwargs).json()
-    logger.debug(json.dumps(response, indent=4))
+    logger.debug(
+        name,
+        api=json.dumps(
+            dict(
+                send=debug_kwargs,
+                recv=response,
+                stacktrace=[
+                    {k: getattr(frame, k) for k in frame._fields if k != "frame"}
+                    for frame in stack
+                ],
+            ),
+            indent=4,
+        ),
+    )
     return response
 
 

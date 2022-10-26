@@ -50,7 +50,6 @@ class InMemoryEngine(AbstractEngine):
         def payload_generator():
             for i in range(self._num_chunks):
                 yield new_batch[i * self._chunksize : (i + 1) * self._chunksize]
-                self._progress.update(1)
 
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [

@@ -11,7 +11,7 @@ from workflows_core.workflow.context_manager import WorkflowContextManager
 from workflows_core.operator.abstract_operator import AbstractOperator
 
 
-logger = get_logger()
+logger = get_logger(__file__)
 
 
 class Workflow:

@@ -12,7 +12,7 @@ from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 
 
-logger = get_logger()
+logger = get_logger(__file__)
 
 
 class Dataset:
