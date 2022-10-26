@@ -21,6 +21,7 @@ class VectorizeTextOperator(AbstractOperator):
     ):
 
         self._model = SentenceTransformer(model)
+        self._model.eval()
 
         self._text_field = text_field
         self._alias = model.replace("/", "-") if alias is None else alias

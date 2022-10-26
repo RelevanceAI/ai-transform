@@ -41,12 +41,14 @@ class DocumentList(UserList):
     def to_json(self):
         return [document.to_json() for document in self.data]
 
-    def remove_tag(self, field: str, tag: str, label_field: str = "label") -> None:
+    def remove_tag(self, field: str, value: str) -> None:
         warnings.warn("This behaivour is experimental and is subject to change")
+        *tag_fields, remove_field = field.split(".")
+        tag_field = ".".join(tag_fields)
         for document in self.data:
             new_tags = []
-            for tag_json in document[field]:
-                if tag_json[label_field] != tag:
+            for tag_json in document.get(tag_field, []):
+                if tag_json[remove_field] != value:
                     new_tags.append(tag_json)
             document[field] = new_tags
 
@@ -61,12 +63,13 @@ class DocumentList(UserList):
             for document in self.data:
                 document[field].append(value)
 
-    def sort_tags(
-        self, field: str, sort_field: str = "label", reverse: bool = False
-    ) -> None:
+    def sort_tags(self, field: str, reverse: bool = False) -> None:
         warnings.warn("This behaivour is experimental and is subject to change")
+        *tag_fields, sort_field = field.split(".")
+        tag_field = ".".join(tag_fields)
+
         for document in self.data:
-            tags = document.get(field)
+            tags = document.get(tag_field)
             if tags is not None:
                 document[field] = sorted(
                     document[field],
