@@ -17,4 +17,4 @@ class TestDocumentDiff:
         diff = AbstractOperator._postprocess(new_documents, old_documents)
 
         expected = json.dumps({"label": "yes"})
-        assert all(json.dumps(document.to_dict()) == expected for document in diff)
+        assert all(json.dumps(document.to_json()) == expected for document in diff)
