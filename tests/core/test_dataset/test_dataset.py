@@ -125,7 +125,7 @@ class TestFilters:
 
 class TestDatasetMedia:
     def test_upload_medias(self, empty_dataset: Dataset):
-        responses = empty_dataset.insert_medias(
+        urls = empty_dataset.insert_local_medias(
             ["hierarchy.png", "hierarchy.png", "hierarchy.png"]
         )
-        assert all(res.status_code == 200 for res in responses["response"])
+        assert len(urls) == 3

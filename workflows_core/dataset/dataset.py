@@ -195,9 +195,7 @@ class Dataset:
     def get_metadata(self) -> Dict[str, Any]:
         return self._api._get_metadata(dataset_id=self._dataset_id)
 
-    def insert_local_medias(
-        self, file_paths: List[str]
-    ) -> Dict[str, Union[List[str], List[requests.models.Response]]]:
+    def insert_local_medias(self, file_paths: List[str]) -> List[str]:
         response = self._api._get_file_upload_urls(
             self.dataset_id,
             files=file_paths,
@@ -209,10 +207,9 @@ class Dataset:
             with open(file_path, "rb") as fn_byte:
                 media_content = bytes(fn_byte.read())
             results["urls"].append(url)
-            results["response"].append(
-                self._api._upload_media(
-                    presigned_url=upload_url,
-                    media_content=media_content,
-                )
+            response = self._api._upload_media(
+                presigned_url=upload_url,
+                media_content=media_content,
             )
+            assert response.status_code == 200
         return results
