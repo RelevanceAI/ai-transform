@@ -1,11 +1,20 @@
-from typing import Any, Dict, List, Optional
+import time
+import logging
+import requests
+
+from json import JSONDecodeError
+from typing import Any, Dict, List, Optional, Union
 
 from workflows_core.api.api import API
 from workflows_core.types import Filter, Schema
-from workflows_core.utils import document
-
-from workflows_core.utils.json_encoder import json_encoder
+from workflows_core.errors import MaxRetriesError
 from workflows_core.dataset.field import Field, VectorField
+from workflows_core.utils.document import Document
+from workflows_core.utils.document_list import DocumentList
+
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger()
 
 
 class Dataset:
@@ -47,33 +56,30 @@ class Dataset:
         return self._api._delete_dataset(self._dataset_id)
 
     def insert_documents(
-        self,
-        documents: List[document.Document],
-        use_json_encoder: bool = True,
-        *args,
-        **kwargs
+        self, documents: Union[List[Document], DocumentList], *args, **kwargs
     ) -> Dict[str, Any]:
-        for index, document in enumerate(documents):
-            if hasattr(document, "to_dict"):
-                documents[index] = document.to_dict()
-        if use_json_encoder:
-            documents = json_encoder(documents)
+        if hasattr(documents, "to_json"):
+            documents = documents.to_json()
+        else:
+            for index in range(len(documents)):
+                if hasattr(documents[index], "to_json"):
+                    documents[index] = documents[index].to_json()
         return self._api._bulk_insert(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
 
     def update_documents(
         self,
-        documents: List[document.Document],
-        use_json_encoder: bool = True,
+        documents: Union[List[Document], DocumentList],
         insert_date: bool = True,
         ingest_in_background: bool = True,
     ) -> Dict[str, Any]:
-        for index, document in enumerate(documents):
-            if hasattr(document, "to_dict"):
-                documents[index] = document.to_dict()
-        if use_json_encoder:
-            documents = json_encoder(documents)
+        if hasattr(documents, "to_json"):
+            documents = documents.to_json()
+        else:
+            for index in range(len(documents)):
+                if hasattr(documents[index], "to_json"):
+                    documents[index] = documents[index].to_json()
         return self._api._bulk_update(
             dataset_id=self._dataset_id,
             documents=documents,
@@ -105,7 +111,63 @@ class Dataset:
             after_id=after_id,
             worker_number=worker_number,
         )
-        res["documents"] = [document.Document(d) for d in res["documents"]]
+        res["documents"] = DocumentList(res["documents"])
+        return res
+
+    def get_all_documents(
+        self,
+        page_size: int = 64,
+        filters: Optional[List[Filter]] = None,
+        select_fields: Optional[List[str]] = None,
+        sort: Optional[list] = None,
+        include_vector: bool = True,
+        random_state: int = 0,
+        is_random: bool = False,
+        after_id: Optional[List] = None,
+        worker_number: int = 0,
+        max_retries: int = 3,
+    ) -> Dict[str, Any]:
+
+        documents = []
+        retry_count = 0
+        while True:
+            try:
+                chunk = self.get_documents(
+                    page_size=page_size,
+                    filters=filters,
+                    select_fields=select_fields,
+                    after_id=after_id,
+                    worker_number=worker_number,
+                    sort=sort,
+                    include_vector=include_vector,
+                    random_state=random_state,
+                    is_random=is_random,
+                )
+            except ConnectionError as e:
+                logger.error(e)
+                retry_count += 1
+                time.sleep(1)
+
+                if retry_count >= max_retries:
+                    raise MaxRetriesError("max number of retries exceeded")
+
+            except JSONDecodeError as e:
+                logger.error(e)
+                retry_count += 1
+                time.sleep(1)
+
+                if retry_count >= max_retries:
+                    raise MaxRetriesError("max number of retries exceeded")
+
+            else:
+                after_id = chunk["after_id"]
+                if not chunk["documents"]:
+                    break
+                documents += chunk["documents"]
+                retry_count = 0
+
+        res = {}
+        res["documents"] = DocumentList(documents)
         return res
 
     def len(self, *args, **kwargs):
@@ -132,3 +194,22 @@ class Dataset:
 
     def get_metadata(self) -> Dict[str, Any]:
         return self._api._get_metadata(dataset_id=self._dataset_id)
+
+    def insert_local_medias(self, file_paths: List[str]) -> List[str]:
+        presigned_urls = self._api._get_file_upload_urls(
+            self.dataset_id,
+            files=file_paths,
+        )
+        urls = []
+        for index, file_path in enumerate(file_paths):
+            url = presigned_urls["files"][index]["url"]
+            upload_url = presigned_urls["files"][index]["upload_url"]
+            with open(file_path, "rb") as fn_byte:
+                media_content = bytes(fn_byte.read())
+            urls.append(url)
+            response = self._api._upload_media(
+                presigned_url=upload_url,
+                media_content=media_content,
+            )
+            assert response.status_code == 200
+        return urls
