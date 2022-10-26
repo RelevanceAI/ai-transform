@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 import time
 import logging
 import requests
@@ -153,6 +154,15 @@ class Dataset:
 
                 if retry_count >= max_retries:
                     raise MaxRetriesError("max number of retries exceeded")
+
+            except JSONDecodeError as e:
+                logger.error(e)
+                retry_count += 1
+                time.sleep(1)
+
+                if retry_count >= max_retries:
+                    raise MaxRetriesError("max number of retries exceeded")
+
             else:
                 after_id = chunk["after_id"]
                 if not chunk["documents"]:
@@ -189,7 +199,7 @@ class Dataset:
     def get_metadata(self) -> Dict[str, Any]:
         return self._api._get_metadata(dataset_id=self._dataset_id)
 
-    def insert_medias(
+    def insert_local_medias(
         self, file_paths: List[str]
     ) -> Dict[str, Union[List[str], List[requests.models.Response]]]:
         response = self._api._get_file_upload_urls(
