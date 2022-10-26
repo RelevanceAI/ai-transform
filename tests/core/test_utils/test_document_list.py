@@ -31,14 +31,23 @@ class TestDocumentList:
 
 
 class TestDocumentListTagOperations:
+    remove_field = "label"
+    tag_field = "_surveytag_.text"
+
     def test_remove_tags(self, test_tag_documents: DocumentList):
-        remove_field = "label"
-        tag_field = "_surveytag_.text"
         tag_values = set()
         for document in test_tag_documents:
-            tag_values.update(list(map(lambda x: x["label"], document[tag_field])))
+            tag_values.update(list(map(lambda x: x["label"], document[self.tag_field])))
         random_tag = random.choice(list(tag_values))
 
-        test_tag_documents.remove_tag(f"{tag_field}.{remove_field}", random_tag)
+        test_tag_documents.remove_tag(
+            f"{self.tag_field}.{self.remove_field}", random_tag
+        )
         for document in test_tag_documents:
-            assert all(tag[remove_field] != random_tag for tag in document[tag_field])
+            assert all(
+                tag[self.remove_field] != random_tag for tag in document[self.tag_field]
+            )
+
+    def test_sort_tags(self, test_tag_documents: DocumentList):
+        test_tag_documents.sort_tags(f"{self.tag_field}.{self.remove_field}")
+        assert True
