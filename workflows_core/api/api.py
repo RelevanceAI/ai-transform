@@ -188,6 +188,7 @@ class API:
         metadata: Dict[str, Any] = None,
         status: str = "inprogress",
         send_email: bool = True,
+        worker_number: int = None
     ):
         # add edge case for API
         if job_id == "":
@@ -198,17 +199,31 @@ class API:
             )
         if metadata is None:
             metadata = {}
-        return requests.post(
-            url=self._base_url + f"/workflows/{job_id}/status",
-            headers=self._headers,
-            json=dict(
-                metadata=metadata,
-                status=status,
-                workflow_name=workflow_name,
-                additional_information=additional_information,
-                send_email=send_email,
-            ),
-        ).json()
+        if worker_number is None:
+            return requests.post(
+                url=self._base_url + f"/workflows/{job_id}/status",
+                headers=self._headers,
+                json=dict(
+                    metadata=metadata,
+                    status=status,
+                    workflow_name=workflow_name,
+                    additional_information=additional_information,
+                    send_email=send_email,
+                ),
+            ).json()
+        else:
+            return requests.post(
+                url=self._base_url + f"/workflows/{job_id}/status",
+                headers=self._headers,
+                json=dict(
+                    metadata=metadata,
+                    status=status,
+                    workflow_name=workflow_name,
+                    additional_information=additional_information,
+                    send_email=send_email,
+                    worker_number=worker_number
+                ),
+            ).json()
 
     def _set_field_children(
         self,
