@@ -8,7 +8,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from workflows_core.dataset.dataset import Dataset
-from workflows_core.utils.document import Document, DocumentUtils
+from workflows_core.utils.document import Document
+from workflows_core.utils.document_list import DocumentList
 
 logger = logging.getLogger(__file__)
 
@@ -42,7 +43,7 @@ def get_document_diff(old_document: Document, new_document: Document) -> Documen
     return pp_document
 
 
-class AbstractOperator(ABC, DocumentUtils):
+class AbstractOperator(ABC):
     def __init__(
         self,
         input_fields: Optional[List[str]] = None,
@@ -52,7 +53,7 @@ class AbstractOperator(ABC, DocumentUtils):
         self._output_fields = output_fields
 
     @abstractmethod
-    def transform(self, documents: List[Document]) -> List[Document]:
+    def transform(self, documents: DocumentList) -> DocumentList:
         """
         Every Operator needs a transform function
         """
@@ -61,16 +62,14 @@ class AbstractOperator(ABC, DocumentUtils):
     def __repr__(self):
         return str(type(self).__name__)
 
-    def __call__(self, old_documents: List[Document]) -> List[Document]:
+    def __call__(self, old_documents: DocumentList) -> DocumentList:
         new_documents = deepcopy(old_documents)
         new_documents = self.transform(new_documents)
         new_documents = AbstractOperator._postprocess(new_documents, old_documents)
         return new_documents
 
     @staticmethod
-    def _postprocess(
-        new_batch: List[Document], old_batch: List[Document]
-    ) -> List[Document]:
+    def _postprocess(new_batch: DocumentList, old_batch: DocumentList) -> DocumentList:
         """
         Removes fields from `new_batch` that are present in the `old_keys` list.
         Necessary to avoid bloating the upload payload with unnecesary information.
@@ -81,7 +80,7 @@ class AbstractOperator(ABC, DocumentUtils):
             if document_diff:
                 batch.append(document_diff)
 
-        return batch
+        return DocumentList(batch)
 
     def pre_hooks(self, dataset: Dataset):
         pass

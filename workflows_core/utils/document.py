@@ -4,6 +4,8 @@ from copy import deepcopy
 from typing import Any, Optional
 from collections import UserDict
 
+from workflows_core.utils.json_encoder import json_encoder
+
 
 class Document(UserDict):
     def __repr__(self):
@@ -63,9 +65,5 @@ class Document(UserDict):
         except:
             return super().__contains__(key)
 
-    def to_dict(self):
-        return deepcopy(self.data)
-
-
-class DocumentUtils:
-    pass
+    def to_json(self):
+        return json_encoder(deepcopy(self.data))
