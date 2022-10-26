@@ -1,6 +1,7 @@
 import json
 
 from copy import deepcopy
+import random
 
 from workflows_core.utils.document_list import DocumentList
 
@@ -31,4 +32,13 @@ class TestDocumentList:
 
 class TestDocumentListTagOperations:
     def test_remove_tags(self, test_tag_documents: DocumentList):
-        assert True
+        remove_field = "label"
+        tag_field = "_surveytag_.text"
+        tag_values = set()
+        for document in test_tag_documents:
+            tag_values.update(list(map(lambda x: x["label"], document[tag_field])))
+        random_tag = random.choice(list(tag_values))
+
+        test_tag_documents.remove_tag(f"{tag_field}.{remove_field}", random_tag)
+        for document in test_tag_documents:
+            assert all(tag[remove_field] != random_tag for tag in document[tag_field])

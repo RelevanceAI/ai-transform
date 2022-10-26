@@ -43,19 +43,25 @@ class DocumentList(UserList):
 
     def remove_tag(self, field: str, value: str) -> None:
         warnings.warn("This behaivour is experimental and is subject to change")
+
         *tag_fields, remove_field = field.split(".")
         tag_field = ".".join(tag_fields)
+
         for document in self.data:
             new_tags = []
-            for tag_json in document.get(tag_field, []):
-                if tag_json[remove_field] != value:
+
+            old_tags = document.get(tag_field, [])
+            for tag_json in old_tags:
+                if tag_json.get(remove_field) != value:
                     new_tags.append(tag_json)
-            document[field] = new_tags
+
+            document[tag_field] = new_tags
 
     def append_tag(
         self, field: str, value: Union[Dict[str, Any], List[Dict[str, Any]]]
     ) -> None:
         warnings.warn("This behaivour is experimental and is subject to change")
+
         if isinstance(value, list):
             for document, tag in zip(self.data, value):
                 document[field].append(tag)
@@ -65,11 +71,13 @@ class DocumentList(UserList):
 
     def sort_tags(self, field: str, reverse: bool = False) -> None:
         warnings.warn("This behaivour is experimental and is subject to change")
+
         *tag_fields, sort_field = field.split(".")
         tag_field = ".".join(tag_fields)
 
         for document in self.data:
             tags = document.get(tag_field)
+
             if tags is not None:
                 document[field] = sorted(
                     document[field],
