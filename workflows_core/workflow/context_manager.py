@@ -64,7 +64,7 @@ class WorkflowContextManager(API):
 
         if exc_type is not None:
             logger.exception("Exception")
-            self._set_status(status=self.FAILED)
+            self._set_status(status=self.FAILED, worker_number=self._worker_number)
             self._update_workflow_metadata(
                 job_id=self._job_id,
                 metadata=dict(
@@ -76,19 +76,7 @@ class WorkflowContextManager(API):
                     field=input_field,
                     field_children=self._operator._output_fields,
                 )
-
-        if self._job_id is not None:
-            if exc_type is not None:
-                logger.exception("Exception")
-                self._set_status(status=self.FAILED, worker_number=self._worker_number)
-                return False
-            else:
-                # Workflow must have run successfully
-                self._set_status(status=self.COMPLETE, worker_number=self._worker_number)
-                return True
-        else:
-            # Workflow must have run successfully
-            self._set_status(status=self.COMPLETE)
+            )
             if self._update_field_children:
                 for input_field in self._operator._input_fields:
                     self._set_field_children(
