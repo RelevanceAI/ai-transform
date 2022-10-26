@@ -41,9 +41,9 @@ vector_length: int
 import random
 import string
 
-from typing import List
 from workflows_core.types import Vector
 from workflows_core.utils.document import Document
+from workflows_core.utils.document_list import DocumentList
 
 
 def generate_random_string(string_length: int = 5) -> str:
@@ -93,9 +93,26 @@ def vector_document(vector_length: int) -> Document:
     return Document(document)
 
 
-def mock_documents(n: int = 100, vector_length: int = 5) -> List[Document]:
-    return [vector_document(vector_length) for _ in range(n)]
+def mock_documents(n: int = 100, vector_length: int = 5) -> DocumentList:
+    return DocumentList([vector_document(vector_length) for _ in range(n)])
 
 
-def static_documents(n: int = 100) -> List[Document]:
-    return [{"text_field": str(i), "numeric_field": i} for i in range(n)]
+def static_documents(n: int = 100) -> DocumentList:
+    return DocumentList([{"text_field": str(i), "numeric_field": i} for i in range(n)])
+
+
+def tag_document(n_tags: int = 5):
+    document = {
+        "text": "This is some random text",
+        "_surveytag_": {
+            "text": [
+                {"label": generate_random_label(), "value": random.random()}
+                for _ in range(random.randint(0, n_tags))
+            ]
+        },
+    }
+    return Document(document)
+
+
+def tag_documents(n: int = 100):
+    return DocumentList([tag_document() for _ in range(n)])
