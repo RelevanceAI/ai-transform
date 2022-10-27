@@ -81,7 +81,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["textFields"]
-    total_workers = config.get("total_workers", None)
+    total_workers = config.get("total_workers", 1)
 
     alias = config.get("alias", None)
 
