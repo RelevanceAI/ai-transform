@@ -61,7 +61,11 @@ class WorkflowContextManager(API):
 
         if exc_type is not None:
             logger.exception("Exception")
-            self._set_status(status=self.FAILED, worker_number=self._engine.worker_number)
+            self._set_status(
+                status=self.FAILED, 
+                worker_number=self._engine.worker_number,
+                total_workers=self._engine.total_workers
+            )
             self._update_workflow_metadata(
                 job_id=self._job_id,
                 metadata=dict(
@@ -75,7 +79,11 @@ class WorkflowContextManager(API):
             return False
         else:
             # Workflow must have run successfully
-            self._set_status(status=self.COMPLETE, worker_number=self._engine.worker_number)
+            self._set_status(
+                status=self.COMPLETE,
+                worker_number=self._engine.worker_number,
+                total_workers=self._engine.total_workers
+            )
             if self._update_field_children:
                 for input_field in self._operator._input_fields:
                     self._set_field_children(
@@ -88,7 +96,7 @@ class WorkflowContextManager(API):
                     )
             return True
 
-    def _set_status(self, status: str, worker_number: int=None):
+    def _set_status(self, status: str, worker_number: int=None, total_workers: int = 1):
         """
         Set the status of the workflow
         """
@@ -99,5 +107,6 @@ class WorkflowContextManager(API):
             workflow_name=self._workflow_name,
             additional_information=self._additional_information,
             send_email=self._send_email,
-            worker_number=worker_number
+            worker_number=worker_number,
+            total_workers=total_workers
         )
