@@ -287,3 +287,26 @@ class API:
             presigned_url,
             data=media_content,
         )
+    
+    def _trigger(
+        self,
+        dataset_id: str,
+        params: dict,
+        workflow_id: str,
+        notebook_path: str=None,
+        instance_type: str=None,
+    ):
+        """
+        trigger a workflow
+        """
+        return requests.post(
+            url=self._base_url + f"/workflows/trigger",
+            headers=self._headers,
+            json=dict(
+                params=params,
+                dataset_id=dataset_id,
+                workflow_id=workflow_id,
+                notebook_path=notebook_path,
+                instance_type=instance_type
+            ),
+        ).json()
