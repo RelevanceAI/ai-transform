@@ -92,7 +92,7 @@ class WorkflowContextManager(API):
         """
         Set the status of the workflow
         """
-        return self._set_workflow_status(
+        result = self._set_workflow_status(
             status=status,
             job_id=self._job_id,
             metadata={} if self._metadata is not None else self._metadata,
@@ -101,3 +101,11 @@ class WorkflowContextManager(API):
             send_email=self._send_email,
             worker_number=worker_number
         )
+        logger.debug({
+            "status": status, 
+            "job_id": self._job_id, 
+            "workflow_name": self._workflow_name,
+            "worker_number": worker_number,
+            "result": result,
+        })
+        return result
