@@ -72,6 +72,16 @@ class AbstractWorkflow:
                 self.engine()
                 success_ratio = self.engine._success_ratio
                 if success_ratio < self._success_threshold:
+                    WORKFLOW_FAIL_MESSAGE = f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self._success_threshold:.2f}% threshold"
+                    self._api._set_workflow_status(
+                        job_id=self._job_id,
+                        workflow_name=self._name,
+                        additional_information=WORKFLOW_FAIL_MESSAGE,
+                        status="failed",
+                        send_email=self._send_email,
+                        metadata={"error": WORKFLOW_FAIL_MESSAGE},
+                        worker_number=self.engine.worker_number
+                    )
                     raise WorkflowFailedError(
                         f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self._success_threshold:.2f}% threshold"
                     )

@@ -55,8 +55,60 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         assert health[output_field]["exists"] == engine.size
 
     status_dict = workflow.get_status()
-    assert status_dict["status"].lower() == "complete"
+    assert status_dict["status"].lower() == "complete", status_dict
 
+def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
+    config = decode_workflow_token(test_sentiment_workflow_token)
+
+    job_id = config["job_id"]
+    token = config["authorizationToken"]
+    dataset_id = config["dataset_id"]
+    text_field = config["text_field"]
+    alias = config.get("alias")
+    TOTAL_WORKERS = 10
+    WORKER_NUMBER = 2
+    total_workers = TOTAL_WORKERS
+    worker_number = config.get("worker_number", WORKER_NUMBER)
+    send_email = config.get("send_email", False)
+    additional_information = config.get("additional_information", "")
+
+    client = Client(token=token)
+    dataset = client.Dataset(dataset_id)
+
+    operator = SentimentOperator(text_field=text_field, alias=alias)
+
+    filters = dataset[text_field].exists()
+    engine = StableEngine(
+        dataset=dataset,
+        operator=operator,
+        chunksize=8,
+        select_fields=[text_field],
+        filters=filters,
+        total_workers=total_workers,
+        worker_number=worker_number,
+    )
+
+    workflow = AbstractWorkflow(
+        engine=engine,
+        job_id=job_id,
+        send_email=send_email,
+        additional_information=additional_information,
+    )
+    workflow.run()
+
+    time.sleep(2)
+
+    health = dataset.health()
+    # This can vary depending on modulo
+    assert engine._size in [2, 3], "incorrect engine size"
+
+    for output_field in operator._output_fields:
+        assert health[output_field]["exists"] == engine._size
+
+    status_dict = workflow.get_status()
+    # This should in THEORY be inprogress still but his will only work 
+    # on sufficiently large datasets
+    assert status_dict["status"].lower() == "complete", status_dict
 
 def test_cluster_example(test_cluster_workflow_token: str):
     config = decode_workflow_token(test_cluster_workflow_token)
