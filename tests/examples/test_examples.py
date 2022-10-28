@@ -55,7 +55,7 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         assert health[output_field]["exists"] == engine.size
 
     status_dict = workflow.get_status()
-    assert status_dict["status"].lower() == "complete"
+    assert status_dict["status"].lower() == "complete", status_dict
 
 def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
@@ -108,7 +108,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     status_dict = workflow.get_status()
     # This should in THEORY be inprogress still but his will only work 
     # on sufficiently large datasets
-    assert status_dict["status"].lower() == "complete"
+    assert status_dict["status"].lower() == "complete", status_dict
 
 def test_cluster_example(test_cluster_workflow_token: str):
     config = decode_workflow_token(test_cluster_workflow_token)
