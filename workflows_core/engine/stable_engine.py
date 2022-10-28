@@ -47,4 +47,5 @@ class StableEngine(AbstractEngine):
                 logger.debug(result)
 
         self._error_logs = error_logs
-        self._success_ratio = successful_chunks / self.num_chunks
+        if self.num_chunks > 0:
+            self._success_ratio = successful_chunks / self.num_chunks
