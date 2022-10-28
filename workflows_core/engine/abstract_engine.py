@@ -53,9 +53,10 @@ class AbstractEngine(ABC):
 
         self._dataset = dataset
         self._select_fields = select_fields
-        self._size = dataset.len(filters=filters)
         self.worker_number = worker_number
         self.total_workers = total_workers
+        filters += self._get_workflow_filter()
+        self._size = dataset.len(filters=filters)
 
         if isinstance(chunksize, int):
             assert chunksize > 0, "Chunksize should be a Positive Integer"

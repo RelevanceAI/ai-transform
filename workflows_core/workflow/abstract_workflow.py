@@ -72,6 +72,7 @@ class AbstractWorkflow:
                 self.engine()
                 success_ratio = self.engine._success_ratio
                 if success_ratio < self._success_threshold:
+                    # Trigger that the workflow failed
                     raise WorkflowFailedError(
                         f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self._success_threshold:.2f}% threshold"
                     )
