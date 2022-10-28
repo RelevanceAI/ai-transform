@@ -99,8 +99,9 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     time.sleep(2)
 
     health = dataset.health()
+    assert engine._size == int(health[text_field]['exists'] / TOTAL_WORKERS)
     for output_field in operator._output_fields:
-        assert health[output_field]["exists"] == round(engine.size / 10)
+        assert health[output_field]["exists"] == engine._size
 
     status_dict = workflow.get_status()
     assert status_dict["status"].lower() == "inprogress"
