@@ -54,7 +54,7 @@ class WorkflowContextManager(API):
         """
         The workflow is in progress
         """
-        self._set_status(status=self.IN_PROGRESS)
+        self._set_status(status=self.IN_PROGRESS, worker_number=self._engine.worker_number)
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
