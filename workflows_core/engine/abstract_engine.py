@@ -55,6 +55,8 @@ class AbstractEngine(ABC):
         self._select_fields = select_fields
         self.worker_number = worker_number
         self.total_workers = total_workers
+        if filters is None:
+            filters = []
         filters += self._get_workflow_filter()
         self._size = dataset.len(filters=filters)
 
