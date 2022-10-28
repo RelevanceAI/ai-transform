@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from workflows_core.utils import document
 from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
-
+from workflows_core import __version__
 
 class API:
     def __init__(self, credentials: Credentials) -> None:
@@ -14,7 +14,8 @@ class API:
             f"https://api-{self._credentials.region}.stack.relevance.ai/latest"
         )
         self._headers = dict(
-            Authorization=f"{self._credentials.project}:{self._credentials.api_key}"
+            Authorization=f"{self._credentials.project}:{self._credentials.api_key}",
+            workflows_core_version=__version__
         )
 
     def _list_datasets(self):
