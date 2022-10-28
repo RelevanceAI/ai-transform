@@ -99,7 +99,8 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     time.sleep(2)
 
     health = dataset.health()
-    assert engine._size == 2, "incorrect engine size"
+    # This can vary depending on modulo
+    assert engine._size in [2, 3], "incorrect engine size"
 
     for output_field in operator._output_fields:
         assert health[output_field]["exists"] == engine._size
