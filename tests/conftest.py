@@ -120,8 +120,9 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id)
     dataset.insert_documents(mock_documents(20))
+    job_id = str(uuid.uuid4())
     config = dict(
-        job_id=str(uuid.uuid4()),
+        job_id=job_id,
         authorizationToken=test_client._token,
         dataset_id=dataset_id,
         text_field="sample_1_label",
@@ -129,6 +130,11 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
+    test_client._api._trigger(
+        dataset_id,
+        params=config,
+        workflow_id=job_id,
+    )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 
@@ -139,8 +145,9 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id)
     dataset.insert_documents(mock_documents(20))
+    job_id = str(uuid.uuid4())
     config = dict(
-        job_id=str(uuid.uuid4()),
+        job_id=job_id,
         authorizationToken=test_client._token,
         dataset_id=dataset_id,
         vector_fields=["sample_1_vector_"],
@@ -148,5 +155,10 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
+    test_client._api._trigger(
+        dataset_id,
+        params=config,
+        workflow_id=job_id,
+    )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
