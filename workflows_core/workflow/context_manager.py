@@ -101,11 +101,13 @@ class WorkflowContextManager(API):
             send_email=self._send_email,
             worker_number=worker_number
         )
+        from workflows_core import __version__
         logger.debug({
             "status": status, 
             "job_id": self._job_id, 
             "workflow_name": self._workflow_name,
             "worker_number": worker_number,
             "result": result,
+            "workflows_core_version": __version__
         })
         return result
