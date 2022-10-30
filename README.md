@@ -79,3 +79,7 @@ This Engine is intended to be used when operations are done on the whole dataset
 The advantage this has over `StableEngine` with `chunksize=None` is that the pulling and
 pushing documents is done in batch, but the operation is done in bulk. With `StableEngine`,
 this would have involved extremely large API calls with larger datasets.
+
+### How to release 
+
+To cut a release, go to "Releases" and create a new version from `main` branch.
