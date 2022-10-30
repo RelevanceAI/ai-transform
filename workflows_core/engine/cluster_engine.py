@@ -1,5 +1,5 @@
 import concurrent.futures
-
+import time
 import logging
 import traceback
 from typing import Any
@@ -10,6 +10,7 @@ from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
 
+HARDCODED_SLEEP = 0.1
 
 class InMemoryEngine(AbstractEngine):
     def __init__(self, show_progress_bar: bool = True, *args, **kwargs):
@@ -51,7 +52,10 @@ class InMemoryEngine(AbstractEngine):
             for i in range(self._num_chunks):
                 yield new_batch[i * self._chunksize : (i + 1) * self._chunksize]
                 self._progress.update(1)
+                # Implement a sleep timer to prevent crashing the server
+                time.sleep(HARDCODED_SLEEP)
 
+        # old concurrency code
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = [
                 executor.submit(self.update_chunk, payload)
