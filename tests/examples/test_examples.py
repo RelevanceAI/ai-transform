@@ -66,7 +66,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     text_field = config["text_field"]
     alias = config.get("alias")
     TOTAL_WORKERS = 10
-    WORKER_NUMBER = 2
+    WORKER_NUMBER = 0
     total_workers = TOTAL_WORKERS
     worker_number = config.get("worker_number", WORKER_NUMBER)
     send_email = config.get("send_email", False)
@@ -100,7 +100,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
 
     health = dataset.health()
     # This can vary depending on modulo
-    assert engine._size in [2, 3], "incorrect engine size"
+    assert engine._size in [1, 2, 3, 4], "incorrect engine size"
 
     for output_field in operator._output_fields:
         assert health[output_field]["exists"] == engine._size

@@ -62,16 +62,18 @@ class WorkflowContextManager(API):
         if exc_type is not None:
             logger.exception("Exception")
             self._set_status(status=self.FAILED, worker_number=self._engine.worker_number)
-            self._update_workflow_metadata(
-                job_id=self._job_id,
-                metadata=dict(
-                    _error_=dict(
-                        exc_value=str(exc_value),
-                        traceback=str(traceback),
-                        logs=self._engine._error_logs,
+            # We want to avoid updating where possible to tha it doesn't unnecessarily trigger a JSONDecodeError
+            if self._engine.worker_number is None or (self._engine.worker_number == 0 and self._engine.total_workers):
+                self._update_workflow_metadata(
+                    job_id=self._job_id,
+                    metadata=dict(
+                        _error_=dict(
+                            exc_value=str(exc_value),
+                            traceback=str(traceback),
+                            logs=self._engine._error_logs,
+                        ),
                     ),
-                ),
-            )
+                )
             return False
         else:
             # Workflow must have run successfully
