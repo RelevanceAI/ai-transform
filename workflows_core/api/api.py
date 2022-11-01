@@ -7,6 +7,17 @@ from workflows_core.utils import document
 from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 from workflows_core import __version__
 
+def get_response(response):
+    try:
+        return response.json()
+    except Exception as e:
+        print({"error": e})
+        try:
+            # Print the content of the return
+            print(response.content)
+        except Exception as e:
+            return response
+
 class API:
     def __init__(self, credentials: Credentials) -> None:
         self._credentials = credentials
@@ -105,7 +116,7 @@ class API:
         after_id: Optional[List] = None,
         worker_number: int = 0,
     ):
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/get_where",
             headers=self._headers,
             json=dict(
@@ -119,7 +130,8 @@ class API:
                 after_id=[] if after_id is None else after_id,
                 worker_number=worker_number,
             ),
-        ).json()
+        )
+        return get_response(response)
 
     def _update_dataset_metadata(self, dataset_id: str, metadata: Dict[str, Any]):
         """
