@@ -3,6 +3,7 @@ import json
 import uuid
 import base64
 import random
+random.seed(100)
 import pytest
 import string
 
