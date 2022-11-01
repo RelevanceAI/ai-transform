@@ -126,6 +126,7 @@ class Dataset:
         after_id: Optional[List] = None,
         worker_number: int = 0,
         max_retries: int = 3,
+        retry_delay: int = 2
     ) -> Dict[str, Any]:
 
         documents = []
@@ -146,7 +147,7 @@ class Dataset:
             except ConnectionError as e:
                 logger.error(e)
                 retry_count += 1
-                time.sleep(1)
+                time.sleep(retry_delay)
 
                 if retry_count >= max_retries:
                     raise MaxRetriesError("max number of retries exceeded")
@@ -154,7 +155,7 @@ class Dataset:
             except JSONDecodeError as e:
                 logger.error(e)
                 retry_count += 1
-                time.sleep(1)
+                time.sleep(retry_delay)
 
                 if retry_count >= max_retries:
                     raise MaxRetriesError("max number of retries exceeded")
