@@ -1,3 +1,4 @@
+from json import JSONDecodeError
 import math
 import time
 import logging
@@ -134,7 +135,7 @@ class AbstractEngine(ABC):
         self,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
-        max_retries: int = 3,
+        max_retries: int = 5,
     ):
         if filters is None:
             filters = self._filters
@@ -154,7 +155,7 @@ class AbstractEngine(ABC):
                     after_id=self._after_id,
                     worker_number=self.worker_number,
                 )
-            except ConnectionError as e:
+            except (ConnectionError, JSONDecodeError) as e:
                 logger.error(e)
                 retry_count += 1
                 time.sleep(1)
