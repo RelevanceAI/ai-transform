@@ -18,12 +18,12 @@ def get_response(response):
         try:
             # Log this somewhere if it errors
             print(response.content)
-            # we still want to raise the right error for retrying
-            # continue to raise exception so that any retry logic still holds
-            raise e
         except Exception as no_content_e:
             # in case there's no content
             print(no_content_e)
+        finally:
+            # we still want to raise the right error for retrying
+            # continue to raise exception so that any retry logic still holds
             raise e
 
 
