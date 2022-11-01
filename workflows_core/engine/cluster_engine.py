@@ -52,7 +52,6 @@ class InMemoryEngine(AbstractEngine):
         for i in range(self._num_chunks):
             chunk = new_batch[i * self.chunksize : (i + 1) * self._chunksize]
             self.update_chunk(chunk, ingest_in_background=True)
-            time.sleep(0.5)
 
         # WE have to remove this code to avoid hammering the server
         # def payload_generator():
