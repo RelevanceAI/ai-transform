@@ -7,6 +7,7 @@ from workflows_core.utils import document
 from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 from workflows_core import __version__
 
+
 def get_response(response):
     try:
         return response.json()
@@ -19,6 +20,7 @@ def get_response(response):
             # we still want to raise the right error for retrying
             raise e
 
+
 class API:
     def __init__(self, credentials: Credentials) -> None:
         self._credentials = credentials
@@ -27,7 +29,7 @@ class API:
         )
         self._headers = dict(
             Authorization=f"{self._credentials.project}:{self._credentials.api_key}",
-            workflows_core_version=__version__
+            workflows_core_version=__version__,
         )
 
     def _list_datasets(self):
@@ -42,24 +44,18 @@ class API:
         return requests.post(
             url=self._base_url + f"/datasets/create",
             headers=self._headers,
-            json=dict(
-                id=dataset_id,
-                schema=schema,
-                upsert=upsert,
-            ),
+            json=dict(id=dataset_id, schema=schema, upsert=upsert),
         ).json()
 
     def _delete_dataset(self, dataset_id: str) -> Any:
         response = requests.post(
-            url=self._base_url + f"/datasets/{dataset_id}/delete",
-            headers=self._headers,
+            url=self._base_url + f"/datasets/{dataset_id}/delete", headers=self._headers
         )
         return get_response(response)
 
     def _get_schema(self, dataset_id: str) -> Schema:
         response = requests.get(
-            url=self._base_url + f"/datasets/{dataset_id}/schema",
-            headers=self._headers,
+            url=self._base_url + f"/datasets/{dataset_id}/schema", headers=self._headers
         )
         return get_response(response)
 
@@ -146,10 +142,7 @@ class API:
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/metadata",
             headers=self._headers,
-            json=dict(
-                dataset_id=dataset_id,
-                metadata=metadata,
-            ),
+            json=dict(dataset_id=dataset_id, metadata=metadata),
         )
         return get_response(response)
 
@@ -211,7 +204,7 @@ class API:
         metadata: Dict[str, Any] = None,
         status: str = "inprogress",
         send_email: bool = True,
-        worker_number: int = None
+        worker_number: int = None,
     ):
         # add edge case for API
         if job_id == "":
@@ -244,7 +237,7 @@ class API:
                     workflow_name=workflow_name,
                     additional_information=additional_information,
                     send_email=send_email,
-                    worker_number=worker_number
+                    worker_number=worker_number,
                 ),
             )
             return get_response(response)
@@ -290,8 +283,7 @@ class API:
 
     def _get_workflow_status(self, job_id: str):
         response = requests.post(
-            url=self._base_url + f"/workflows/{job_id}/get",
-            headers=self._headers,
+            url=self._base_url + f"/workflows/{job_id}/get", headers=self._headers
         )
         return get_response(response)
 
@@ -312,19 +304,16 @@ class API:
         return get_response(response)
 
     def _upload_media(self, presigned_url: str, media_content: bytes):
-        response = requests.put(
-            presigned_url,
-            data=media_content,
-        )
-        return get_response(response)
-    
+        response = requests.put(presigned_url, data=media_content)
+        return response
+
     def _trigger(
         self,
         dataset_id: str,
         params: dict,
         workflow_id: str,
-        notebook_path: str=None,
-        instance_type: str=None,
+        notebook_path: str = None,
+        instance_type: str = None,
     ):
         """
         trigger a workflow
@@ -337,6 +326,6 @@ class API:
                 dataset_id=dataset_id,
                 workflow_id=workflow_id,
                 notebook_path=notebook_path,
-                instance_type=instance_type
+                instance_type=instance_type,
             ),
         ).json()
