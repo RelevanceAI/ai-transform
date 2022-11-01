@@ -16,7 +16,8 @@ def get_response(response):
             # Print the content of the return
             print(response.content)
         except Exception as e:
-            return response
+            # we still want to raise the right error for retrying
+            raise e
 
 class API:
     def __init__(self, credentials: Credentials) -> None:
