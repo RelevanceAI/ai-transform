@@ -34,6 +34,10 @@ class AbstractWorkflow:
 
         self._job_id = job_id
         self._api = engine.dataset.api
+        self._api._headers.update(
+            job_id=job_id,
+            name=name,
+        )
 
         self._metadata = metadata
         self._additional_information = additional_information
