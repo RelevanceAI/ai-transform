@@ -9,16 +9,21 @@ from workflows_core import __version__
 
 
 def get_response(response):
+    # get a json response
+    # if errors - print what the response contains
     try:
         return response.json()
     except Exception as e:
         print({"error": e})
         try:
-            # Print the content of the return
+            # Log this somewhere if it errors
             print(response.content)
-        except Exception as e:
-            # we still want to raise the right error for retrying
+            # continue to raise exception so that the logic still holds
             raise e
+        except Exception as no_content_e:
+            # we still want to raise the right error for retrying
+            raise no_content_e
+
 
 
 class API:
