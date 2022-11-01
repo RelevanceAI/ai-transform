@@ -32,7 +32,7 @@ class WorkflowContextManager(API):
         additional_information: str = "",
         send_email: bool = True,
     ) -> None:
-        super().__init__(dataset.api._credentials)
+        super().__init__(dataset.api._credentials, job_id, workflow_name)
 
         self._engine = engine
         self._operator = operator

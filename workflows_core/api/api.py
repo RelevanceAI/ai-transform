@@ -22,7 +22,7 @@ def get_response(response):
 
 
 class API:
-    def __init__(self, credentials: Credentials) -> None:
+    def __init__(self, credentials: Credentials, job_id: str=None, name: str=None) -> None:
         self._credentials = credentials
         self._base_url = (
             f"https://api-{self._credentials.region}.stack.relevance.ai/latest"
@@ -31,6 +31,10 @@ class API:
             Authorization=f"{self._credentials.project}:{self._credentials.api_key}",
             workflows_core_version=__version__,
         )
+        if job_id is not None:
+            self._headers.update(workflows_core_job_id=job_id)
+        if name is not None:
+            self._headers.update(workflows_core_name=name)
 
     def _list_datasets(self):
         response = requests.get(
@@ -118,6 +122,7 @@ class API:
         after_id: Optional[List] = None,
         worker_number: int = 0,
     ):
+        print(self._headers)
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/get_where",
             headers=self._headers,

@@ -33,12 +33,14 @@ class AbstractWorkflow:
             warnings.warn(f"No job id supplied, using {job_id}")
 
         self._job_id = job_id
-        self._api = engine.dataset.api
-        self._api._headers.update(
-            job_id=job_id,
-            name=name,
+
+        # Update the header
+        engine.dataset.api._headers.update(
+            workflows_core_job_id=job_id,
+            workflows_core_name=name,
         )
 
+        self._api = engine.dataset.api
         self._metadata = metadata
         self._additional_information = additional_information
         self._send_email = send_email
