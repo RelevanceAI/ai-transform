@@ -7,6 +7,7 @@ from workflows_core.utils import document
 from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 from workflows_core import __version__
 
+
 def get_response(response):
     try:
         return response.json()
@@ -19,6 +20,7 @@ def get_response(response):
             # we still want to raise the right error for retrying
             raise e
 
+
 class API:
     def __init__(self, credentials: Credentials) -> None:
         self._credentials = credentials
@@ -27,13 +29,14 @@ class API:
         )
         self._headers = dict(
             Authorization=f"{self._credentials.project}:{self._credentials.api_key}",
-            workflows_core_version=__version__
+            workflows_core_version=__version__,
         )
 
     def _list_datasets(self):
-        return requests.get(
+        response = requests.get(
             url=self._base_url + "/datasets/list", headers=self._headers
-        ).json()
+        )
+        return get_response(response)
 
     def _create_dataset(
         self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True
@@ -41,24 +44,20 @@ class API:
         return requests.post(
             url=self._base_url + f"/datasets/create",
             headers=self._headers,
-            json=dict(
-                id=dataset_id,
-                schema=schema,
-                upsert=upsert,
-            ),
+            json=dict(id=dataset_id, schema=schema, upsert=upsert),
         ).json()
 
     def _delete_dataset(self, dataset_id: str) -> Any:
-        return requests.post(
-            url=self._base_url + f"/datasets/{dataset_id}/delete",
-            headers=self._headers,
-        ).json()
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/delete", headers=self._headers
+        )
+        return get_response(response)
 
     def _get_schema(self, dataset_id: str) -> Schema:
-        return requests.get(
-            url=self._base_url + f"/datasets/{dataset_id}/schema",
-            headers=self._headers,
-        ).json()
+        response = requests.get(
+            url=self._base_url + f"/datasets/{dataset_id}/schema", headers=self._headers
+        )
+        return get_response(response)
 
     def _bulk_insert(
         self,
@@ -71,7 +70,7 @@ class API:
         field_transformers: List[FieldTransformer] = None,
         ingest_in_background: bool = False,
     ) -> Any:
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_insert",
             headers=self._headers,
             json=dict(
@@ -85,7 +84,8 @@ class API:
                 ingest_in_background=ingest_in_background,
                 wait_for_update=wait_for_update,
             ),
-        ).json()
+        )
+        return get_response(response)
 
     def _bulk_update(
         self,
@@ -94,7 +94,7 @@ class API:
         insert_date: bool = True,
         ingest_in_background: bool = True,
     ) -> Any:
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_update",
             headers=self._headers,
             json=dict(
@@ -102,7 +102,8 @@ class API:
                 insert_date=insert_date,
                 ingest_in_background=ingest_in_background,
             ),
-        ).json()
+        )
+        return get_response(response)
 
     def _get_where(
         self,
@@ -138,20 +139,19 @@ class API:
         """
         Edit and add metadata about a dataset. Notably description, data source, etc
         """
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/metadata",
             headers=self._headers,
-            json=dict(
-                dataset_id=dataset_id,
-                metadata=metadata,
-            ),
-        ).json()
+            json=dict(dataset_id=dataset_id, metadata=metadata),
+        )
+        return get_response(response)
 
     def _get_metadata(self, dataset_id: str) -> Dict[str, Any]:
-        return requests.get(
+        response = requests.get(
             url=self._base_url + f"/datasets/{dataset_id}/metadata",
             headers=self._headers,
-        ).json()
+        )
+        return get_response(response)
 
     def _insert_centroids(
         self,
@@ -160,7 +160,7 @@ class API:
         vector_fields: List[str],
         alias: str,
     ):
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/cluster/centroids/insert",
             headers=self._headers,
             json=dict(
@@ -169,7 +169,8 @@ class API:
                 vector_fields=vector_fields,
                 alias=alias,
             ),
-        ).json()
+        )
+        return get_response(response)
 
     def _get_centroids(
         self,
@@ -181,7 +182,7 @@ class API:
         cluster_ids: Optional[List] = None,
         include_vector: bool = False,
     ):
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/cluster/centroids/documents",
             headers=self._headers,
             json=dict(
@@ -192,7 +193,8 @@ class API:
                 page=page,
                 include_vector=include_vector,
             ),
-        ).json()
+        )
+        return get_response(response)
 
     def _set_workflow_status(
         self,
@@ -202,7 +204,7 @@ class API:
         metadata: Dict[str, Any] = None,
         status: str = "inprogress",
         send_email: bool = True,
-        worker_number: int = None
+        worker_number: int = None,
     ):
         # add edge case for API
         if job_id == "":
@@ -226,7 +228,7 @@ class API:
                 ),
             ).json()
         else:
-            return requests.post(
+            response = requests.post(
                 url=self._base_url + f"/workflows/{job_id}/status",
                 headers=self._headers,
                 json=dict(
@@ -235,9 +237,10 @@ class API:
                     workflow_name=workflow_name,
                     additional_information=additional_information,
                     send_email=send_email,
-                    worker_number=worker_number
+                    worker_number=worker_number,
                 ),
-            ).json()
+            )
+            return get_response(response)
 
     def _set_field_children(
         self,
@@ -258,7 +261,7 @@ class API:
         metadata: extra parameters associated with operation
         i.e. n_clusters, n_init, softmax_temperature, etc...
         """
-        return requests.post(
+        response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
             headers=self._headers,
@@ -268,47 +271,49 @@ class API:
                 category=fieldchildren_id,
                 metadata={} if metadata is None else metadata,
             ),
-        ).json()
+        )
+        return get_response(response)
 
     def _get_health(self, dataset_id: str):
-        return requests.get(
+        response = requests.get(
             url=self._base_url + f"/datasets/{dataset_id}/monitor/health",
             headers=self._headers,
-        ).json()
+        )
+        return get_response(response)
 
     def _get_workflow_status(self, job_id: str):
-        return requests.post(
-            url=self._base_url + f"/workflows/{job_id}/get",
-            headers=self._headers,
-        ).json()
+        response = requests.post(
+            url=self._base_url + f"/workflows/{job_id}/get", headers=self._headers
+        )
+        return get_response(response)
 
     def _update_workflow_metadata(self, job_id: str, metadata: Dict[str, Any]):
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/workflows/{job_id}/metadata",
             headers=self._headers,
             json=dict(metadata=metadata),
-        ).json()
+        )
+        return get_response(response)
 
     def _get_file_upload_urls(self, dataset_id: str, files: List[str]):
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/get_file_upload_urls",
             headers=self._headers,
             json=dict(files=files),
-        ).json()
+        )
+        return get_response(response)
 
     def _upload_media(self, presigned_url: str, media_content: bytes):
-        return requests.put(
-            presigned_url,
-            data=media_content,
-        )
-    
+        response = requests.put(presigned_url, data=media_content)
+        return response
+
     def _trigger(
         self,
         dataset_id: str,
         params: dict,
         workflow_id: str,
-        notebook_path: str=None,
-        instance_type: str=None,
+        notebook_path: str = None,
+        instance_type: str = None,
     ):
         """
         trigger a workflow
@@ -321,6 +326,6 @@ class API:
                 dataset_id=dataset_id,
                 workflow_id=workflow_id,
                 notebook_path=notebook_path,
-                instance_type=instance_type
+                instance_type=instance_type,
             ),
         ).json()

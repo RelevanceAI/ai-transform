@@ -169,11 +169,18 @@ class AbstractEngine(ABC):
                 yield chunk["documents"]
                 retry_count = 0
 
-    def update_chunk(self, chunk: DocumentList, max_retries: int = 3):
+    def update_chunk(
+        self,
+        chunk: DocumentList,
+        max_retries: int = 3,
+        ingest_in_background: bool = True,
+    ):
         if chunk:
             for _ in range(max_retries):
                 try:
-                    update_json = self._dataset.update_documents(documents=chunk)
+                    update_json = self._dataset.update_documents(
+                        documents=chunk, ingest_in_background=ingest_in_background
+                    )
                 except Exception as e:
                     logger.error(e)
                 else:
