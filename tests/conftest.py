@@ -136,11 +136,11 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
-    test_client._api._trigger(
-        dataset_id,
-        params=config,
-        workflow_id=job_id,
-    )
+    # test_client._api._trigger(
+    #     dataset_id,
+    #     params=config,
+    #     workflow_id=job_id,
+    # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 
@@ -162,10 +162,10 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
-    test_client._api._trigger(
-        dataset_id,
-        params=config,
-        workflow_id=job_id,
-    )
+    # test_client._api._trigger(
+    #     dataset_id,
+    #     params=config,
+    #     workflow_id=job_id,
+    # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
