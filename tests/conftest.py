@@ -3,7 +3,6 @@ import json
 import uuid
 import base64
 import random
-random.seed(100)
 import pytest
 import string
 
@@ -25,6 +24,12 @@ from workflows_core.utils.example_documents import (
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
 
+rd = random.Random()
+rd.seed(0)
+
+def create_id():
+    # This makes IDs reproducible for tests related to Modulo function
+    return str(uuid.UUID(int=rd.getrandbits(128)))
 
 @pytest.fixture(scope="session")
 def test_token() -> str:
@@ -121,8 +126,7 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id)
     dataset.insert_documents(mock_documents(20))
-    job_id = str(uuid.uuid4())
-    print(job_id)
+    job_id = create_id()
     config = dict(
         job_id=job_id,
         authorizationToken=test_client._token,
@@ -147,7 +151,7 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id)
     dataset.insert_documents(mock_documents(20))
-    job_id = str(uuid.uuid4())
+    job_id = create_id()
     print(job_id)
     config = dict(
         job_id=job_id,

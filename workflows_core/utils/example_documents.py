@@ -44,7 +44,14 @@ import string
 from workflows_core.types import Vector
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
+import uuid
 
+rd = random.Random()
+rd.seed(0)
+
+def create_id():
+    # This makes IDs reproducible for tests related to Modulo function
+    return str(uuid.UUID(int=rd.getrandbits(128)))
 
 def generate_random_string(string_length: int = 5) -> str:
 
@@ -70,6 +77,7 @@ def generate_random_integer(min: int = 0, max: int = 100) -> int:
 
 def vector_document(vector_length: int) -> Document:
     document = {
+        "_id": create_id(),
         "sample_1_label": generate_random_label(),
         "sample_2_label": generate_random_label(),
         "sample_3_label": generate_random_label(),
