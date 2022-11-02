@@ -341,3 +341,27 @@ class API:
                 instance_type=instance_type,
             ),
         ).json()
+    
+    def _progress(
+        self,
+        workflow_id: str,
+        worker_number: int=0,
+        step=0,
+        n_processed: int=0,
+        n_total: int=0
+    ):
+        """
+        Tracks Workflow Progress
+        """
+        response = requests.post(
+            url=self._base_url + f"/workflows/{workflow_id}/trigger",
+            json=dict(
+                worker_number=worker_number,
+                step=step,
+                n_processed=n_processed,
+                n_total=n_total
+            )
+        )
+        return get_response(
+            response
+        )
