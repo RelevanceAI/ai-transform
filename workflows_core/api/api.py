@@ -104,6 +104,7 @@ class API:
         documents: List[document.Document],
         insert_date: bool = True,
         ingest_in_background: bool = True,
+        update_schema: bool=True
     ) -> Any:
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_update",
@@ -112,6 +113,7 @@ class API:
                 updates=documents,
                 insert_date=insert_date,
                 ingest_in_background=ingest_in_background,
+                update_schema=update_schema
             ),
         )
         return get_response(response)
@@ -353,14 +355,17 @@ class API:
         """
         Tracks Workflow Progress
         """
+        params = dict(
+            worker_number=worker_number,
+            step=step,
+            n_processed=n_processed,
+            n_total=n_total
+        )
+        # print the params to see what is happening here
+        print(params)
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/trigger",
-            json=dict(
-                worker_number=worker_number,
-                step=step,
-                n_processed=n_processed,
-                n_total=n_total
-            )
+            json=params
         )
         return get_response(
             response

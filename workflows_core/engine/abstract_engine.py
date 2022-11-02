@@ -174,12 +174,15 @@ class AbstractEngine(ABC):
         chunk: DocumentList,
         max_retries: int = 3,
         ingest_in_background: bool = True,
+        update_schema: bool=False
     ):
         if chunk:
             for _ in range(max_retries):
                 try:
                     update_json = self._dataset.update_documents(
-                        documents=chunk, ingest_in_background=ingest_in_background
+                        documents=chunk, 
+                        ingest_in_background=ingest_in_background,
+                        update_schema=update_schema
                     )
                 except Exception as e:
                     logger.error(e)
@@ -190,8 +193,6 @@ class AbstractEngine(ABC):
         
     def update_progress(
         self,
-        workflow_id: str,
-        name: str,
         n_processed: int
     ):
         """
@@ -202,9 +203,9 @@ class AbstractEngine(ABC):
         """
         # Update the progress of the workflow
         return self.dataset.api._progress(
-            workflow_id=workflow_id,
+            workflow_id=self.workflow_id,
             worker_number=self.worker_number,
-            step=name,
+            step=self.name,
             n_processed=n_processed,
             n_total=self.num_chunks
         )

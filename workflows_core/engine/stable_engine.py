@@ -24,12 +24,12 @@ class StableEngine(AbstractEngine):
         successful_chunks = 0
         error_logs = []
 
-        for chunk in tqdm(
+        for chunk_counter, chunk in enumerate(tqdm(
             iterator,
             desc=repr(self.operator),
             disable=(not self._show_progress_bar),
             total=self.num_chunks,
-        ):
+        )):
             try:
                 new_batch = self.operator(chunk)
             except Exception as e:
@@ -42,9 +42,15 @@ class StableEngine(AbstractEngine):
                 logger.error(chunk)
                 logger.error(traceback.format_exc())
             else:
+                # if there is no exception then this block will be executed
                 result = self.update_chunk(new_batch)
                 successful_chunks += 1
                 logger.debug(result)
+            
+            finally:
+                # executes after everything wraps up
+                if self.workflow_id:
+                    self.update_progress(chunk_counter)
 
         self._error_logs = error_logs
         if self.num_chunks > 0:

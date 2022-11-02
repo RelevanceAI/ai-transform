@@ -1,8 +1,5 @@
-import concurrent.futures
-
 import logging
 import traceback
-import time
 from typing import Any
 
 from workflows_core.engine.abstract_engine import AbstractEngine
@@ -51,7 +48,15 @@ class InMemoryEngine(AbstractEngine):
         # Update this in series
         for i in range(self._num_chunks):
             chunk = new_batch[i * self.chunksize : (i + 1) * self._chunksize]
-            self.update_chunk(chunk, ingest_in_background=True)
+            self.update_chunk(
+                chunk, 
+                ingest_in_background=True, 
+                # Update schema only on the first chunk otherwise it crashes the 
+                # schema update
+                update_schema=True if i == 0 else False
+            )
+            if self.workflow_id:
+                self.update_progress(i)
 
         # WE have to remove this code to avoid hammering the server
         # def payload_generator():
