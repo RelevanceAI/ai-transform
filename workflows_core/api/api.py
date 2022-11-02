@@ -362,6 +362,7 @@ class API:
             n_total=n_total
         )
         # print the params to see what is happening here
+        print("adding progress...")
         print(params)
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/trigger",
