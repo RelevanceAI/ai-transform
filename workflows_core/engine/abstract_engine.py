@@ -197,13 +197,13 @@ class AbstractEngine(ABC):
     ):
         """
         Parameters: 
-        workflow_id - the job ID
+        job_id - the job ID
         name - the name of the job
         n_processed - the name of what is processed
         """
         # Update the progress of the workflow
         return self.dataset.api._progress(
-            workflow_id=self.workflow_id,
+            workflow_id=self.job_id,
             worker_number=self.worker_number,
             step=self.name,
             n_processed=n_processed,
@@ -215,14 +215,14 @@ class AbstractEngine(ABC):
     # and provides the update progress functionality
     # required for engines
     @property
-    def workflow_id(self):
-        if hasattr(self, "_workflow_id"):
-            return self._workflow_id
+    def job_id(self):
+        if hasattr(self, "_job_id"):
+            return self._job_id
         return
     
-    @workflow_id.setter
-    def workflow_id(self, value):
-        self._workflow_id = value
+    @job_id.setter
+    def job_id(self, value):
+        self._job_id = value
     
     @property
     def name(self):

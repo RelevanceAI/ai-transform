@@ -49,7 +49,7 @@ class StableEngine(AbstractEngine):
             
             finally:
                 # executes after everything wraps up
-                if self.workflow_id:
+                if self.job_id:
                     self.update_progress(chunk_counter)
 
         self._error_logs = error_logs
