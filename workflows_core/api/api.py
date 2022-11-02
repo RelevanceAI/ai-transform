@@ -328,6 +328,7 @@ class API:
         workflow_id: str,
         notebook_path: str = None,
         instance_type: str = None,
+        host_type: str = None,
     ):
         """
         trigger a workflow
@@ -341,6 +342,7 @@ class API:
                 workflow_id=workflow_id,
                 notebook_path=notebook_path,
                 instance_type=instance_type,
+                host_type=host_type
             ),
         ).json()
     
