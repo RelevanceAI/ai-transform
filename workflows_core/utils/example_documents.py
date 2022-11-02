@@ -47,7 +47,7 @@ from workflows_core.utils.document_list import DocumentList
 import uuid
 
 rd = random.Random()
-rd.seed(0)
+rd.seed(2)
 
 def create_id():
     # This makes IDs reproducible for tests related to Modulo function
