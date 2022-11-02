@@ -187,3 +187,48 @@ class AbstractEngine(ABC):
                     return update_json
 
             raise MaxRetriesError("max number of retries exceeded")
+        
+    def update_progress(
+        self,
+        workflow_id: str,
+        name: str,
+        n_processed: int
+    ):
+        """
+        Parameters: 
+        workflow_id - the job ID
+        name - the name of the job
+        n_processed - the name of what is processed
+        """
+        # Update the progress of the workflow
+        return self.dataset.api._progress(
+            workflow_id=workflow_id,
+            worker_number=self.worker_number,
+            step=name,
+            n_processed=n_processed,
+            n_total=self.num_chunks
+        )
+
+    #####################################3
+    # The following attributes are set by the workflow 
+    # and provides the update progress functionality
+    # required for engines
+    @property
+    def workflow_id(self):
+        if hasattr(self, "_workflow_id"):
+            return self._workflow_id
+        return
+    
+    @workflow_id.setter
+    def workflow_id(self, value):
+        self._workflow_id = value
+    
+    @property
+    def name(self):
+        if hasattr(self, "_name"):
+            return self._name
+        return
+    
+    @name.setter
+    def name(self, value):
+        self._name = value
