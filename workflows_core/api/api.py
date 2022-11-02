@@ -367,7 +367,7 @@ class API:
         print("adding progress...")
         print(params)
         response = requests.post(
-            url=self._base_url + f"/workflows/{workflow_id}/trigger",
+            url=self._base_url + f"/workflows/{workflow_id}/progress",
             json=params
         )
         return get_response(
