@@ -368,6 +368,7 @@ class API:
         print(params)
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
+            headers=self._headers,
             json=params
         )
         return get_response(
