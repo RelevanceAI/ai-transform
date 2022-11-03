@@ -53,9 +53,9 @@ class InMemoryEngine(AbstractEngine):
                 ingest_in_background=True, 
                 # Update schema only on the first chunk otherwise it crashes the 
                 # schema update
-                update_schema=True if i == 0 else False
+                update_schema=True if i < 10 else False
             )
-            if self.workflow_id:
+            if self.job_id:
                 self.update_progress(i)
 
         # WE have to remove this code to avoid hammering the server

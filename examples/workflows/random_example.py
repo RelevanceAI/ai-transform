@@ -43,7 +43,7 @@ class RandomOperator(AbstractOperator):
             d[self.numeric_field] = d[self.numeric_field] + 1
         return documents
 
-def execute(token: str, logger: Callable, worker_number: int = None, *args, **kwargs):
+def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
 
     job_id = config.get("job_id", str(uuid.uuid4()))

@@ -43,7 +43,13 @@ class StableEngine(AbstractEngine):
                 logger.error(traceback.format_exc())
             else:
                 # if there is no exception then this block will be executed
-                result = self.update_chunk(new_batch)
+                # we only update schema on the first chunk 
+                # otherwise it breaks down how the backend handles
+                # schema updates
+                result = self.update_chunk(
+                    new_batch, 
+                    update_schema=chunk_counter < 10
+                )
                 successful_chunks += 1
                 logger.debug(result)
             
