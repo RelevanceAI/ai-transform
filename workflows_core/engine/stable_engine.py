@@ -99,9 +99,12 @@ class StableEngine(AbstractEngine):
             total=self.num_chunks,
         )):
             chunk_to_update = []
+
             for chunk in self.chunk_documents(large_chunk, chunksize=self._chunksize):
                 try:
                     new_batch = self.operator(chunk)
+                    successful_chunks += 1
+
                 except Exception as e:
                     chunk_error_log = {
                         "exception": str(e),
@@ -118,13 +121,12 @@ class StableEngine(AbstractEngine):
                     # schema updates
                     chunk_to_update.extend(new_batch)
                     
-                result = self.update_chunk(
-                    chunk_to_update,
-                    update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
-                    ingest_in_background=True
-                )
-                successful_chunks += 1
-                logger.debug(result)
+            result = self.update_chunk(
+                chunk_to_update,
+                update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
+                ingest_in_background=True
+            )
+            logger.debug(result)
                 
             # executes after everything wraps up
             if self.job_id:

@@ -14,7 +14,7 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 logger = logging.getLogger(__name__)
 
 
-class AbstractWorkflow:
+class Workflow:
     def __init__(
         self,
         engine: AbstractEngine,
@@ -106,4 +106,4 @@ class AbstractWorkflow:
         return self._api._update_workflow_metadata(self._job_id, metadata=metadata)
 
 
-Workflow = AbstractWorkflow
+AbstractWorkflow = Workflow
