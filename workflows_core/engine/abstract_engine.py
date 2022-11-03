@@ -207,8 +207,8 @@ class AbstractEngine(ABC):
             workflow_id=self.job_id,
             worker_number=self.worker_number,
             step=self.name,
-            n_processed=n_processed * self.chunksize,
-            n_total=self.num_chunks * self.chunksize
+            n_processed=min(n_processed * self.chunksize, self._size),
+            n_total=self._size
         )
 
     #####################################3
