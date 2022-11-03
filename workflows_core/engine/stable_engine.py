@@ -99,7 +99,7 @@ class StableEngine(AbstractEngine):
             total=self.num_chunks,
         )):
             chunk_to_update = []
-            for chunk in self.chunk_documents(large_chunk):
+            for chunk in self.chunk_documents(large_chunk, chunksize=self._chunksize):
                 try:
                     new_batch = self.operator(chunk)
                 except Exception as e:
