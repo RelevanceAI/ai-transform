@@ -40,6 +40,9 @@ class AbstractWorkflow:
             workflows_core_name=name,
         )
 
+        engine.job_id = job_id
+        engine.name = name
+
         self._api = engine.dataset.api
         self._metadata = metadata
         self._additional_information = additional_information
