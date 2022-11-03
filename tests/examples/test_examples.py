@@ -19,8 +19,8 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
     alias = config.get("alias")
-    total_workers = config.get("total_workers")
-    worker_number = config.get("worker_number")
+    total_workers = config.get("total_workers", 3)
+    worker_number = config.get("worker_number", 2)
     send_email = config.get("send_email", False)
     additional_information = config.get("additional_information", "")
 
