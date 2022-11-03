@@ -56,7 +56,7 @@ class InMemoryEngine(AbstractEngine):
                 update_schema=True if i < self.MAX_SCHEMA_UPDATE_LIMITER else False
             )
             if self.job_id:
-                self.update_progress(i)
+                self.update_progress(i + 1)
 
         # WE have to remove this code to avoid hammering the server
         # def payload_generator():
