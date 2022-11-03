@@ -56,7 +56,7 @@ class StableEngine(AbstractEngine):
             finally:
                 # executes after everything wraps up
                 if self.job_id:
-                    self.update_progress(chunk_counter)
+                    self.update_progress(chunk_counter + 1)
 
         self._error_logs = error_logs
         if self.num_chunks > 0:
