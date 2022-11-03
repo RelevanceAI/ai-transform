@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractEngine(ABC):
+    MAX_SCHEMA_UPDATE_LIMITER : int = 10
     def __init__(
         self,
         dataset: Dataset,
@@ -174,12 +175,15 @@ class AbstractEngine(ABC):
         chunk: DocumentList,
         max_retries: int = 3,
         ingest_in_background: bool = True,
+        update_schema: bool=False
     ):
         if chunk:
             for _ in range(max_retries):
                 try:
                     update_json = self._dataset.update_documents(
-                        documents=chunk, ingest_in_background=ingest_in_background
+                        documents=chunk, 
+                        ingest_in_background=ingest_in_background,
+                        update_schema=update_schema
                     )
                 except Exception as e:
                     logger.error(e)
@@ -187,3 +191,46 @@ class AbstractEngine(ABC):
                     return update_json
 
             raise MaxRetriesError("max number of retries exceeded")
+        
+    def update_progress(
+        self,
+        n_processed: int
+    ):
+        """
+        Parameters: 
+        job_id - the job ID
+        name - the name of the job
+        n_processed - the name of what is processed
+        """
+        # Update the progress of the workflow
+        return self.dataset.api._progress(
+            workflow_id=self.job_id,
+            worker_number=self.worker_number,
+            step=self.name,
+            n_processed=n_processed,
+            n_total=self.num_chunks
+        )
+
+    #####################################3
+    # The following attributes are set by the workflow 
+    # and provides the update progress functionality
+    # required for engines
+    @property
+    def job_id(self):
+        if hasattr(self, "_job_id"):
+            return self._job_id
+        return
+    
+    @job_id.setter
+    def job_id(self, value):
+        self._job_id = value
+    
+    @property
+    def name(self):
+        if hasattr(self, "_name"):
+            return self._name
+        return
+    
+    @name.setter
+    def name(self, value):
+        self._name = value

@@ -73,6 +73,7 @@ class Dataset:
         documents: Union[List[Document], DocumentList],
         insert_date: bool = True,
         ingest_in_background: bool = True,
+        update_schema: bool=True
     ) -> Dict[str, Any]:
         if hasattr(documents, "to_json"):
             documents = documents.to_json()
@@ -85,6 +86,7 @@ class Dataset:
             documents=documents,
             insert_date=insert_date,
             ingest_in_background=ingest_in_background,
+            update_schema=update_schema,
         )
 
     def get_documents(

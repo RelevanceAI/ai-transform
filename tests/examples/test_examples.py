@@ -170,6 +170,7 @@ def test_fail_example(test_sentiment_workflow_token: str):
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
+    # Implement a trigger
     operator = BadOperator(text_field=text_field, alias=alias)
 
     filters = dataset[text_field].exists()
@@ -184,6 +185,11 @@ def test_fail_example(test_sentiment_workflow_token: str):
     workflow = AbstractWorkflow(
         engine=engine,
         job_id=job_id,
+    )
+    dataset.api._trigger(
+        dataset_id=dataset._dataset_id,
+        params={},
+        workflow_id=job_id,
     )
     workflow.run()
 
