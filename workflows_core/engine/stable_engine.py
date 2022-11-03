@@ -120,7 +120,8 @@ class StableEngine(AbstractEngine):
                     
                 result = self.update_chunk(
                     chunk_to_update,
-                    update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER
+                    update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
+                    ingest_in_background=True
                 )
                 successful_chunks += 1
                 logger.debug(result)
