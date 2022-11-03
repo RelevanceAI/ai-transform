@@ -180,6 +180,8 @@ def test_fail_example(test_sentiment_workflow_token: str):
         chunksize=8,
         select_fields=[text_field],
         filters=filters,
+        worker_number=0,
+        total_workers=1
     )
 
     workflow = AbstractWorkflow(
