@@ -1,3 +1,14 @@
+"""
+    Stable Engine Pseudo-algorithm-
+        1. Downloads about 1000 documents.    
+        2. Processes it in much smaller chunks.
+        3. Upserts all 1000 documents.
+        4. Repeat until dataset has finished looping
+    
+    We download a large chunk and upsert large chunks to avoid hammering 
+    our servers.
+
+"""
 import logging
 import traceback
 import math
