@@ -51,9 +51,9 @@ class InMemoryEngine(AbstractEngine):
             self.update_chunk(
                 chunk, 
                 ingest_in_background=True, 
-                # Update schema only on the first chunk otherwise it crashes the 
+                # Update schema only on the first chunk otherwise it crashes the
                 # schema update
-                update_schema=True if i < 10 else False
+                update_schema=True if i < self.MAX_SCHEMA_UPDATE_LIMITER else False
             )
             if self.job_id:
                 self.update_progress(i)

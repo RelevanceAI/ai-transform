@@ -48,7 +48,7 @@ class StableEngine(AbstractEngine):
                 # schema updates
                 result = self.update_chunk(
                     new_batch, 
-                    update_schema=chunk_counter < 10
+                    update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER
                 )
                 successful_chunks += 1
                 logger.debug(result)
