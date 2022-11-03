@@ -40,7 +40,7 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         worker_number=worker_number,
     )
 
-    workflow = AbstractWorkflow(
+    workflow = Workflow(
         engine=engine,
         job_id=job_id,
         send_email=send_email,
@@ -88,7 +88,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
         worker_number=worker_number,
     )
 
-    workflow = AbstractWorkflow(
+    workflow = Workflow(
         engine=engine,
         job_id=job_id,
         send_email=send_email,
@@ -143,7 +143,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
         total_workers=total_workers,
     )
 
-    workflow = AbstractWorkflow(
+    workflow = Workflow(
         engine=engine,
         job_id=job_id,
         send_email=send_email,
