@@ -58,7 +58,6 @@ class WorkflowContextManager(API):
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
-
         if exc_type is not None:
             logger.exception("Exception")
             self._set_status(status=self.FAILED, worker_number=self._engine.worker_number)
