@@ -6,7 +6,7 @@ from examples.workflows.clustering_example import ClusterOperator
 
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from workflows_core.workflow.abstract_workflow import Workflow
 from workflows_core.engine.cluster_engine import InMemoryEngine
 from workflows_core.workflow.helpers import decode_workflow_token
 
@@ -184,7 +184,7 @@ def test_fail_example(test_sentiment_workflow_token: str):
         total_workers=1
     )
 
-    workflow = AbstractWorkflow(
+    workflow = Workflow(
         engine=engine,
         job_id=job_id,
     )
