@@ -25,5 +25,5 @@ jobs:
             Hey champ! Thanks for the PR! Going to review and merge soon 😉
             Just before that though can you please test the installation with the command below? 😎
             ```
-            pip install git+https://github.com/RelevanceAI/RelevanceAI.git@${{ github.head_ref }}
+            pip install git+https://github.com/RelevanceAI/relevance-workflows-core.git@${{ github.head_ref }}
             ```
