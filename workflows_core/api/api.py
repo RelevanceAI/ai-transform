@@ -8,7 +8,7 @@ from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 from workflows_core import __version__
 
 
-def get_response(response):
+def get_response(response) -> Dict[str, Any]:
     # get a json response
     # if errors - print what the response contains
     try:
@@ -27,9 +27,10 @@ def get_response(response):
             raise e
 
 
-
 class API:
-    def __init__(self, credentials: Credentials, job_id: str=None, name: str=None) -> None:
+    def __init__(
+        self, credentials: Credentials, job_id: str = None, name: str = None
+    ) -> None:
         self._credentials = credentials
         self._base_url = (
             f"https://api-{self._credentials.region}.stack.relevance.ai/latest"
@@ -104,7 +105,7 @@ class API:
         documents: List[document.Document],
         insert_date: bool = True,
         ingest_in_background: bool = True,
-        update_schema: bool=True
+        update_schema: bool = True,
     ) -> Any:
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_update",
@@ -113,7 +114,7 @@ class API:
                 updates=documents,
                 insert_date=insert_date,
                 ingest_in_background=ingest_in_background,
-                update_schema=update_schema
+                update_schema=update_schema,
             ),
         )
         return get_response(response)
@@ -319,7 +320,7 @@ class API:
 
     def _upload_media(self, presigned_url: str, media_content: bytes):
         response = requests.put(presigned_url, data=media_content)
-        return response
+        return get_response(response)
 
     def _trigger(
         self,
@@ -333,7 +334,7 @@ class API:
         """
         trigger a workflow
         """
-        return requests.post(
+        response = requests.post(
             url=self._base_url + f"/workflows/trigger",
             headers=self._headers,
             json=dict(
@@ -342,35 +343,84 @@ class API:
                 workflow_id=workflow_id,
                 notebook_path=notebook_path,
                 instance_type=instance_type,
-                host_type=host_type
+                host_type=host_type,
             ),
-        ).json()
-    
-    def _progress(
+        )
+        return get_response(response)
+
+    def _update_workflow_progress(
         self,
         workflow_id: str,
-        worker_number: int=0,
-        step=0,
-        n_processed: int=0,
-        n_total: int=0
+        worker_number: int = 0,
+        step: int = 0,
+        n_processed: int = 0,
+        n_total: int = 0,
     ):
         """
         Tracks Workflow Progress
         """
-        params = dict(
-            worker_number=worker_number,
-            step=step,
-            n_processed=n_processed,
-            n_total=n_total
-        )
-        # print the params to see what is happening here
-        print("adding progress...")
-        print(params)
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,
-            json=params
+            json=dict(
+                worker_number=worker_number,
+                step=step,
+                n_processed=n_processed,
+                n_total=n_total,
+            ),
         )
-        return get_response(
-            response
+        return get_response(response)
+
+    def _append_tags(
+        self,
+        dataset_id: str,
+        field: str,
+        tags_to_add: List[str],
+        filters: List[Filter],
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/tags/append",
+            headers=self._headers,
+            json=dict(
+                field=field,
+                tags_to_add=tags_to_add,
+                filters=filters,
+            ),
         )
+        return get_response(response)
+
+    def _delete_tags(
+        self,
+        dataset_id: str,
+        field: str,
+        tags_to_delete: List[str],
+        filters: List[Filter],
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/tags/delete",
+            headers=self._headers,
+            json=dict(
+                field=field,
+                tags_to_delete=tags_to_delete,
+                filters=filters,
+            ),
+        )
+        return get_response(response)
+
+    def _merge_tags(
+        self,
+        dataset_id: str,
+        field: str,
+        tags_to_merge: Dict[str, str],
+        filters: List[Filter],
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/tags/merge",
+            headers=self._headers,
+            json=dict(
+                field=field,
+                tags_to_merge=tags_to_merge,
+                filters=filters,
+            ),
+        )
+        return get_response(response)
