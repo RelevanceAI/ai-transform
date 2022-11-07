@@ -29,7 +29,7 @@ class AbstractEngine(ABC):
         operator: AbstractOperator,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
-        chunksize: Optional[int] = 8,
+        pull_chunksize: Optional[int] = 8,
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
         worker_number: int = None,
@@ -63,15 +63,15 @@ class AbstractEngine(ABC):
         filters += self._get_workflow_filter()
         self._size = dataset.len(filters=filters)
 
-        if isinstance(chunksize, int):
-            assert chunksize > 0, "Chunksize should be a Positive Integer"
-            self._chunksize = chunksize
-            self._num_chunks = math.ceil(self._size / chunksize)
+        if isinstance(pull_chunksize, int):
+            assert pull_chunksize > 0, "Chunksize should be a Positive Integer"
+            self._pull_chunksize = pull_chunksize
+            self._num_chunks = math.ceil(self._size / pull_chunksize)
         else:
             warnings.warn(
                 f"`chunksize=None` assumes the operation transforms on the entire dataset at once"
             )
-            self._chunksize = self._size
+            self._pull_chunksize = self._size
             self._num_chunks = 1
 
         if filters is None:
@@ -100,8 +100,8 @@ class AbstractEngine(ABC):
         return self._dataset
 
     @property
-    def chunksize(self) -> int:
-        return self._chunksize
+    def pull_chunksize(self) -> int:
+        return self._pull_chunksize
 
     @property
     def size(self) -> int:
@@ -151,7 +151,7 @@ class AbstractEngine(ABC):
         while True:
             try:
                 chunk = self._dataset.get_documents(
-                    self._chunksize,
+                    self._pull_chunksize,
                     filters=filters,
                     select_fields=select_fields,
                     after_id=self._after_id,
@@ -205,7 +205,7 @@ class AbstractEngine(ABC):
             workflow_id=self.job_id,
             worker_number=self.worker_number,
             step=self.name,
-            n_processed=min(n_processed * self.chunksize, self._size),
+            n_processed=min(n_processed * self.pull_chunksize, self._size),
             n_total=self._size,
         )
 
