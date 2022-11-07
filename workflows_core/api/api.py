@@ -16,13 +16,13 @@ def get_response(response):
     try:
         return response.json()
     except Exception as e:
-        print({"error": e})
+        logger.error({"error": e})
         try:
             # Log this somewhere if it errors
-            print(response.content)
+            logger.error(response.content)
         except Exception as no_content_e:
             # in case there's no content
-            print(no_content_e)
+            logger.error(no_content_e)
         finally:
             # we still want to raise the right error for retrying
             # continue to raise exception so that any retry logic still holds
@@ -168,7 +168,7 @@ class API:
         after_id: Optional[List] = None,
         worker_number: int = 0,
     ):
-        print(self._headers)
+        logger.debug(self._headers)
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/get_where",
             headers=self._headers,
@@ -414,8 +414,8 @@ class API:
             n_total=n_total
         )
         # print the params to see what is happening here
-        print("adding progress...")
-        print(params)
+        logger.debug("adding progress...")
+        logger.debug(params)
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,
