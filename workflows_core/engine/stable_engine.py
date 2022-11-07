@@ -35,8 +35,8 @@ class StableEngine(AbstractEngine):
             the number of documents that are downloaded
 
         """
-        self._pull_chunksize = kwargs.get("chunksize")
         super().__init__(*args, **kwargs)
+        self._pull_chunksize = self._chunksize
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
     def chunk_documents(self, documents: DocumentList, chunksize: int = 20):
