@@ -1,12 +1,14 @@
 import requests
 import time
 import uuid
+import logging
 from functools import wraps
 from typing import Any, Dict, List, Optional
 from workflows_core.utils import document
 from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 from workflows_core import __version__
 
+logger = logging.getLogger(__name__)
 
 def get_response(response):
     # get a json response
@@ -48,7 +50,7 @@ def retry(num_of_retries=3, timeout=5):
                 # Using general error to avoid any possible error dependencies.
                 except ConnectionError as error:
                     time.sleep(timeout)
-                    print("Retrying...")
+                    logger.debug("Retrying...")
                     if i == num_of_retries - 1:
                         raise error
                     continue
