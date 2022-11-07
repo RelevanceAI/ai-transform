@@ -11,22 +11,16 @@
 """
 import logging
 import traceback
-import math
-import time
-from json import JSONDecodeError
-from typing import Any
-from typing import Optional, List
+
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.utils.document_list import DocumentList
-from workflows_core.types import Filter
-from workflows_core.errors import MaxRetriesError
 from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
 
 
 class StableEngine(AbstractEngine):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, transform_chunksize: int = 20, *args, **kwargs):
         """
         Parameters
         -----------
@@ -36,52 +30,15 @@ class StableEngine(AbstractEngine):
 
         """
         super().__init__(*args, **kwargs)
-        self._pull_chunksize = self._chunksize
+        self._transform_chunksize = transform_chunksize
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
-    def chunk_documents(self, documents: DocumentList, chunksize: int = 20):
-        num_chunks = math.ceil(len(documents) / chunksize)
+    def chunk_documents(self, documents: DocumentList):
+        num_chunks = self._chunksize // self._transform_chunksize + 1
         for i in range(num_chunks):
-            yield documents[(i * chunksize) : ((i + 1) * chunksize)]
-
-    def iterate(
-        self,
-        filters: Optional[List[Filter]] = None,
-        select_fields: Optional[List[str]] = None,
-        max_retries: int = 5,
-    ):
-
-        if filters is None:
-            filters = self._filters
-
-        filters += self._get_workflow_filter()
-
-        if select_fields is None:
-            select_fields = self._select_fields
-
-        retry_count = 0
-        while True:
-            try:
-                chunk = self._dataset.get_documents(
-                    self._pull_chunksize,
-                    filters=filters,
-                    select_fields=select_fields,
-                    after_id=self._after_id,
-                    worker_number=self.worker_number,
-                )
-            except (ConnectionError, JSONDecodeError) as e:
-                logger.error(e)
-                retry_count += 1
-                time.sleep(1)
-
-                if retry_count >= max_retries:
-                    raise MaxRetriesError("max number of retries exceeded")
-            else:
-                self._after_id = chunk["after_id"]
-                if not chunk["documents"]:
-                    break
-                yield chunk["documents"]
-                retry_count = 0
+            start = i * self._transform_chunksize
+            end = (i + 1) * self._transform_chunksize
+            yield documents[start:end]
 
     def apply(self) -> None:
         """
@@ -102,7 +59,7 @@ class StableEngine(AbstractEngine):
         ):
             chunk_to_update = []
 
-            for chunk in self.chunk_documents(large_chunk, chunksize=self._chunksize):
+            for chunk in self.chunk_documents(large_chunk):
                 try:
                     new_batch = self.operator(chunk)
                     successful_chunks += 1
