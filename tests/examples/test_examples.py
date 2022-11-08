@@ -33,7 +33,7 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
     engine = StableEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=8,
+        pull_chunksize=8,
         select_fields=[text_field],
         filters=filters,
         total_workers=total_workers,
@@ -56,6 +56,7 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
 
     status_dict = workflow.get_status()
     assert status_dict["status"].lower() == "complete", status_dict
+
 
 def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
@@ -81,7 +82,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     engine = StableEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=8,
+        pull_chunksize=8,
         select_fields=[text_field],
         filters=filters,
         total_workers=total_workers,
@@ -106,9 +107,10 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
         assert health[output_field]["exists"] == engine._size
 
     status_dict = workflow.get_status()
-    # This should in THEORY be inprogress still but his will only work 
+    # This should in THEORY be inprogress still but his will only work
     # on sufficiently large datasets
     assert status_dict["status"].lower() == "complete", status_dict
+
 
 def test_cluster_example(test_cluster_workflow_token: str):
     config = decode_workflow_token(test_cluster_workflow_token)
@@ -136,7 +138,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
     engine = InMemoryEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=100,
+        pull_chunksize=100,
         select_fields=[vector_field],
         filters=filters,
         worker_number=worker_number,
@@ -177,11 +179,11 @@ def test_fail_example(test_sentiment_workflow_token: str):
     engine = StableEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=8,
+        pull_chunksize=8,
         select_fields=[text_field],
         filters=filters,
         worker_number=0,
-        total_workers=1
+        total_workers=1,
     )
 
     workflow = Workflow(

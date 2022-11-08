@@ -2,6 +2,8 @@ import requests
 import time
 import uuid
 import logging
+import traceback
+from json import JSONDecodeError
 from functools import wraps
 from typing import Any, Dict, List, Optional
 from workflows_core.utils import document
@@ -9,6 +11,7 @@ from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 from workflows_core import __version__
 
 logger = logging.getLogger(__name__)
+
 
 def get_response(response):
     # get a json response
@@ -28,12 +31,14 @@ def get_response(response):
             # continue to raise exception so that any retry logic still holds
             raise e
 
-# We implement retry as a function for several reasons 
+
+# We implement retry as a function for several reasons
 # first - we can get a
+
 
 def retry(num_of_retries=3, timeout=5):
     """
-    Allows the function to retry upon failure. 
+    Allows the function to retry upon failure.
     Args:
         num_of_retries: The number of times the function should retry
         timeout: The number of seconds to wait between each retry
@@ -48,18 +53,23 @@ def retry(num_of_retries=3, timeout=5):
                 try:
                     return func(*args, **kwargs)
                 # Using general error to avoid any possible error dependencies.
-                except ConnectionError as error:
+                except (ConnectionError, JSONDecodeError) as error:
+                    logger.debug("Ran into connection or JSON DecodeError")
+                    logger.debug({"error": error, "traceback": traceback.format_exc()})
                     time.sleep(timeout)
                     logger.debug("Retrying...")
                     if i == num_of_retries - 1:
                         raise error
                     continue
-                break
         return function_wrapper
+
     return _retry
 
+
 class API:
-    def __init__(self, credentials: Credentials, job_id: str=None, name: str=None) -> None:
+    def __init__(
+        self, credentials: Credentials, job_id: str = None, name: str = None
+    ) -> None:
         self._credentials = credentials
         self._base_url = (
             f"https://api-{self._credentials.region}.stack.relevance.ai/latest"
@@ -140,7 +150,7 @@ class API:
         documents: List[document.Document],
         insert_date: bool = True,
         ingest_in_background: bool = True,
-        update_schema: bool=True
+        update_schema: bool = True,
     ) -> Any:
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/bulk_update",
@@ -149,7 +159,7 @@ class API:
                 updates=documents,
                 insert_date=insert_date,
                 ingest_in_background=ingest_in_background,
-                update_schema=update_schema
+                update_schema=update_schema,
             ),
         )
         return get_response(response)
@@ -168,7 +178,6 @@ class API:
         after_id: Optional[List] = None,
         worker_number: int = 0,
     ):
-        logger.debug(self._headers)
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/get_where",
             headers=self._headers,
@@ -391,18 +400,18 @@ class API:
                 workflow_id=workflow_id,
                 notebook_path=notebook_path,
                 instance_type=instance_type,
-                host_type=host_type
+                host_type=host_type,
             ),
         ).json()
-    
+
     @retry()
     def _progress(
         self,
         workflow_id: str,
-        worker_number: int=0,
+        worker_number: int = 0,
         step=0,
-        n_processed: int=0,
-        n_total: int=0
+        n_processed: int = 0,
+        n_total: int = 0,
     ):
         """
         Tracks Workflow Progress
@@ -411,7 +420,7 @@ class API:
             worker_number=worker_number,
             step=step,
             n_processed=n_processed,
-            n_total=n_total
+            n_total=n_total,
         )
         # print the params to see what is happening here
         logger.debug("adding progress...")
@@ -419,8 +428,6 @@ class API:
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,
-            json=params
+            json=params,
         )
-        return get_response(
-            response
-        )
+        return get_response(response)
