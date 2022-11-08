@@ -138,7 +138,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
     engine = InMemoryEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=100,
+        pull_chunksize=100,
         select_fields=[vector_field],
         filters=filters,
         worker_number=worker_number,
@@ -179,7 +179,7 @@ def test_fail_example(test_sentiment_workflow_token: str):
     engine = StableEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=8,
+        pull_chunksize=8,
         select_fields=[text_field],
         filters=filters,
         worker_number=0,
