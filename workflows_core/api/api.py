@@ -11,7 +11,7 @@ from workflows_core import __version__
 logger = logging.getLogger(__name__)
 
 
-def get_response(response) -> Dict[str, Any]:
+def get_response(response: requests.Response) -> Dict[str, Any]:
     # get a json response
     # if errors - print what the response contains
     try:
@@ -176,7 +176,6 @@ class API:
         after_id: Optional[List] = None,
         worker_number: int = 0,
     ):
-        logger.debug(self._headers)
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/documents/get_where",
             headers=self._headers,
@@ -401,10 +400,10 @@ class API:
                 instance_type=instance_type,
                 host_type=host_type,
             ),
-        )
-        return get_response(response)
+        ).json()
 
-    def _update_workflow_progress(
+    @retry()
+    def _progress(
         self,
         workflow_id: str,
         worker_number: int = 0,

@@ -47,34 +47,13 @@ class InMemoryEngine(AbstractEngine):
 
         # Update this in series
         for i in range(self._num_chunks):
-            chunk = new_batch[i * self.chunksize : (i + 1) * self._chunksize]
+            chunk = new_batch[i * self.pull_chunksize : (i + 1) * self._pull_chunksize]
             self.update_chunk(
-                chunk, 
-                ingest_in_background=True, 
+                chunk,
+                ingest_in_background=True,
                 # Update schema only on the first chunk otherwise it crashes the
                 # schema update
-                update_schema=True if i < self.MAX_SCHEMA_UPDATE_LIMITER else False
+                update_schema=True if i < self.MAX_SCHEMA_UPDATE_LIMITER else False,
             )
             if self.job_id:
                 self.update_progress(i + 1)
-
-        # WE have to remove this code to avoid hammering the server
-        # def payload_generator():
-        #     for i in range(self._num_chunks):
-        #         yield new_batch[i * self._chunksize : (i + 1) * self._chunksize]
-        #         self._progress.update(1)
-
-        # with concurrent.futures.ThreadPoolExecutor() as executor:
-        #     futures = [
-        #         executor.submit(self.update_chunk, payload)
-        #         for payload in payload_generator()
-        #     ]
-
-        #     for future in concurrent.futures.as_completed(futures):
-        #         try:
-        #             result = future.result()
-        #         except Exception as e:
-        #             logging.error(e)
-        #             logging.error(traceback.format_exc())
-        #         else:
-        #             logging.debug(result)
