@@ -403,7 +403,7 @@ class API:
         ).json()
 
     @retry()
-    def _progress(
+    def _updatge_workflow_progress(
         self,
         workflow_id: str,
         worker_number: int = 0,
