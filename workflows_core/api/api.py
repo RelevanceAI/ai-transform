@@ -426,6 +426,7 @@ class API:
         )
         return get_response(response)
 
+    @retry
     def _append_tags(
         self,
         dataset_id: str,
@@ -444,6 +445,7 @@ class API:
         )
         return get_response(response)
 
+    @retry
     def _delete_tags(
         self,
         dataset_id: str,
@@ -462,6 +464,7 @@ class API:
         )
         return get_response(response)
 
+    @retry
     def _merge_tags(
         self,
         dataset_id: str,
