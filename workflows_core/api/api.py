@@ -2,6 +2,8 @@ import requests
 import time
 import uuid
 import logging
+import traceback
+from json import JSONDecodeError
 from functools import wraps
 from typing import Any, Dict, List, Optional
 from workflows_core.utils import document
@@ -51,14 +53,14 @@ def retry(num_of_retries: int = 3, timeout: int = 5):
                 try:
                     return func(*args, **kwargs)
                 # Using general error to avoid any possible error dependencies.
-                except ConnectionError as error:
+                except (ConnectionError, JSONDecodeError) as error:
+                    logger.debug("Ran into connection or JSON DecodeError")
+                    logger.debug({"error": error, "traceback": traceback.format_exc()})
                     time.sleep(timeout)
                     logger.debug("Retrying...")
                     if i == num_of_retries - 1:
                         raise error
                     continue
-                break
-
         return function_wrapper
 
     return _retry
