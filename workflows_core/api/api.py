@@ -1,11 +1,14 @@
-import uuid
 import requests
-
+import time
+import uuid
+import logging
+from functools import wraps
 from typing import Any, Dict, List, Optional
-
 from workflows_core.utils import document
 from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 from workflows_core import __version__
+
+logger = logging.getLogger(__name__)
 
 
 def get_response(response):
@@ -14,17 +17,51 @@ def get_response(response):
     try:
         return response.json()
     except Exception as e:
-        print({"error": e})
+        logger.error({"error": e})
         try:
             # Log this somewhere if it errors
-            print(response.content)
+            logger.error(response.content)
         except Exception as no_content_e:
             # in case there's no content
-            print(no_content_e)
+            logger.error(no_content_e)
         finally:
             # we still want to raise the right error for retrying
             # continue to raise exception so that any retry logic still holds
             raise e
+
+
+# We implement retry as a function for several reasons
+# first - we can get a
+
+
+def retry(num_of_retries=3, timeout=5):
+    """
+    Allows the function to retry upon failure.
+    Args:
+        num_of_retries: The number of times the function should retry
+        timeout: The number of seconds to wait between each retry
+    """
+    num_of_retries = 3
+    timeout = 2
+
+    def _retry(func):
+        @wraps(func)
+        def function_wrapper(*args, **kwargs):
+            for i in range(num_of_retries):
+                try:
+                    return func(*args, **kwargs)
+                # Using general error to avoid any possible error dependencies.
+                except ConnectionError as error:
+                    time.sleep(timeout)
+                    logger.debug("Retrying...")
+                    if i == num_of_retries - 1:
+                        raise error
+                    continue
+                break
+
+        return function_wrapper
+
+    return _retry
 
 
 class API:
@@ -44,12 +81,14 @@ class API:
         if name is not None:
             self._headers.update(workflows_core_name=name)
 
+    @retry()
     def _list_datasets(self):
         response = requests.get(
             url=self._base_url + "/datasets/list", headers=self._headers
         )
         return get_response(response)
 
+    @retry()
     def _create_dataset(
         self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True
     ) -> Any:
@@ -59,18 +98,21 @@ class API:
             json=dict(id=dataset_id, schema=schema, upsert=upsert),
         ).json()
 
+    @retry()
     def _delete_dataset(self, dataset_id: str) -> Any:
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/delete", headers=self._headers
         )
         return get_response(response)
 
+    @retry()
     def _get_schema(self, dataset_id: str) -> Schema:
         response = requests.get(
             url=self._base_url + f"/datasets/{dataset_id}/schema", headers=self._headers
         )
         return get_response(response)
 
+    @retry()
     def _bulk_insert(
         self,
         dataset_id: str,
@@ -99,6 +141,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _bulk_update(
         self,
         dataset_id: str,
@@ -119,6 +162,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _get_where(
         self,
         dataset_id: str,
@@ -149,6 +193,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _update_dataset_metadata(self, dataset_id: str, metadata: Dict[str, Any]):
         """
         Edit and add metadata about a dataset. Notably description, data source, etc
@@ -160,6 +205,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _get_metadata(self, dataset_id: str) -> Dict[str, Any]:
         response = requests.get(
             url=self._base_url + f"/datasets/{dataset_id}/metadata",
@@ -167,6 +213,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _insert_centroids(
         self,
         dataset_id: str,
@@ -186,6 +233,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _get_centroids(
         self,
         dataset_id: str,
@@ -210,6 +258,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _set_workflow_status(
         self,
         job_id: str,
@@ -256,6 +305,7 @@ class API:
             )
             return get_response(response)
 
+    @retry()
     def _set_field_children(
         self,
         dataset_id: str,
@@ -288,6 +338,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _get_health(self, dataset_id: str):
         response = requests.get(
             url=self._base_url + f"/datasets/{dataset_id}/monitor/health",
@@ -295,12 +346,14 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _get_workflow_status(self, job_id: str):
         response = requests.post(
             url=self._base_url + f"/workflows/{job_id}/get", headers=self._headers
         )
         return get_response(response)
 
+    @retry()
     def _update_workflow_metadata(self, job_id: str, metadata: Dict[str, Any]):
         response = requests.post(
             url=self._base_url + f"/workflows/{job_id}/metadata",
@@ -309,6 +362,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _get_file_upload_urls(self, dataset_id: str, files: List[str]):
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/get_file_upload_urls",
@@ -317,10 +371,12 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _upload_media(self, presigned_url: str, media_content: bytes):
         response = requests.put(presigned_url, data=media_content)
         return response
 
+    @retry()
     def _trigger(
         self,
         dataset_id: str,
@@ -346,6 +402,7 @@ class API:
             ),
         ).json()
 
+    @retry()
     def _progress(
         self,
         workflow_id: str,
@@ -364,8 +421,8 @@ class API:
             n_total=n_total,
         )
         # print the params to see what is happening here
-        print("adding progress...")
-        print(params)
+        logger.debug("adding progress...")
+        logger.debug(params)
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,
