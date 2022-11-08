@@ -374,8 +374,8 @@ class API:
 
     @retry()
     def _upload_media(self, presigned_url: str, media_content: bytes):
-        response = requests.put(presigned_url, data=media_content)
-        return get_response(response)
+        # dont use get response since response cannot be json decoded
+        return requests.put(presigned_url, data=media_content)
 
     @retry()
     def _trigger(
