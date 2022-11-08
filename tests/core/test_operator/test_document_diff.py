@@ -23,4 +23,4 @@ class TestDocumentDiff:
     def test_no_diff(self):
         documents = mock_documents()
         diff = AbstractOperator._postprocess(documents, documents)
-        assert all(json.dumps(document.to_json()) == str({}) for document in diff)
+        assert not diff
