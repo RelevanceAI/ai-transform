@@ -40,7 +40,9 @@ def get_document_diff(old_document: Document, new_document: Document) -> Documen
         value_diff = is_different(field, old_value, new_value)
         if field not in old_fields or value_diff or field == "_id":
             pp_document[field] = new_value
-    return pp_document
+
+    if len(pp_document.keys()) > 1:
+        return pp_document
 
 
 class AbstractOperator(ABC):
