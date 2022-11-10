@@ -42,12 +42,21 @@ def read_token_from_script():
     config = decode_workflow_token(token)
     return config
 
+def safe_divide(x, y):
+    if y == 0:
+        return 0
+    else:
+        return x / y
+
 def calculate_health_proportion(health: dict):
     """
     Example health object looks like this: 
     {"exists": 300, "missing": 100}
     """
-    return health['exists'] / (health['exists'] + health['missing'])
+    return safe_divide(
+        health['exists'], 
+        (health['exists'] + health['missing'])
+    )
 
 def poll_until_health_updates(
         dataset: Dataset, 
