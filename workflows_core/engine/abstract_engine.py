@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 class AbstractEngine(ABC):
-    MAX_SCHEMA_UPDATE_LIMITER: int = 10
+    MAX_SCHEMA_UPDATE_LIMITER: int = 1
 
     def __init__(
         self,
