@@ -80,6 +80,23 @@ The advantage this has over `StableEngine` with `chunksize=None` is that the pul
 pushing documents is done in batch, but the operation is done in bulk. With `StableEngine`,
 this would have involved extremely large API calls with larger datasets.
 
+### Polling 
+
+Sometimes you will want to wait until the Relevance AI 
+schema updates before proceeding to the next step. For more information - look at `workflow/helpers.py` file.
+
+```{python}
+
+poll_until_health_updates_with_input_field(
+    dataset=dataset,
+    input_field=...,
+    output_field=...,
+    minimum_coverage=0.95,
+    sleep_timer=10
+)
+```
+
+
 ### How to release 
 
 To cut a release, go to "Releases" and create a new version from `main` branch.
