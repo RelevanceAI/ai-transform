@@ -5,6 +5,7 @@ import argparse
 import base64
 import json
 import uuid
+from typing import Optional
 from workflows_core.workflow.helpers import decode_workflow_token
 
 from pydantic import BaseModel, Field
@@ -27,9 +28,9 @@ An example configuration for workflows so that we can modify the the schema.
     """
     authorizationToken: str = None
     dataset_id: str = None 
-    job_id: str = str(uuid.uuid4()) # if missing - generates a random one
-    total_workers: int = Field(default=None, description="Total workers.")
-    send_email: bool = Field(default=False, description="Missing")
+    job_id: Optional[str] = str(uuid.uuid4()) # if missing - generates a random one
+    total_workers: Optional[int] = Field(default=None, description="Total workers.")
+    send_email: Optional[bool] = Field(default=True, description="Missing")
 
     @classmethod
     def to_schema(self):
