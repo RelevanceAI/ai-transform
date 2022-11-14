@@ -201,7 +201,7 @@ class AbstractEngine(ABC):
         n_processed - the name of what is processed
         """
         # Update the progress of the workflow
-        return self.dataset.api._progress(
+        return self.dataset.api._update_workflow_progress(
             workflow_id=self.job_id,
             worker_number=self.worker_number,
             step=self.name,
