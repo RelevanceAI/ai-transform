@@ -100,3 +100,12 @@ poll_until_health_updates_with_input_field(
 ### How to release 
 
 To cut a release, go to "Releases" and create a new version from `main` branch.
+
+### Software Choice 
+
+#### Pydantic 
+
+There are a few reasons for the pydantic choice:
+- good strong validation
+- outputs nicely to OpenAPI which allows us to generate workflow docs automatically in future for Workflow APIs
+- used in FastAPI stack so workflows can also be FastAPI compatible in the future.
