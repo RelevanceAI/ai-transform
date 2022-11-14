@@ -30,7 +30,8 @@ An example configuration for workflows so that we can modify the the schema.
     dataset_id: str = None 
     job_id: Optional[str] = Field(default=str(uuid.uuid4()), description="the job ID")
     total_workers: Optional[int] = Field(default=None, description="Total workers.")
-    send_email: Optional[bool] = Field(default=True, description="Missing")
+    send_email: Optional[bool] = Field(default=True, description="If True, sends an email upon completion. Otherwise, False.")
+    additional_information: Optional[str] = Field(default="", description="What to include in the e-mail.")
 
     @classmethod
     def to_schema(self):
@@ -73,3 +74,10 @@ An example configuration for workflows so that we can modify the the schema.
         # Generates a token for you anytime
         config: dict = self.dict()
         return base64.b64encode(json.dumps(config).encode()).decode()
+
+class BaseTransformConfig(BaseConfig):
+    """
+    Same as BaseConfig but a few more additional attributes.
+    """
+    pull_chunksize: Optional[int] = Field(default=1000, default="How many do you want to download and upload to the server.")
+    transform_chunksize: Optional[int] = Field(Default=20, default="How many do you want to transform each time?")
