@@ -28,7 +28,7 @@ An example configuration for workflows so that we can modify the the schema.
     """
     authorizationToken: str = None
     dataset_id: str = None 
-    job_id: Optional[str] = str(uuid.uuid4()) # if missing - generates a random one
+    job_id: Optional[str] = Field(default=str(uuid.uuid4()), description="the job ID")
     total_workers: Optional[int] = Field(default=None, description="Total workers.")
     send_email: Optional[bool] = Field(default=True, description="Missing")
 
