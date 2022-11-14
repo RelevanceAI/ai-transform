@@ -14,7 +14,8 @@ from workflows_core.workflow.helpers import decode_workflow_token
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.document_list import DocumentList
-
+from workflows_core.config import BaseConfig
+from pydantic import Field
 
 class SentimentOperator(AbstractOperator):
     LABELS = {
@@ -73,10 +74,12 @@ class SentimentOperator(AbstractOperator):
 
         return documents
 
+class SentimentConfig(BaseConfig):
+    # BaseConfig automatically handles authorizationToken, job_id, etc.
+    textFields: str = Field(..., description="The text field to run sentiment on.")
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
-    config = decode_workflow_token(token)
-
+    config: SentimentConfig = SentimentConfig.read_token(token)
     job_id = config.get("job_id", str(uuid.uuid4()))
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
@@ -110,7 +113,6 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         job_id=job_id,
     )
     workflow.run()
-
 
 if __name__ == "__main__":
     # For script things
