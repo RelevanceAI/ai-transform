@@ -76,6 +76,8 @@ class SentimentOperator(AbstractOperator):
 
 class SentimentConfig(BaseConfig):
     # BaseConfig automatically handles authorizationToken, job_id, etc.
+    # We put the SentimentConfig here so that we can auto-generate
+    # a JSONSchema
     textFields: str = Field(..., description="The text field to run sentiment on.")
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
