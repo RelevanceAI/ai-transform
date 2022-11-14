@@ -13,7 +13,7 @@ from workflows_core import __version__
 logger = logging.getLogger(__name__)
 
 
-def get_response(response):
+def get_response(response: requests.Response) -> Dict[str, Any]:
     # get a json response
     # if errors - print what the response contains
     try:
@@ -36,7 +36,7 @@ def get_response(response):
 # first - we can get a
 
 
-def retry(num_of_retries=3, timeout=5):
+def retry(num_of_retries: int = 3, timeout: int = 5):
     """
     Allows the function to retry upon failure.
     Args:
@@ -61,6 +61,7 @@ def retry(num_of_retries=3, timeout=5):
                     if i == num_of_retries - 1:
                         raise error
                     continue
+
         return function_wrapper
 
     return _retry
@@ -375,8 +376,8 @@ class API:
 
     @retry()
     def _upload_media(self, presigned_url: str, media_content: bytes):
-        response = requests.put(presigned_url, data=media_content)
-        return response
+        # dont use get response since response cannot be json decoded
+        return requests.put(presigned_url, data=media_content)
 
     @retry()
     def _trigger(
@@ -405,11 +406,11 @@ class API:
         ).json()
 
     @retry()
-    def _progress(
+    def _update_workflow_progress(
         self,
         workflow_id: str,
         worker_number: int = 0,
-        step=0,
+        step: int = 0,
         n_processed: int = 0,
         n_total: int = 0,
     ):
@@ -422,12 +423,68 @@ class API:
             n_processed=n_processed,
             n_total=n_total,
         )
-        # print the params to see what is happening here
         logger.debug("adding progress...")
         logger.debug(params)
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,
             json=params,
+        )
+        return get_response(response)
+
+    @retry()
+    def _append_tags(
+        self,
+        dataset_id: str,
+        field: str,
+        tags_to_add: List[str],
+        filters: List[Filter],
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/tags/append",
+            headers=self._headers,
+            json=dict(
+                field=field,
+                tags_to_add=tags_to_add,
+                filters=filters,
+            ),
+        )
+        return get_response(response)
+
+    @retry()
+    def _delete_tags(
+        self,
+        dataset_id: str,
+        field: str,
+        tags_to_delete: List[str],
+        filters: List[Filter],
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/tags/delete",
+            headers=self._headers,
+            json=dict(
+                field=field,
+                tags_to_delete=tags_to_delete,
+                filters=filters,
+            ),
+        )
+        return get_response(response)
+
+    @retry()
+    def _merge_tags(
+        self,
+        dataset_id: str,
+        field: str,
+        tags_to_merge: Dict[str, str],
+        filters: List[Filter],
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/tags/merge",
+            headers=self._headers,
+            json=dict(
+                field=field,
+                tags_to_merge=tags_to_merge,
+                filters=filters,
+            ),
         )
         return get_response(response)
