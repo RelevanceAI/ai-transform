@@ -79,6 +79,7 @@ class SentimentConfig(BaseConfig):
     # We put the SentimentConfig here so that we can auto-generate
     # a JSONSchema
     textFields: str = Field(..., description="The text field to run sentiment on.")
+    alias: Optional[str] = Field("default", description="The alias for each sentiment component.")
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config: SentimentConfig = SentimentConfig.read_token(token)
