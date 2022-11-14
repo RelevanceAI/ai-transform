@@ -61,6 +61,7 @@ def retry(num_of_retries: int = 3, timeout: int = 5):
                     if i == num_of_retries - 1:
                         raise error
                     continue
+
         return function_wrapper
 
     return _retry
@@ -391,7 +392,7 @@ class API:
         """
         trigger a workflow
         """
-        response = requests.post(
+        return requests.post(
             url=self._base_url + f"/workflows/trigger",
             headers=self._headers,
             json=dict(
@@ -416,15 +417,18 @@ class API:
         """
         Tracks Workflow Progress
         """
+        params = dict(
+            worker_number=worker_number,
+            step=step,
+            n_processed=n_processed,
+            n_total=n_total,
+        )
+        logger.debug("adding progress...")
+        logger.debug(params)
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,
-            json=dict(
-                worker_number=worker_number,
-                step=step,
-                n_processed=n_processed,
-                n_total=n_total,
-            ),
+            json=params,
         )
         return get_response(response)
 
