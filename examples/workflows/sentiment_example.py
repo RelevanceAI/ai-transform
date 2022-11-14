@@ -14,7 +14,8 @@ from workflows_core.workflow.helpers import decode_workflow_token
 from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.document_list import DocumentList
-
+from workflows_core.config import BaseConfig
+from pydantic import Field
 
 class SentimentOperator(AbstractOperator):
     LABELS = {
@@ -73,17 +74,25 @@ class SentimentOperator(AbstractOperator):
 
         return documents
 
+class SentimentConfig(BaseConfig):
+    # BaseConfig automatically handles authorizationToken, job_id, etc.
+    # We put the SentimentConfig here so that we can auto-generate
+    # a JSONSchema
+    textFields: str = Field(..., description="The text field to run sentiment on.")
+    alias: Optional[str] = Field(None, description="The alias for each sentiment component.")
+    transform_chunksize: Optional[int] = Field(8, description="The amount to transform at any 1 time.")
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
-    config = decode_workflow_token(token)
-
-    job_id = config.get("job_id", str(uuid.uuid4()))
-    token = config["authorizationToken"]
-    dataset_id = config["dataset_id"]
-    text_field = config["textFields"]
-    total_workers = config.get("total_workers", None)
-
-    alias = config.get("alias", None)
+    config: SentimentConfig = SentimentConfig.read_token(token)
+    # You can access dot-notation with typehinting. Yay.
+    job_id = config.job_id
+    token = config.authorizationToken
+    dataset_id = config.dataset_id
+    text_field = config.textFields
+    total_workers = config.total_workers
+    alias = config.alias
+    transform_chunksize = config.transform_chunksize
+    # defaults to None as specified in field
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
@@ -98,7 +107,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     engine = StableEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=8,
+        chunksize=transform_chunksize,
         select_fields=[text_field],
         filters=filters,
         worker_number=worker_number,
@@ -110,7 +119,6 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         job_id=job_id,
     )
     workflow.run()
-
 
 if __name__ == "__main__":
     # For script things

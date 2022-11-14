@@ -6,6 +6,7 @@ requirements = [
     "tqdm>=4.49.0",
     "requests>=2.0.0",
     "pandas>=1.0.0",
+    "pydantic==1.10.2"
 ]
 
 ray_requirements = [
