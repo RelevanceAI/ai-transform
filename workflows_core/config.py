@@ -49,9 +49,6 @@ An example configuration for workflows so that we can modify the the schema.
         # reads in required attributes from argparser
         config_dict = decode_workflow_token(token)
         return self.parse_obj(config_dict)
-        # for k in config_dict:
-        #     # gets the required attributes like 'text_field'
-        #     setattr(self, k, config_dict.get(k))
         
     @classmethod
     def read_dict(self, data: dict):
