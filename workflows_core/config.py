@@ -6,6 +6,20 @@ from pydantic import BaseModel
 from pydantic.schema import schema
 
 class BaseConfig(BaseModel):
+    """
+An example configuration for workflows so that we can modify the the schema.
+
+.. code-block::
+
+    from workflows_core.config import BaseConfig
+
+    class SentimentConfig(BaseConfig):
+        text_field: str
+
+
+    result = SentimentConfig.to_schema()
+
+    """
     @classmethod
     def to_schema(self):
         return self.schema_json()
