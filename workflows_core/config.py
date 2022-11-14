@@ -32,6 +32,10 @@ An example configuration for workflows so that we can modify the the schema.
             setattr(self, k, getattr(argparser, k))
         
     def get(self, value, default=None):
+        """
+        For backwards compatibility with previous dictionary-input
+        configs
+        """
         if hasattr(self, value):
             return getattr(self, value)
         else:
