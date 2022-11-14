@@ -49,9 +49,11 @@ import uuid
 rd = random.Random()
 rd.seed(2)
 
+
 def create_id():
     # This makes IDs reproducible for tests related to Modulo function
     return str(uuid.UUID(int=rd.getrandbits(128)))
+
 
 def generate_random_string(string_length: int = 5) -> str:
 

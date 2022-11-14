@@ -73,7 +73,7 @@ class Dataset:
         documents: Union[List[Document], DocumentList],
         insert_date: bool = True,
         ingest_in_background: bool = True,
-        update_schema: bool=True
+        update_schema: bool = True,
     ) -> Dict[str, Any]:
         if hasattr(documents, "to_json"):
             documents = documents.to_json()
@@ -128,7 +128,7 @@ class Dataset:
         after_id: Optional[List] = None,
         worker_number: int = 0,
         max_retries: int = 3,
-        retry_delay: int = 2
+        retry_delay: int = 2,
     ) -> Dict[str, Any]:
 
         documents = []

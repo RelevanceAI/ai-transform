@@ -27,9 +27,11 @@ test_creds = process_token(TEST_TOKEN)
 rd = random.Random()
 rd.seed(0)
 
+
 def create_id():
     # This makes IDs reproducible for tests related to Modulo function
     return str(uuid.UUID(int=rd.getrandbits(128)))
+
 
 @pytest.fixture(scope="session")
 def test_token() -> str:

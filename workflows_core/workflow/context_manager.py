@@ -54,13 +54,17 @@ class WorkflowContextManager(API):
         """
         The workflow is in progress
         """
-        self._set_status(status=self.IN_PROGRESS, worker_number=self._engine.worker_number)
+        self._set_status(
+            status=self.IN_PROGRESS, worker_number=self._engine.worker_number
+        )
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         if exc_type is not None:
             logger.exception("Exception")
-            self._set_status(status=self.FAILED, worker_number=self._engine.worker_number)
+            self._set_status(
+                status=self.FAILED, worker_number=self._engine.worker_number
+            )
             self._update_workflow_metadata(
                 job_id=self._job_id,
                 metadata=dict(
@@ -74,7 +78,9 @@ class WorkflowContextManager(API):
             return False
         else:
             # Workflow must have run successfully
-            self._set_status(status=self.COMPLETE, worker_number=self._engine.worker_number)
+            self._set_status(
+                status=self.COMPLETE, worker_number=self._engine.worker_number
+            )
             if self._update_field_children:
                 for input_field in self._operator._input_fields:
                     self._set_field_children(
@@ -87,7 +93,7 @@ class WorkflowContextManager(API):
                     )
             return True
 
-    def _set_status(self, status: str, worker_number: int=None):
+    def _set_status(self, status: str, worker_number: int = None):
         """
         Set the status of the workflow
         """
@@ -98,15 +104,18 @@ class WorkflowContextManager(API):
             workflow_name=self._workflow_name,
             additional_information=self._additional_information,
             send_email=self._send_email,
-            worker_number=worker_number
+            worker_number=worker_number,
         )
         from workflows_core import __version__
-        logger.debug({
-            "status": status, 
-            "job_id": self._job_id, 
-            "workflow_name": self._workflow_name,
-            "worker_number": worker_number,
-            "result": result,
-            "workflows_core_version": __version__
-        })
+
+        logger.debug(
+            {
+                "status": status,
+                "job_id": self._job_id,
+                "workflow_name": self._workflow_name,
+                "worker_number": worker_number,
+                "result": result,
+                "workflows_core_version": __version__,
+            }
+        )
         return result

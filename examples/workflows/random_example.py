@@ -26,12 +26,8 @@ class RandomOperator(AbstractOperator):
         self.numeric_field = numeric_field
 
         super().__init__(
-            input_fields=[
-                numeric_field
-            ],
-            output_fields=[
-                f"_random_.{numeric_field}"
-            ],
+            input_fields=[numeric_field],
+            output_fields=[f"_random_.{numeric_field}"],
         )
 
     def transform(self, documents: DocumentList) -> DocumentList:
@@ -42,6 +38,7 @@ class RandomOperator(AbstractOperator):
             # add one to the numeric field
             d[self.numeric_field] = d[self.numeric_field] + 1
         return documents
+
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config = decode_workflow_token(token)
@@ -55,9 +52,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = RandomOperator(
-        numeric_field=numeric_field
-    )
+    operator = RandomOperator(numeric_field=numeric_field)
 
     filters = dataset[numeric_field].exists()
 
@@ -71,11 +66,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         total_workers=total_workers,
     )
 
-    workflow = AbstractWorkflow(
-        engine=engine,
-        job_id=job_id,
-        name="AddOne"
-    )
+    workflow = AbstractWorkflow(engine=engine, job_id=job_id, name="AddOne")
     workflow.run()
 
 
