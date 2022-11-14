@@ -39,6 +39,7 @@ class BaseConfig(BaseModel):
     additional_information: Optional[str] = Field(
         default="", description="What to include in the e-mail."
     )
+    filters: Optional[list] = Field(default=[], description="Filters to apply.")
 
     @classmethod
     def to_schema(self):
@@ -94,4 +95,8 @@ class BaseTransformConfig(BaseConfig):
     )
     transform_chunksize: Optional[int] = Field(
         default=20, description="How many do you want to transform each time?"
+    )
+    refresh: Optional[bool] = Field(
+        default=False,
+        description="If True, re-runs the workflow on the entire dataset.",
     )
