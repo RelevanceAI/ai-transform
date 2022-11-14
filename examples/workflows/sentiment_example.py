@@ -87,9 +87,8 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["textFields"]
-    total_workers = config.get("total_workers", None)
-
-    alias = config.get("alias", None)
+    total_workers = config['total_workers']
+    alias = config['alias'] # defaults to None as specified in field
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
