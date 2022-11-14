@@ -74,4 +74,4 @@ An example configuration for workflows so that we can modify the the schema.
     def generate_token(self, *args, **kwargs):
         # Generates a token for you anytime
         config: dict = self.dict()
-        return base64.b64encode(json.dumps(config).encode()) 
+        return base64.b64encode(json.dumps(config).encode()).decode()
