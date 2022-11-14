@@ -388,21 +388,27 @@ class API:
         notebook_path: str = None,
         instance_type: str = None,
         host_type: str = None,
+        version: str = "production_version",
+        **kwargs
     ):
         """
         trigger a workflow
         """
+
+        data = dict(
+            params=params,
+            dataset_id=dataset_id,
+            workflow_id=workflow_id,
+            notebook_path=notebook_path,
+            instance_type=instance_type,
+            host_type=host_type,
+            version=version
+        )
+        data.update(kwargs)
         return requests.post(
             url=self._base_url + f"/workflows/trigger",
             headers=self._headers,
-            json=dict(
-                params=params,
-                dataset_id=dataset_id,
-                workflow_id=workflow_id,
-                notebook_path=notebook_path,
-                instance_type=instance_type,
-                host_type=host_type,
-            ),
+            json=data
         ).json()
 
     @retry()
