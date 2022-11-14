@@ -84,7 +84,8 @@ class SentimentConfig(BaseConfig):
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
     config: SentimentConfig = SentimentConfig.read_token(token)
-    job_id = config.get("job_id", str(uuid.uuid4()))
+    # You can access dot-notation with typehinting. Yay.
+    job_id = config.job_id
     token = config.authorizationToken
     dataset_id = config.dataset_id
     text_field = config.textFields
