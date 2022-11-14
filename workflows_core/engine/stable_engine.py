@@ -80,7 +80,7 @@ class StableEngine(AbstractEngine):
                     # schema updates
                     chunk_to_update.extend(new_batch)
 
-            # We want to make sure the schema updates 
+            # We want to make sure the schema updates
             # on the first chunk upserting
             if chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER:
                 ingest_in_background = False

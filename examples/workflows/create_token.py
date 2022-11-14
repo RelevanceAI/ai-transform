@@ -5,7 +5,7 @@ token = encode_parameters(
     parameters={
         "numeric_field": "rating",
         "dataset_id": "aaa-test",
-        "authorizationToken": os.environ["TEST_TOKEN"]
+        "authorizationToken": os.environ["TEST_TOKEN"],
     }
 )
 
