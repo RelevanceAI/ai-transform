@@ -13,5 +13,4 @@ jobs:
     steps:
       - uses: psf/black@stable
         with:
-          options: "--check --verbose"
           version: 22.3.0
