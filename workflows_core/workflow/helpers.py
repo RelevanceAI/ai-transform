@@ -59,7 +59,8 @@ def calculate_health_proportion(health: dict):
 
 
 def poll_until_health_updates(
-    dataset: Dataset, field: str, minimum_coverage: float = 0.95, sleep_timer: int = 10
+    dataset: Dataset, field: str, minimum_coverage: float = 0.95, sleep_timer: int = 10,
+    max_time: int = 600
 ):
     """
     Poll until the dataset has all required dataset.
@@ -67,11 +68,15 @@ def poll_until_health_updates(
     health = dataset.health()
     field_health = health[field]
     proportion = calculate_health_proportion(field_health)
-    if proportion <= minimum_coverage:
+    start_time = time.time()
+    while proportion <= minimum_coverage:
         time.sleep(sleep_timer)
         health = dataset.health()
         field_health = health[field]
         proportion = calculate_health_proportion(field_health)
+        current_time = time.time()
+        if (current_time - start_time) > max_time:
+            break
     return
 
 
@@ -81,6 +86,7 @@ def poll_until_health_updates_with_input_field(
     output_field: str,
     minimum_coverage: float = 0.95,
     sleep_timer: int = 10,
+    max_time: int = 600
 ):
     """
     Poll until the dataset has all required dataset.
@@ -100,4 +106,5 @@ def poll_until_health_updates_with_input_field(
         field=output_field,
         minimum_coverage=min_coverage,
         sleep_timer=sleep_timer,
+        max_time=max_time
     )
