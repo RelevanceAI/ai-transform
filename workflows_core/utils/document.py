@@ -1,5 +1,3 @@
-import pandas as pd
-
 from copy import deepcopy
 from typing import Any, Optional
 from collections import UserDict
@@ -54,9 +52,12 @@ class Document(UserDict):
 
     def keys(self):
         try:
+            import pandas as pd
             df = pd.json_normalize(self.data, sep=".")
             return list(df.columns)
-        except:
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
             return super().keys()
 
     def __contains__(self, key) -> bool:
