@@ -36,9 +36,9 @@ class Field:
         return filter_type
 
     def __eq__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
+            self,
+            other: Union[str, float, int, bool, None],
+            filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -52,9 +52,9 @@ class Field:
         ]
 
     def __lt__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
+            self,
+            other: Union[str, float, int, bool, None],
+            filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -68,9 +68,9 @@ class Field:
         ]
 
     def __le__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
+            self,
+            other: Union[str, float, int, bool, None],
+            filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -84,9 +84,9 @@ class Field:
         ]
 
     def __gt__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
+            self,
+            other: Union[str, float, int, bool, None],
+            filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -100,9 +100,9 @@ class Field:
         ]
 
     def __ge__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
+            self,
+            other: Union[str, float, int, bool, None],
+            filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -155,6 +155,26 @@ class Field:
             "`insert_centroids` not available for non vector_fields"
         )
 
+    def insert_keyphrases(self, keyphrases_insert: list):
+        raise NotImplementedError(
+            "`insert_keyphrases` not available for non keyphrase_fields"
+        )
+
+    def get_keyphrases(self):
+        raise NotImplementedError(
+            "`get_keyphrases` not available for non keyphrase_fields"
+        )
+
+    def update_keyphrases(self, keyphrases_update):
+        raise NotImplementedError(
+            "`update_keyphrases` not available for non keyphrase_fields"
+        )
+
+    def remove_keyphrases(self, keyphrases_remove):
+        raise NotImplementedError(
+            "`remove_keyphrases` not available for non keyphrase_fields"
+        )
+
 
 class VectorField(Field):
     def __init__(self, dataset, field: str):
@@ -174,3 +194,41 @@ class VectorField(Field):
             vector_fields=[self.field],
             alias=alias,
         )
+
+
+class KeyphraseField(Field):
+    def __init__(self, dataset, field: str):
+        super().__init__(dataset=dataset, field=field)
+
+    def insert_keyphrases(self, keyphrases_insert: list):
+        keyphrases = self.get_keyphrases()
+        new_keyphrases = keyphrases + keyphrases_insert
+        metadata = {'keyphrase_metadata': {self.field: new_keyphrases}}
+        return self._dataset.api._update_dataset_metadata(
+            dataset_id=self.dataset_id,
+            metadata=metadata,
+        )
+
+    def get_keyphrases(self):
+        metadata = self._dataset.api._get_metadata(self.dataset_id)['results']
+        return metadata['keyphrase_metadata'][self.field]
+
+    def update_keyphrases(self, keyphrases_update):
+        metadata = {'keyphrase_metadata': {self.field: keyphrases_update}}
+        return self._dataset.api._update_dataset_metadata(
+            dataset_id=self.dataset_id,
+            metadata=metadata,
+        )
+
+    def remove_keyphrases(self, keyphrases_remove):
+        keyphrases = self.get_keyphrases()
+        new_keyphrases = []
+        for keyphrase in keyphrases:
+            if keyphrase not in keyphrases_remove:
+                new_keyphrases.append(keyphrase)
+        metadata = {'keyphrase_metadata': {self.field: new_keyphrases}}
+        return self._dataset.api._update_dataset_metadata(
+            dataset_id=self.dataset_id,
+            metadata=metadata,
+        )
+
