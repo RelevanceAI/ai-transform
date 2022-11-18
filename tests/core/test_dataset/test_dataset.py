@@ -132,7 +132,7 @@ class TestDatasetMedia:
         assert len(urls) == 3
 
 
-class test_keyphrase_crud:
+class TestKeyphraseCrud:
     def test_crud(self, dataset: Dataset):
         documents = mock_documents(10)
         dataset.insert_documents(documents)
