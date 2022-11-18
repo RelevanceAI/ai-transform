@@ -132,12 +132,13 @@ class TestDatasetMedia:
         assert len(urls) == 3
 
 
+@pytest.mark.usefixtures("full_dataset")
 class TestKeyphraseCrud:
-    def test_crud(self, dataset: Dataset):
-        documents = mock_documents(10)
-        dataset.insert_documents(documents)
+    def test_crud(self, full_dataset: Dataset):
+        # documents = mock_documents(10)
+        # dataset.insert_documents(documents)
 
-        keyphrase_field = KeyphraseField(dataset=dataset, field="sample_1_label")
+        keyphrase_field = KeyphraseField(dataset=full_dataset, field="sample_1_label")
 
         keyphrase_field.update_keyphrases(keyphrases_update={"cat": {"count": 5, "sentiment_score": 0.8, "goodness_score": 1.2},
                                                              "pig": {"count": 4, "sentiment_score": 0.7, "goodness_score": 1.1}
