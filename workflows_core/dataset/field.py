@@ -201,7 +201,7 @@ class KeyphraseField(Field):
         super().__init__(dataset=dataset, field=field)
 
     def insert_keyphrases(self, keyphrases_insert: dict, alias: str):
-        keyphrases = self.get_keyphrases()
+        keyphrases = self.get_keyphrases(alias=alias)
         for keyphrase in keyphrases_insert:
             if keyphrase in keyphrases:
                 keyphrases[keyphrase]['count'] += keyphrases_insert[keyphrase]['count']
@@ -228,7 +228,7 @@ class KeyphraseField(Field):
         )
 
     def remove_keyphrases(self, keyphrases_remove: dict, alias: str):
-        keyphrases = self.get_keyphrases()
+        keyphrases = self.get_keyphrases(alias=alias)
         for keyphrase in keyphrases_remove:
             keyphrases.pop(keyphrase, None)
         _keyphrase_metadata = {'keyphrase_metadata': {self.field: {alias: keyphrases}}}
