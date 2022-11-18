@@ -221,7 +221,7 @@ class KeyphraseField(Field):
         return _keyphrase_metadata['keyphrase_metadata'][self.field][alias]
 
     def update_keyphrases(self, keyphrases_update: dict, alias: str):
-        _keyphrase_metadata = {'keyphrase_metadata': {self.field: {alias: {keyphrases_update}}}}
+        _keyphrase_metadata = {'keyphrase_metadata': {self.field: {alias: keyphrases_update}}}
         return self._dataset.api._update_dataset_metadata(
             dataset_id=self.dataset_id,
             metadata=_keyphrase_metadata,
