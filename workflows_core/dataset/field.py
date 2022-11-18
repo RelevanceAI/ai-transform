@@ -36,9 +36,9 @@ class Field:
         return filter_type
 
     def __eq__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -52,9 +52,9 @@ class Field:
         ]
 
     def __lt__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -68,9 +68,9 @@ class Field:
         ]
 
     def __le__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -84,9 +84,9 @@ class Field:
         ]
 
     def __gt__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -100,9 +100,9 @@ class Field:
         ]
 
     def __ge__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -155,22 +155,22 @@ class Field:
             "`insert_centroids` not available for non vector_fields"
         )
 
-    def insert_keyphrases(self, keyphrases_insert: list):
+    def insert_keyphrases(self, keyphrases_insert: list, alias: str):
         raise NotImplementedError(
             "`insert_keyphrases` not available for non keyphrase_fields"
         )
 
-    def get_keyphrases(self):
+    def get_keyphrases(self, alias: str):
         raise NotImplementedError(
             "`get_keyphrases` not available for non keyphrase_fields"
         )
 
-    def update_keyphrases(self, keyphrases_update):
+    def update_keyphrases(self, keyphrases_update, alias: str):
         raise NotImplementedError(
             "`update_keyphrases` not available for non keyphrase_fields"
         )
 
-    def remove_keyphrases(self, keyphrases_remove):
+    def remove_keyphrases(self, keyphrases_remove, alias: str):
         raise NotImplementedError(
             "`remove_keyphrases` not available for non keyphrase_fields"
         )
@@ -200,35 +200,40 @@ class KeyphraseField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
 
-    def insert_keyphrases(self, keyphrases_insert: list):
+    def insert_keyphrases(self, keyphrases_insert: dict, alias: str):
         keyphrases = self.get_keyphrases()
-        new_keyphrases = keyphrases + keyphrases_insert
-        metadata = {'keyphrase_metadata': {self.field: new_keyphrases}}
+        for keyphrase in keyphrases_insert:
+            if keyphrase in keyphrases:
+                keyphrases[keyphrase]['count'] += keyphrases_insert[keyphrase]['count']
+                keyphrases[keyphrase]['sentiment_score'] = keyphrases_insert[keyphrase]['sentiment_score']
+                keyphrases[keyphrase]['goodness_score'] = keyphrases_insert[keyphrase]['goodness_score']
+            else:
+                keyphrases[keyphrase] = keyphrases_insert[keyphrase]
+
+        _keyphrase_metadata = {'keyphrase_metadata': {self.field: {alias: keyphrases}}}
         return self._dataset.api._update_dataset_metadata(
             dataset_id=self.dataset_id,
-            metadata=metadata,
+            metadata=_keyphrase_metadata,
         )
 
-    def get_keyphrases(self):
-        metadata = self._dataset.api._get_metadata(self.dataset_id)['results']
-        return metadata['keyphrase_metadata'][self.field]
+    def get_keyphrases(self, alias: str):
+        _keyphrase_metadata = self._dataset.api._get_metadata(self.dataset_id)['results']
+        return _keyphrase_metadata['keyphrase_metadata'][self.field][alias]
 
-    def update_keyphrases(self, keyphrases_update):
-        metadata = {'keyphrase_metadata': {self.field: keyphrases_update}}
+    def update_keyphrases(self, keyphrases_update: dict, alias: str):
+        _keyphrase_metadata = {'keyphrase_metadata': {self.field: {alias: {keyphrases_update}}}}
         return self._dataset.api._update_dataset_metadata(
             dataset_id=self.dataset_id,
-            metadata=metadata,
+            metadata=_keyphrase_metadata,
         )
 
-    def remove_keyphrases(self, keyphrases_remove):
+    def remove_keyphrases(self, keyphrases_remove: dict, alias: str):
         keyphrases = self.get_keyphrases()
-        new_keyphrases = []
-        for keyphrase in keyphrases:
-            if keyphrase not in keyphrases_remove:
-                new_keyphrases.append(keyphrase)
-        metadata = {'keyphrase_metadata': {self.field: new_keyphrases}}
+        for keyphrase in keyphrases_remove:
+            keyphrases.pop(keyphrase, None)
+        _keyphrase_metadata = {'keyphrase_metadata': {self.field: {alias: keyphrases}}}
         return self._dataset.api._update_dataset_metadata(
             dataset_id=self.dataset_id,
-            metadata=metadata,
+            metadata=_keyphrase_metadata,
         )
 
