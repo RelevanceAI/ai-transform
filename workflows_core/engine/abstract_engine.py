@@ -12,7 +12,7 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.document_list import DocumentList
 from workflows_core.errors import MaxRetriesError
-
+from workflows_core.utils import set_seed
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
@@ -35,7 +35,9 @@ class AbstractEngine(ABC):
         worker_number: int = None,
         total_workers: int = None,
         check_for_missing_fields: bool = True,
+        seed: int = 42
     ):
+        set_seed(seed)
         if select_fields is not None:
             # We set this to a warning so that workflows that are adding
             # onto an existing field don't need this. For example - adding tags
