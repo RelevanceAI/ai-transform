@@ -500,7 +500,7 @@ class API:
         self,
         dataset_id: str,
         field: str,
-        keyphrase: List,
+        keyphrase: str,
         updates: List
     ):
         """
