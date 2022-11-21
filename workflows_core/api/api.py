@@ -496,7 +496,6 @@ class API:
     @retry()
     def _bulk_update_keyphrase(
         self, dataset_id: str, field: str, alias: str, updates: List,
-        keyphrase_id: str
     ):
         """
         Update keyphrases
