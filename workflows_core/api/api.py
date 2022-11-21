@@ -503,7 +503,7 @@ class API:
         """
         response = requests.post(
             url=self._base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/bulk_update",
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_update",
             headers=self._headers,
             json=dict(updates=updates),
         )
