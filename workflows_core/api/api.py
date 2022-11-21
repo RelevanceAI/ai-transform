@@ -495,14 +495,15 @@ class API:
 
     @retry()
     def _bulk_update_keyphrase(
-        self, dataset_id: str, field: str, alias: str, updates: List
+        self, dataset_id: str, field: str, alias: str, updates: List,
+        keyphrase_id: str
     ):
         """
         Update keyphrases
         """
         response = requests.post(
             url=self._base_url
-            + f"datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_update",
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/bulk_update",
             headers=self._headers,
             json=dict(updates=updates),
         )
