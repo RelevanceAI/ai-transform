@@ -13,13 +13,13 @@ class TestClient:
     def test_upsert_keyphrases(
         self,
         test_client: Client, 
-        test_keyprhase_dataset: Dataset,
+        test_keyphrase_dataset: Dataset,
         test_keyphrases: DocumentList
     ):
         # Test that upserting keyphrases is good
         field = "sample_1_label"
         alias = "default"
-        test_dataset_id = test_keyprhase_dataset.dataset_id
+        test_dataset_id = test_keyphrase_dataset.dataset_id
         result = test_client._api._bulk_update_keyphrase(
             dataset_id=test_dataset_id,
             field=field,
