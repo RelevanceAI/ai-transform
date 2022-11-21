@@ -40,4 +40,4 @@ class TestClient:
             alias=alias,
             keyphrase_id=keyphrase_id
         )
-        assert len(result['results']) > 0, result
+        assert result['keyphrase'] == 'word' and result['score'] == 10, result
