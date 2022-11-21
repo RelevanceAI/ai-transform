@@ -171,3 +171,29 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
+
+@pytest.fixture(scope='class')
+def test_keyphrases() -> DocumentList:
+    return DocumentList(
+        [
+            {
+                "_id": "doc_1",
+                "keyphrase": "word",
+                "score": 10,
+                "parent_document": "test_parent",
+            },
+            {
+                "_id": "doc_2",
+                "keyphrase": "word",
+                "score": 10
+            }
+        ]
+    )
+
+@pytest.fixture(scope='class')
+def test_keyphrase_dataset(test_client: Client, test_dataset_id: str) -> Dataset:
+    docs = mock_documents(100)
+    dataset = test_client.Dataset(test_dataset_id)
+    dataset.insert_documents(docs, ingest_in_background=False)
+    yield dataset
+    dataset.delete()
