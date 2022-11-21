@@ -517,7 +517,7 @@ class API:
         """
         response = requests.get(
             url=self._base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/{keyphrase_id}/get",
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
             headers=self._headers,
         )
         return get_response(response)
