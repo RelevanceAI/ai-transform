@@ -500,14 +500,14 @@ class API:
         self,
         dataset_id: str,
         field: str,
-        keyphrase: str,
+        alias: str,
         updates: List
     ):
         """
         Update keyphrases
         """
         response = requests.post(
-            url=self._base_url + f"datasets/{dataset_id}/fields/{field}/{keyphrase}/bulk_update",
+            url=self._base_url + f"datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_update",
             headers=self._headers,
             json=dict(
                 updates=updates
@@ -520,14 +520,14 @@ class API:
         self,
         dataset_id: str,
         field: str,
-        keyphrase: str,
+        alias: str,
         keyphrase_id: str
     ):
         """
         Get keyphrase
         """
         response = requests.get(
-            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}/{keyphrase}/{keyphrase_id}/get",
+            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}.{alias}/{keyphrase_id}/get",
             headers=self._headers,
         )
         return get_response(response)
@@ -537,14 +537,14 @@ class API:
         self,
         dataset_id: str,
         field: str,
-        keyphrase: str,
-        keyphrase_id: str
+        keyphrase_id: str,
+        alias: str
     ):
         """
         Deleting Keyphrases
         """
         response = requests.post(
-            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}/{keyphrase}/{keyphrase_id}/delete",
+            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/delete",
             headers=self._headers,
         )
         return get_response(response)
@@ -555,13 +555,14 @@ class API:
         dataset_id: str,
         field: str,
         keyphrase: str,
-        keyphrase_id: str
+        keyphrase_id: str,
+        alias: str
     ):
         """
         Update keyphrases
         """
         response = requests.post(
-            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}/{keyphrase}/{keyphrase_id}/update",
+            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}.{alias}/{keyphrase}/{keyphrase_id}/update",
             headers=self._headers,
         )
         return get_response(response)
@@ -571,7 +572,8 @@ class API:
         self,
         dataset_id: str,
         field: str,
-        keyphrase: str,
+        keyphrase_id: str,
+        alias: str,
         page: int = 0,
         page_size: int=100
     ):
@@ -579,7 +581,11 @@ class API:
         List keyphrases
         """
         response = requests.post(
-            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}/{keyphrase}/{keyphrase_id}/update",
+            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
             headers=self._headers,
+            json={
+                "page": page,
+                "page_size": page_size
+            }
         )
         return get_response(response)
