@@ -545,5 +545,41 @@ class API:
         """
         response = requests.post(
             url=self._base_url + f"/datasets/{dataset_id}/fields/{field}/{keyphrase}/{keyphrase_id}/delete",
+            headers=self._headers,
+        )
+        return get_response(response)
+    
+    @retry()
+    def _update_keyphrase(
+        self,
+        dataset_id: str,
+        field: str,
+        keyphrase: str,
+        keyphrase_id: str
+    ):
+        """
+        Update keyphrases
+        """
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}/{keyphrase}/{keyphrase_id}/update",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    @retry()
+    def _list_keyphrase(
+        self,
+        dataset_id: str,
+        field: str,
+        keyphrase: str,
+        page: int = 0,
+        page_size: int=100
+    ):
+        """
+        List keyphrases
+        """
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}/{keyphrase}/{keyphrase_id}/update",
+            headers=self._headers,
         )
         return get_response(response)
