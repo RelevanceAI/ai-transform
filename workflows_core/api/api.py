@@ -531,3 +531,19 @@ class API:
             headers=self._headers,
         )
         return get_response(response)
+
+    @retry()
+    def _delete_keyphrase(
+        self,
+        dataset_id: str,
+        field: str,
+        keyphrase: str,
+        keyphrase_id: str
+    ):
+        """
+        Deleting Keyphrases
+        """
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/fields/{field}/{keyphrase}/{keyphrase_id}/delete",
+        )
+        return get_response(response)
