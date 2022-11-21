@@ -538,14 +538,14 @@ class API:
 
     @retry()
     def _update_keyphrase(
-        self, dataset_id: str, field: str, keyphrase: str, keyphrase_id: str, alias: str
+        self, dataset_id: str, field: str, keyphrase_id: str, alias: str
     ):
         """
         Update keyphrases
         """
         response = requests.post(
             url=self._base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/{keyphrase}/{keyphrase_id}/update",
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
             headers=self._headers,
         )
         return get_response(response)
