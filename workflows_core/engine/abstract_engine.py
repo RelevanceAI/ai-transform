@@ -35,7 +35,7 @@ class AbstractEngine(ABC):
         worker_number: int = None,
         total_workers: int = None,
         check_for_missing_fields: bool = True,
-        seed: int = 42
+        seed: int = 42,
     ):
         set_seed(seed)
         if select_fields is not None:
