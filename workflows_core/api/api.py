@@ -565,7 +565,7 @@ class API:
         """
         response = requests.post(
             url=self._base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
             headers=self._headers,
             json={"page": page, "page_size": page_size},
         )
