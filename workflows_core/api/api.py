@@ -389,7 +389,7 @@ class API:
         instance_type: str = None,
         host_type: str = None,
         version: str = "production_version",
-        **kwargs
+        **kwargs,
     ):
         """
         trigger a workflow
@@ -402,13 +402,11 @@ class API:
             notebook_path=notebook_path,
             instance_type=instance_type,
             host_type=host_type,
-            version=version
+            version=version,
         )
         data.update(kwargs)
         return requests.post(
-            url=self._base_url + f"/workflows/trigger",
-            headers=self._headers,
-            json=data
+            url=self._base_url + f"/workflows/trigger", headers=self._headers, json=data
         ).json()
 
     @retry()
@@ -492,5 +490,83 @@ class API:
                 tags_to_merge=tags_to_merge,
                 filters=filters,
             ),
+        )
+        return get_response(response)
+
+    @retry()
+    def _bulk_update_keyphrase(
+        self, dataset_id: str, field: str, alias: str, updates: List,
+    ):
+        """
+        Update keyphrases
+        """
+        response = requests.post(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_update",
+            headers=self._headers,
+            json=dict(updates=updates),
+        )
+        return get_response(response)
+
+    @retry()
+    def _get_keyphrase(
+        self, dataset_id: str, field: str, alias: str, keyphrase_id: str
+    ):
+        """
+        Get keyphrase
+        """
+        response = requests.get(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    @retry()
+    def _delete_keyphrase(
+        self, dataset_id: str, field: str, keyphrase_id: str, alias: str
+    ):
+        """
+        Deleting Keyphrases
+        """
+        response = requests.post(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/delete",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    @retry()
+    def _update_keyphrase(
+        self, dataset_id: str, field: str, keyphrase_id: str, alias: str
+    ):
+        """
+        Update keyphrases
+        """
+        response = requests.post(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    @retry()
+    def _list_keyphrase(
+        self,
+        dataset_id: str,
+        field: str,
+        keyphrase_id: str,
+        alias: str,
+        page: int = 0,
+        page_size: int = 100,
+    ):
+        """
+        List keyphrases
+        """
+        response = requests.post(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
+            headers=self._headers,
+            json={"page": page, "page_size": page_size},
         )
         return get_response(response)
