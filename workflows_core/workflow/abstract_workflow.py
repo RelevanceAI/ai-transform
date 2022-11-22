@@ -41,6 +41,8 @@ class Workflow:
         )
 
         engine.job_id = job_id
+        if name is None:
+            name = "Workflow"
         engine.name = name
 
         self._api = engine.dataset.api
