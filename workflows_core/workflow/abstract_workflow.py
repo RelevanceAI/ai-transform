@@ -19,13 +19,13 @@ class Workflow:
         self,
         engine: AbstractEngine,
         job_id: Optional[str] = None,
-        name: Optional[str] = None,
+        name: Optional[str] = 'Workflow',
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
         success_threshold: float = 0.5,
     ):
-        self._name = "Workflow" if name is None else name
+        self._name = name
         self._engine = engine
 
         if job_id is None:
@@ -41,8 +41,6 @@ class Workflow:
         )
 
         engine.job_id = job_id
-        if name is None:
-            name = "Workflow"
         engine.name = name
 
         self._api = engine.dataset.api
