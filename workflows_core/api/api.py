@@ -540,6 +540,7 @@ class API:
     def _update_keyphrase(
         self, dataset_id: str, field: str, keyphrase_id: str, alias: str
     ):
+        # missing update contents here?
         """
         Update keyphrases
         """
@@ -555,7 +556,6 @@ class API:
         self,
         dataset_id: str,
         field: str,
-        keyphrase_id: str,
         alias: str,
         page: int = 0,
         page_size: int = 100,
