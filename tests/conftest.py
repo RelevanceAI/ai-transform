@@ -5,6 +5,7 @@ import base64
 import random
 import pytest
 import string
+from typing import List, Dict
 
 from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
@@ -171,3 +172,27 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
+
+@pytest.fixture
+def test_keyphrases() -> List[Dict]:
+    return [
+            {
+                "_id": "doc_1",
+                "keyphrase": "word",
+                "score": 10,
+                "parent_document": "test_parent",
+            },
+            {
+                "_id": "doc_2",
+                "keyphrase": "word",
+                "score": 10
+            }
+        ]
+
+@pytest.fixture
+def test_keyphrase_dataset(test_client: Client, test_dataset_id: str) -> Dataset:
+    docs = mock_documents(100)
+    dataset = test_client.Dataset(test_dataset_id)
+    dataset.insert_documents(docs, ingest_in_background=False)
+    yield dataset
+    dataset.delete()
