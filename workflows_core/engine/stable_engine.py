@@ -72,6 +72,8 @@ class StableEngine(AbstractEngine):
                     # skip the logic if it's already there
                     if len(chunk) > 0:
                         new_batch = self.operator(chunk)
+                    else:
+                        new_batch = []
                     successful_chunks += 1
 
                 except Exception as e:
