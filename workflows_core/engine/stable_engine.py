@@ -40,6 +40,12 @@ class StableEngine(AbstractEngine):
             end = (i + 1) * self._transform_chunksize
             yield documents[start:end]
 
+    def _filter_for_non_empty_list(self, docs: DocumentList):
+        # if there are more keys than just _id in each document
+        # then return that as a list of Documents
+        # length of a dictionary is just 1 if there is only 1 key
+        return DocumentList([d for d in docs if len(d) > 1])
+
     def apply(self) -> None:
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
@@ -58,12 +64,15 @@ class StableEngine(AbstractEngine):
             )
         ):
             chunk_to_update = []
-
             for chunk in self.chunk_documents(large_chunk):
+                # place here and not in large_chunk to ensure consistency
+                # across progress and success etc.
+                chunk = self._filter_for_non_empty_list(chunk)
+                if len(chunk) == 0:
+                    new_batch = []
                 try:
+                    # note: do not put an IF inside ths try-except-else loop - the if code will not work
                     new_batch = self.operator(chunk)
-                    successful_chunks += 1
-
                 except Exception as e:
                     chunk_error_log = {
                         "exception": str(e),
@@ -78,6 +87,7 @@ class StableEngine(AbstractEngine):
                     # we only update schema on the first chunk
                     # otherwise it breaks down how the backend handles
                     # schema updates
+                    successful_chunks += 1
                     chunk_to_update.extend(new_batch)
 
             # We want to make sure the schema updates
@@ -100,3 +110,4 @@ class StableEngine(AbstractEngine):
         self._error_logs = error_logs
         if self.num_chunks > 0:
             self._success_ratio = successful_chunks / self.num_chunks
+            logger.debug({"success_ratio": self._success_ratio})
