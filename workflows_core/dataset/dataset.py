@@ -216,3 +216,18 @@ class Dataset:
             )
             assert response.status_code == 200
         return urls
+
+    def facets(
+        self,
+        fields: List[str],
+        data_interval: str = "monthly",
+        page_size: int = 1000,
+        asc: bool = False,
+    ):
+        return self._api._facets(
+            dataset_id=self.dataset_id,
+            fields=fields,
+            data_interval=data_interval,
+            page_size=page_size,
+            asc=asc,
+        )
