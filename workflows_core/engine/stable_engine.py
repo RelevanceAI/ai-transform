@@ -67,14 +67,19 @@ class StableEngine(AbstractEngine):
             for chunk in self.chunk_documents(large_chunk):
                 # place here and not in large_chunk to ensure consistency 
                 # across progress and success etc.
-                chunk = self._filter_for_non_empty_list(chunk)
+                # chunk = self._filter_for_non_empty_list(chunk)
                 try:
                     # skip the logic if it's already there
                     if len(chunk) > 0:
+                        logger.debug("calling operator...")
                         new_batch = self.operator(chunk)
                     else:
+                        logger.debug("new batch...")
                         new_batch = []
-                    successful_chunks += 1
+
+                    # DO NOT WRITE ANYTHING IN THIS LINE - for some reason 
+                    # it gets called even when the operator fails
+                    # very odd
 
                 except Exception as e:
                     chunk_error_log = {
@@ -90,6 +95,7 @@ class StableEngine(AbstractEngine):
                     # we only update schema on the first chunk
                     # otherwise it breaks down how the backend handles
                     # schema updates
+                    successful_chunks += 1
                     chunk_to_update.extend(new_batch)
 
             # We want to make sure the schema updates
@@ -112,3 +118,4 @@ class StableEngine(AbstractEngine):
         self._error_logs = error_logs
         if self.num_chunks > 0:
             self._success_ratio = successful_chunks / self.num_chunks
+            logger.debug({"success_ratio": self._success_ratio})
