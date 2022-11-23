@@ -71,7 +71,10 @@ class BaseConfig(BaseModel):
         configs
         """
         if hasattr(self, value):
-            return getattr(self, value)
+            return_value = getattr(self, value)
+            if return_value is None:
+                return default
+            return return_value
         else:
             return default
 
