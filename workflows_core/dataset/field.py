@@ -221,6 +221,6 @@ class KeyphraseField(Field):
         return self._dataset.api._bulk_update_keyphrase(dataset_id=self.dataset_id, field=self.field,
                                                         alias=alias, updates=updates)
 
-    def list_keyphrases(self, alias: str):
+    def list_keyphrases(self, alias: str, page_size: int, page: int):
         return self._dataset.api._list_keyphrase(dataset_id=self.dataset_id, field=self.field,
-                                                 alias=alias, page_size=100, page=0)
+                                                 alias=alias, page_size=page_size, page=page)
