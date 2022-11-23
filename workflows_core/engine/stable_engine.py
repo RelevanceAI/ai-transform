@@ -39,6 +39,12 @@ class StableEngine(AbstractEngine):
             start = i * self._transform_chunksize
             end = (i + 1) * self._transform_chunksize
             yield documents[start:end]
+    
+    def _filter_for_non_empty_list(self, docs: DocumentList):
+        # if there are more keys than just _id in each document 
+        # then return that as a list of Documents
+        # length of a dictionary is just 1 if there is only 1 key
+        return DocumentList([d for d in docs if len(d) > 1])
 
     def apply(self) -> None:
         """
@@ -58,8 +64,10 @@ class StableEngine(AbstractEngine):
             )
         ):
             chunk_to_update = []
-
             for chunk in self.chunk_documents(large_chunk):
+                # place here and not in large_chunk to ensure consistency 
+                # across progress and success etc.
+                chunk = self._filter_for_non_empty_list(chunk)
                 try:
                     new_batch = self.operator(chunk)
                     successful_chunks += 1
