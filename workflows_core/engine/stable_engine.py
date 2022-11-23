@@ -69,7 +69,9 @@ class StableEngine(AbstractEngine):
                 # across progress and success etc.
                 chunk = self._filter_for_non_empty_list(chunk)
                 try:
-                    new_batch = self.operator(chunk)
+                    # skip the logic if it's already there
+                    if len(chunk) > 0:
+                        new_batch = self.operator(chunk)
                     successful_chunks += 1
 
                 except Exception as e:
