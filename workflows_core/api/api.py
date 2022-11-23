@@ -495,7 +495,11 @@ class API:
 
     @retry()
     def _bulk_update_keyphrase(
-        self, dataset_id: str, field: str, alias: str, updates: List,
+        self,
+        dataset_id: str,
+        field: str,
+        alias: str,
+        updates: List,
     ):
         """
         Update keyphrases
@@ -568,5 +572,26 @@ class API:
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
             headers=self._headers,
             json={"page": page, "page_size": page_size},
+        )
+        return get_response(response)
+
+    @retry
+    def _facets(
+        self,
+        dataset_id: str,
+        fields: List[str],
+        data_interval: str = "monthly",
+        page_size: int = 1000,
+        asc: bool = False,
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/facets",
+            headers=self._headers,
+            json=dict(
+                fields=fields,
+                data_interval=data_interval,
+                page_size=page_size,
+                asc=asc,
+            ),
         )
         return get_response(response)
