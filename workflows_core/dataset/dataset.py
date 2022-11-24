@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Union
 from workflows_core.api.api import API
 from workflows_core.types import Filter, Schema
 from workflows_core.errors import MaxRetriesError
-from workflows_core.dataset.field import Field, VectorField
+from workflows_core.dataset.field import Field, KeyphraseField, VectorField
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 
@@ -26,6 +26,8 @@ class Dataset:
         if isinstance(index, str):
             if "_vector_" in index:
                 return VectorField(dataset=self, field=index)
+            if "_keyphrase_" in index:
+                return KeyphraseField(dataset=self, field=index)
             else:
                 return Field(dataset=self, field=index)
         else:

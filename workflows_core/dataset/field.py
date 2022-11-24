@@ -36,9 +36,9 @@ class Field:
         return filter_type
 
     def __eq__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -52,9 +52,9 @@ class Field:
         ]
 
     def __lt__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -68,9 +68,9 @@ class Field:
         ]
 
     def __le__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -84,9 +84,9 @@ class Field:
         ]
 
     def __gt__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -100,9 +100,9 @@ class Field:
         ]
 
     def __ge__(
-            self,
-            other: Union[str, float, int, bool, None],
-            filter_type: Optional[str] = None,
+        self,
+        other: Union[str, float, int, bool, None],
+        filter_type: Optional[str] = None,
     ) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
@@ -206,21 +206,40 @@ class KeyphraseField(Field):
         super().__init__(dataset=dataset, field=field)
 
     def get_keyphrase(self, alias: str, keyphrase_id: str):
-        return self._dataset.api._get_keyphrase(dataset_id=self.dataset_id, field=self.field,
-                                                alias=alias, keyphrase_id=keyphrase_id)
+        return self._dataset.api._get_keyphrase(
+            dataset_id=self.dataset_id,
+            field=self.field,
+            alias=alias,
+            keyphrase_id=keyphrase_id,
+        )
 
     def update_keyphrase(self, alias: str, keyphrase_id: str, update: dict):
-        return self._dataset.api._update_keyphrase(dataset_id=self.dataset_id, field=self.field,
-                                                   alias=alias, keyphrase_id=keyphrase_id, update=update)
+        return self._dataset.api._update_keyphrase(
+            dataset_id=self.dataset_id,
+            field=self.field,
+            alias=alias,
+            keyphrase_id=keyphrase_id,
+            update=update,
+        )
 
     def delete_keyphrase(self, alias: str, keyphrase_id: str):
-        return self._dataset.api._delete_keyphrase(dataset_id=self.dataset_id, field=self.field,
-                                                   alias=alias, keyphrase_id=keyphrase_id)
+        return self._dataset.api._delete_keyphrase(
+            dataset_id=self.dataset_id,
+            field=self.field,
+            alias=alias,
+            keyphrase_id=keyphrase_id,
+        )
 
     def bulk_update_keyphrases(self, alias: str, updates: List):
-        return self._dataset.api._bulk_update_keyphrase(dataset_id=self.dataset_id, field=self.field,
-                                                        alias=alias, updates=updates)
+        return self._dataset.api._bulk_update_keyphrase(
+            dataset_id=self.dataset_id, field=self.field, alias=alias, updates=updates
+        )
 
     def list_keyphrases(self, alias: str, page_size: int, page: int):
-        return self._dataset.api._list_keyphrase(dataset_id=self.dataset_id, field=self.field,
-                                                 alias=alias, page_size=page_size, page=page)
+        return self._dataset.api._list_keyphrase(
+            dataset_id=self.dataset_id,
+            field=self.field,
+            alias=alias,
+            page_size=page_size,
+            page=page,
+        )
