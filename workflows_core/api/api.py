@@ -414,7 +414,7 @@ class API:
         self,
         workflow_id: str,
         worker_number: int = 0,
-        step: int = 0,
+        step: str = "Workflow",
         n_processed: int = 0,
         n_total: int = 0,
     ):
