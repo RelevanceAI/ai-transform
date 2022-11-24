@@ -231,3 +231,42 @@ class Dataset:
             page_size=page_size,
             asc=asc,
         )
+
+    def get_keyphrase(self, field: str, alias: str, keyphrase_id: str):
+        return self._api._get_keyphrase(
+            dataset_id=self.dataset_id,
+            field=field,
+            alias=alias,
+            keyphrase_id=keyphrase_id,
+        )
+
+    def update_keyphrase(self, field: str, alias: str, keyphrase_id: str, update: dict):
+        return self._api._update_keyphrase(
+            dataset_id=self.dataset_id,
+            field=field,
+            alias=alias,
+            keyphrase_id=keyphrase_id,
+            update=update,
+        )
+
+    def delete_keyphrase(self, alias: str, keyphrase_id: str):
+        return self.api._delete_keyphrase(
+            dataset_id=self.dataset_id,
+            field=field,
+            alias=alias,
+            keyphrase_id=keyphrase_id,
+        )
+
+    def bulk_update_keyphrases(self, field: str, alias: str, updates: List):
+        return self.api._bulk_update_keyphrase(
+            dataset_id=self.dataset_id, field=field, alias=alias, updates=updates
+        )
+
+    def list_keyphrases(self, field: str, alias: str, page_size: int, page: int):
+        return self.api._list_keyphrase(
+            dataset_id=self.dataset_id,
+            field=field,
+            alias=alias,
+            page_size=page_size,
+            page=page,
+        )
