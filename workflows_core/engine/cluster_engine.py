@@ -22,6 +22,7 @@ class InMemoryEngine(AbstractEngine):
 
     def apply(self) -> Any:
 
+        self.update_progress(0)
         iterator = self.iterate()
         error_logs = []
 
