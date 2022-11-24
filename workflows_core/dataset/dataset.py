@@ -257,7 +257,7 @@ class Dataset:
             keyphrase_id=keyphrase_id,
         )
 
-    def bulk_update_keyphrases(self, field: str, alias: str, updates: List):
+    def bulk_update_keyphrases(self, field: str, alias: str, updates: List[Dict]):
         return self.api._bulk_update_keyphrase(
             dataset_id=self.dataset_id, field=field, alias=alias, updates=updates
         )
