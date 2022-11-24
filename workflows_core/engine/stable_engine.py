@@ -50,7 +50,6 @@ class StableEngine(AbstractEngine):
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
-
         iterator = self.iterate()
         successful_chunks = 0
         error_logs = []
@@ -63,6 +62,7 @@ class StableEngine(AbstractEngine):
                 total=self.num_chunks,
             )
         ):
+            self.update_progress(0)
             chunk_to_update = []
             for chunk in self.chunk_documents(large_chunk):
                 # place here and not in large_chunk to ensure consistency
