@@ -26,7 +26,7 @@ class Dataset:
         if isinstance(index, str):
             if "_vector_" in index:
                 return VectorField(dataset=self, field=index)
-            if "_keyphrase_" in index:
+            elif "_keyphrase_" in index:
                 return KeyphraseField(dataset=self, field=index)
             else:
                 return Field(dataset=self, field=index)
