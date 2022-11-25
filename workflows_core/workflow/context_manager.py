@@ -57,6 +57,15 @@ class WorkflowContextManager(API):
         self._set_status(
             status=self.IN_PROGRESS, worker_number=self._engine.worker_number
         )
+        
+        self._dataset.api._update_workflow_progress(
+            workflow_id=self._job_id,
+            worker_number=self._engine.worker_number,
+            step=self._workflow_name,
+            n_processed=0,
+            n_total=self._engine._size,
+        )
+
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
