@@ -595,3 +595,27 @@ class API:
             ),
         )
         return get_response(response)
+
+    @retry
+    def _upsert_dataset_settings(
+        self,
+        dataset_id: str,
+        settings: Optional[Dict[str, Any]] = None,
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/settings",
+            headers=self._headers,
+            json=dict(settings={} if settings is None else settings),
+        )
+        return get_response(response)
+
+    @retry
+    def _get_dataset_settings(
+        self,
+        dataset_id: str,
+    ):
+        response = requests.get(
+            url=self._base_url + f"/datasets/{dataset_id}/settings",
+            headers=self._headers,
+        )
+        return get_response(response)
