@@ -190,8 +190,9 @@ class Dataset:
         )
 
     def update_metadata(self, metadata: Dict[str, Any]):
-        old_metadata = self.get_metadata()["results"]
-        metadata.update(old_metadata)
+        old_metadata: dict = self.get_metadata()["results"]
+        # You want the new avlues to overwrite the old ones
+        old_metadata.update(metadata)
         return self._api._update_dataset_metadata(
             dataset_id=self._dataset_id,
             metadata=metadata,
