@@ -633,6 +633,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _share_dashboard(self, deployable_id: str):
         response = requests.post(
             url=self._base_url + f"/deployablegroups/{deployable_id}/share",
@@ -640,6 +641,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _unshare_dashboard(self, deployable_id: str):
         response = requests.post(
             url=self._base_url + f"/deployablegroups/{deployable_id}/private",
@@ -647,6 +649,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _get_deployable(self, deployable_id: str):
         response = requests.get(
             url=self._base_url + f"/deployables/{deployable_id}/get",
@@ -654,6 +657,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _delete_deployable(self, deployable_id: str):
         response = requests.post(
             url=self._base_url + f"/deployables/delete",
@@ -664,6 +668,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _list_deployables(self, page_size: int):
         response = requests.get(
             url=self._base_url + "/deployables/list",
