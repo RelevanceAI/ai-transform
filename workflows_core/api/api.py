@@ -619,3 +619,57 @@ class API:
             headers=self._headers,
         )
         return get_response(response)
+
+    def _create_deployable(
+        self, dataset_id: Optional[str] = None, config: Optional[Dict[str, Any]] = None
+    ):
+        response = requests.post(
+            url=self._base_url + "/deployables/create",
+            headers=self._headers,
+            json=dict(
+                dataset_id=dataset_id,
+                configuration={} if config is None else config,
+            ),
+        )
+        return get_response(response)
+
+    def _share_dashboard(self, deployable_id: str):
+        response = requests.post(
+            url=self._base_url + f"/deployablegroups/{deployable_id}/share",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    def _unshare_dashboard(self, deployable_id: str):
+        response = requests.post(
+            url=self._base_url + f"/deployablegroups/{deployable_id}/private",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    def _get_deployable(self, deployable_id: str):
+        response = requests.get(
+            url=self._base_url + f"/deployables/{deployable_id}/get",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    def _delete_deployable(self, deployable_id: str):
+        response = requests.post(
+            url=self._base_url + f"/deployables/delete",
+            headers=self._headers,
+            json=dict(
+                id=deployable_id,
+            ),
+        )
+        return get_response(response)
+
+    def _list_deployables(self, page_size: int):
+        response = requests.get(
+            url=self._base_url + "/deployables/list",
+            headers=self._headers,
+            params=dict(
+                page_size=page_size,
+            ),
+        )
+        return get_response(response)
