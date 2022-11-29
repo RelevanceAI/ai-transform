@@ -575,7 +575,7 @@ class API:
         )
         return get_response(response)
 
-    @retry
+    @retry()
     def _facets(
         self,
         dataset_id: str,
@@ -596,7 +596,7 @@ class API:
         )
         return get_response(response)
 
-    @retry
+    @retry()
     def _upsert_dataset_settings(
         self,
         dataset_id: str,
@@ -609,7 +609,7 @@ class API:
         )
         return get_response(response)
 
-    @retry
+    @retry()
     def _get_dataset_settings(
         self,
         dataset_id: str,
@@ -620,6 +620,7 @@ class API:
         )
         return get_response(response)
 
+    @retry()
     def _create_deployable(
         self, dataset_id: Optional[str] = None, config: Optional[Dict[str, Any]] = None
     ):
