@@ -235,11 +235,12 @@ class KeyphraseField(Field):
             dataset_id=self.dataset_id, field=self.field, alias=alias, updates=updates
         )
 
-    def list_keyphrases(self, alias: str, page_size: int, page: int):
+    def list_keyphrases(self, alias: str, page_size: int, page: int, sort: list=None):
         return self._dataset.api._list_keyphrase(
             dataset_id=self.dataset_id,
             field=self.field,
             alias=alias,
             page_size=page_size,
             page=page,
+            sort=sort
         )
