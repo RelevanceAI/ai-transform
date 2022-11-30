@@ -408,6 +408,37 @@ class API:
         return requests.post(
             url=self._base_url + f"/workflows/trigger", headers=self._headers, json=data
         ).json()
+    
+    @retry()
+    def _trigger_polling_workflow(
+        self,
+        dataset_id: str,
+        input_field: str,
+        output_field: str,
+        job_id: str,
+        minimum_coverage: float=0.95,
+        max_time: float=6000,
+        sleep_timer: float = 10,
+        workflow_id="poll",
+        version="production_version",
+    ):
+        """
+        Trigger the polling workflow
+        """
+        return self._trigger(
+            dataset_id=dataset_id,
+            params=dict(
+                dataset_id=dataset_id,
+                input_field=input_field,
+                output_field=output_field,
+                minimum_coverage=minimum_coverage,
+                max_time=max_time,
+                sleep_timer=sleep_timer,
+                job_id=job_id
+            ),
+            workflow_id=workflow_id,
+            version=version
+        )
 
     @retry()
     def _update_workflow_progress(
