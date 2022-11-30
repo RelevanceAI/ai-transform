@@ -563,6 +563,7 @@ class API:
         alias: str,
         page: int = 0,
         page_size: int = 100,
+        sort: list = []
     ):
         """
         List keyphrases
@@ -571,7 +572,7 @@ class API:
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
             headers=self._headers,
-            json={"page": page, "page_size": page_size},
+            json={"page": page, "page_size": page_size, "sort": sort},
         )
         return get_response(response)
 
