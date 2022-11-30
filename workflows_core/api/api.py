@@ -416,6 +416,7 @@ class API:
         input_field: str,
         output_field: str,
         job_id: str,
+        workflow_name: str,
         minimum_coverage: float=0.95,
         max_time: float=6000,
         sleep_timer: float = 10,
@@ -434,7 +435,8 @@ class API:
                 minimum_coverage=minimum_coverage,
                 max_time=max_time,
                 sleep_timer=sleep_timer,
-                job_id=job_id
+                parent_job_id=job_id,
+                parent_job_name=workflow_name
             ),
             workflow_id=workflow_id,
             version=version

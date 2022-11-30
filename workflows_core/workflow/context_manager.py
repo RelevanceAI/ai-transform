@@ -96,7 +96,8 @@ class WorkflowContextManager(API):
                     dataset_id=self._dataset_id,
                     input_field=input_field,
                     output_field=self._operator._output_fields[0],
-                    job_id=self._job_id
+                    job_id=self._job_id,
+                    workflow_name=self._workflow_name
                 )
             else:
                 self._set_status(
