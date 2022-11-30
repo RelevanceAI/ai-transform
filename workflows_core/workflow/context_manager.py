@@ -31,6 +31,7 @@ class WorkflowContextManager(API):
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
+        mark_as_complete_after_polling: bool = False
     ) -> None:
         super().__init__(dataset.api._credentials, job_id, workflow_name)
 
@@ -49,6 +50,7 @@ class WorkflowContextManager(API):
         self._metadata = metadata
         self._additional_information = additional_information
         self._send_email = send_email
+        self._mark_as_complete_after_polling = mark_as_complete_after_polling
 
     def __enter__(self):
         """
@@ -87,9 +89,12 @@ class WorkflowContextManager(API):
             return False
         else:
             # Workflow must have run successfully
-            self._set_status(
-                status=self.COMPLETE, worker_number=self._engine.worker_number
-            )
+            if self._mark_as_complete_after_polling:
+                raise NotImplementedError
+            else:
+                self._set_status(
+                    status=self.COMPLETE, worker_number=self._engine.worker_number
+                )
             if self._update_field_children:
                 for input_field in self._operator._input_fields:
                     self._set_field_children(
