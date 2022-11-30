@@ -417,6 +417,8 @@ class API:
         output_field: str,
         job_id: str,
         workflow_name: str,
+        # set 95% coverage in case of edge cases like workflow only working 
+        # on certain proportion of dataset
         minimum_coverage: float=0.95,
         max_time: float=6000,
         sleep_timer: float = 10,
