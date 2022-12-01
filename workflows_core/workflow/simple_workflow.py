@@ -4,7 +4,7 @@ from inspect import Traceback
 from typing import Any, Dict, Optional
 
 from workflows_core.api.api import API
-from workflows_core.dataset.dataset import Dataset
+from workflows_core.api.helpers import Credentials
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
@@ -21,19 +21,16 @@ class SimpleWorkflow(API):
 
     def __init__(
         self,
+        credentials: Credentials,
         workflow_name: str,
         job_id: str,
-        dataset: Dataset,
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
         worker_number: int = None,
         **kwargs
     ) -> None:
-        super().__init__(dataset.api._credentials, job_id, workflow_name)
-
-        self._dataset = dataset
-        self._dataset_id = dataset.dataset_id
+        super().__init__(credentials, job_id, workflow_name)
 
         self._workflow_name = workflow_name
         self._job_id = job_id

@@ -1,6 +1,6 @@
+from workflows_core.api.client import Client
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.workflow.abstract_workflow import Workflow
-from workflows_core.workflow.simple_workflow import SimpleWorkflow
 
 
 from workflows_core.config import BaseConfig
@@ -49,11 +49,15 @@ class TestWorkflow:
 
 
 class TestSimpleWorkflow:
-    def test_simple_workflow(self, test_simple_workflow_token: str):
+    def test_simple_workflow(
+        self, test_client: Client, test_simple_workflow_token: str
+    ):
         config = SimpleWorkflowConfig.read_token(test_simple_workflow_token)
 
         x = 0
-        with SimpleWorkflow(workflow_name="Simple Workflow", **config.dict()):
+        with test_client.SimpleWorkflow(
+            workflow_name="Simple Workflow", **config.dict()
+        ):
             x += 1
 
         assert x == 1
