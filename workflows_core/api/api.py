@@ -408,7 +408,7 @@ class API:
         return requests.post(
             url=self._base_url + f"/workflows/trigger", headers=self._headers, json=data
         ).json()
-    
+
     @retry()
     def _trigger_polling_workflow(
         self,
@@ -417,10 +417,10 @@ class API:
         output_field: str,
         job_id: str,
         workflow_name: str,
-        # set 95% coverage in case of edge cases like workflow only working 
+        # set 95% coverage in case of edge cases like workflow only working
         # on certain proportion of dataset
-        minimum_coverage: float=0.95,
-        max_time: float=6000,
+        minimum_coverage: float = 0.95,
+        max_time: float = 6000,
         sleep_timer: float = 10,
         workflow_id="poll",
         version="production_version",
@@ -438,10 +438,10 @@ class API:
                 max_time=max_time,
                 sleep_timer=sleep_timer,
                 parent_job_id=job_id,
-                parent_job_name=workflow_name
+                parent_job_name=workflow_name,
             ),
             workflow_id=workflow_id,
-            version=version
+            version=version,
         )
 
     @retry()
@@ -598,7 +598,7 @@ class API:
         alias: str,
         page: int = 0,
         page_size: int = 100,
-        sort: list = []
+        sort: list = [],
     ):
         """
         List keyphrases

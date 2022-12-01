@@ -17,7 +17,7 @@ class Workflow:
         self,
         engine: AbstractEngine,
         job_id: Optional[str] = None,
-        name: Optional[str] = 'Workflow',
+        name: Optional[str] = "Workflow",
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,

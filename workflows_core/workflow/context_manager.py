@@ -31,7 +31,7 @@ class WorkflowContextManager(API):
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
-        mark_as_complete_after_polling: bool = False
+        mark_as_complete_after_polling: bool = False,
     ) -> None:
         super().__init__(dataset.api._credentials, job_id, workflow_name)
 
@@ -59,7 +59,7 @@ class WorkflowContextManager(API):
         self._set_status(
             status=self.IN_PROGRESS, worker_number=self._engine.worker_number
         )
-        
+
         self._dataset.api._update_workflow_progress(
             workflow_id=self._job_id,
             worker_number=self._engine.worker_number,
@@ -97,7 +97,7 @@ class WorkflowContextManager(API):
                     input_field=input_field,
                     output_field=self._operator._output_fields[0],
                     job_id=self._job_id,
-                    workflow_name=self._workflow_name
+                    workflow_name=self._workflow_name,
                 )
             else:
                 self._set_status(
