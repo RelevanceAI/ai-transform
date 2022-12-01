@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict, Any
 
 from workflows_core.api.api import API
 from workflows_core.api.helpers import process_token
@@ -6,6 +6,7 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.types import Schema
 from workflows_core.errors import AuthException
 from workflows_core.constants import WELCOME_MESSAGE
+from workflows_core.workflow.simple_workflow import SimpleWorkflow
 
 
 class Client:
@@ -43,3 +44,24 @@ class Client:
     def Dataset(self, dataset_id: str) -> Dataset:
         self.create_dataset(dataset_id=dataset_id)
         return Dataset(api=self._api, dataset_id=dataset_id)
+
+    def SimpleWorkflow(
+        self,
+        workflow_name: str,
+        job_id: str,
+        metadata: Optional[Dict[str, Any]] = None,
+        additional_information: str = "",
+        send_email: bool = True,
+        worker_number: int = None,
+        **kwargs
+    ):
+        return SimpleWorkflow(
+            credentials=self._credentials,
+            workflow_name=workflow_name,
+            job_id=job_id,
+            metadata=metadata,
+            additional_information=additional_information,
+            send_email=send_email,
+            worker_number=worker_number,
+            **kwargs,
+        )
