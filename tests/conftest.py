@@ -152,6 +152,32 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
 
 
 @pytest.fixture(scope="function")
+def test_simple_workflow_token(test_client: Client) -> str:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    dataset.insert_documents(mock_documents(20))
+    time.sleep(1)
+    job_id = str(uuid.uuid4())
+    config = dict(
+        job_id=job_id,
+        authorizationToken=test_client._token,
+        dataset_id=dataset_id,
+        send_email=True,
+    )
+    config_string = json.dumps(config)
+    config_bytes = config_string.encode()
+    workflow_token = base64.b64encode(config_bytes).decode()
+    # test_client._api._trigger(
+    #     dataset_id,
+    #     params=config,
+    #     workflow_id=job_id,
+    # )
+    yield workflow_token
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="function")
 def test_cluster_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"

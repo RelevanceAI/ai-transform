@@ -4,12 +4,10 @@ import warnings
 
 from typing import Any, Dict, Optional
 from workflows_core.dataset.dataset import Dataset
-
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.errors import WorkflowFailedError
 from workflows_core.workflow.context_manager import WorkflowContextManager
 from workflows_core.operator.abstract_operator import AbstractOperator
-
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +17,7 @@ class Workflow:
         self,
         engine: AbstractEngine,
         job_id: Optional[str] = None,
-        name: Optional[str] = 'Workflow',
+        name: Optional[str] = "Workflow",
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
