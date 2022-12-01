@@ -9,9 +9,13 @@ from pydantic import Field
 
 class SimpleWorkflowConfig(BaseConfig):
     input_field: str = Field(
-        ..., description="The field you want to are using to transform on"
+        "test_input_field",
+        description="The field you want to are using to transform on",
     )
-    output_field: str = Field(..., description="The output field")
+    output_field: str = Field(
+        "test_output_field",
+        description="The output field",
+    )
     minimum_coverage: float = Field(
         0.95,
         description="The minimum amount of coverage of the output field relative to the input field.",
@@ -19,7 +23,10 @@ class SimpleWorkflowConfig(BaseConfig):
     max_time: float = Field(
         6000, description="THe maximum amount of time to allow for this to poll."
     )
-    sleep_timer: float = Field(10, description="How long to wait before each poll")
+    sleep_timer: float = Field(
+        10,
+        description="How long to wait before each poll",
+    )
     parent_job_id: str = Field(
         None,
         description="If supplied - it will update the status of the workflow as complete only once the workflow has complete.",
