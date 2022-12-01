@@ -92,3 +92,12 @@ class SimpleWorkflow(API):
             }
         )
         return result
+
+    def update_progress(
+        self,
+        n_processed: int = 0,
+        n_total: int = 0,
+    ):
+        return self._update_workflow_progress(
+            self._job_id, self._worker_number, self._workflow_name, n_processed, n_total
+        )
