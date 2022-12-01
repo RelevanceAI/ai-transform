@@ -62,5 +62,6 @@ class Client:
             metadata=metadata,
             additional_information=additional_information,
             send_email=send_email,
-            worker_number=worker_number**kwargs,
+            worker_number=worker_number,
+            **kwargs,
         )
