@@ -77,7 +77,7 @@ class Workflow:
                 metadata=self._metadata,
                 additional_information=self._additional_information,
                 send_email=self._send_email,
-                _mark_as_complete_after_polling=self._mark_as_complete_after_polling
+                mark_as_complete_after_polling=self._mark_as_complete_after_polling
             ):
                 self.engine()
                 success_ratio = self.engine._success_ratio
