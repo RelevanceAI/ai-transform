@@ -94,7 +94,7 @@ class WorkflowContextManager(API):
                 # When triggering this poll job - we can send the job ID
                 self._trigger_polling_workflow(
                     dataset_id=self._dataset_id,
-                    input_field=input_field,
+                    input_field=self._operator._input_fields[0],
                     output_field=self._operator._output_fields[0],
                     job_id=self._job_id,
                     workflow_name=self._workflow_name,
