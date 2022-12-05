@@ -11,7 +11,7 @@ class Field:
         self._dataset: Dataset = dataset
         self._field = field
         if field != "_id":
-            self._dtype = dataset.schema[field]
+            self._dtype = dataset.schema.get(field)
         else:
             self._dtype = None
         self._filter_type = self._get_filter_type()
