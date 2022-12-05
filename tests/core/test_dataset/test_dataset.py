@@ -101,7 +101,7 @@ class TestFilters:
     def test_not_exists_for_field_dne(self, static_dataset: Dataset):
         filters = static_dataset["this_field_does_not_exist"].not_exists()
         res = static_dataset.get_documents(page_size=20, filters=filters)
-        assert res["count"] == 0
+        assert res["count"] == 20
 
     def test_contains(self, static_dataset: Dataset):
         filters = static_dataset["text_field"].contains("3")
