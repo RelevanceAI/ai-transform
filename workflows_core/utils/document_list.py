@@ -45,20 +45,6 @@ class DocumentList(UserList):
         flat_list = itertools.chain(*list_of_lists)
         return list(flat_list)
 
-    def set_chunks(self, chunk_field: str, field: str, values: list):
-        """
-        Set a list of lists - will overwrite if already there
-        """
-        # I'm not sure how we would actually use this one just yet...
-        raise NotImplementedError
-
-    def get_chunks(self, chunk_field: str, field: str):
-        """
-        Gets a list of list of values
-        """
-        docs = DocumentList(self._flatten_list([d.get(chunk_field) for d in self.data]))
-        return [d.get(field) for d in docs.data]
-
     def set_chunks_from_flat(self, chunk_field: str, field: str, values: list):
         """
         Set chunks from a flat list.

@@ -7,6 +7,7 @@ from collections import UserDict
 
 from workflows_core.utils.json_encoder import json_encoder
 
+
 class Document(UserDict):
     def __repr__(self):
         return repr(self.data)
@@ -67,29 +68,34 @@ class Document(UserDict):
 
     def to_json(self):
         return json_encoder(deepcopy(self.data))
-    
+
     def list_chunks(self):
         """
         List the available chunks inside of the document.
         """
         # based on conversation with API team
-        return [k for k in self.keys() if k.endswith('_chunk_')] 
-    
-    def get_chunk(self, chunk_field: str, field: str=None, default: str=None):
+        return [k for k in self.keys() if k.endswith("_chunk_")]
+
+    def get_chunk(self, chunk_field: str, field: str = None, default: str = None):
         # provide a recursive implementation for getting chunks
         from workflows_core.utils.document_list import DocumentList
+
         document_list = DocumentList(self.get(chunk_field, default=default))
         # Get the field across chunks
         if field is None:
             return document_list
         return [d.get(field, default=default) for d in document_list.data]
-    
+
     def _create_chunk_documents(self, field: str, values: list):
         """
         create chunk documents based on a given field and value.
         """
         from workflows_core.utils.document_list import DocumentList
-        docs = [{"_id": uuid.uuid4().__str__(), field: values[i]} for i in range(len(values))]
+
+        docs = [
+            {"_id": uuid.uuid4().__str__(), field: values[i]}
+            for i in range(len(values))
+        ]
         return DocumentList(docs)
 
     def set_chunk(self, chunk_field: str, field: str, values: list):
@@ -101,6 +107,7 @@ class Document(UserDict):
         """
         # We use upsert behavior for now
         from workflows_core.utils.document_list import DocumentList
+
         new_chunk_docs = self._create_chunk_documents(field, values=values)
         # Update on the old chunk docs
         old_chunk_docs = DocumentList(self.get(chunk_field))
