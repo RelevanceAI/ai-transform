@@ -1,4 +1,5 @@
 import pandas as pd
+import uuid
 
 from copy import deepcopy
 from typing import Any, Optional
@@ -74,15 +75,39 @@ class Document(UserDict):
         # based on conversation with API team
         return [k for k in self.keys() if k.endswith('_chunk_')] 
     
-    def get_chunk(self, chunk_field: str, field: str, default: str=None):
+    def get_chunk(self, chunk_field: str, field: str=None, default: str=None):
         # provide a recursive implementation for getting chunks
         from workflows_core.utils.document_list import DocumentList
         document_list = DocumentList(self.get(chunk_field, default=default))
         # Get the field across chunks
+        if field is None:
+            return document_list
         return [d.get(field, default=default) for d in document_list.data]
     
-    def set_chunk(self, chunk_field: str, field: str, values: list):
-        # set a list of values in a chunk
+    def _create_chunk_documents(self, field: str, values: list):
+        """
+        create chunk documents based on a given field and value.
+        """
         from workflows_core.utils.document_list import DocumentList
-        document_list = DocumentList(self.get(chunk_field))
-        return [d.set(field, values[i]) for i, d in enumerate(document_list.data)]
+        docs = [{"_id": uuid.uuid4().__str__(), field: values[i]} for i in range(len(values))]
+        return DocumentList(docs)
+
+    def set_chunk(self, chunk_field: str, field: str, values: list):
+        """
+        doc.list_chunks()
+
+        doc.get_chunk("value_chunk_", field="sentence") # returns a list of values
+        doc.set_chunk("value_chunk_", field="sentence", values=["hey", "test"])
+        """
+        chunk_docs = self._create_chunk_documents(field, values=values)
+        [d.set(field, values[i]) for i, d in enumerate(chunk_docs.data)]
+        return chunk_docs
+    
+    def operate_on_chunk(self, chunk_field: str, field: str):
+        """
+        Run a transformation on a chunk.
+        """
+        # Get a list of documents
+        # set a list of documents
+        raise NotImplementedError
+    

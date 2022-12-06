@@ -90,7 +90,6 @@ def test_document() -> Document:
     }
     return Document(raw_dict)
 
-
 @pytest.fixture(scope="function")
 def test_documents() -> DocumentList:
     return mock_documents()
