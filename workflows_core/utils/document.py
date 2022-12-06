@@ -6,7 +6,6 @@ from collections import UserDict
 
 from workflows_core.utils.json_encoder import json_encoder
 
-
 class Document(UserDict):
     def __repr__(self):
         return repr(self.data)
@@ -67,3 +66,23 @@ class Document(UserDict):
 
     def to_json(self):
         return json_encoder(deepcopy(self.data))
+    
+    def list_chunks(self):
+        """
+        List the available chunks inside of the document.
+        """
+        # based on conversation with API team
+        return [k for k in self.keys() if k.endswith('_chunk_')] 
+    
+    def get_chunk(self, chunk_field: str, field: str, default: str=None):
+        # provide a recursive implementation for getting chunks
+        from workflows_core.utils.document_list import DocumentList
+        document_list = DocumentList(self.get(chunk_field, default=default))
+        # Get the field across chunks
+        return [d.get(field, default=default) for d in document_list.data]
+    
+    def set_chunk(self, chunk_field: str, field: str, values: list):
+        # set a list of values in a chunk
+        from workflows_core.utils.document_list import DocumentList
+        document_list = DocumentList(self.get(chunk_field))
+        return [d.set(field, values[i]) for i, d in enumerate(document_list.data)]
