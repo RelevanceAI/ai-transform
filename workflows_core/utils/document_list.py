@@ -1,5 +1,5 @@
 import warnings
-
+import itertools
 from collections import UserList
 from typing import Any, Dict, List, Union
 
@@ -40,7 +40,11 @@ class DocumentList(UserList):
 
     def to_json(self):
         return [document.to_json() for document in self.data]
-    
+
+    def _flatten_list(self, list_of_lists):
+        flat_list = itertools.chain(*list_of_lists)
+        return list(flat_list)
+
     def set_chunks(self, chunk_field: str, field: str, values: list):
         """
         Set a list of lists - will overwrite if already there
@@ -52,15 +56,9 @@ class DocumentList(UserList):
         """
         Gets a list of list of values
         """
-        docs = DocumentList(
-            [
-                DocumentList(
-                    d.get(chunk_field)
-                ) for d in self.data
-            ]
-        )
+        docs = DocumentList(self._flatten_list([d.get(chunk_field) for d in self.data]))
         return [d.get(field) for d in docs.data]
-        
+
     def set_chunks_from_flat(self, chunk_field: str, field: str, values: list):
         """
         Set chunks from a flat list.
@@ -71,21 +69,27 @@ class DocumentList(UserList):
         # to the number of chunk values
         chunk_counter = 0
         for i, doc in enumerate(self.data):
-            for chunk_doc in doc.get(chunk_field, []):
+            chunk_docs = []
+            for j, chunk_doc in enumerate(doc.get(chunk_field, [])):
+                # chunk_doc = Document(chunk_doc)
                 chunk_doc = Document(chunk_doc)
                 chunk_doc.set(field, values[chunk_counter])
+                chunk_docs.append(chunk_doc)
                 chunk_counter += 1
+            doc.set(chunk_field, chunk_docs)
 
         if chunk_counter > len(values):
-            raise ValueError("Number of chunks do not match with number of values - check logic.")
-    
+            raise ValueError(
+                "Number of chunks do not match with number of values - check logic."
+            )
+
     def get_chunks_as_flat(self, chunk_field: str, field: str, default=None):
         """
         Set chunks from a flat list.
         Note that this is only possible if there is pre-existing
         chunk documents.
         """
-        docs = DocumentList([d.get(chunk_field) for d in self.data])
+        docs = DocumentList(self._flatten_list([d.get(chunk_field) for d in self.data]))
         return [d.get(field, default=default) for d in docs.data]
 
     def remove_tag(self, field: str, value: str) -> None:
