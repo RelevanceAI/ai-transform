@@ -40,6 +40,53 @@ class DocumentList(UserList):
 
     def to_json(self):
         return [document.to_json() for document in self.data]
+    
+    def set_chunks(self, chunk_field: str, field: str, values: list):
+        """
+        Set a list of lists - will overwrite if already there
+        """
+        # I'm not sure how we would actually use this one just yet...
+        raise NotImplementedError
+
+    def get_chunks(self, chunk_field: str, field: str):
+        """
+        Gets a list of list of values
+        """
+        docs = DocumentList(
+            [
+                DocumentList(
+                    d.get(chunk_field)
+                ) for d in self.data
+            ]
+        )
+        return [d.get(field) for d in docs.data]
+        
+    def set_chunks_from_flat(self, chunk_field: str, field: str, values: list):
+        """
+        Set chunks from a flat list.
+        Note that this is only possible if there is pre-existing
+        chunk documents.
+        """
+        # general logic for this is that we assume that the number of values equals
+        # to the number of chunk values
+        chunk_counter = 0
+        for i, doc in enumerate(self.data):
+            for chunk_doc in doc.get(chunk_field, []):
+                chunk_doc = Document(chunk_doc)
+                chunk_doc.set(field, values[chunk_counter])
+                chunk_counter += 1
+
+        if chunk_counter > len(values):
+            raise ValueError("Number of chunks do not match with number of values - check logic.")
+    
+    def get_chunks_as_flat(self, chunk_field: str, field: str, default=None):
+        """
+        Set chunks from a flat list.
+        Note that this is only possible if there is pre-existing
+        chunk documents.
+        """
+        docs = DocumentList([d.get(chunk_field) for d in self.data])
+        return [d.get(field, default=default) for d in docs.data]
 
     def remove_tag(self, field: str, value: str) -> None:
         warnings.warn("This behaivour is experimental and is subject to change")

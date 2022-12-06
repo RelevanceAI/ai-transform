@@ -106,13 +106,3 @@ class Document(UserDict):
         old_chunk_docs = DocumentList(self.get(chunk_field))
         # Relying on immutable property
         [d.update(new_chunk_docs[i]) for i, d in enumerate(old_chunk_docs.data)]
-        
-    
-    def operate_on_chunk(self, chunk_field: str, field: str):
-        """
-        Run a transformation on a chunk.
-        """
-        # Get a list of documents
-        # set a list of documents
-        raise NotImplementedError
-    
