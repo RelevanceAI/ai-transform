@@ -99,9 +99,14 @@ class Document(UserDict):
         doc.get_chunk("value_chunk_", field="sentence") # returns a list of values
         doc.set_chunk("value_chunk_", field="sentence", values=["hey", "test"])
         """
-        chunk_docs = self._create_chunk_documents(field, values=values)
-        [d.set(field, values[i]) for i, d in enumerate(chunk_docs.data)]
-        return chunk_docs
+        # We use upsert behavior for now
+        from workflows_core.utils.document_list import DocumentList
+        new_chunk_docs = self._create_chunk_documents(field, values=values)
+        # Update on the old chunk docs
+        old_chunk_docs = DocumentList(self.get(chunk_field))
+        # Relying on immutable property
+        [d.update(new_chunk_docs[i]) for i, d in enumerate(old_chunk_docs.data)]
+        
     
     def operate_on_chunk(self, chunk_field: str, field: str):
         """
