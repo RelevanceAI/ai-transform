@@ -45,11 +45,14 @@ class AbstractEngine(ABC):
             # the whole workflow. This allows for multiple workflows to be run in parallel
             # without worrying about breaking things.
             if check_for_missing_fields:
-                assert all(
+                if not all(
                     field in dataset.schema
                     for field in select_fields
                     if field not in {"_id", "insert_date_"}
-                ), f"Some fields not in dataset schema - namely {select_fields}. If this is not desired behavior, set check_for_missing_fields=False."
+                ):
+                    raise ValueError(
+                        f"Some fields not in dataset schema - namely {select_fields}. If this is not desired behavior, set check_for_missing_fields=False."
+                    )
             else:
                 for field in select_fields:
                     if field not in ["_id", "insert_date_"]:
