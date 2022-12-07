@@ -1,10 +1,8 @@
 import json
-
-from copy import deepcopy
 import random
-
+import string
+from copy import deepcopy
 from workflows_core.utils.document_list import DocumentList
-
 
 class TestDocumentList:
     def test_deepcopy(self, test_documents: DocumentList):
@@ -68,7 +66,8 @@ class TestDocumentChunkOperations:
             assert isinstance(r, str), f"Not a string, {r}"
 
     def test_set_chunk_values(self, test_documents: DocumentList):
-        random_values = ["a"] * len(test_documents)
+        LETTERS = string.ascii_letters
+        random_values = LETTERS[:len(test_documents)]
         test_documents.set_chunks_from_flat(
             chunk_field="_chunk_", field="test_label", values=random_values
         )

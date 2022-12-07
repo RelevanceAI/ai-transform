@@ -12,9 +12,9 @@ from workflows_core.utils.example_documents import mock_documents
 class TestClient:
     def test_upsert_keyphrases(
         self,
-        test_client: Client, 
+        test_client: Client,
         test_keyphrase_dataset: Dataset,
-        test_keyphrases: DocumentList
+        test_keyphrases: DocumentList,
     ):
         # Test that upserting keyphrases is good
         field = "sample_1_label"
@@ -25,7 +25,7 @@ class TestClient:
         for d in test_keyphrases:
             keyphrase_id = str(uuid.uuid4())
             keyphrase_ids.append(keyphrase_id)
-            d['_id'] = keyphrase_id
+            d["_id"] = keyphrase_id
 
         result = test_client._api._bulk_update_keyphrase(
             dataset_id=test_dataset_id,
@@ -35,9 +35,6 @@ class TestClient:
         )
         # Now that that we saw the actual dataset
         result = test_client._api._get_keyphrase(
-            test_dataset_id, 
-            field=field,
-            alias=alias,
-            keyphrase_id=keyphrase_id
+            test_dataset_id, field=field, alias=alias, keyphrase_id=keyphrase_id
         )
-        assert result['keyphrase'] == 'word' and result['score'] == 10, result
+        assert result["keyphrase"] == "word" and result["score"] == 10, result

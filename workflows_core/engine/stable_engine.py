@@ -34,7 +34,7 @@ class StableEngine(AbstractEngine):
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
     def chunk_documents(self, documents: DocumentList):
-        num_chunks =len(documents) // self._transform_chunksize + 1
+        num_chunks = len(documents) // self._transform_chunksize + 1
         for i in range(num_chunks):
             start = i * self._transform_chunksize
             end = (i + 1) * self._transform_chunksize

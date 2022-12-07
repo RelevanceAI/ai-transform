@@ -79,7 +79,7 @@ class DocumentList(UserList):
         return [d.get(field, default=default) for d in docs.data]
 
     def remove_tag(self, field: str, value: str) -> None:
-        warnings.warn("This behaivour is experimental and is subject to change")
+        warnings.warn("This behaviour is experimental and is subject to change")
 
         *tag_fields, remove_field = field.split(".")
         tag_field = ".".join(tag_fields)
@@ -97,7 +97,7 @@ class DocumentList(UserList):
     def append_tag(
         self, field: str, value: Union[Dict[str, Any], List[Dict[str, Any]]]
     ) -> None:
-        warnings.warn("This behaivour is experimental and is subject to change")
+        warnings.warn("This behaviour is experimental and is subject to change")
 
         if isinstance(value, list):
             for document, tag in zip(self.data, value):
@@ -107,7 +107,7 @@ class DocumentList(UserList):
                 document[field].append(value)
 
     def sort_tags(self, field: str, reverse: bool = False) -> None:
-        warnings.warn("This behaivour is experimental and is subject to change")
+        warnings.warn("This behaviour is experimental and is subject to change")
 
         *tag_fields, sort_field = field.split(".")
         tag_field = ".".join(tag_fields)
