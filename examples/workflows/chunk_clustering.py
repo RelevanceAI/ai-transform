@@ -61,7 +61,7 @@ class ChunkVectorizerOperator(AbstractOperator):
         )
     
     def _vectorize(self, *args, **kwargs):
-        return [random.randint(0, 99) for _ in 10]
+        return [random.randint(0, 99) for _ in range(10)]
         
     def transform(self, documents: DocumentList) -> DocumentList:
         """
