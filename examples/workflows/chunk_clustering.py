@@ -60,8 +60,11 @@ class ChunkVectorizerOperator(AbstractOperator):
             output_fields=[self._chunk_field]
         )
     
-    def _vectorize(self, *args, **kwargs):
+    def _random_vector(self):
         return [random.randint(0, 99) for _ in range(10)]
+    
+    def _vectorize(self, chunk_values, *args, **kwargs):
+        return [self._random_vector() for _ in range(len(chunk_values))]
         
     def transform(self, documents: DocumentList) -> DocumentList:
         """
@@ -148,7 +151,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 
     CHUNK_FIELD = "sentence_chunk_"
     VECTOR_FIELD = text_field + "_vector_"
-
+    TRANSFORM_CHUNKSIZE = 200
     sentence_splitter_operator = SentenceSplitterOperator(
         field=text_field, output_chunk_field=CHUNK_FIELD
     )
@@ -156,7 +159,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     stable_engine = StableEngine(
         dataset=dataset,
         operator=sentence_splitter_operator,
-        transform_chunksize=16,
+        transform_chunksize=TRANSFORM_CHUNKSIZE,
         select_fields=[text_field],
         filters=filters,
         worker_number=worker_number,
@@ -181,8 +184,8 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     stable_engine = StableEngine(
         dataset=dataset,
         operator=vectorize_operator,
-        transform_chunksize=16,
-        select_fields=[text_field],
+        transform_chunksize=TRANSFORM_CHUNKSIZE,
+        select_fields=[CHUNK_FIELD],
         filters=filters,
         worker_number=worker_number,
         total_workers=total_workers,
