@@ -116,6 +116,7 @@ class ChunkClusterOperator(AbstractOperator):
                 chunk_field=self._chunk_field, 
                 values=labels
             )):
+            print({"chunk_labels":  chunk_labels})
             documents[i][self._output_field] = chunk_labels
         return documents
 

@@ -85,8 +85,8 @@ class DocumentList(UserList[Document]):
         """
         counter = 0 
         for d in self.data:
-            chunk_field_len = len(d.get(chunk_field))
-            yield values[counter:chunk_field_len]
+            chunk_field_len = len(d.get(chunk_field, []))
+            yield values[counter:counter + chunk_field_len]
             counter += len(d.get(chunk_field, []))
 
     def remove_tag(self, field: str, value: str) -> None:
