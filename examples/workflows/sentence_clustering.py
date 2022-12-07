@@ -86,12 +86,10 @@ class ChunkClusterOperator(AbstractOperator):
         """
         Main transform function
         """
-        vectors = np.array(
-            [np.array(document.get_chunk(
-                chunk_field=self._chunk_field, 
-                field=self._vector_field
-            )) for document in documents]
+        vectors = documents.get_chunks_as_flat(
+            chunk_field=self._chunk_field, field=self._vector_field
         )
+        vectors = np.array(vectors)
         labels = self._model.fit_predict(vectors).tolist()
 
         for document, label in zip(documents, labels):
