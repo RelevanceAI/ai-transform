@@ -145,6 +145,7 @@ class Document(UserDict):
         """
         Add an operate function.
         """
-        values = self.get_chunk(chunk_field=chunk_field, field=field)
+        values = self.get_chunk(chunk_field=chunk_field, field=field,
+            default=default)
         results = operator_function(values)
         self.set_chunk(chunk_field=chunk_field, field=field, values=results)
