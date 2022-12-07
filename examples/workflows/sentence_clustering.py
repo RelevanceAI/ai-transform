@@ -1,4 +1,10 @@
-from chunk import Chunk
+"""
+Cluster sentences. 
+In this script, we are looking to perform the following: 
+- Split text into multiple sentences. 
+- Vectorize each sentence and store it as a vector inside the chunk
+- Cluster based on the chunks
+"""
 import uuid
 import random
 import numpy as np
