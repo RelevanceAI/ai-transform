@@ -74,4 +74,4 @@ class TestDocumentChunkOperations:
         )
         # print([d.get("_chunk_") for d in test_documents])
         results = test_documents.get_chunks_as_flat("_chunk_", "test_label")
-        assert results == random_values
+        assert results == [x for x in random_values]
