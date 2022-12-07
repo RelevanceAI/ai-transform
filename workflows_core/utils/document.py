@@ -89,29 +89,37 @@ class Document(UserDict):
             return document_list
         return [d.get(field, default=default) for d in document_list.data]
 
-    def _create_chunk_documents(self, field: str, values: list):
+    def _create_chunk_documents(self, field: str, values: list, generate_id: bool=False):
         """
         create chunk documents based on a given field and value.
         """
         from workflows_core.utils.document_list import DocumentList
 
-        docs = [
-            {"_id": uuid.uuid4().__str__(), field: values[i]}
-            for i in range(len(values))
-        ]
+        if generate_id:
+            docs = [
+                {"_id": uuid.uuid4().__str__(), field: values[i]}
+                for i in range(len(values))
+            ]
+        else:
+            docs = [
+                {field: values[i]}
+                for i in range(len(values))
+            ]
+
         return DocumentList(docs)
 
-    def set_chunk(self, chunk_field: str, field: str, values: list):
+    def set_chunk(self, chunk_field: str, field: str, values: list,
+        generate_id: bool = False):
         """
         doc.list_chunks()
-
         doc.get_chunk("value_chunk_", field="sentence") # returns a list of values
         doc.set_chunk("value_chunk_", field="sentence", values=["hey", "test"])
         """
         # We use upsert behavior for now
         from workflows_core.utils.document_list import DocumentList
 
-        new_chunk_docs = self._create_chunk_documents(field, values=values)
+        new_chunk_docs = self._create_chunk_documents(field, values=values,
+            generate_id=generate_id)
         # Update on the old chunk docs
         old_chunk_docs = DocumentList(self.get(chunk_field))
         # Relying on immutable property
@@ -140,6 +148,7 @@ class Document(UserDict):
         operator_function: callable,
         chunk_field: str, 
         field: str,
+        output_field: str,
         default: Any=None
     ):
         """
