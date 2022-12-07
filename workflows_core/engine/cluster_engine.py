@@ -16,7 +16,7 @@ class InMemoryEngine(AbstractEngine):
         self._show_progress_bar = show_progress_bar
         self._progress = tqdm(
             desc=repr(self.operator),
-            total=self.num_chunks * 2,
+            total=self.num_chunks,
             disable=(not show_progress_bar),
         )
 
