@@ -111,8 +111,12 @@ class ChunkClusterOperator(AbstractOperator):
         vectors = np.array(vectors)
         labels = self._model.fit_predict(vectors).tolist()
 
-        for document, label in zip(documents, labels):
-            document[self._output_field] = f"cluster_{label}"
+        for i, chunk_labels in enumerate(
+            documents.split_by_chunk(
+                chunk_field=self._chunk_field, 
+                values=labels
+            )):
+            documents[i][self._output_field] = chunk_labels
         return documents
 
     def post_hooks(self, dataset: Dataset):
