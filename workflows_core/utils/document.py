@@ -77,6 +77,9 @@ class Document(UserDict):
         return [k for k in self.keys() if k.endswith("_chunk_")]
 
     def get_chunk(self, chunk_field: str, field: str = None, default: str = None):
+        """
+        Returns a list of values.
+        """
         # provide a recursive implementation for getting chunks
         from workflows_core.utils.document_list import DocumentList
 
