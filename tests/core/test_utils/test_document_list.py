@@ -66,7 +66,8 @@ class TestDocumentChunkOperations:
             assert isinstance(r, str), f"Not a string, {r}"
 
     def test_set_chunk_values(self, test_documents: DocumentList):
-        LETTERS = string.ascii_letters
+        import itertools
+        LETTERS = itertools.cycle(string.ascii_letters)
         random_values = LETTERS[:len(test_documents)]
         test_documents.set_chunks_from_flat(
             chunk_field="_chunk_", field="test_label", values=random_values
