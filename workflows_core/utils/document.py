@@ -113,3 +113,21 @@ class Document(UserDict):
         old_chunk_docs = DocumentList(self.get(chunk_field))
         # Relying on immutable property
         [d.update(new_chunk_docs[i]) for i, d in enumerate(old_chunk_docs.data)]
+
+    def split(self, split_operation: callable, chunk_field: str, field: str,
+            default: Any=None
+    ):
+        """ 
+        The split operation is as follows:
+        
+        The split operation returns to us a list of possible values. 
+        The chunk documents are then created automatically for you.
+        """
+        if default is None:
+            default = []
+        value = self.get(field, default)
+        split_values = split_operation(value)
+        chunk_documents = self._create_chunk_documents(
+            field=field, values=split_values
+        )
+        self.set(chunk_field, chunk_documents)

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Union
 from workflows_core.utils.document import Document
 
 
-class DocumentList(UserList):
+class DocumentList(UserList[Document]):
     data: List[Document]
 
     def __init__(self, initlist=None):
@@ -77,7 +77,7 @@ class DocumentList(UserList):
         """
         docs = DocumentList(self._flatten_list([d.get(chunk_field) for d in self.data]))
         return [d.get(field, default=default) for d in docs.data]
-
+    
     def remove_tag(self, field: str, value: str) -> None:
         warnings.warn("This behaviour is experimental and is subject to change")
 
