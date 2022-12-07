@@ -77,7 +77,17 @@ class DocumentList(UserList[Document]):
         """
         docs = DocumentList(self._flatten_list([d.get(chunk_field) for d in self.data]))
         return [d.get(field, default=default) for d in docs.data]
-    
+
+    def split_by_chunk(self, chunk_field: str, values: list):
+        """
+        Split a list of values based on the number of documents 
+        within a specific chunk field
+        """
+        counter = 0 
+        for d in self.data:
+            yield values[counter:len(values)]
+            counter += len(d.get(chunk_field, []))
+
     def remove_tag(self, field: str, value: str) -> None:
         warnings.warn("This behaviour is experimental and is subject to change")
 
