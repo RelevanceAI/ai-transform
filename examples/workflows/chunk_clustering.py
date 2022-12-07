@@ -21,7 +21,7 @@ from sklearn.cluster import KMeans
 from sentence_splitter import split_text_into_sentences
 from functools import partial
 
-class SentenceSplitter(AbstractOperator):
+class SentenceSplitterOperator(AbstractOperator):
     def __init__(
         self, 
         field: str,
@@ -30,6 +30,10 @@ class SentenceSplitter(AbstractOperator):
         self.split_function = partial(split_text_into_sentences, language=language)
         self._field = field
         self._output_chunk_field = output_chunk_field
+        super().__init__(
+            input_fields=[self._field],
+            output_fields=[self._output_chunk_field]
+        )
 
         
     def transform(self, documents: DocumentList) -> DocumentList:
@@ -51,6 +55,10 @@ class ChunkVectorizerOperator(AbstractOperator):
         self._text_field = text_field
         self._chunk_field = chunk_field
         self._output_field = output_field
+        super().__init__(
+            input_fields=[self._chunk_field],
+            output_fields=[self._chunk_field]
+        )
     
     def _vectorize(self, *args, **kwargs):
         return [random.randint(0, 99) for _ in 10]
@@ -133,6 +141,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     total_workers = config.get("total_workers")
     send_email = config.get("send_email", True)
     additional_information = config.get("additional_information", "")
+    filters = config.get('filters', [])
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
@@ -140,61 +149,66 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     CHUNK_FIELD = "sentence_chunk_"
     VECTOR_FIELD = text_field + "_vector_"
 
-    sentence_splitter_operator = SentenceSplitter(
+    sentence_splitter_operator = SentenceSplitterOperator(
         field=text_field, output_chunk_field=CHUNK_FIELD
     )
 
     stable_engine = StableEngine(
         dataset=dataset,
         operator=sentence_splitter_operator,
-        chunksize=16,
+        transform_chunksize=16,
         select_fields=[text_field],
         filters=filters,
         worker_number=worker_number,
         total_workers=total_workers,
     )
     
-    workflow = Workflow(
+    sentence_splitter_workflow = Workflow(
         name="Sentence Splitting",
         engine=stable_engine, 
         job_id=job_id,
         send_email=False,
         additional_information=""
     )
+    sentence_splitter_workflow.run()
 
     vectorize_operator = ChunkVectorizerOperator(
-        text_field=text_field, chunk_field=CHUNK_FIELD,
+        text_field=text_field, 
+        chunk_field=CHUNK_FIELD,
         output_field=VECTOR_FIELD
     )
 
     stable_engine = StableEngine(
         dataset=dataset,
         operator=vectorize_operator,
-        chunksize=16,
+        transform_chunksize=16,
         select_fields=[text_field],
         filters=filters,
         worker_number=worker_number,
         total_workers=total_workers,
     )
 
-    workflow = Workflow(
+    vectorize_workflow = Workflow(
         name="Example Engine",
         engine=stable_engine,
         job_id=job_id,
         send_email=False,
         additional_information=additional_information
     )
+    vectorize_workflow.run()
 
     operator = ChunkClusterOperator(
-        n_clusters=n_clusters, vector_field=VECTOR_FIELD, alias=alias
+        n_clusters=n_clusters, 
+        vector_field=VECTOR_FIELD, 
+        alias=alias,
+        chunk_field=CHUNK_FIELD,
     )
 
-    filters = dataset[VECTOR_FIELD].exists()
+    # filters = dataset[VECTOR_FIELD].exists()
     engine = InMemoryEngine(
         dataset=dataset,
         operator=operator,
-        chunksize=16,
-        select_fields=[VECTOR_FIELD],
+        select_fields=[CHUNK_FIELD],
         filters=filters,
         worker_number=worker_number,
         total_workers=total_workers,
