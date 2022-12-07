@@ -134,3 +134,17 @@ class Document(UserDict):
             field=field, values=split_values
         )
         self.set(chunk_field, chunk_documents)
+    
+    def operate_on_chunk(
+        self, 
+        operator_function: callable,
+        chunk_field: str, 
+        field: str,
+        default: Any=None
+    ):
+        """
+        Add an operate function.
+        """
+        values = self.get_chunk(chunk_field=chunk_field, field=field)
+        results = operator_function(values)
+        self.set_chunk(chunk_field=chunk_field, field=field, values=results)
