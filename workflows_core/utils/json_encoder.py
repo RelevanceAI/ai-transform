@@ -79,6 +79,7 @@ def json_encoder(obj: Any, force_string: bool = False):
     >>> client.json_encoder = jsonable_encoder
 
     """
+    from workflows_core.utils import DocumentList, Document
     # Loop through iterators and convert
     if isinstance(obj, (list, set, frozenset, GeneratorType, tuple, collections.deque)):
         encoded_list = []
@@ -108,7 +109,8 @@ def json_encoder(obj: Any, force_string: bool = False):
         if math.isnan(obj):
             return None
         return obj
-
+    if isinstance(obj, (Document, DocumentList)):
+        return obj.to_json()
     if type(obj) in ENCODERS_BY_TYPE:
         return ENCODERS_BY_TYPE[type(obj)](obj)  # type: ignore
 

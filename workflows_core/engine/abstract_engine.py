@@ -29,7 +29,7 @@ class AbstractEngine(ABC):
         operator: AbstractOperator,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
-        pull_chunksize: Optional[int] = 8,
+        pull_chunksize: Optional[int] = 3000,
         refresh: bool = True,
         after_id: Optional[List[str]] = None,
         worker_number: int = None,
