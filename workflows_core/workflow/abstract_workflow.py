@@ -22,7 +22,7 @@ class Workflow:
         additional_information: str = "",
         send_email: bool = True,
         success_threshold: float = 0.5,
-        mark_as_complete_after_polling: bool = False
+        mark_as_complete_after_polling: bool = False,
     ):
         self._name = name
         self._engine = engine
@@ -77,7 +77,7 @@ class Workflow:
                 metadata=self._metadata,
                 additional_information=self._additional_information,
                 send_email=self._send_email,
-                mark_as_complete_after_polling=self._mark_as_complete_after_polling
+                mark_as_complete_after_polling=self._mark_as_complete_after_polling,
             ):
                 self.engine()
                 success_ratio = self.engine._success_ratio

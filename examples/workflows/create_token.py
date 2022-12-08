@@ -3,9 +3,10 @@ from workflows_core.utils import encode_parameters
 
 token = encode_parameters(
     parameters={
-        "numeric_field": "rating",
-        "dataset_id": "aaa-test",
+        "text_field": "review_title",
+        "dataset_id": "a-0",
         "authorizationToken": os.environ["TEST_TOKEN"],
+        "n_clusters": 8
     }
 )
 

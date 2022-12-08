@@ -1,10 +1,8 @@
 import json
-
-from copy import deepcopy
 import random
-
+import string
+from copy import deepcopy
 from workflows_core.utils.document_list import DocumentList
-
 
 class TestDocumentList:
     def test_deepcopy(self, test_documents: DocumentList):
@@ -54,3 +52,26 @@ class TestDocumentListTagOperations:
         )  # string case
         test_tag_documents.sort_tags(f"{self.tag_field}.value")  # numeric case
         assert True
+
+
+class TestDocumentChunkOperations:
+    # def test_get_chunk_values(self, test_documents: DocumentList):
+    #     results = test_documents.get_chunks(chunk_field="_chunk_", field="label")
+    #     for r in results:
+    #         assert isinstance(r, dict), f"Not a dictionary, {r}"
+
+    def test_get_chunk_values_as_list(self, test_documents: DocumentList):
+        results = test_documents.get_chunks_as_flat("_chunk_", "label")
+        for r in results:
+            assert isinstance(r, str), f"Not a string, {r}"
+
+    def test_set_chunk_values(self, test_documents: DocumentList):
+        LETTERS: list = string.ascii_letters + string.ascii_uppercase + string.ascii_lowercase
+        LETTERS = LETTERS * 10
+        random_values = LETTERS[:len(test_documents)]
+        test_documents.set_chunks_from_flat(
+            chunk_field="_chunk_", field="test_label", values=random_values
+        )
+        # print([d.get("_chunk_") for d in test_documents])
+        results = test_documents.get_chunks_as_flat("_chunk_", "test_label")
+        assert results == [x for x in random_values]

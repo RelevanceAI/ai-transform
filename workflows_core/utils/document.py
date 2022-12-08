@@ -1,4 +1,5 @@
 import pandas as pd
+import uuid
 
 from copy import deepcopy
 from typing import Any, Optional
@@ -67,3 +68,94 @@ class Document(UserDict):
 
     def to_json(self):
         return json_encoder(deepcopy(self.data))
+
+    def list_chunks(self):
+        """
+        List the available chunks inside of the document.
+        """
+        # based on conversation with API team
+        return [k for k in self.keys() if k.endswith("_chunk_")]
+
+    def get_chunk(self, chunk_field: str, field: str = None, default: str = None):
+        """
+        Returns a list of values.
+        """
+        # provide a recursive implementation for getting chunks
+        from workflows_core.utils.document_list import DocumentList
+
+        document_list = DocumentList(self.get(chunk_field, default=default))
+        # Get the field across chunks
+        if field is None:
+            return document_list
+        return [d.get(field, default=default) for d in document_list.data]
+
+    def _create_chunk_documents(self, field: str, values: list, generate_id: bool=False):
+        """
+        create chunk documents based on a given field and value.
+        """
+        from workflows_core.utils.document_list import DocumentList
+
+        if generate_id:
+            docs = [
+                {"_id": uuid.uuid4().__str__(), field: values[i]}
+                for i in range(len(values))
+            ]
+        else:
+            docs = [
+                {field: values[i]}
+                for i in range(len(values))
+            ]
+
+        return DocumentList(docs)
+
+    def set_chunk(self, chunk_field: str, field: str, values: list,
+        generate_id: bool = False):
+        """
+        doc.list_chunks()
+        doc.get_chunk("value_chunk_", field="sentence") # returns a list of values
+        doc.set_chunk("value_chunk_", field="sentence", values=["hey", "test"])
+        """
+        # We use upsert behavior for now
+        from workflows_core.utils.document_list import DocumentList
+
+        new_chunk_docs = self._create_chunk_documents(field, values=values,
+            generate_id=generate_id)
+        # Update on the old chunk docs
+        old_chunk_docs = DocumentList(self.get(chunk_field))
+        # Relying on immutable property
+        [d.update(new_chunk_docs[i]) for i, d in enumerate(old_chunk_docs.data)]
+
+    def split(self, split_operation: callable, chunk_field: str, field: str,
+            default: Any=None
+    ):
+        """ 
+        The split operation is as follows:
+        
+        The split operation returns to us a list of possible values. 
+        The chunk documents are then created automatically for you.
+        """
+        if default is None:
+            default = []
+        value = self.get(field, default)
+        split_values = split_operation(value)
+        chunk_documents = self._create_chunk_documents(
+            field=field, values=split_values
+        )
+        self.set(chunk_field, chunk_documents)
+    
+    def operate_on_chunk(
+        self, 
+        operator_function: callable,
+        chunk_field: str, 
+        field: str,
+        output_field: str,
+        default: Any=None
+    ):
+        """
+        Add an operate function.
+        """
+        values = self.get_chunk(chunk_field=chunk_field, field=field,
+            default=default)
+        results = operator_function(values)
+        self.set_chunk(chunk_field=chunk_field, field=output_field, 
+            values=results)
