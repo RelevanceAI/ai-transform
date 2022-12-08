@@ -5,8 +5,7 @@ from typing import Any, Dict, List, Union
 
 from workflows_core.utils.document import Document
 
-
-class DocumentList(UserList[Document]):
+class DocumentList(UserList):
     data: List[Document]
 
     def __init__(self, initlist=None):
@@ -19,7 +18,7 @@ class DocumentList(UserList[Document]):
     def __repr__(self):
         return repr(self.data)
 
-    def __getitem__(self, key: Union[str, int]) -> Union[Document, "DocumentList"]:
+    def __getitem__(self, key: Union[str, int]) -> Document:
         if isinstance(key, str):
             return [document[key] for document in self.data]
         elif isinstance(key, slice):
