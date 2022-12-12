@@ -456,6 +456,8 @@ class API:
         """
         Tracks Workflow Progress
         """
+        if worker_number is None:
+            worker_number = 0
         params = dict(
             worker_number=worker_number,
             step=step,
