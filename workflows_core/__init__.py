@@ -1,7 +1,7 @@
-__version__ = "0.13.1"
+__version__ = "0.13.2"
 
 
-def add_config_paths(verbose: bool = False):
+def add_config_paths(verbose: bool = True):
     # Support all config paths
     # Add config paths
     import sys
@@ -14,6 +14,7 @@ def add_config_paths(verbose: bool = False):
     workflows_version = os.environ.get("WORKFLOWS_VERSION")
     path = script_path.replace("/main.py", "")
     main_path = f"{efs_mount_path}/scripts/{workflows_version}/{path}"
+    if verbose: print(main_path)
     if os.path.exists(main_path):
         sys.path.append(main_path)
     if verbose:
