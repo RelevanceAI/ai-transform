@@ -36,7 +36,7 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
 # first - we can get a
 
 
-def retry(num_of_retries: int = 3, timeout: int = 5):
+def retry(num_of_retries: int = 3, timeout: int = 30):
     """
     Allows the function to retry upon failure.
     Args:
