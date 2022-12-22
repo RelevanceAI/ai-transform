@@ -211,7 +211,7 @@ class KeyphraseField(Field):
     def get_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._get_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._text_field,
+            field=self._text_field_,
             alias=self._alias_,
             keyphrase_id=keyphrase_id,
         )

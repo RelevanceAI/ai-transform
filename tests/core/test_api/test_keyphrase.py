@@ -1,12 +1,11 @@
 """
 Test Keyphrase CRUD endpoints
 """
-import pytest
 import uuid
+
 from workflows_core.utils import DocumentList
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.api.client import Client
-from workflows_core.utils.example_documents import mock_documents
 
 # write a few tests
 class TestClient:

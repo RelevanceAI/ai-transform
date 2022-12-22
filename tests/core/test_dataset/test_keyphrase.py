@@ -9,7 +9,7 @@ class TestKeyphraseCrud:
 
         keyphrase_field = full_dataset["_keyphrase_.sample_1_label.default"]
 
-        keyphrase_field.bulk_update_keyphrases(
+        response = keyphrase_field.bulk_update_keyphrases(
             updates=[
                 {
                     "_id": "cat",
