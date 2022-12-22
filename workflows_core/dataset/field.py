@@ -175,7 +175,7 @@ class Field:
             "`bulk_update_keyphrases` not available for non keyphrase_fields"
         )
 
-    def list_keyphrases(self, alias: str):
+    def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
         raise NotImplementedError(
             "`list_keyphrases` not available for non keyphrase_fields"
         )
@@ -204,6 +204,7 @@ class VectorField(Field):
 class KeyphraseField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
+        _, self._text_field, self._alias, *_ = field.split(".")
 
     def get_keyphrase(self, alias: str, keyphrase_id: str):
         return self._dataset.api._get_keyphrase(
@@ -235,12 +236,12 @@ class KeyphraseField(Field):
             dataset_id=self.dataset_id, field=self.field, alias=alias, updates=updates
         )
 
-    def list_keyphrases(self, alias: str, page_size: int, page: int, sort: list = None):
+    def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
         return self._dataset.api._list_keyphrase(
             dataset_id=self.dataset_id,
-            field=self.field,
-            alias=alias,
+            field=self._text_field,
+            alias=self._alias,
             page_size=page_size,
             page=page,
-            sort=sort,
+            sort=[] if sort is None else sort,
         )
