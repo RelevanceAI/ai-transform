@@ -208,7 +208,7 @@ def test_keyphrases() -> List[Dict]:
     return [
         {
             "_id": "doc_1",
-            "keyphrase": "word",
+            "text": "word",
             "score": 10,
             "parent_document": "test_parent",
         },
