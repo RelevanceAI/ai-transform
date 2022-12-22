@@ -301,24 +301,30 @@ class ExplorerSelector(Component):
     description: str = "All the available explorer dashboards go here."
     value_key: str = "explorer_id"
     type: str = "explorerSelector"
-    props: dict = field(default_factory=lambda: {})
-
 
 @dataclass
 class TagPairInput(Component):
     title: str = "Tags to merge"
     description: str = "Please put your tags to merge here."
     value_key: str = "tagsToMerge"
-    props: dict = field(default_factory=lambda: {"addTagText": "Add new tag"})
+    add_tag_text: str = "Add new tags"
     type: str = "tagPairInput"
 
+    def _add_tag_text(self):
+        self.doc['props']['addTagText'] = self.add_tag_text
+
+    @property
+    def hooks(self):
+        return [
+            self._add_optional,
+            self._add_tag_text
+        ]
 
 @dataclass
 class DatasetInput(Component):
     title: str = "What do you want to call your dataset?"
     description: str = "Do not include spaces or capital letters or full stops."
     value_key: str = "dataset_input"
-    props: dict = field(default_factory=lambda: {})
     type: str = "datasetNameInput"
 
 
