@@ -150,27 +150,27 @@ class Field:
             "`insert_centroids` not available for non vector_fields"
         )
 
-    def get_centroids(self, alias: str):
+    def get_centroids(self):
         raise NotImplementedError(
             "`insert_centroids` not available for non vector_fields"
         )
 
-    def get_keyphrase(self, alias: str, keyphrase_id: str):
+    def get_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
             "`get_keyphrase` not available for non keyphrase_fields"
         )
 
-    def update_keyphrase(self, alias: str, keyphrase_id: str, update: dict):
+    def update_keyphrase(self, keyphrase_id: str, update: dict):
         raise NotImplementedError(
             "`update_keyphrase` not available for non keyphrase_fields"
         )
 
-    def delete_keyphrase(self, alias: str, keyphrase_id: str):
+    def delete_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
             "`remove_keyphrase` not available for non keyphrase_fields"
         )
 
-    def bulk_update_keyphrases(self, alias: str, updates: List):
+    def bulk_update_keyphrases(self, updates: List):
         raise NotImplementedError(
             "`bulk_update_keyphrases` not available for non keyphrase_fields"
         )
@@ -204,7 +204,9 @@ class VectorField(Field):
 class KeyphraseField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
-        _, self._text_field, self._alias, *_ = field.split(".")
+        _, text_field, alias, *_ = field.split(".")
+        self._text_field = text_field
+        self._alias = alias
 
     def get_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._get_keyphrase(
