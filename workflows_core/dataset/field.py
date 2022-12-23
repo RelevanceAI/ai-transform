@@ -205,22 +205,22 @@ class KeyphraseField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
         _, text_field, alias, *_ = field.split(".")
-        self._text_field_ = text_field
-        self._alias_ = alias
+        self._keyphrase_text_field = text_field
+        self._keyphrase_alias = alias
 
     def get_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._get_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._text_field_,
-            alias=self._alias_,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
         )
 
     def update_keyphrase(self, keyphrase_id: str, update: dict):
         return self._dataset.api._update_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._text_field_,
-            alias=self._alias_,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
             update=update,
         )
@@ -228,24 +228,24 @@ class KeyphraseField(Field):
     def delete_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._delete_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._text_field_,
-            alias=self._alias_,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
         )
 
     def bulk_update_keyphrases(self, updates: List):
         return self._dataset.api._bulk_update_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._text_field_,
-            alias=self._alias_,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             updates=updates,
         )
 
     def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
         return self._dataset.api._list_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._text_field_,
-            alias=self._alias_,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             page_size=page_size,
             page=page,
             sort=[] if sort is None else sort,
