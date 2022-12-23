@@ -203,7 +203,7 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     test_client.delete_dataset(dataset_id)
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_keyphrases() -> List[Dict]:
     return [
         {
@@ -222,7 +222,7 @@ def test_keyphrases() -> List[Dict]:
     ]
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_keyphrase_dataset(test_client: Client, test_dataset_id: str) -> Dataset:
     docs = mock_documents(100)
     dataset = test_client.Dataset(test_dataset_id)
