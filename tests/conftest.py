@@ -208,16 +208,15 @@ def test_keyphrases() -> List[Dict]:
     return [
         {
             "_id": "doc_1",
-            "keyphrase": "word",
-            "score": 10,
-            "parent_document": "test_parent",
-            "text": "test_text" + str(random.random()),
+            "keyphrase_score": 10,
+            #"parent_document": "test_parent",
+            "text": "word",
         },
         {
             "_id": "doc_2",
-            "keyphrase": "word",
-            "score": 10,
-            "text": "test_text" + str(random.random()),
+            # "keyphrase": "word",
+            "keyphrase_score": 10,
+            "text": "word",
         },
     ]
 

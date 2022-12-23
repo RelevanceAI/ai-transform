@@ -14,16 +14,16 @@ class TestKeyphraseCrud:
                 {
                     "_id": "cat",
                     "text": "cat",
-                    "count": 5,
-                    "sentiment_score": 0.8,
-                    "goodness_score": 1.2,
+                    "frequency": 5,
+                    # "sentiment_score": 0.8,
+                    "keyphrase_score": 1.2,
                 },
                 {
                     "_id": "pig",
                     "text": "pig",
-                    "count": 4,
-                    "sentiment_score": 0.7,
-                    "goodness_score": 1.1,
+                    "frequency": 4,
+                    # "sentiment_score": 0.7,
+                    "keyphrase_score": 1.1,
                 },
             ],
         )
