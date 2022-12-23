@@ -37,4 +37,4 @@ class TestClient:
             test_dataset_id, field=field, alias=alias, keyphrase_id=keyphrase_id
         )
         print(result)
-        assert result["text"] == "word" and result["score"] == 10, result
+        assert result["text"] == "word" and result["keyphrase_score"] == 10, result
