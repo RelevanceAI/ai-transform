@@ -1,4 +1,4 @@
-__version__ = "0.13.4"
+__version__ = "0.13.5"
 
 
 def add_config_paths(verbose: bool = True):
@@ -14,7 +14,8 @@ def add_config_paths(verbose: bool = True):
     workflows_version = os.environ.get("WORKFLOWS_VERSION")
     path = script_path.replace("/main.py", "")
     main_path = f"{efs_mount_path}/scripts/{workflows_version}/{path}"
-    if verbose: print(main_path)
+    if verbose:
+        print(main_path)
     if os.path.exists(main_path):
         sys.path.append(main_path)
     if verbose:
