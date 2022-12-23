@@ -28,7 +28,7 @@ class Component:
     """
     optional: bool = True
     default_value: Any = None
-    doc: dict = field(default_factory= lambda x: {'props': {}})
+    doc: dict = field(default_factory= lambda: {'props': {}})
     # hooks are a way to modify the document
     only_types: list = None
 
