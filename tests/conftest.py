@@ -209,12 +209,12 @@ def test_keyphrases() -> List[Dict]:
         {
             "_id": "doc_1",
             "keyphrase_score": 10,
-            "parent_document": "test_parent",
+            #"parent_document": "test_parent",
             "text": "word",
         },
         {
             "_id": "doc_2",
-            "keyphrase": "word",
+            # "keyphrase": "word",
             "keyphrase_score": 10,
             "text": "word",
         },
