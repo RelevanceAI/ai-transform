@@ -21,7 +21,7 @@ class Field:
         return self._dataset.dataset_id
 
     @property
-    def field(self):
+    def _text_field(self):
         return self._field
 
     def _get_filter_type(self) -> str:
@@ -150,32 +150,32 @@ class Field:
             "`insert_centroids` not available for non vector_fields"
         )
 
-    def get_centroids(self, alias: str):
+    def get_centroids(self):
         raise NotImplementedError(
             "`insert_centroids` not available for non vector_fields"
         )
 
-    def get_keyphrase(self, alias: str, keyphrase_id: str):
+    def get_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
             "`get_keyphrase` not available for non keyphrase_fields"
         )
 
-    def update_keyphrase(self, alias: str, keyphrase_id: str, update: dict):
+    def update_keyphrase(self, keyphrase_id: str, update: dict):
         raise NotImplementedError(
             "`update_keyphrase` not available for non keyphrase_fields"
         )
 
-    def delete_keyphrase(self, alias: str, keyphrase_id: str):
+    def delete_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
             "`remove_keyphrase` not available for non keyphrase_fields"
         )
 
-    def bulk_update_keyphrases(self, alias: str, updates: List):
+    def bulk_update_keyphrases(self, updates: List):
         raise NotImplementedError(
             "`bulk_update_keyphrases` not available for non keyphrase_fields"
         )
 
-    def list_keyphrases(self, alias: str):
+    def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
         raise NotImplementedError(
             "`list_keyphrases` not available for non keyphrase_fields"
         )
@@ -189,14 +189,14 @@ class VectorField(Field):
         return self._dataset.api._insert_centroids(
             dataset_id=self.dataset_id,
             cluster_centers=centroid_documents,
-            vector_fields=[self.field],
+            vector_fields=[self._text_field],
             alias=alias,
         )
 
     def get_centroids(self, alias: str):
         return self._dataset.api._get_centroids(
             dataset_id=self.dataset_id,
-            vector_fields=[self.field],
+            vector_fields=[self._text_field],
             alias=alias,
         )
 
@@ -204,43 +204,49 @@ class VectorField(Field):
 class KeyphraseField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
+        _, text_field, alias, *_ = field.split(".")
+        self._keyphrase_text_field = text_field
+        self._keyphrase_alias = alias
 
-    def get_keyphrase(self, alias: str, keyphrase_id: str):
+    def get_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._get_keyphrase(
             dataset_id=self.dataset_id,
-            field=self.field,
-            alias=alias,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
         )
 
-    def update_keyphrase(self, alias: str, keyphrase_id: str, update: dict):
+    def update_keyphrase(self, keyphrase_id: str, update: dict):
         return self._dataset.api._update_keyphrase(
             dataset_id=self.dataset_id,
-            field=self.field,
-            alias=alias,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
             update=update,
         )
 
-    def delete_keyphrase(self, alias: str, keyphrase_id: str):
+    def delete_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._delete_keyphrase(
             dataset_id=self.dataset_id,
-            field=self.field,
-            alias=alias,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
         )
 
-    def bulk_update_keyphrases(self, alias: str, updates: List):
+    def bulk_update_keyphrases(self, updates: List):
         return self._dataset.api._bulk_update_keyphrase(
-            dataset_id=self.dataset_id, field=self.field, alias=alias, updates=updates
+            dataset_id=self.dataset_id,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
+            updates=updates,
         )
 
-    def list_keyphrases(self, alias: str, page_size: int, page: int, sort: list = None):
+    def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
         return self._dataset.api._list_keyphrase(
             dataset_id=self.dataset_id,
-            field=self.field,
-            alias=alias,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
             page_size=page_size,
             page=page,
-            sort=sort,
+            sort=[] if sort is None else sort,
         )
