@@ -36,4 +36,5 @@ class TestClient:
         result = test_client._api._get_keyphrase(
             test_dataset_id, field=field, alias=alias, keyphrase_id=keyphrase_id
         )
-        assert result["keyphrase"] == "word" and result["score"] == 10, result
+        print(result)
+        assert result["text"] == "word" and result["keyphrase_score"] == 10, result
