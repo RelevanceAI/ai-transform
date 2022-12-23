@@ -28,15 +28,16 @@ class Component:
     """
     optional: bool = True
     default_value: Any = None
-    doc: dict = field(default_factory= lambda x: {'props': {}})
+    doc: dict = field(default_factory= lambda: {'props': {}})
     # hooks are a way to modify the document
     only_types: list = None
 
     def _add_optional(self):
-        self.doc['props']['optional'] = True
+        self.doc['props']['optional'] = self.optional
 
     def _add_multiple(self):
-        self.doc['props']['multiple'] = self.multiple
+        if self.multiple:
+            self.doc['props']['multiple'] = self.multiple
 
     def _add_default_value(self):
         if self.default_value is not None:
@@ -51,7 +52,7 @@ class Component:
         if 'props' not in self.doc:
             self.doc['props'] = {}        
         for hook in self.hooks:
-            self.doc = hook(self.doc)
+            hook()
         self.doc['valueKey'] = self.doc.pop("value_key")
         return self.doc
 
