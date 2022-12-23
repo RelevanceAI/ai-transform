@@ -208,14 +208,14 @@ def test_keyphrases() -> List[Dict]:
     return [
         {
             "_id": "doc_1",
-            "score": 10,
+            "keyphrase_score": 10,
             "parent_document": "test_parent",
             "text": "word",
         },
         {
             "_id": "doc_2",
             "keyphrase": "word",
-            "score": 10,
+            "keyphrase_score": 10,
             "text": "word",
         },
     ]
