@@ -1,7 +1,7 @@
-__version__ = "0.14.1"
+__version__ = "0.14.2"
 
 
-def add_config_paths(verbose: bool = True):
+def add_config_paths(verbose: bool = False):
     # Support all config paths
     # Add config paths
     import sys
