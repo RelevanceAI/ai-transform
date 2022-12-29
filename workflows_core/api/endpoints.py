@@ -1,8 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
-API_URL = "https://api-1e3042.stack.relevance.ai/latest/core/openapi_schema.json"
-DOCUMENTATION = "https://api-1e3042.stack.relevance.ai/latest/core/documentation"
+API_URL = "https://api-1e3042.stack.tryrelevance.com/latest/core/openapi_schema.json"
+DOCUMENTATION = "https://api-1e3042.stack.tryrelevance.com/latest/core/documentation"
 
 
 def main():

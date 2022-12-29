@@ -73,7 +73,7 @@ class API:
     ) -> None:
         self._credentials = credentials
         self._base_url = (
-            f"https://api-{self._credentials.region}.stack.relevance.ai/latest"
+            f"https://api-{self._credentials.region}.stack.tryrelevance.com/latest"
         )
         self._headers = dict(
             Authorization=f"{self._credentials.project}:{self._credentials.api_key}",

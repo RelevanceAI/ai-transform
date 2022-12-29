@@ -30,9 +30,9 @@ example_test_requirements = core_test_requirements + [
 setup(
     name="RelevanceAI Workflows Core",
     version=__version__,
-    url="https://relevance.ai/",
+    url="https://tryrelevance.com/",
     author="Relevance AI",
-    author_email="dev@relevance.ai",
+    author_email="dev@tryrelevance.com",
     packages=find_packages(),
     setup_requires=["wheel"],
     install_requires=requirements,
