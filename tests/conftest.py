@@ -208,7 +208,7 @@ def test_keyphrases() -> List[Dict]:
     return [
         {
             "text": "word",
-            "keyphrase_id": "word",
+            "_id": "word",
             "ancestors": [],
             "parents": [],
             "level": 1,
@@ -217,7 +217,7 @@ def test_keyphrases() -> List[Dict]:
             "metadata": {}},
         {
             "text": "cat",
-            "keyphrase_id": "cat",
+            "_id": "cat",
             "ancestors": ["word"],
             "parents": ["word"],
             "level": 0,

@@ -19,4 +19,4 @@ class TestKeyphraseCrud:
         )
 
         keyphrase = keyphrase_field.get_keyphrase(keyphrase_id="cat")
-        assert "cat" == keyphrase[0]["text"]
+        assert "cat" == keyphrase["text"]
