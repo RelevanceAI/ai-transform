@@ -1,16 +1,32 @@
-from typing import List
+from typing import List, Dict
+from dataclasses import dataclass
 
 
+@dataclass
 class Keyphrase:
+    """
+    We use this class to enforce the format of a keyphrase and
+    make it easier to handle to CRUD operations on Keyphrase Field.
+
+    When declare a Keyphrase object, the following parameters are needed as input:
+    text: string, the keyphrase text
+    _id: string, the id of the keyphrase.
+    ancestors: list of strings, the ancestors of the keyphrase in the taxnonomy.
+    parents: list of strings, the parents of the keyphrase in the taxnonomy.
+    level: integer, the level of the keyphrase.
+    keyphrase_score: float, >=0, the score of the keyphrase.
+    frequency: integer, the frequency of the keyphrase.
+    metadata: dict, the metadata that is associated with the keyphrase.
+    """
     def __init__(self,
-                 _id: str,
                  text: str,
-                 ancestors: List[str] = [],
-                 parents: List[str] = [],
+                 _id: str = None,
+                 ancestors: List[str] = None,
+                 parents: List[str] = None,
                  level: int = 0,
                  keyphrase_score: float = 0.0,
                  frequency: int = 0,
-                 metadata=None,
+                 metadata: Dict = None,
                  ):
         self._id = _id
         self._text = text
@@ -23,6 +39,10 @@ class Keyphrase:
         if self._id == '' or self._id is None:
             self._id = self._text
 
+    """
+    We use the to_dict function to generate the keyphrase in dict format. 
+    The output dict can be then used for CURD operations of KeyphraseField.
+    """
     def to_dict(self):
         res = {
             "_id": self._id,
