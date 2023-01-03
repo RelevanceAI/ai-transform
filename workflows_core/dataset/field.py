@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 from workflows_core.types import Filter
 from workflows_core.utils.document_list import DocumentList
 from workflows_core.utils.keyphrase import Keyphrase
-
+from dataclasses import asdict
 
 class Field:
     def __init__(self, dataset, field: str):
@@ -218,23 +218,12 @@ class KeyphraseField(Field):
         )
 
     def update_keyphrase(self, keyphrase_id: str, update: Keyphrase):
-        update_dict = {
-            "_id": update.keyphrase_id,
-            "text": update.text,
-            "ancestors": update.ancestors,
-            "parents": update.parents,
-            "level": update.level,
-            "keyphrase_score": update.keyphrase_score,
-            "frequency": update.frequency,
-            "metadata": update.metadata,
-        }
-
         return self._dataset.api._update_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
-            update=update_dict,
+            update=asdict(update),
         )
 
     def delete_keyphrase(self, keyphrase_id: str):
@@ -246,19 +235,7 @@ class KeyphraseField(Field):
         )
 
     def bulk_update_keyphrases(self, updates: List[Keyphrase]):
-        updates_list = []
-        for update in updates:
-            update_dict = {
-                "_id": update.keyphrase_id,
-                "text": update.text,
-                "ancestors": update.ancestors,
-                "parents": update.parents,
-                "level": update.level,
-                "keyphrase_score": update.keyphrase_score,
-                "frequency": update.frequency,
-                "metadata": update.metadata,
-            }
-            updates_list.append(update_dict)
+        updates_list = [asdict(update) for update in updates]
         return self._dataset.api._bulk_update_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,

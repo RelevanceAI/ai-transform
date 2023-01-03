@@ -10,7 +10,7 @@ class Keyphrase:
 
     Member variables are:
     _text: string, the keyphrase text
-    keyphrase_id: string, the id of the keyphrase.
+    _id: string, the id of the keyphrase.
     _ancestors: list of strings, the ancestors of the keyphrase in the taxnonomy.
     _parents: list of strings, the parents of the keyphrase in the taxnonomy.
     _level: integer, the level of the keyphrase.
@@ -19,7 +19,7 @@ class Keyphrase:
     _metadata: dict, the metadata that is associated with the keyphrase.
     """
     text: str
-    keyphrase_id: str = None
+    _id: str
     ancestors: List[str] = None
     parents: List[str] = None
     level: int = 0
