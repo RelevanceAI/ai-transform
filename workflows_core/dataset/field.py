@@ -2,6 +2,7 @@ from typing import List, Optional, Union
 
 from workflows_core.types import Filter
 from workflows_core.utils.document_list import DocumentList
+from workflows_core.utils.keyphrase import Keyphrase
 
 
 class Field:
@@ -216,13 +217,24 @@ class KeyphraseField(Field):
             keyphrase_id=keyphrase_id,
         )
 
-    def update_keyphrase(self, keyphrase_id: str, update: dict):
+    def update_keyphrase(self, keyphrase_id: str, update: Keyphrase):
+        update_dict = {
+            "_id": update.keyphrase_id,
+            "text": update.text,
+            "ancestors": update.ancestors,
+            "parents": update.parents,
+            "level": update.level,
+            "keyphrase_score": update.keyphrase_score,
+            "frequency": update.frequency,
+            "metadata": update.metadata,
+        }
+
         return self._dataset.api._update_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
-            update=update,
+            update=update_dict,
         )
 
     def delete_keyphrase(self, keyphrase_id: str):
@@ -233,12 +245,25 @@ class KeyphraseField(Field):
             keyphrase_id=keyphrase_id,
         )
 
-    def bulk_update_keyphrases(self, updates: List):
+    def bulk_update_keyphrases(self, updates: List[Keyphrase]):
+        updates_list = []
+        for update in updates:
+            update_dict = {
+                "_id": update.keyphrase_id,
+                "text": update.text,
+                "ancestors": update.ancestors,
+                "parents": update.parents,
+                "level": update.level,
+                "keyphrase_score": update.keyphrase_score,
+                "frequency": update.frequency,
+                "metadata": update.metadata,
+            }
+            updates_list.append(update_dict)
         return self._dataset.api._bulk_update_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
-            updates=updates,
+            updates=updates_list,
         )
 
     def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
