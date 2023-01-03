@@ -22,6 +22,7 @@ from workflows_core.utils.example_documents import (
     static_documents,
     tag_documents,
 )
+from workflows_core.utils.keyphrase import Keyphrase
 
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
@@ -204,20 +205,24 @@ def test_cluster_workflow_token(test_client: Client) -> str:
 
 
 @pytest.fixture()
-def test_keyphrases() -> List[Dict]:
+def test_keyphrases() -> List[Keyphrase]:
     return [
-        {
-            "_id": "doc_1",
-            "keyphrase_score": 10,
-            #"parent_document": "test_parent",
-            "text": "word",
-        },
-        {
-            "_id": "doc_2",
-            # "keyphrase": "word",
-            "keyphrase_score": 10,
-            "text": "word",
-        },
+        Keyphrase(text="word",
+                  keyphrase_id="word",
+                  ancestors=[],
+                  parents=[],
+                  level=1,
+                  keyphrase_score=10,
+                  frequency=3,
+                  metadata={}),
+        Keyphrase(text="cat",
+                  keyphrase_id="cat",
+                  ancestors=["word"],
+                  parents=["word"],
+                  level=0,
+                  keyphrase_score=6.4,
+                  frequency=7,
+                  metadata={}),
     ]
 
 
