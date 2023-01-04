@@ -217,14 +217,24 @@ class KeyphraseField(Field):
             keyphrase_id=keyphrase_id,
         )
 
-    def update_keyphrase(self, keyphrase_id: str, update: Keyphrase):
-        return self._dataset.api._update_keyphrase(
-            dataset_id=self.dataset_id,
-            field=self._keyphrase_text_field,
-            alias=self._keyphrase_alias,
-            keyphrase_id=keyphrase_id,
-            update=asdict(update),
-        )
+    def update_keyphrase(self, keyphrase_id: str, update: Union[Keyphrase, dict]):
+        if isinstance(update, Keyphrase):
+            return self._dataset.api._update_keyphrase(
+                dataset_id=self.dataset_id,
+                field=self._keyphrase_text_field,
+                alias=self._keyphrase_alias,
+                keyphrase_id=keyphrase_id,
+                update=asdict(update),
+            )
+        elif isinstance(update, dict):
+            return self._dataset.api._update_keyphrase(
+                dataset_id=self.dataset_id,
+                field=self._keyphrase_text_field,
+                alias=self._keyphrase_alias,
+                keyphrase_id=keyphrase_id,
+                update=update,
+            )
+
 
     def delete_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._delete_keyphrase(
@@ -234,8 +244,13 @@ class KeyphraseField(Field):
             keyphrase_id=keyphrase_id,
         )
 
-    def bulk_update_keyphrases(self, updates: List[Keyphrase]):
-        updates_list = [asdict(update) for update in updates]
+    def bulk_update_keyphrases(self, updates: List[Union[Keyphrase, dict]]):
+        updates_list = []
+        for update in updates:
+            if isinstance(update, Keyphrase):
+                updates_list.append(asdict(update))
+            elif isinstance(update, dict):
+                updates_list.append(update)
         return self._dataset.api._bulk_update_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
