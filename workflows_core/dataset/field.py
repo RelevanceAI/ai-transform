@@ -2,7 +2,8 @@ from typing import List, Optional, Union
 
 from workflows_core.types import Filter
 from workflows_core.utils.document_list import DocumentList
-
+from workflows_core.utils.keyphrase import Keyphrase
+from dataclasses import asdict
 
 class Field:
     def __init__(self, dataset, field: str):
@@ -216,7 +217,9 @@ class KeyphraseField(Field):
             keyphrase_id=keyphrase_id,
         )
 
-    def update_keyphrase(self, keyphrase_id: str, update: dict):
+    def update_keyphrase(self, keyphrase_id: str, update: Union[Keyphrase, dict]):
+        if isinstance(update, Keyphrase):
+            update = asdict(update)
         return self._dataset.api._update_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
@@ -233,12 +236,18 @@ class KeyphraseField(Field):
             keyphrase_id=keyphrase_id,
         )
 
-    def bulk_update_keyphrases(self, updates: List):
+    def bulk_update_keyphrases(self, updates: List[Union[Keyphrase, dict]]):
+        updates_list = []
+        for update in updates:
+            if isinstance(update, Keyphrase):
+                updates_list.append(asdict(update))
+            elif isinstance(update, dict):
+                updates_list.append(update)
         return self._dataset.api._bulk_update_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
-            updates=updates,
+            updates=updates_list,
         )
 
     def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):

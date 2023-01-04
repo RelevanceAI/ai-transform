@@ -3,7 +3,6 @@ import random
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.example_documents import mock_documents
-from workflows_core.dataset.field import KeyphraseField
 
 
 @pytest.mark.usefixtures("empty_dataset")
