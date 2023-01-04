@@ -219,22 +219,14 @@ class KeyphraseField(Field):
 
     def update_keyphrase(self, keyphrase_id: str, update: Union[Keyphrase, dict]):
         if isinstance(update, Keyphrase):
-            return self._dataset.api._update_keyphrase(
-                dataset_id=self.dataset_id,
-                field=self._keyphrase_text_field,
-                alias=self._keyphrase_alias,
-                keyphrase_id=keyphrase_id,
-                update=asdict(update),
-            )
-        elif isinstance(update, dict):
-            return self._dataset.api._update_keyphrase(
-                dataset_id=self.dataset_id,
-                field=self._keyphrase_text_field,
-                alias=self._keyphrase_alias,
-                keyphrase_id=keyphrase_id,
-                update=update,
-            )
-
+            update = asdict(update)
+        return self._dataset.api._update_keyphrase(
+            dataset_id=self.dataset_id,
+            field=self._keyphrase_text_field,
+            alias=self._keyphrase_alias,
+            keyphrase_id=keyphrase_id,
+            update=update,
+        )
 
     def delete_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._delete_keyphrase(
