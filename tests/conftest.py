@@ -73,6 +73,21 @@ def full_dataset(test_client: Client) -> Dataset:
 
 
 @pytest.fixture(scope="class")
+def mixed_dataset(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    documents = mock_documents(10)
+    stripped = mock_documents(10)
+    for document in stripped:
+        document.pop("_chunk_")
+    documents += stripped
+    dataset.insert_documents(documents)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
 def static_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
@@ -214,7 +229,8 @@ def test_keyphrases() -> List[Dict]:
             "level": 1,
             "keyphrase_score": 10,
             "frequency": 3,
-            "metadata": {}},
+            "metadata": {},
+        },
         {
             "text": "cat",
             "_id": "cat",
@@ -223,7 +239,8 @@ def test_keyphrases() -> List[Dict]:
             "level": 0,
             "keyphrase_score": 6.4,
             "frequency": 7,
-            "metadata": {}},
+            "metadata": {},
+        },
     ]
 
 
