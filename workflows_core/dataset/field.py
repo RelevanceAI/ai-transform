@@ -5,6 +5,7 @@ from workflows_core.utils.document_list import DocumentList
 from workflows_core.utils.keyphrase import Keyphrase
 from dataclasses import asdict
 
+
 class Field:
     def __init__(self, dataset, field: str):
         from workflows_core.dataset.dataset import Dataset
@@ -127,6 +128,21 @@ class Field:
         ]
 
     def exists(self) -> Filter:
+        if "_chunk_" in self._field:
+            count = self._field.count(".")
+            if count:
+                parent_field = self._field.split(".")[0]
+            else:
+                parent_field = self._field
+
+            return [
+                {
+                    "chunk": {
+                        "path": parent_field,
+                        "filters": [{"fieldExists": {"field": self._field}}],
+                    }
+                }
+            ]
         return [
             {
                 "field": self._field,

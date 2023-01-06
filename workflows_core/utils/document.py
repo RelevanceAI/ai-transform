@@ -89,7 +89,9 @@ class Document(UserDict):
             return document_list
         return [d.get(field, default=default) for d in document_list.data]
 
-    def _create_chunk_documents(self, field: str, values: list, generate_id: bool=False):
+    def _create_chunk_documents(
+        self, field: str, values: list, generate_id: bool = False
+    ):
         """
         create chunk documents based on a given field and value.
         """
@@ -101,15 +103,13 @@ class Document(UserDict):
                 for i in range(len(values))
             ]
         else:
-            docs = [
-                {field: values[i]}
-                for i in range(len(values))
-            ]
+            docs = [{field: values[i]} for i in range(len(values))]
 
         return DocumentList(docs)
 
-    def set_chunk(self, chunk_field: str, field: str, values: list,
-        generate_id: bool = False):
+    def set_chunk(
+        self, chunk_field: str, field: str, values: list, generate_id: bool = False
+    ):
         """
         doc.list_chunks()
         doc.get_chunk("value_chunk_", field="sentence") # returns a list of values
@@ -118,44 +118,45 @@ class Document(UserDict):
         # We use upsert behavior for now
         from workflows_core.utils.document_list import DocumentList
 
-        new_chunk_docs = self._create_chunk_documents(field, values=values,
-            generate_id=generate_id)
+        new_chunk_docs = self._create_chunk_documents(
+            field, values=values, generate_id=generate_id
+        )
         # Update on the old chunk docs
         old_chunk_docs = DocumentList(self.get(chunk_field))
         # Relying on immutable property
         [d.update(new_chunk_docs[i]) for i, d in enumerate(old_chunk_docs.data)]
 
-    def split(self, split_operation: callable, chunk_field: str, field: str,
-            default: Any=None
+    def split(
+        self,
+        split_operation: callable,
+        chunk_field: str,
+        field: str,
+        default: Any = None,
     ):
-        """ 
+        """
         The split operation is as follows:
-        
-        The split operation returns to us a list of possible values. 
+
+        The split operation returns to us a list of possible values.
         The chunk documents are then created automatically for you.
         """
         if default is None:
             default = []
         value = self.get(field, default)
         split_values = split_operation(value)
-        chunk_documents = self._create_chunk_documents(
-            field=field, values=split_values
-        )
+        chunk_documents = self._create_chunk_documents(field=field, values=split_values)
         self.set(chunk_field, chunk_documents)
-    
+
     def operate_on_chunk(
-        self, 
+        self,
         operator_function: callable,
-        chunk_field: str, 
+        chunk_field: str,
         field: str,
         output_field: str,
-        default: Any=None
+        default: Any = None,
     ):
         """
         Add an operate function.
         """
-        values = self.get_chunk(chunk_field=chunk_field, field=field,
-            default=default)
+        values = self.get_chunk(chunk_field=chunk_field, field=field, default=default)
         results = operator_function(values)
-        self.set_chunk(chunk_field=chunk_field, field=output_field, 
-            values=results)
+        self.set_chunk(chunk_field=chunk_field, field=output_field, values=results)
