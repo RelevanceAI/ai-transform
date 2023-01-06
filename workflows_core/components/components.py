@@ -120,6 +120,7 @@ class BaseInput(Component):
 class Option:
     label: str
     value: Any
+    # description: str
 
 @dataclass
 class BaseDropdown(Component):
@@ -328,6 +329,7 @@ class TagPairInput(Component):
     value_key: str = "tagsToMerge"
     add_tag_text: str = "Add new tags"
     type: str = "tagPairInput"
+    multiple: bool = True
 
     def _add_tag_text(self):
         self.doc['props']['addTagText'] = self.add_tag_text
