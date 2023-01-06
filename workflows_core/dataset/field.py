@@ -219,7 +219,26 @@ class VectorField(Field):
         )
 
     def get_all_centroids(self, alias: str, **kwargs):
-        raise NotImplementedError
+        """
+        Get all centroids and returns as a dictionary for easy access
+        """
+        all_centroids = {}
+        page = 1
+        while True:
+            res = self._dataset.api._get_centroids(
+                dataset_id=self.dataset_id,
+                vector_fields=[self._text_field],
+                alias=alias,
+                include_vector=True,
+                page_size=100,
+                page=page
+            )['results']
+            if len(res) == 0:
+                break
+            page += 1
+            for info in res:
+                all_centroids[info['_id']] = info[self._text_field]
+        return all_centroids
 
 
 class KeyphraseField(Field):
