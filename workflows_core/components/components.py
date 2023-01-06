@@ -120,7 +120,7 @@ class BaseInput(Component):
 class Option:
     label: str
     value: Any
-    description: str
+    # description: str
 
 @dataclass
 class BaseDropdown(Component):
