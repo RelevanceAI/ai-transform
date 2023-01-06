@@ -69,8 +69,6 @@ def test_sentiment_example_wsmall_batch_stable_engine(
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
     alias = config.get("alias")
-    total_workers = config.get("total_workers", 3)
-    worker_number = config.get("worker_number", 2)
     send_email = config.get("send_email", False)
     additional_information = config.get("additional_information", "")
 
@@ -80,14 +78,15 @@ def test_sentiment_example_wsmall_batch_stable_engine(
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
     filters = dataset[text_field].exists()
+
     engine = SmallBatchStableEngine(
         dataset=dataset,
         operator=operator,
-        pull_chunksize=8,
+        pull_chunksize=2,
+        transform_threshold=10,
+        transform_chunksize=5,
         select_fields=[text_field],
         filters=filters,
-        total_workers=total_workers,
-        worker_number=worker_number,
     )
 
     workflow = Workflow(

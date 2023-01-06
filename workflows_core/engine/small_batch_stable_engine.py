@@ -49,9 +49,10 @@ class SmallBatchStableEngine(AbstractEngine):
         )
 
         self._transform_threshold = transform_threshold
-        self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
+        self._transform_chunksize = transform_chunksize
 
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
+        self._num_chunks = self._size // self._transform_threshold + 1
 
     def chunk_documents(self, documents: DocumentList):
         num_chunks = len(documents) // self._transform_chunksize + 1
@@ -82,7 +83,7 @@ class SmallBatchStableEngine(AbstractEngine):
             enumerate(iterator),
             desc=repr(self.operator),
             disable=(not self._show_progress_bar),
-            total=self.num_chunks,
+            total=self._num_chunks,
         ):
             self.update_progress(chunk_counter)
             batch += small_chunk
@@ -114,7 +115,6 @@ class SmallBatchStableEngine(AbstractEngine):
                         # we only update schema on the first chunk
                         # otherwise it breaks down how the backend handles
                         # schema updates
-                        successful_chunks += 1
                         chunk_to_update += new_batch
 
                     # We want to make sure the schema updates
@@ -124,18 +124,19 @@ class SmallBatchStableEngine(AbstractEngine):
                     else:
                         ingest_in_background = True
 
-                    result = self.update_chunk(
-                        chunk_to_update,
-                        update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
-                        ingest_in_background=ingest_in_background,
-                    )
-                    logger.debug(result)
+                result = self.update_chunk(
+                    chunk_to_update,
+                    update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
+                    ingest_in_background=ingest_in_background,
+                )
 
+                successful_chunks += 1
+                logger.debug(result)
                 batch = []
 
-            # executes after everything wraps up
-            if self.job_id:
-                self.update_progress(chunk_counter + 1)
+        # executes after everything wraps up
+        if self.job_id:
+            self.update_progress(chunk_counter + 1)
 
         self._error_logs = error_logs
         if self.num_chunks > 0:
