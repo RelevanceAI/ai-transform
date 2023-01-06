@@ -3,7 +3,7 @@
 """
 from dataclasses import dataclass, asdict, field
 import re
-from typing import Any
+from typing import Any, List
 from enum import Enum
 
 COLAB_PREFIX = (
@@ -110,10 +110,21 @@ class BaseInput(Component):
         self.doc['props']['value'] = self.default_value
 
 @dataclass
+class Option:
+    label: str
+    value: Any
+
+@dataclass
 class BaseDropdown(Component):
     title: str = ""
     description: str = ""
     value_key: str = ""
+    options: List[Option] = field(
+        default_factory=lambda x: [
+            Option(label="Yes", value=True),
+            Option(label="No", value=False)
+        ]
+    )
     type: str = "baseDropdown"
 
 @dataclass
