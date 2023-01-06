@@ -3,7 +3,6 @@ import random
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.example_documents import mock_documents
-from workflows_core.dataset.field import KeyphraseField
 
 
 @pytest.mark.usefixtures("empty_dataset")
@@ -135,3 +134,14 @@ class TestDatasetMedia:
             ["hierarchy.png", "hierarchy.png", "hierarchy.png"]
         )
         assert len(urls) == 3
+
+
+class TestChunkFilters:
+    def test_chunk_filters(self, mixed_dataset: Dataset):
+        filters = mixed_dataset["_chunk_.label"].exists()
+        filtered = mixed_dataset.get_documents(100, filters=filters)
+        assert filtered["count"] == 10
+
+        filters = mixed_dataset["_chunk_.label_chunkvector_"].exists()
+        filtered = mixed_dataset.get_documents(100, filters=filters)
+        assert filtered["count"] == 10

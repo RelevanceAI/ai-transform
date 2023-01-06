@@ -22,7 +22,7 @@ from workflows_core.utils.example_documents import (
     static_documents,
     tag_documents,
 )
-
+from workflows_core.utils.keyphrase import Keyphrase
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
@@ -68,6 +68,21 @@ def full_dataset(test_client: Client) -> Dataset:
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id)
     dataset.insert_documents(mock_documents(20))
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
+def mixed_dataset(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    documents = mock_documents(10)
+    stripped = mock_documents(10)
+    for document in stripped:
+        document.pop("_chunk_")
+    documents += stripped
+    dataset.insert_documents(documents)
     yield dataset
     test_client.delete_dataset(dataset_id)
 
@@ -207,16 +222,24 @@ def test_cluster_workflow_token(test_client: Client) -> str:
 def test_keyphrases() -> List[Dict]:
     return [
         {
-            "_id": "doc_1",
-            "keyphrase_score": 10,
-            #"parent_document": "test_parent",
             "text": "word",
+            "_id": "word",
+            "ancestors": [],
+            "parents": [],
+            "level": 1,
+            "keyphrase_score": 10,
+            "frequency": 3,
+            "metadata": {},
         },
         {
-            "_id": "doc_2",
-            # "keyphrase": "word",
-            "keyphrase_score": 10,
-            "text": "word",
+            "text": "cat",
+            "_id": "cat",
+            "ancestors": ["word"],
+            "parents": ["word"],
+            "level": 0,
+            "keyphrase_score": 6.4,
+            "frequency": 7,
+            "metadata": {},
         },
     ]
 
