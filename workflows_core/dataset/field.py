@@ -210,12 +210,16 @@ class VectorField(Field):
             alias=alias,
         )
 
-    def get_centroids(self, alias: str):
+    def get_centroids(self, alias: str, **kwargs):
         return self._dataset.api._get_centroids(
             dataset_id=self.dataset_id,
             vector_fields=[self._text_field],
             alias=alias,
+            **kwargs
         )
+
+    def get_all_centroids(self, alias: str, **kwargs):
+        raise NotImplementedError
 
 
 class KeyphraseField(Field):
@@ -225,12 +229,13 @@ class KeyphraseField(Field):
         self._keyphrase_text_field = text_field
         self._keyphrase_alias = alias
 
-    def get_keyphrase(self, keyphrase_id: str):
+    def get_keyphrase(self, keyphrase_id: str, **kwargs):
         return self._dataset.api._get_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
+            **kwargs
         )
 
     def update_keyphrase(self, keyphrase_id: str, update: Union[Keyphrase, dict]):
