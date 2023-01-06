@@ -31,6 +31,7 @@ class Component:
     doc: dict = field(default_factory= lambda: {'props': {}})
     # hooks are a way to modify the document
     only_types: list = None
+    exclude_types: list = None
 
     def _add_optional(self):
         self.doc['props']['optional'] = self.optional
@@ -42,6 +43,14 @@ class Component:
     def _add_default_value(self):
         if self.default_value is not None:
             self.doc['props']['value'] = self.default_value
+    
+    def _add_exclude_types(self):
+        if self.exclude_types:
+            self.doc['props']['excludeType'] = self.exclude_types
+    
+    def _add_only_types(self):
+        if self.only_types:
+            self.doc['props']['onlyTypes'] = self.only_types
     
     @property
     def hooks(self) -> list:
@@ -65,12 +74,10 @@ class FieldSelector(Component):
     only_types: list = None
     multiple: bool = False
 
-    def _add_only_types(self):
-        self.doc['props']['onlyTypes'] = self.only_types
-    
     @property
     def hooks(self):
-        return [self._add_optional, self._add_only_types, self._add_multiple]
+        return [self._add_optional, self._add_only_types, self._add_multiple, 
+            self._add_exclude_types]
 
 
 @dataclass
