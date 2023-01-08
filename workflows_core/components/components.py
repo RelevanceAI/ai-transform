@@ -72,6 +72,7 @@ class FieldSelector(Component):
     value_key: str = ""
     type: str = "fieldSelector"
     only_types: list = None
+    exclude_types: list = None
     multiple: bool = False
 
     @property
