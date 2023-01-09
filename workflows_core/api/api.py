@@ -375,12 +375,12 @@ class API:
         return get_response(response)
     
     @retry()
-    def _get_temp_file_upload_urls(self, files: List[str]):
+    def _get_temp_file_upload_url(self):
         """Use this for temporary file uploads.
         returns: {'download_url': ..., 'upload_url': ...}
         """
         response = requests.post(
-            url=self._base_url + f"/services/get_file_upload_urls",
+            url=self._base_url + f"/services/get_temporary_file_upload_url",
             headers=self._headers,
         )
         return get_response(response)
