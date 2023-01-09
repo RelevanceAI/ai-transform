@@ -377,11 +377,11 @@ class API:
     @retry()
     def _get_temp_file_upload_urls(self, files: List[str]):
         """Use this for temporary file uploads.
+        returns: {'download_url': ..., 'upload_url': ...}
         """
         response = requests.post(
             url=self._base_url + f"/services/get_file_upload_urls",
             headers=self._headers,
-            json=dict(files=files),
         )
         return get_response(response)
 

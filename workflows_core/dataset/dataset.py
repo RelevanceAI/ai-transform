@@ -219,6 +219,21 @@ class Dataset:
             )
             assert response.status_code == 200
         return urls
+    
+    def insert_temp_local_media(self, file_path: str):
+        """
+        Insert temporary local media.
+        """
+        data = self._api._get_temp_file_upload_urls()
+        upload_url = data['upload_url']
+        download_url = data['download_url']
+        with open(file_path, "rb") as fn_byte:
+            media_content = bytes(fn_byte.read())
+        response = self._api._upload_temporary_media(
+            presigned_url=upload_url,
+            media_content=media_content,
+        )
+        return {"download_url": download_url}
 
     def facets(
         self,
