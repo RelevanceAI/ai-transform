@@ -1,3 +1,4 @@
+from workflows_core.api.client import Client
 __version__ = "0.16.0"
 
 
