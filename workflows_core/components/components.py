@@ -18,9 +18,6 @@ GENERATED_TYPES = [
     "emotion"
 ]
 
-class DataTypes(Enum):
-    VECTOR: str = "vector"
-
 @dataclass
 class Component:
     """
