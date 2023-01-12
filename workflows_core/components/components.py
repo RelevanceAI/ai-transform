@@ -31,7 +31,8 @@ class Component:
     exclude_types: list = None
 
     def _add_optional(self, doc: dict):
-        doc['props']['optional'] = self.optional
+        if self.optional:
+            doc['props']['optional'] = self.optional
         if 'optional' in doc:
             doc.pop('optional')
         return doc
