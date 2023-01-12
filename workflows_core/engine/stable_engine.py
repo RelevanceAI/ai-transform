@@ -33,15 +33,6 @@ class StableEngine(AbstractEngine):
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
-    def chunk_documents(self, documents: DocumentList):
-        num_chunks = len(documents) // self._transform_chunksize + 1
-        for i in range(num_chunks):
-            start = i * self._transform_chunksize
-            end = (i + 1) * self._transform_chunksize
-            chunk = documents[start:end]
-            if len(chunk) > 0:
-                yield chunk
-
     def _filter_for_non_empty_list(self, docs: DocumentList):
         # if there are more keys than just _id in each document
         # then return that as a list of Documents
@@ -66,7 +57,9 @@ class StableEngine(AbstractEngine):
         ):
             self.update_progress(0)
             chunk_to_update = []
-            for chunk in self.chunk_documents(large_chunk):
+            for chunk in AbstractEngine.chunk_documents(
+                self._transform_chunksize, large_chunk
+            ):
                 # place here and not in large_chunk to ensure consistency
                 # across progress and success etc.
                 chunk = self._filter_for_non_empty_list(chunk)

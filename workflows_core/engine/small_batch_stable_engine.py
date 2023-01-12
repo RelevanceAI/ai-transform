@@ -36,8 +36,15 @@ class SmallBatchStableEngine(AbstractEngine):
         Parameters
         -----------
 
-        pull_chunksize
+        pull_chunksize: int
             the number of documents that are downloaded
+        transform_threshold: int
+            transform_threshold is the minimum amount of documents
+            that are required before it starts running the transform
+            function whereas the transform_chunksize is the
+            number of documents each transform operation will take.
+        transform_chunksize: int
+            the number of documents that get passed to the operator
 
         """
         super().__init__(
@@ -53,15 +60,6 @@ class SmallBatchStableEngine(AbstractEngine):
 
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
         self._num_chunks = self._size // self._transform_threshold + 1
-
-    def chunk_documents(self, documents: DocumentList):
-        num_chunks = len(documents) // self._transform_chunksize + 1
-        for i in range(num_chunks):
-            start = i * self._transform_chunksize
-            end = (i + 1) * self._transform_chunksize
-            chunk = documents[start:end]
-            if len(chunk) > 0:
-                yield chunk
 
     def _filter_for_non_empty_list(self, docs: DocumentList):
         # if there are more keys than just _id in each document
@@ -91,7 +89,9 @@ class SmallBatchStableEngine(AbstractEngine):
             if len(batch) >= self._transform_threshold:
                 chunk_to_update = []
 
-                for chunk in self.chunk_documents(batch):
+                for chunk in AbstractEngine.chunk_documents(
+                    self._transform_chunksize, batch
+                ):
                     # place here and not in large_chunk to ensure consistency
                     # across progress and success etc.
                     chunk = self._filter_for_non_empty_list(chunk)

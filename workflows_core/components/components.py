@@ -2,7 +2,8 @@
     All components are here
 """
 from dataclasses import dataclass, asdict, field
-from typing import Any
+from typing import Any, List
+import re
 from enum import Enum
 
 COLAB_PREFIX = (
@@ -17,9 +18,6 @@ GENERATED_TYPES = [
     "emotion"
 ]
 
-class DataTypes(Enum):
-    VECTOR: str = "vector"
-
 @dataclass
 class Component:
     """
@@ -30,6 +28,7 @@ class Component:
     doc: dict = field(default_factory= lambda: {'props': {}})
     # hooks are a way to modify the document
     only_types: list = None
+    exclude_types: list = None
 
     def _add_optional(self, doc: dict):
         doc['props']['optional'] = self.optional
@@ -51,6 +50,14 @@ class Component:
         if 'default_value' in doc:
             doc.pop('default_value')
         return doc
+    
+    def _add_exclude_types(self):
+        if self.exclude_types:
+            self.doc['props']['excludeType'] = self.exclude_types
+    
+    def _add_only_types(self):
+        if self.only_types:
+            self.doc['props']['onlyTypes'] = self.only_types
     
     @property
     def hooks(self) -> list:
@@ -74,15 +81,17 @@ class FieldSelector(Component):
     value_key: str = ""
     type: str = "fieldSelector"
     only_types: list = None
+    exclude_types: list = None
     multiple: bool = False
-
+    
     def _add_only_types(self, doc: dict):
         doc['props']['onlyTypes'] = self.only_types
         return doc
-    
+
     @property
     def hooks(self):
-        return [self._add_optional, self._add_only_types, self._add_multiple]
+        return [self._add_optional, self._add_only_types, self._add_multiple, 
+            self._add_exclude_types]
 
 
 @dataclass
@@ -128,10 +137,22 @@ class BaseInput(Component):
         return doc
 
 @dataclass
+class Option:
+    label: str
+    value: Any
+    # description: str
+
+@dataclass
 class BaseDropdown(Component):
     title: str = ""
     description: str = ""
     value_key: str = ""
+    options: List[Option] = field(
+        default_factory=lambda x: [
+            Option(label="Yes", value=True),
+            Option(label="No", value=False)
+        ]
+    )
     type: str = "baseDropdown"
 
 @dataclass
@@ -329,6 +350,7 @@ class TagPairInput(Component):
     value_key: str = "tagsToMerge"
     add_tag_text: str = "Add new tags"
     type: str = "tagPairInput"
+    multiple: bool = True
 
     def _add_tag_text(self):
         self.doc['props']['addTagText'] = self.add_tag_text

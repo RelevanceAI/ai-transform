@@ -173,6 +173,16 @@ class AbstractEngine(ABC):
                 yield chunk["documents"]
                 retry_count = 0
 
+    @staticmethod
+    def chunk_documents(chunksize: int, documents: DocumentList):
+        num_chunks = len(documents) // chunksize + 1
+        for i in range(num_chunks):
+            start = i * chunksize
+            end = (i + 1) * chunksize
+            chunk = documents[start:end]
+            if len(chunk) > 0:
+                yield chunk
+
     def update_chunk(
         self,
         chunk: DocumentList,
