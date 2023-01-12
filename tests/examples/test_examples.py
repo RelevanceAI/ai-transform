@@ -6,12 +6,13 @@ from examples.workflows.clustering_example import ClusterOperator
 
 from workflows_core.api.client import Client
 from workflows_core.engine.stable_engine import StableEngine
+from workflows_core.engine.small_batch_stable_engine import SmallBatchStableEngine
 from workflows_core.workflow.abstract_workflow import Workflow
 from workflows_core.engine.cluster_engine import InMemoryEngine
 from workflows_core.workflow.helpers import decode_workflow_token
 
 
-def test_sentiment_example(test_sentiment_workflow_token: str):
+def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
     job_id = config["job_id"]
@@ -38,6 +39,54 @@ def test_sentiment_example(test_sentiment_workflow_token: str):
         filters=filters,
         total_workers=total_workers,
         worker_number=worker_number,
+    )
+
+    workflow = Workflow(
+        engine=engine,
+        job_id=job_id,
+        send_email=send_email,
+        additional_information=additional_information,
+    )
+    workflow.run()
+
+    time.sleep(2)
+
+    health = dataset.health()
+    for output_field in operator._output_fields:
+        assert health[output_field]["exists"] == engine.size
+
+    status_dict = workflow.get_status()
+    assert status_dict["status"].lower() == "complete", status_dict
+
+
+def test_sentiment_example_wsmall_batch_stable_engine(
+    test_sentiment_workflow_token: str,
+):
+    config = decode_workflow_token(test_sentiment_workflow_token)
+
+    job_id = config["job_id"]
+    token = config["authorizationToken"]
+    dataset_id = config["dataset_id"]
+    text_field = config["text_field"]
+    alias = config.get("alias")
+    send_email = config.get("send_email", False)
+    additional_information = config.get("additional_information", "")
+
+    client = Client(token=token)
+    dataset = client.Dataset(dataset_id)
+
+    operator = SentimentOperator(text_field=text_field, alias=alias)
+
+    filters = dataset[text_field].exists()
+
+    engine = SmallBatchStableEngine(
+        dataset=dataset,
+        operator=operator,
+        pull_chunksize=2,
+        transform_threshold=10,
+        transform_chunksize=5,
+        select_fields=[text_field],
+        filters=filters,
     )
 
     workflow = Workflow(
