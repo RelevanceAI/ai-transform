@@ -33,6 +33,8 @@ class Component:
 
     def _add_optional(self, doc: dict):
         doc['props']['optional'] = self.optional
+        if 'optional' in doc:
+            doc.pop('optional')
         return doc
 
     def _add_multiple(self, doc: dict):
