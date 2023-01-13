@@ -70,7 +70,9 @@ def test_sentiment_documents(test_sentiment_workflow_document_token: str):
     worker_number = config.get("worker_number", 2)
     send_email = config.get("send_email", False)
     additional_information = config.get("additional_information", "")
-
+    from workflows_core.api.client import Client
+    client = Client(token)
+    
     operator = SentimentOperator(text_field=text_field, alias=alias)
     operator.transform_and_upload(
         documents=config.get('documents'),
@@ -80,6 +82,9 @@ def test_sentiment_documents(test_sentiment_workflow_document_token: str):
         status="complete",
         send_email=send_email
     )
+
+    result = client._api._get_workflow_status(job_id=job_id)
+    # Check it fool
     assert True
 
 def test_sentiment_example_wsmall_batch_stable_engine(
