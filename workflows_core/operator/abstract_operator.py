@@ -83,6 +83,35 @@ class AbstractOperator(ABC):
                 batch.append(document_diff)
 
         return DocumentList(batch)
+    
+    def transform_and_upload(
+        self, 
+        documents: DocumentList,
+        job_id: str,
+        workflow_name: str,
+        authorization_token: str,
+        additional_information: str="",
+        metadata: dict=None,
+        status: str="inprogress",
+        send_email: bool=True,
+        worker_number: int=None,
+    ):
+        """
+        Transform and upload an object
+        """
+        from workflows_core.api.client import Client
+        output = self.transform(documents=documents)
+        client = Client(authorization_token)
+        return client._api._set_workflow_status(
+            job_id=job_id,
+            workflow_name=workflow_name,
+            additional_information=additional_information,
+            metadata=metadata,
+            status=status,
+            send_email=send_email,
+            worker_number=worker_number,
+            output=output
+        )
 
     def pre_hooks(self, dataset: Dataset):
         pass

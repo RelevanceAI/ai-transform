@@ -29,7 +29,7 @@ class BaseConfig(BaseModel):
     """
 
     authorizationToken: str = None
-    dataset_id: str = None
+    dataset_id: Optional[str] = None
     job_id: Optional[str] = Field(default=str(uuid.uuid4()), description="the job ID")
     total_workers: Optional[int] = Field(default=None, description="Total workers.")
     send_email: Optional[bool] = Field(
@@ -40,6 +40,7 @@ class BaseConfig(BaseModel):
         default="", description="What to include in the e-mail."
     )
     filters: Optional[list] = Field(default=[], description="Filters to apply.")
+    documents: Optional[list] = Field(default=None, description="You can submit documents and have it run immediately.")
 
     @classmethod
     def to_schema(self):

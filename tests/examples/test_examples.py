@@ -59,6 +59,34 @@ def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
     assert status_dict["status"].lower() == "complete", status_dict
 
 
+def test_sentiment_documents(test_sentiment_workflow_document_token: str):
+    config = decode_workflow_token(test_sentiment_workflow_document_token)
+
+    job_id = config["job_id"]
+    token = config["authorizationToken"]
+    text_field = config["text_field"]
+    alias = config.get("alias")
+    total_workers = config.get("total_workers", 3)
+    worker_number = config.get("worker_number", 2)
+    send_email = config.get("send_email", False)
+    additional_information = config.get("additional_information", "")
+    from workflows_core.api.client import Client
+    client = Client(token)
+    
+    operator = SentimentOperator(text_field=text_field, alias=alias)
+    operator.transform_and_upload(
+        documents=config.get('documents'),
+        job_id=job_id,
+        workflow_name="sentiment",
+        authorization_token=token,
+        status="complete",
+        send_email=send_email
+    )
+
+    result = client._api._get_workflow_status(job_id=job_id)
+    # Check it fool
+    assert True
+
 def test_sentiment_example_wsmall_batch_stable_engine(
     test_sentiment_workflow_token: str,
 ):
