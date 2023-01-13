@@ -2,9 +2,7 @@
     All components are here
 """
 from dataclasses import dataclass, asdict, field
-import re
 from typing import Any, List
-from enum import Enum
 
 COLAB_PREFIX = (
     "https://colab.research.google.com/github/RelevanceAI/workflows/blob/main/"
@@ -30,16 +28,27 @@ class Component:
     only_types: list = None
     exclude_types: list = None
 
-    def _add_optional(self):
-        self.doc['props']['optional'] = self.optional
+    def _add_optional(self, doc: dict):
+        if self.optional:
+            doc['props']['optional'] = self.optional
+        if 'optional' in doc:
+            doc.pop('optional')
+        return doc
 
-    def _add_multiple(self):
+    def _add_multiple(self, doc: dict):
         if self.multiple:
-            self.doc['props']['multiple'] = self.multiple
+            doc['props']['multiple'] = self.multiple
+        if 'multiple' in doc:
+            doc.pop('multiple')
+        return doc
 
-    def _add_default_value(self):
+    def _add_default_value(self, doc: dict):
         if self.default_value is not None:
-            self.doc['props']['value'] = self.default_value
+            doc['props']['value'] = self.default_value
+        # remove the default value nonsense
+        if 'default_value' in doc:
+            doc.pop('default_value')
+        return doc
     
     def _add_exclude_types(self):
         if self.exclude_types:
@@ -54,13 +63,15 @@ class Component:
         return [self._add_optional]
 
     def json(self):
-        self.doc = asdict(self)
-        if 'props' not in self.doc:
-            self.doc['props'] = {}        
+        doc = asdict(self)
+        if 'doc' in doc:
+            doc.pop('doc')
+        if 'props' not in doc:
+            doc['props'] = {}
         for hook in self.hooks:
-            hook()
-        self.doc['valueKey'] = self.doc.pop("value_key")
-        return self.doc
+            doc = hook(doc)
+        doc['valueKey'] = doc.pop("value_key")
+        return doc
 
 @dataclass
 class FieldSelector(Component):
@@ -71,6 +82,10 @@ class FieldSelector(Component):
     only_types: list = None
     exclude_types: list = None
     multiple: bool = False
+    
+    def _add_only_types(self, doc: dict):
+        doc['props']['onlyTypes'] = self.only_types
+        return doc
 
     @property
     def hooks(self):
@@ -86,9 +101,9 @@ class FileUpload(Component):
     type: str = "fileUpload"
     accept: str = "*"
     multiple: bool = True
-    def _add_file_upload_props(self):
-        self.doc['props']['accept'] = self.accept
-        self.doc['props']['multiple'] = self.multiple
+    def _add_file_upload_props(self, doc):
+        doc['props']['accept'] = self.accept
+        doc['props']['multiple'] = self.multiple
 
     @property
     def hooks(self):
@@ -110,9 +125,15 @@ class BaseInput(Component):
     type: str = "baseInput"
     data_type: str = "text"
     default_value: str = "default"
-    def _add_default_value(self):
-        self.doc['props']['type'] = self.data_type
-        self.doc['props']['value'] = self.default_value
+
+    @property
+    def hooks(self) -> list:
+        return [self._add_optional, self._add_default_value]
+
+    def _add_default_value(self, doc):
+        doc['props']['type'] = self.data_type
+        doc['props']['value'] = self.default_value
+        return doc
 
 @dataclass
 class Option:
@@ -162,6 +183,7 @@ class BoolDropdown(Component):
             self._add_options,
             self._add_default_value
         ]
+
     props: dict = field(default_factory=lambda: {
         "multiple": False,
         "optional": True,

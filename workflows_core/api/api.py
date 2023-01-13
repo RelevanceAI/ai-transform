@@ -271,6 +271,7 @@ class API:
         status: str = "inprogress",
         send_email: bool = True,
         worker_number: int = None,
+        output: dict=None
     ):
         # add edge case for API
         if job_id == "":
@@ -281,32 +282,25 @@ class API:
             )
         if metadata is None:
             metadata = {}
+        parameters = dict(
+            metadata=metadata,
+            status=status,
+            workflow_name=workflow_name,
+            additional_information=additional_information,
+            send_email=send_email,
+        )
         if worker_number is None:
-            return requests.post(
-                url=self._base_url + f"/workflows/{job_id}/status",
-                headers=self._headers,
-                json=dict(
-                    metadata=metadata,
-                    status=status,
-                    workflow_name=workflow_name,
-                    additional_information=additional_information,
-                    send_email=send_email,
-                ),
-            ).json()
-        else:
-            response = requests.post(
-                url=self._base_url + f"/workflows/{job_id}/status",
-                headers=self._headers,
-                json=dict(
-                    metadata=metadata,
-                    status=status,
-                    workflow_name=workflow_name,
-                    additional_information=additional_information,
-                    send_email=send_email,
-                    worker_number=worker_number,
-                ),
-            )
-            return get_response(response)
+            parameters['worker_number'] = worker_number
+
+        if output:
+            parameters['output'] = {"results": output}
+        
+        response = requests.post(
+            url=self._base_url + f"/workflows/{job_id}/status",
+            headers=self._headers,
+            json=parameters
+        )
+        return get_response(response)
 
     @retry()
     def _set_field_children(
@@ -575,12 +569,13 @@ class API:
         """
         Get keyphrase
         """
-        response = requests.get(
-            url=self._base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
-            headers=self._headers,
-        )
-        return get_response(response)
+        if isinstance(keyphrase_id, str) and keyphrase_id != "":
+            response = requests.get(
+                url=self._base_url
+                + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
+                headers=self._headers,
+            )
+            return get_response(response)
 
     @retry()
     def _delete_keyphrase(
