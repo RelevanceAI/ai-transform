@@ -550,12 +550,13 @@ class API:
         """
         Get keyphrase
         """
-        response = requests.get(
-            url=self._base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
-            headers=self._headers,
-        )
-        return get_response(response)
+        if isinstance(keyphrase_id, str) and keyphrase_id != "":
+            response = requests.get(
+                url=self._base_url
+                + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
+                headers=self._headers,
+            )
+            return get_response(response)
 
     @retry()
     def _delete_keyphrase(
