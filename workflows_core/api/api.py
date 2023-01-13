@@ -563,6 +563,25 @@ class API:
         return get_response(response)
 
     @retry()
+    def _bulk_delete_keyphrase(
+        self,
+        dataset_id: str,
+        field: str,
+        alias: str,
+        ids: List[str],
+    ):
+        """
+        Update keyphrases
+        """
+        response = requests.post(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_delete",
+            headers=self._headers,
+            json=dict(ids=ids),
+        )
+        return get_response(response)
+
+    @retry()
     def _get_keyphrase(
         self, dataset_id: str, field: str, alias: str, keyphrase_id: str
     ):
