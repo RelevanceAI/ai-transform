@@ -367,6 +367,25 @@ class API:
             json=dict(files=files),
         )
         return get_response(response)
+    
+    @retry()
+    def _get_temp_file_upload_url(self):
+        """Use this for temporary file uploads.
+        returns: {'download_url': ..., 'upload_url': ...}
+        """
+        response = requests.post(
+            url=self._base_url + f"/services/get_temporary_file_upload_url",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    @retry()
+    def _upload_temporary_media(self, presigned_url: str, media_content: bytes):
+        return requests.put(
+            presigned_url,
+            headers={"x-amz-tagging":"Expire=true"},
+            data=media_content
+        )
 
     @retry()
     def _upload_media(self, presigned_url: str, media_content: bytes):
