@@ -219,7 +219,7 @@ class Dataset:
             )
             assert response.status_code == 200
         return urls
-
+    
     def facets(
         self,
         fields: List[str],
