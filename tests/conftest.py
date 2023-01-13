@@ -174,7 +174,7 @@ def test_sentiment_workflow_document_token(test_client: Client) -> str:
         job_id=job_id,
         authorizationToken=test_client._token,
         text_field="sample_1_label",
-        documents=mock_documents(10)
+        documents=mock_documents(10).to_json()
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
