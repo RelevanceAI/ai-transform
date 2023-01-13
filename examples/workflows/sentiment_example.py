@@ -108,6 +108,18 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         text_field=text_field,
         alias=alias,
     )
+    if config.documents:
+        return operator.transform_and_upload(
+            config.documents,
+            job_id=job_id,
+            workflow_name="Sentiment",
+            authorization_token=token,
+            additional_information="",
+            metadata={},
+            status="complete",
+            send_email=False,
+            worker_numer=worker_number
+        )
 
     filters = dataset[text_field].exists()
 
