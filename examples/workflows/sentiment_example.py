@@ -109,7 +109,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         alias=alias,
     )
     if config.documents:
-        return operator.transform_and_upload(
+        return operator.transform_for_playground(
             config.documents,
             job_id=job_id,
             workflow_name="Sentiment",
