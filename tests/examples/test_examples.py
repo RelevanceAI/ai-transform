@@ -74,7 +74,7 @@ def test_sentiment_documents(test_sentiment_workflow_document_token: str):
     client = Client(token)
     
     operator = SentimentOperator(text_field=text_field, alias=alias)
-    operator.transform_and_upload(
+    operator.transform_for_playground(
         documents=config.get('documents'),
         job_id=job_id,
         workflow_name="sentiment",

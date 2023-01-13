@@ -84,7 +84,7 @@ class AbstractOperator(ABC):
 
         return DocumentList(batch)
     
-    def transform_and_upload(
+    def transform_for_playground(
         self, 
         documents: DocumentList,
         job_id: str,
