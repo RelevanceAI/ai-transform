@@ -88,12 +88,12 @@ class AbstractOperator(ABC):
         self, 
         documents: DocumentList,
         job_id: str,
-        workflow_name: str,
         authorization_token: str,
         additional_information: str="",
+        workflow_name: str="Workflow",
         metadata: dict=None,
-        status: str="inprogress",
-        send_email: bool=True,
+        status: str="complete",
+        send_email: bool=False,
         worker_number: int=None,
     ):
         """
