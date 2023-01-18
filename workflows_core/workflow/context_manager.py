@@ -100,9 +100,15 @@ class WorkflowContextManager(API):
                     workflow_name=self._workflow_name,
                 )
             else:
-                self._set_status(
-                    status=self.COMPLETE, worker_number=self._engine.worker_number
-                )
+                if self._engine.output_to_status:
+                    # Add output to the value
+                    self._set_status(
+                        status=self.COMPLETE, worker_number=self._engine.worker_number, output={ 'results': self._engine.output_documents }
+                    )
+                else:
+                    self._set_status(
+                        status=self.COMPLETE, worker_number=self._engine.worker_number
+                    )
             if self._update_field_children:
                 for input_field in self._operator._input_fields:
                     self._set_field_children(
@@ -115,7 +121,7 @@ class WorkflowContextManager(API):
                     )
             return True
 
-    def _set_status(self, status: str, worker_number: int = None):
+    def _set_status(self, status: str, worker_number: int = None, output: object = None):
         """
         Set the status of the workflow
         """
@@ -127,6 +133,7 @@ class WorkflowContextManager(API):
             additional_information=self._additional_information,
             send_email=self._send_email,
             worker_number=worker_number,
+            output={} if output is None else output
         )
         from workflows_core import __version__
 
