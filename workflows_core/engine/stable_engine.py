@@ -50,7 +50,7 @@ class StableEngine(AbstractEngine):
             iterator = self.iterate()
         else:
             # Iterate through passed in documents
-            iterator = self.chunk_documents(documents=self.documents)
+            iterator = self.chunk_documents(chunksize=min(100, len(self.documents)), documents=self.documents)
 
         successful_chunks = 0
         error_logs = []
@@ -95,7 +95,7 @@ class StableEngine(AbstractEngine):
 
             if self.output_to_status:
                 # Store in output documents
-                self.extend_output_documents(chunk_to_update)
+                self.extend_output_documents(document.to_json() for document in chunk_to_update)
             else:
                 # Store in dataset
                 # We want to make sure the schema updates

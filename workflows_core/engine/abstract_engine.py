@@ -83,9 +83,12 @@ class AbstractEngine(ABC):
         else:
             self._filters = filters
 
-        self._documents = DocumentList(documents) # Empty unless documents passed into run on instead of dataset
         self._output_to_status = output_to_status # Whether we should output_to_status
         self._output_documents = [] # document store for output
+        
+        self._documents = DocumentList(documents) # Empty unless documents passed into run on instead of dataset
+        if len(self._documents) > 0:
+            self._output_to_status = True # Force output to status if running on documents
 
         self._operator = operator
 
