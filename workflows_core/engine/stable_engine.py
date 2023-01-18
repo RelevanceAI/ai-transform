@@ -20,7 +20,9 @@ logger = logging.getLogger(__file__)
 
 
 class StableEngine(AbstractEngine):
-    def __init__(self, *args, transform_chunksize: int = 20, **kwargs):
+    def __init__(
+        self, *args, transform_chunksize: int = 20, refresh: bool = False, **kwargs
+    ):
         """
         Parameters
         -----------
@@ -32,6 +34,7 @@ class StableEngine(AbstractEngine):
         super().__init__(*args, **kwargs)
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
+        self._refresh = refresh
 
     def _filter_for_non_empty_list(self, docs: DocumentList):
         # if there are more keys than just _id in each document
