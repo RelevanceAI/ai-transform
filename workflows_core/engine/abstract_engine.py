@@ -36,7 +36,7 @@ class AbstractEngine(ABC):
         total_workers: int = None,
         check_for_missing_fields: bool = True,
         seed: int = 42,
-        output_to_status: bool = False,
+        output_to_status: Optional[bool] = False,
         documents: Optional[List[object]] = None
     ):
         set_seed(seed)
