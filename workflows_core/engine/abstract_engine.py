@@ -125,10 +125,10 @@ class AbstractEngine(ABC):
 
     @property
     def output_documents(self) -> bool:
-        return self.output_documents
+        return self._output_documents
 
     def extend_output_documents(self, documents: List[object]):
-        self.output_documents.extend(documents)
+        self._output_documents.extend(documents)
         return
 
     @abstractmethod
