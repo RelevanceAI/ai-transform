@@ -103,7 +103,9 @@ class WorkflowContextManager(API):
                 if self._engine.output_to_status:
                     # Add output to the value
                     self._set_status(
-                        status=self.COMPLETE, worker_number=self._engine.worker_number, output=self._engine.output_documents
+                        status=self.COMPLETE,
+                        worker_number=self._engine.worker_number,
+                        output=self._engine.output_documents,
                     )
                 else:
                     self._set_status(
@@ -121,7 +123,9 @@ class WorkflowContextManager(API):
                     )
             return True
 
-    def _set_status(self, status: str, worker_number: int = None, output: List[object] = None):
+    def _set_status(
+        self, status: str, worker_number: int = None, output: List[object] = None
+    ):
         """
         Set the status of the workflow
         """
@@ -133,7 +137,7 @@ class WorkflowContextManager(API):
             additional_information=self._additional_information,
             send_email=self._send_email,
             worker_number=worker_number,
-            output=[] if output is None else output
+            output=[] if output is None else output,
         )
         from workflows_core import __version__
 

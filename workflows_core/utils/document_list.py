@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Union
 
 from workflows_core.utils.document import Document
 
+
 class DocumentList(UserList):
     data: List[Document]
 
@@ -79,13 +80,13 @@ class DocumentList(UserList):
 
     def split_by_chunk(self, chunk_field: str, values: list):
         """
-        Split a list of values based on the number of documents 
+        Split a list of values based on the number of documents
         within a specific chunk field
         """
-        counter = 0 
+        counter = 0
         for d in self.data:
             chunk_field_len = len(d.get(chunk_field, []))
-            yield values[counter:counter + chunk_field_len]
+            yield values[counter : counter + chunk_field_len]
             counter += len(d.get(chunk_field, []))
 
     def remove_tag(self, field: str, value: str) -> None:

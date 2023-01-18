@@ -80,6 +80,7 @@ def json_encoder(obj: Any, force_string: bool = False):
 
     """
     from workflows_core.utils import DocumentList, Document
+
     # Loop through iterators and convert
     if isinstance(obj, (list, set, frozenset, GeneratorType, tuple, collections.deque)):
         encoded_list = []

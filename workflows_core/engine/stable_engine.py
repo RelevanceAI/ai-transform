@@ -44,13 +44,15 @@ class StableEngine(AbstractEngine):
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
         iterator = []
-        
+
         if self.documents is None or len(self.documents) == 0:
             # Iterate through dataset
             iterator = self.iterate()
         else:
             # Iterate through passed in documents
-            iterator = self.chunk_documents(chunksize=min(100, len(self.documents)), documents=self.documents)
+            iterator = self.chunk_documents(
+                chunksize=min(100, len(self.documents)), documents=self.documents
+            )
 
         successful_chunks = 0
         error_logs = []
@@ -95,7 +97,9 @@ class StableEngine(AbstractEngine):
 
             if self.output_to_status:
                 # Store in output documents
-                self.extend_output_documents(document.to_json() for document in chunk_to_update)
+                self.extend_output_documents(
+                    document.to_json() for document in chunk_to_update
+                )
             else:
                 # Store in dataset
                 # We want to make sure the schema updates

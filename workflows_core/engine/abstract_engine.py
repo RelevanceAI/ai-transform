@@ -37,7 +37,7 @@ class AbstractEngine(ABC):
         check_for_missing_fields: bool = True,
         seed: int = 42,
         output_to_status: Optional[bool] = False,
-        documents: Optional[List[object]] = None
+        documents: Optional[List[object]] = None,
     ):
         set_seed(seed)
         if select_fields is not None:
@@ -83,12 +83,16 @@ class AbstractEngine(ABC):
         else:
             self._filters = filters
 
-        self._output_to_status = output_to_status # Whether we should output_to_status
-        self._output_documents = [] # document store for output
-        
-        self._documents = DocumentList(documents) # Empty unless documents passed into run on instead of dataset
+        self._output_to_status = output_to_status  # Whether we should output_to_status
+        self._output_documents = []  # document store for output
+
+        self._documents = DocumentList(
+            documents
+        )  # Empty unless documents passed into run on instead of dataset
         if len(self._documents) > 0:
-            self._output_to_status = True # Force output to status if running on documents
+            self._output_to_status = (
+                True  # Force output to status if running on documents
+            )
 
         self._operator = operator
 
@@ -121,7 +125,7 @@ class AbstractEngine(ABC):
     @property
     def documents(self) -> DocumentList:
         return self._documents
-    
+
     @property
     def output_to_status(self) -> bool:
         return self._output_to_status
