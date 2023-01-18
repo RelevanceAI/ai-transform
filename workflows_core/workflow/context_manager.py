@@ -1,7 +1,7 @@
 import logging
 
 from inspect import Traceback
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from workflows_core.api.api import API
 from workflows_core.dataset.dataset import Dataset
