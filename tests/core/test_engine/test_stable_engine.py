@@ -10,7 +10,7 @@ class TestStableEngine:
     def test_stable_engine_abstract(
         self, full_dataset: Dataset, test_operator: AbstractOperator
     ):
-        engine = StableEngine(full_dataset, test_operator)
+        engine = StableEngine(full_dataset, test_operator, worker_number=0)
         workflow = AbstractWorkflow(
             name="workflow_test123",
             engine=engine,
