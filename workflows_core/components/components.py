@@ -50,13 +50,19 @@ class Component:
             doc.pop('default_value')
         return doc
     
-    def _add_exclude_types(self):
+    def _add_exclude_types(self, doc: dict):
         if self.exclude_types:
-            self.doc['props']['excludeType'] = self.exclude_types
+            doc['props']['excludeType'] = self.exclude_types
+        if 'exclude_types' in doc:
+            doc.pop('exclude_types')
+        return doc
     
-    def _add_only_types(self):
+    def _add_only_types(self, doc: dict):
         if self.only_types:
-            self.doc['props']['onlyTypes'] = self.only_types
+            doc['props']['onlyTypes'] = self.only_types
+        if 'only_types' in doc:
+            doc.pop('only_types')
+        return doc
     
     @property
     def hooks(self) -> list:
@@ -101,9 +107,14 @@ class FileUpload(Component):
     type: str = "fileUpload"
     accept: str = "*"
     multiple: bool = True
-    def _add_file_upload_props(self, doc):
+    def _add_file_upload_props(self, doc: dict):
         doc['props']['accept'] = self.accept
         doc['props']['multiple'] = self.multiple
+        if 'accept' in doc:
+            doc.pop('accept')
+        if 'multiple' in doc:
+            doc.pop('multiple')
+        return doc
 
     @property
     def hooks(self):
@@ -219,14 +230,21 @@ class SliderInput(Component):
     min: int = 1
     type: str = "baseInput"
     
-    def _add_type(self):
-        self.doc['props']['type'] = "number"
+    def _add_type(self, doc):
+        doc['props']['type'] = "number"
+        return doc
     
-    def _add_max(self):
-        self.doc['props']['max'] = self.max
+    def _add_max(self, doc: dict):
+        doc['props']['max'] = self.max
+        if 'max' in doc:
+            doc.pop('max')
+        return doc
     
-    def _add_min(self):
-        self.doc['props']['min'] = self.min
+    def _add_min(self, doc: dict):
+        doc['props']['min'] = self.min
+        if 'min' in doc:
+            doc.pop('min')
+        return doc
 
     @property
     def hooks(self):
@@ -247,11 +265,16 @@ class DynamicTextInput(Component):
     type: str = "dynamicInput"
     output_label: str = "output field name:"
     template: str = "_surveytag_.{ vector_fields }.{ value }"
-    def _add_template(self):
+    def _add_template(self, doc: dict):
         # Optional, defaults to "This will be stored as:",
-        self.doc['props']['outputLabel'] = self.output_label
+        doc['props']['outputLabel'] = self.output_label
         # Required, use `{ value }` to reference current component's value. Can reference other fields by `value_key`
-        self.doc['props']['template'] = self.template
+        doc['props']['template'] = self.template
+        if 'output_label' in doc:
+            doc.pop('output_label')
+        if 'template' in doc:
+            doc.pop('template')
+        return doc
     
     @property
     def hooks(self):
@@ -295,14 +318,23 @@ class AggregateTagsSelector(Component):
             "maxRunResults": 20,  # maximum number of tags to get from aggregate, defaults to 20
         }
     )
-    def _add_aggregation_query(self):
-        self.doc['props']['aggregationQuery'] = self.aggregation_query
+    def _add_aggregation_query(self, doc: dict):
+        doc['props']['aggregationQuery'] = self.aggregation_query
+        if 'aggregation_query' in doc:
+            doc.pop('aggregation_query')
+        return doc
     
-    def _add_aggregation_result_field(self):
-        self.doc['props']['aggregationResultField'] = self.aggregation_result_field
+    def _add_aggregation_result_field(self, doc: dict):
+        doc['props']['aggregationResultField'] = self.aggregation_result_field
+        if 'aggregation_result_field' in doc:
+            doc.pop('aggregation_result_field')
+        return doc
     
-    def _add_max_run_results(self):
-        self.doc['props']['maxRunResults'] = self.max_run_results
+    def _add_max_run_results(self, doc: dict):
+        doc['props']['maxRunResults'] = self.max_run_results
+        if 'max_run_results' in doc:
+            doc.pop('max_run_results')
+        return doc
     
     @property
     def hooks(self):
@@ -351,8 +383,11 @@ class TagPairInput(Component):
     type: str = "tagPairInput"
     multiple: bool = True
 
-    def _add_tag_text(self):
-        self.doc['props']['addTagText'] = self.add_tag_text
+    def _add_tag_text(self, doc: dict):
+        doc['props']['addTagText'] = self.add_tag_text
+        if 'add_tag_text' in doc:
+            doc.pop('add_tag_text')
+        return doc
 
     @property
     def hooks(self):
