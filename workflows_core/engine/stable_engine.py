@@ -98,7 +98,7 @@ class StableEngine(AbstractEngine):
             if self.output_to_status:
                 # Store in output documents
                 self.extend_output_documents(
-                    document.to_json() for document in chunk_to_update
+                    [document.to_json() for document in chunk_to_update]
                 )
             else:
                 # Store in dataset

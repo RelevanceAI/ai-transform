@@ -86,13 +86,11 @@ class AbstractEngine(ABC):
         self._output_to_status = output_to_status  # Whether we should output_to_status
         self._output_documents = []  # document store for output
 
-        self._documents = DocumentList(
-            documents
-        )  # Empty unless documents passed into run on instead of dataset
+        # Empty unless documents passed into run on instead of dataset
+        self._documents = DocumentList(documents)
         if len(self._documents) > 0:
-            self._output_to_status = (
-                True  # Force output to status if running on documents
-            )
+            # Force output to status if running on documents
+            self._output_to_status = True
 
         self._operator = operator
 
@@ -134,7 +132,7 @@ class AbstractEngine(ABC):
     def output_documents(self) -> bool:
         return self._output_documents
 
-    def extend_output_documents(self, documents: List[object]):
+    def extend_output_documents(self, documents: DocumentList):
         self._output_documents.extend(documents)
         return
 
