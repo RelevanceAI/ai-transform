@@ -45,12 +45,12 @@ class StableEngine(AbstractEngine):
         """
         iterator = []
         
-        if self.documents is None:
+        if self.documents is None or len(self.documents) == 0:
             # Iterate through dataset
             iterator = self.iterate()
         else:
             # Iterate through passed in documents
-            iterator = self.chunk_documents(self.documents)
+            iterator = self.chunk_documents(documents=self.documents)
 
         successful_chunks = 0
         error_logs = []
