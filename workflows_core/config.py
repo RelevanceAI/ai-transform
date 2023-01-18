@@ -88,6 +88,8 @@ class BaseConfig(BaseModel):
 class BaseTransformConfig(BaseConfig):
     """
     Same as BaseConfig but a few more additional attributes.
+    This is suitable for basic transformations that go through 
+    the same pulling, transforming and then pushing (e.g. sentiment or emotion workflows)
     """
 
     pull_chunksize: Optional[int] = Field(
