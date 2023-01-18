@@ -43,8 +43,6 @@ class StableEngine(AbstractEngine):
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
-        iterator = []
-
         if self.documents is None or len(self.documents) == 0:
             # Iterate through dataset
             iterator = self.iterate()

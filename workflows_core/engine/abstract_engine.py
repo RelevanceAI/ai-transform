@@ -25,8 +25,8 @@ class AbstractEngine(ABC):
 
     def __init__(
         self,
-        dataset: Dataset,
-        operator: AbstractOperator,
+        dataset: Dataset = None,
+        operator: AbstractOperator = None,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
         pull_chunksize: Optional[int] = 3000,

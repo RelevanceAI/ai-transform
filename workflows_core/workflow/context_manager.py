@@ -100,17 +100,11 @@ class WorkflowContextManager(API):
                     workflow_name=self._workflow_name,
                 )
             else:
-                if self._engine.output_to_status:
-                    # Add output to the value
-                    self._set_status(
-                        status=self.COMPLETE,
-                        worker_number=self._engine.worker_number,
-                        output=self._engine.output_documents,
-                    )
-                else:
-                    self._set_status(
-                        status=self.COMPLETE, worker_number=self._engine.worker_number
-                    )
+                self._set_status(
+                    status=self.COMPLETE,
+                    worker_number=self._engine.worker_number,
+                    output=self._engine.output_documents,
+                )
             if self._update_field_children:
                 for input_field in self._operator._input_fields:
                     self._set_field_children(
@@ -124,7 +118,10 @@ class WorkflowContextManager(API):
             return True
 
     def _set_status(
-        self, status: str, worker_number: int = None, output: List[object] = None
+        self,
+        status: str,
+        worker_number: int = None,
+        output: List[object] = None,
     ):
         """
         Set the status of the workflow
