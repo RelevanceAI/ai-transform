@@ -334,6 +334,41 @@ class API:
             ),
         )
         return get_response(response)
+    
+    @retry()
+    def _delete_field_children(
+        self, dataset_id: str, fieldchildren_id: str
+    ):
+        response = requests.post(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/delete",
+            headers=self._headers,
+        )
+        return get_response(response)
+
+    @retry()
+    def _list_field_children(
+        self,
+        dataset_id: str,
+        page: int=1,
+        page_size: int=100,
+        sort=None
+    ):
+        parameters = {
+            'page': page,
+            'page_size': page_size
+        }
+
+        if sort:
+            parameters['sort'] = sort
+
+        response = requests.post(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/field_children/list",
+            headers=self._headers,
+            json=parameters
+        )
+        return get_response(response)
 
     @retry()
     def _get_health(self, dataset_id: str):
