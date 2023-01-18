@@ -224,7 +224,7 @@ class Dataset:
         self,
         fields: List[str],
         data_interval: str = "monthly",
-        page_size: int = 1000,
+        page_size: int = 10000,
         asc: bool = False,
     ):
         return self._api._facets(
@@ -233,4 +233,15 @@ class Dataset:
             data_interval=data_interval,
             page_size=page_size,
             asc=asc,
+        )
+    
+    def list_field_children(
+        self,
+        page: int=0,
+        page_size: int=10000
+    ):
+        return self._api._list_field_children(
+            dataset_id=self._dataset_id,
+            page=page,
+            page_size=page_size
         )

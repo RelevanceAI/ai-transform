@@ -351,7 +351,7 @@ class API:
         self,
         dataset_id: str,
         page: int=1,
-        page_size: int=100,
+        page_size: int=10000,
         sort=None
     ):
         parameters = {
