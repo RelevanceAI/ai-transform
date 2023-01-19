@@ -10,6 +10,7 @@ from typing import Any, Dict, List, Optional
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
+from workflows_core.config import BaseConfig
 
 logger = logging.getLogger(__file__)
 
@@ -60,6 +61,12 @@ class AbstractOperator(ABC):
         Every Operator needs a transform function
         """
         raise NotImplementedError
+
+    @classmethod
+    def from_config(self, config: BaseConfig, **kwargs):
+        operator_args = self.__init__.__code__.co_varnames
+        kwargs = {**kwargs, **config.dict(include=operator_args)}
+        return self(**kwargs)
 
     def __repr__(self):
         return str(type(self).__name__)
