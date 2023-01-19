@@ -219,7 +219,7 @@ class Dataset:
             )
             assert response.status_code == 200
         return urls
-    
+
     def facets(
         self,
         fields: List[str],
@@ -234,14 +234,8 @@ class Dataset:
             page_size=page_size,
             asc=asc,
         )
-    
-    def list_field_children(
-        self,
-        page: int=0,
-        page_size: int=10000
-    ):
+
+    def list_field_children(self, page: int = 0, page_size: int = 10000):
         return self._api._list_field_children(
-            dataset_id=self._dataset_id,
-            page=page,
-            page_size=page_size
+            dataset_id=self._dataset_id, page=page, page_size=page_size
         )

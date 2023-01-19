@@ -25,8 +25,8 @@ class AbstractEngine(ABC):
 
     def __init__(
         self,
-        dataset: Dataset,
-        operator: AbstractOperator,
+        dataset: Dataset = None,
+        operator: AbstractOperator = None,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
         pull_chunksize: Optional[int] = 3000,
@@ -36,6 +36,8 @@ class AbstractEngine(ABC):
         total_workers: int = None,
         check_for_missing_fields: bool = True,
         seed: int = 42,
+        output_to_status: Optional[bool] = False,
+        documents: Optional[List[object]] = None,
     ):
         set_seed(seed)
         if select_fields is not None:
@@ -81,6 +83,15 @@ class AbstractEngine(ABC):
         else:
             self._filters = filters
 
+        self._output_to_status = output_to_status  # Whether we should output_to_status
+        self._output_documents = []  # document store for output
+
+        # Empty unless documents passed into run on instead of dataset
+        self._documents = DocumentList(documents)
+        if len(self._documents) > 0:
+            # Force output to status if running on documents
+            self._output_to_status = True
+
         self._operator = operator
 
         self._refresh = refresh
@@ -108,6 +119,22 @@ class AbstractEngine(ABC):
     @property
     def size(self) -> int:
         return self._size
+
+    @property
+    def documents(self) -> DocumentList:
+        return self._documents
+
+    @property
+    def output_to_status(self) -> bool:
+        return self._output_to_status
+
+    @property
+    def output_documents(self) -> bool:
+        return self._output_documents
+
+    def extend_output_documents(self, documents: DocumentList):
+        self._output_documents.extend(documents)
+        return
 
     @abstractmethod
     def apply(self) -> None:

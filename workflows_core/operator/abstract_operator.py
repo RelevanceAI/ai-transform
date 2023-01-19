@@ -83,23 +83,24 @@ class AbstractOperator(ABC):
                 batch.append(document_diff)
 
         return DocumentList(batch)
-    
+
     def transform_for_playground(
-        self, 
+        self,
         documents: DocumentList,
         job_id: str,
         authorization_token: str,
-        additional_information: str="",
-        workflow_name: str="Workflow",
-        metadata: dict=None,
-        status: str="complete",
-        send_email: bool=False,
-        worker_number: int=None,
+        additional_information: str = "",
+        workflow_name: str = "Workflow",
+        metadata: dict = None,
+        status: str = "complete",
+        send_email: bool = False,
+        worker_number: int = None,
     ):
         """
         Transform and upload an object
         """
         from workflows_core.api.client import Client
+
         output = self.transform(documents=documents)
         client = Client(authorization_token)
         return client._api._set_workflow_status(
@@ -110,7 +111,7 @@ class AbstractOperator(ABC):
             status=status,
             send_email=send_email,
             worker_number=worker_number,
-            output=output
+            output=output,
         )
 
     def pre_hooks(self, dataset: Dataset):

@@ -231,13 +231,13 @@ class VectorField(Field):
                 alias=alias,
                 include_vector=True,
                 page_size=100,
-                page=page
-            )['results']
+                page=page,
+            )["results"]
             if len(res) == 0:
                 break
             page += 1
             for info in res:
-                all_centroids[info['_id']] = info[self._text_field]
+                all_centroids[info["_id"]] = info[self._text_field]
         return all_centroids
 
 
