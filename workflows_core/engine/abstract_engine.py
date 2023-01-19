@@ -38,7 +38,7 @@ class AbstractEngine(ABC):
         seed: int = 42,
         output_to_status: Optional[bool] = False,
         documents: Optional[List[object]] = None,
-        limit_documents: Optional[int] = None
+        limit_documents: Optional[int] = None,
     ):
         set_seed(seed)
         if select_fields is not None:
@@ -66,10 +66,14 @@ class AbstractEngine(ABC):
         if filters is None:
             filters = []
         filters += self._get_workflow_filter()
-        
+
         self._limit_documents = limit_documents
-        
-        self._size = dataset.len(filters=filters) if self._limit_documents is None else self._limit_documents
+
+        self._size = (
+            dataset.len(filters=filters)
+            if self._limit_documents is None
+            else self._limit_documents
+        )
 
         if isinstance(pull_chunksize, int):
             assert pull_chunksize > 0, "Chunksize should be a Positive Integer"
@@ -80,10 +84,13 @@ class AbstractEngine(ABC):
             )
             self._pull_chunksize = self._size
 
-         # If limiting documents, make sure pull chunk size is not larger than document count
-        if self._limit_documents is not None and self._limit_documents < self._pull_chunksize:
+        # If limiting documents, make sure pull chunk size is not larger than document count
+        if (
+            self._limit_documents is not None
+            and self._limit_documents < self._pull_chunksize
+        ):
             self._pull_chunksize = self.limit_documents
-    
+
         self._num_chunks = math.ceil(self._size / pull_chunksize)
 
         if filters is None:
@@ -179,6 +186,10 @@ class AbstractEngine(ABC):
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
         max_retries: int = 5,
+        sort: Optional[list] = None,
+        include_vector: bool = True,
+        random_state: int = 0,
+        is_random: bool = False,
     ):
         if filters is None:
             filters = self._filters
@@ -190,16 +201,28 @@ class AbstractEngine(ABC):
 
         retry_count = 0
         documents_processed = 0
-        
+
         while True:
             try:
                 # Adjust chunksize to get correct amount of documents
+                if (
+                    self.limit_documents is None
+                    or documents_processed + self.pull_chunksize < self.limit_documents
+                ):
+                    pull_chunksize = self._pull_chunksize
+                else:
+                    pull_chunksize = self.limit_documents - documents_processed
+
                 chunk = self._dataset.get_documents(
-                    self._pull_chunksize if self.limit_documents is None or documents_processed + self.pull_chunksize < self.limit_documents else (self.limit_documents - documents_processed),
+                    pull_chunksize,
                     filters=filters,
                     select_fields=select_fields,
                     after_id=self._after_id,
                     worker_number=self.worker_number,
+                    sort=sort,
+                    include_vector=include_vector,
+                    random_state=random_state,
+                    is_random=is_random,
                 )
             except (ConnectionError, JSONDecodeError) as e:
                 logger.error(e)
@@ -212,12 +235,15 @@ class AbstractEngine(ABC):
                 self._after_id = chunk["after_id"]
                 if not chunk["documents"]:
                     break
-                
+
                 yield chunk["documents"]
                 retry_count = 0
                 # If document limit is hit, break the loop
                 documents_processed += chunk["count"]
-                if self.limit_documents is not None and documents_processed >= self.limit_documents:
+                if (
+                    self.limit_documents is not None
+                    and documents_processed >= self.limit_documents
+                ):
                     break
 
     @staticmethod
