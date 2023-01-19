@@ -65,6 +65,7 @@ class AbstractOperator(ABC):
     @classmethod
     def from_config(self, config: BaseConfig, **kwargs):
         operator_args = self.__init__.__code__.co_varnames
+        operator_args += super().__init__.__code__.co_varnames
         kwargs = {**kwargs, **config.dict(include=operator_args)}
         return self(**kwargs)
 
