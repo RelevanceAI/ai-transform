@@ -111,6 +111,6 @@ class BaseTransformConfig(BaseConfig):
         description="If True, it will output results to status object."
     )
     documents: Optional[List[object]] = Field(
-        default=[],
+        default_factory= lambda: [],
         description="If passed in, documents will be used instead of dataset."
     )
