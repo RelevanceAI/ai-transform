@@ -5,7 +5,7 @@ import argparse
 import base64
 import json
 import uuid
-from typing import Optional
+from typing import Optional, List
 from workflows_core.workflow.helpers import decode_workflow_token
 
 from pydantic import BaseModel, Field
@@ -111,6 +111,6 @@ class BaseTransformConfig(BaseConfig):
         description="If True, it will output results to status object."
     )
     documents: Optional[List[object]] = Field(
-        default=[],
+        default_factory= lambda: [],
         description="If passed in, documents will be used instead of dataset."
     )
