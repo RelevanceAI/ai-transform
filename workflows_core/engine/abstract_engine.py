@@ -91,7 +91,7 @@ class AbstractEngine(ABC):
         ):
             self._pull_chunksize = self.limit_documents
 
-        self._num_chunks = math.ceil(self._size / pull_chunksize)
+        self._num_chunks = math.ceil(self._size / self._pull_chunksize)
 
         if filters is None:
             self._filters = []
