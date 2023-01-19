@@ -271,7 +271,7 @@ class API:
         status: str = "inprogress",
         send_email: bool = True,
         worker_number: int = None,
-        output: dict=None
+        output: dict = None,
     ):
         # add edge case for API
         if job_id == "":
@@ -290,15 +290,15 @@ class API:
             send_email=send_email,
         )
         if worker_number is None:
-            parameters['worker_number'] = worker_number
+            parameters["worker_number"] = worker_number
 
         if output:
-            parameters['output'] = {"results": output}
-        
+            parameters["output"] = {"results": output}
+
         response = requests.post(
             url=self._base_url + f"/workflows/{job_id}/status",
             headers=self._headers,
-            json=parameters
+            json=parameters,
         )
         return get_response(response)
 
@@ -334,11 +334,9 @@ class API:
             ),
         )
         return get_response(response)
-    
+
     @retry()
-    def _delete_field_children(
-        self, dataset_id: str, fieldchildren_id: str
-    ):
+    def _delete_field_children(self, dataset_id: str, fieldchildren_id: str):
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/delete",
@@ -348,25 +346,17 @@ class API:
 
     @retry()
     def _list_field_children(
-        self,
-        dataset_id: str,
-        page: int=1,
-        page_size: int=10000,
-        sort=None
+        self, dataset_id: str, page: int = 1, page_size: int = 10000, sort=None
     ):
-        parameters = {
-            'page': page,
-            'page_size': page_size
-        }
+        parameters = {"page": page, "page_size": page_size}
 
         if sort:
-            parameters['sort'] = sort
+            parameters["sort"] = sort
 
         response = requests.post(
-            url=self._base_url
-            + f"/datasets/{dataset_id}/field_children/list",
+            url=self._base_url + f"/datasets/{dataset_id}/field_children/list",
             headers=self._headers,
-            json=parameters
+            json=parameters,
         )
         return get_response(response)
 
@@ -402,7 +392,7 @@ class API:
             json=dict(files=files),
         )
         return get_response(response)
-    
+
     @retry()
     def _get_temp_file_upload_url(self):
         """Use this for temporary file uploads.
@@ -417,9 +407,7 @@ class API:
     @retry()
     def _upload_temporary_media(self, presigned_url: str, media_content: bytes):
         return requests.put(
-            presigned_url,
-            headers={"x-amz-tagging":"Expire=true"},
-            data=media_content
+            presigned_url, headers={"x-amz-tagging": "Expire=true"}, data=media_content
         )
 
     @retry()

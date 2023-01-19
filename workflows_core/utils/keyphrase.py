@@ -18,6 +18,7 @@ class Keyphrase:
     _frequency: integer, the frequency of the keyphrase.
     _metadata: dict, the metadata that is associated with the keyphrase.
     """
+
     text: str
     _id: str
     ancestors: List[str] = None

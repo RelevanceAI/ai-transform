@@ -40,7 +40,10 @@ class BaseConfig(BaseModel):
         default="", description="What to include in the e-mail."
     )
     filters: Optional[list] = Field(default=[], description="Filters to apply.")
-    documents: Optional[list] = Field(default=None, description="You can submit documents and have it run immediately.")
+    documents: Optional[list] = Field(
+        default=None,
+        description="You can submit documents and have it run immediately.",
+    )
 
     @classmethod
     def to_schema(self):
@@ -88,7 +91,7 @@ class BaseConfig(BaseModel):
 class BaseTransformConfig(BaseConfig):
     """
     Same as BaseConfig but a few more additional attributes.
-    This is suitable for basic transformations that go through 
+    This is suitable for basic transformations that go through
     the same pulling, transforming and then pushing (e.g. sentiment or emotion workflows)
     """
 
@@ -102,4 +105,12 @@ class BaseTransformConfig(BaseConfig):
     refresh: Optional[bool] = Field(
         default=False,
         description="If True, re-runs the workflow on the entire dataset.",
+    )
+    output_to_status: Optional[bool] = Field(
+        default=False,
+        description="If True, it will output results to status object."
+    )
+    documents: Optional[List[object]] = Field(
+        default=[],
+        description="If passed in, documents will be used instead of dataset."
     )

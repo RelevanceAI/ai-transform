@@ -46,7 +46,15 @@ class StableEngine(AbstractEngine):
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
-        iterator = self.iterate()
+        if self.documents is None or len(self.documents) == 0:
+            # Iterate through dataset
+            iterator = self.iterate()
+        else:
+            # Iterate through passed in documents
+            iterator = self.chunk_documents(
+                chunksize=min(100, len(self.documents)), documents=self.documents
+            )
+
         successful_chunks = 0
         error_logs = []
 
@@ -88,18 +96,25 @@ class StableEngine(AbstractEngine):
                     successful_chunks += 1
                     chunk_to_update.extend(new_batch)
 
-            # We want to make sure the schema updates
-            # on the first chunk upserting
-            if chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER:
-                ingest_in_background = False
+            if self.output_to_status:
+                # Store in output documents
+                self.extend_output_documents(
+                    [document.to_json() for document in chunk_to_update]
+                )
             else:
-                ingest_in_background = True
-            result = self.update_chunk(
-                chunk_to_update,
-                update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
-                ingest_in_background=ingest_in_background,
-            )
-            logger.debug(result)
+                # Store in dataset
+                # We want to make sure the schema updates
+                # on the first chunk upserting
+                if chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER:
+                    ingest_in_background = False
+                else:
+                    ingest_in_background = True
+                result = self.update_chunk(
+                    chunk_to_update,
+                    update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
+                    ingest_in_background=ingest_in_background,
+                )
+                logger.debug(result)
 
             # executes after everything wraps up
             if self.job_id:
