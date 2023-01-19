@@ -95,6 +95,13 @@ class AbstractEngine(ABC):
         self._operator = operator
 
         self._refresh = refresh
+        if not refresh:
+            output_field_filters = []
+            for output_field in operator._output_fields:
+                output_field_filters.append(dataset[output_field].not_exists())
+            self._filters += [
+                {"filter_type": "or", "condition_value": output_field_filters}
+            ]
         self._after_id = after_id
 
         self._success_ratio = None
