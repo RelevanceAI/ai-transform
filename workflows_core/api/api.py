@@ -21,7 +21,11 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
         try:
             return response.json()
         except Exception as e:
-            logger.error({"error": e})
+            logger.error({
+                "error": e, 
+                "x-trace-id": response.headers['x-trace-id']
+            })
+            raise e
     else:
         if "x-trace-id" in response.headers:
             logger.error(
@@ -38,7 +42,6 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
     except Exception as no_content_e:
         # in case there's no content
         logger.error(no_content_e)
-    finally:
         # we still want to raise the right error for retrying
         # continue to raise exception so that any retry logic still holds
         raise no_content_e
