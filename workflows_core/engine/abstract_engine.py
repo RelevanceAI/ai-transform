@@ -13,6 +13,7 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.document_list import DocumentList
 from workflows_core.errors import MaxRetriesError
 from workflows_core.utils import set_seed
+from workflows_core.config import BaseConfig
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
@@ -99,6 +100,13 @@ class AbstractEngine(ABC):
 
         self._success_ratio = None
         self._error_logs = None
+
+    @classmethod
+    def from_config(self, config: BaseConfig, **kwargs):
+        operator_args = self.__init__.__code__.co_varnames
+        operator_args += super().__init__.__code__.co_varnames
+        kwargs = {**kwargs, **config.dict(include=operator_args)}
+        return self(**kwargs)
 
     @property
     def num_chunks(self) -> int:

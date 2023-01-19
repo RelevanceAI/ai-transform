@@ -1,11 +1,12 @@
 """
 Config class
 """
-import argparse
-import base64
-import json
 import uuid
-from typing import Optional
+import json
+import base64
+import argparse
+
+from typing import Optional, List
 from workflows_core.workflow.helpers import decode_workflow_token
 
 from pydantic import BaseModel, Field
@@ -107,10 +108,9 @@ class BaseTransformConfig(BaseConfig):
         description="If True, re-runs the workflow on the entire dataset.",
     )
     output_to_status: Optional[bool] = Field(
-        default=False,
-        description="If True, it will output results to status object."
+        default=False, description="If True, it will output results to status object."
     )
     documents: Optional[List[object]] = Field(
         default=[],
-        description="If passed in, documents will be used instead of dataset."
+        description="If passed in, documents will be used instead of dataset.",
     )
