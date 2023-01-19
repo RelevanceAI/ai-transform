@@ -106,3 +106,11 @@ class BaseTransformConfig(BaseConfig):
         default=False,
         description="If True, re-runs the workflow on the entire dataset.",
     )
+    output_to_status: Optional[bool] = Field(
+        default=False,
+        description="If True, it will output results to status object."
+    )
+    documents: Optional[List[object]] = Field(
+        default=[],
+        description="If passed in, documents will be used instead of dataset."
+    )
