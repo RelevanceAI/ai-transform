@@ -1,11 +1,12 @@
-from json import JSONDecodeError
 import math
 import time
 import logging
 import warnings
+import inspect
 
 from typing import Any, List, Optional
 from abc import ABC, abstractmethod
+from json import JSONDecodeError
 
 from workflows_core.types import Filter
 from workflows_core.dataset.dataset import Dataset
@@ -118,8 +119,15 @@ class AbstractEngine(ABC):
 
     @classmethod
     def from_config(self, config: BaseConfig, **kwargs):
-        operator_args = self.__init__.__code__.co_varnames
-        operator_args += super().__init__.__code__.co_varnames
+        sig = inspect.signature(self.__init__)
+        operator_args = {
+            key for key, value in sig.parameters.items() if value.kind.value == 3
+        }
+
+        sig = inspect.signature(super().__init__)
+        operator_args.union(
+            {key for key, value in sig.parameters.items() if value.kind.value == 3}
+        )
         kwargs = {**kwargs, **config.dict(include=operator_args)}
         return self(**kwargs)
 
