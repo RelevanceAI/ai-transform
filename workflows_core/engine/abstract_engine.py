@@ -214,7 +214,7 @@ class AbstractEngine(ABC):
                     pull_chunksize = self.limit_documents - documents_processed
 
                 chunk = self._dataset.get_documents(
-                    pull_chunksize,
+                    page_size=pull_chunksize,
                     filters=filters,
                     select_fields=select_fields,
                     after_id=self._after_id,
