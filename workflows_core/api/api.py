@@ -301,7 +301,7 @@ class API:
             additional_information=additional_information,
             send_email=send_email,
         )
-        if worker_number is None:
+        if worker_number is not None:
             parameters["worker_number"] = worker_number
 
         if output:
