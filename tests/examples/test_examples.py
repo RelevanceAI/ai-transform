@@ -242,7 +242,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
 def test_fail_example(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
-    job_id = config["job_id"] + "_fail"
+    # job_id = config["job_id"] + "_fail"
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -250,6 +250,14 @@ def test_fail_example(test_sentiment_workflow_token: str):
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
+    job_id = dataset._api._trigger(
+        config['dataset_id'],
+        {"text_fields": ['hey']},
+        "sentiment",
+        host_type="none",
+        notebook_path="",
+        instance_type="",
+    )['job_id']
 
     # Implement a trigger
     operator = BadOperator(text_field=text_field, alias=alias)
