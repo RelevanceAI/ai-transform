@@ -33,16 +33,15 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
                 "error": response.content,
             }
         )
-    else:
-        logger.error({"error": response.content})
-        try:
-            return response.json()
-        except Exception as e:
-            logger.error({
-                "error": e, 
-                "x-trace-id": response.headers['x-trace-id'],
-            })
-            raise e
+    logger.error({"error": response.content})
+    try:
+        return response.json()
+    except Exception as e:
+        logger.error({
+            "error": e, 
+            "x-trace-id": response.headers['x-trace-id'],
+        })
+        raise e
 
 # We implement retry as a function for several reasons
 # first - we can get a
