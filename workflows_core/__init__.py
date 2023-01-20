@@ -1,4 +1,4 @@
-__version__ = "0.18.4"
+__version__ = "0.18.5"
 
 
 def add_config_paths(verbose: bool = False):

@@ -301,18 +301,18 @@ class API:
             additional_information=additional_information,
             send_email=send_email,
         )
-        if worker_number is None:
+        if worker_number is not None:
             parameters["worker_number"] = worker_number
 
         if output:
             parameters["output"] = {"results": output}
 
-        # response = requests.post(
-        #     url=self._base_url + f"/workflows/{job_id}/status",
-        #     headers=self._headers,
-        #     json=parameters,
-        # )
-        # return get_response(response)
+        response = requests.post(
+            url=self._base_url + f"/workflows/{job_id}/status",
+            headers=self._headers,
+            json=parameters,
+        )
+        return get_response(response)
 
     @retry()
     def _set_field_children(
