@@ -446,11 +446,16 @@ class API:
             params=params,
             dataset_id=dataset_id,
             workflow_id=workflow_id,
-            notebook_path=notebook_path,
-            instance_type=instance_type,
-            host_type=host_type,
             version=version,
         )
+        if host_type:
+            data['host_type'] = host_type
+        if version:
+            data['version'] = version
+        if instance_type:
+            data['instance_type'] = instance_type
+        if notebook_path:
+            data['notebook_path'] = notebook_path
         data.update(kwargs)
         return requests.post(
             url=self._base_url + f"/workflows/trigger", headers=self._headers, json=data

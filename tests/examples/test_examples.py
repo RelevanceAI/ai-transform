@@ -15,7 +15,6 @@ from workflows_core.workflow.helpers import decode_workflow_token
 def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
-    job_id = config["job_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -27,6 +26,7 @@ def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
+    job_id = dataset._trigger_dummy_job()['job_id']
 
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
@@ -94,7 +94,6 @@ def test_sentiment_example_wsmall_batch_stable_engine(
 ):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
-    job_id = config["job_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -104,6 +103,7 @@ def test_sentiment_example_wsmall_batch_stable_engine(
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
+    job_id = dataset._trigger_dummy_job()['job_id']
 
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
@@ -140,7 +140,6 @@ def test_sentiment_example_wsmall_batch_stable_engine(
 def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
-    job_id = config["job_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -154,6 +153,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
+    job_id = dataset._trigger_dummy_job()['job_id']
 
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
@@ -194,7 +194,6 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
 def test_cluster_example(test_cluster_workflow_token: str):
     config = decode_workflow_token(test_cluster_workflow_token)
 
-    job_id = config["job_id"]
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     vector_fields = config["vector_fields"]
@@ -208,6 +207,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
     vector_field = vector_fields[0]
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
+    job_id = dataset._trigger_dummy_job()['job_id']
 
     operator = ClusterOperator(
         n_clusters=n_clusters, vector_field=vector_field, alias=alias
@@ -242,7 +242,6 @@ def test_cluster_example(test_cluster_workflow_token: str):
 def test_fail_example(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
-    job_id = config["job_id"] + "_fail"
     token = config["authorizationToken"]
     dataset_id = config["dataset_id"]
     text_field = config["text_field"]
@@ -250,6 +249,7 @@ def test_fail_example(test_sentiment_workflow_token: str):
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
+    job_id = dataset._trigger_dummy_job()['job_id']
 
     # Implement a trigger
     operator = BadOperator(text_field=text_field, alias=alias)

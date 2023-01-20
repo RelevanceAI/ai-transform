@@ -239,3 +239,15 @@ class Dataset:
         return self._api._list_field_children(
             dataset_id=self._dataset_id, page=page, page_size=page_size
         )
+    
+    def _trigger_dummy_job(self):
+        """
+        Triggers a dummy job and returns `job_id`
+        Returns {'job_id': 'dshai'}
+        """
+        return self._api._trigger(
+            dataset_id=self._dataset_id,
+            params={"text_fields": ['hey']},
+            workflow_id='sentiment',
+            host_type="none",
+        )
