@@ -11,25 +11,40 @@ from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
 from workflows_core import __version__
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def get_response(response: requests.Response) -> Dict[str, Any]:
     # get a json response
     # if errors - print what the response contains
-    try:
-        return response.json()
-    except Exception as e:
-        logger.error({"error": e})
+    if response.status_code == 200:
         try:
-            # Log this somewhere if it errors
-            logger.error(response.content)
-        except Exception as no_content_e:
-            # in case there's no content
-            logger.error(no_content_e)
-        finally:
-            # we still want to raise the right error for retrying
-            # continue to raise exception so that any retry logic still holds
+            return response.json()
+        except Exception as e:
+            logger.error({
+                "error": e, 
+                "x-trace-id": response.headers['x-trace-id']
+            })
             raise e
+    else:
+        if "x-trace-id" in response.headers:
+            logger.error(
+                {
+                    "x-trace-id": response.headers["x-trace-id"],
+                    "error": response.content,
+                }
+            )
+        else:
+            logger.error({"error": response.content})
+    try:
+        # Log this somewhere if it errors
+        logger.error(response.content)
+    except Exception as no_content_e:
+        # in case there's no content
+        logger.error(no_content_e)
+        # we still want to raise the right error for retrying
+        # continue to raise exception so that any retry logic still holds
+        raise no_content_e
 
 
 # We implement retry as a function for several reasons
@@ -295,12 +310,12 @@ class API:
         if output:
             parameters["output"] = {"results": output}
 
-        response = requests.post(
-            url=self._base_url + f"/workflows/{job_id}/status",
-            headers=self._headers,
-            json=parameters,
-        )
-        return get_response(response)
+        # response = requests.post(
+        #     url=self._base_url + f"/workflows/{job_id}/status",
+        #     headers=self._headers,
+        #     json=parameters,
+        # )
+        # return get_response(response)
 
     @retry()
     def _set_field_children(
@@ -502,12 +517,12 @@ class API:
         )
         logger.debug("adding progress...")
         logger.debug(params)
-        response = requests.post(
-            url=self._base_url + f"/workflows/{workflow_id}/progress",
-            headers=self._headers,
-            json=params,
-        )
-        return get_response(response)
+        # response = requests.post(
+        #     url=self._base_url + f"/workflows/{workflow_id}/progress",
+        #     headers=self._headers,
+        #     json=params,
+        # )
+        # return get_response(response)
 
     @retry()
     def _append_tags(
