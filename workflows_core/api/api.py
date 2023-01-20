@@ -26,26 +26,23 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
                 "x-trace-id": response.headers['x-trace-id']
             })
             raise e
+    if "x-trace-id" in response.headers:
+        logger.error(
+            {
+                "x-trace-id": response.headers["x-trace-id"],
+                "error": response.content,
+            }
+        )
     else:
-        if "x-trace-id" in response.headers:
-            logger.error(
-                {
-                    "x-trace-id": response.headers["x-trace-id"],
-                    "error": response.content,
-                }
-            )
-        else:
-            logger.error({"error": response.content})
-    try:
-        # Log this somewhere if it errors
-        logger.error(response.content)
-    except Exception as no_content_e:
-        # in case there's no content
-        logger.error(no_content_e)
-        # we still want to raise the right error for retrying
-        # continue to raise exception so that any retry logic still holds
-        raise no_content_e
-
+        logger.error({"error": response.content})
+        try:
+            return response.json()
+        except Exception as e:
+            logger.error({
+                "error": e, 
+                "x-trace-id": response.headers['x-trace-id'],
+            })
+            raise e
 
 # We implement retry as a function for several reasons
 # first - we can get a
