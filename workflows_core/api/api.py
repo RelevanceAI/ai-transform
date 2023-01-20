@@ -21,10 +21,7 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
         try:
             return response.json()
         except Exception as e:
-            logger.error({
-                "error": e, 
-                "x-trace-id": response.headers['x-trace-id']
-            })
+            logger.error({"error": e, "x-trace-id": response.headers["x-trace-id"]})
             raise e
     else:
         if "x-trace-id" in response.headers:
