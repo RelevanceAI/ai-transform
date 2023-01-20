@@ -113,3 +113,7 @@ class BaseTransformConfig(BaseConfig):
         default_factory=lambda: [],
         description="If passed in, documents will be used instead of dataset.",
     )
+    limit_documents: Optional[int] = Field(
+        default=None,
+        description="If passed in, the transform will be limited to the number of documents specified here",
+    )
