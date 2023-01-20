@@ -21,10 +21,7 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
         try:
             return response.json()
         except Exception as e:
-            logger.error({
-                "error": e, 
-                "x-trace-id": response.headers['x-trace-id']
-            })
+            logger.error({"error": e, "x-trace-id": response.headers["x-trace-id"]})
             raise e
     else:
         if "x-trace-id" in response.headers:
@@ -310,12 +307,12 @@ class API:
         if output:
             parameters["output"] = {"results": output}
 
-        # response = requests.post(
-        #     url=self._base_url + f"/workflows/{job_id}/status",
-        #     headers=self._headers,
-        #     json=parameters,
-        # )
-        # return get_response(response)
+        response = requests.post(
+            url=self._base_url + f"/workflows/{job_id}/status",
+            headers=self._headers,
+            json=parameters,
+        )
+        return get_response(response)
 
     @retry()
     def _set_field_children(
