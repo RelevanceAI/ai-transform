@@ -514,12 +514,12 @@ class API:
         )
         logger.debug("adding progress...")
         logger.debug(params)
-        # response = requests.post(
-        #     url=self._base_url + f"/workflows/{workflow_id}/progress",
-        #     headers=self._headers,
-        #     json=params,
-        # )
-        # return get_response(response)
+        response = requests.post(
+            url=self._base_url + f"/workflows/{workflow_id}/progress",
+            headers=self._headers,
+            json=params,
+        )
+        return get_response(response)
 
     @retry()
     def _append_tags(
