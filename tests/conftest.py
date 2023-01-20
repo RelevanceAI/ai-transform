@@ -165,6 +165,7 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 
+
 @pytest.fixture(scope="function")
 def test_sentiment_workflow_document_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
@@ -174,7 +175,7 @@ def test_sentiment_workflow_document_token(test_client: Client) -> str:
         job_id=job_id,
         authorizationToken=test_client._token,
         text_field="sample_1_label",
-        documents=mock_documents(10).to_json()
+        documents=mock_documents(10).to_json(),
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
