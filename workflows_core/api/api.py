@@ -647,7 +647,18 @@ class API:
 
     @retry()
     def _update_keyphrase(
-        self, dataset_id: str, field: str, keyphrase_id: str, alias: str
+        self,
+        dataset_id: str,
+        field: str,
+        keyphrase_id: str,
+        alias: str,
+        keyphrase: str,
+        frequency: int = 0,
+        ancestors: list = None,
+        parents: list = None,
+        metadata: dict = None,
+        keyphrase_score: float = 0,
+        level: int = 0,
     ):
         # missing update contents here?
         """
@@ -657,6 +668,16 @@ class API:
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
             headers=self._headers,
+            json={
+                "_id": keyphrase_id,
+                "text": keyphrase,
+                "frequency": frequency,
+                "ancestors": ancestors,
+                "parents": parents,
+                "metadata": metadata,
+                "keyphrase_score": keyphrase_score,
+                "level": level,
+            },
         )
         return get_response(response)
 
@@ -668,11 +689,13 @@ class API:
         alias: str,
         page: int = 0,
         page_size: int = 100,
-        sort: list = [],
+        sort: list = None,
     ):
         """
         List keyphrases
         """
+        if sort is None:
+            sort = []
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
