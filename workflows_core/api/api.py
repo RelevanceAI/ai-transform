@@ -664,20 +664,24 @@ class API:
         """
         Update keyphrases
         """
+        params = {
+            "_id": keyphrase_id,
+            "text": keyphrase,
+            "frequency": frequency,
+            "keyphrase_score": keyphrase_score,
+            "level": level,
+        }
+        if ancestors is not None:
+            params["ancestors"] = ancestors
+        if parents is not None:
+            params["parents"] = parents
+        if metadata is not None:
+            params["metadata"] = metadata
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
             headers=self._headers,
-            json={
-                "_id": keyphrase_id,
-                "text": keyphrase,
-                "frequency": frequency,
-                "ancestors": ancestors,
-                "parents": parents,
-                "metadata": metadata,
-                "keyphrase_score": keyphrase_score,
-                "level": level,
-            },
+            json=params,
         )
         return get_response(response)
 
@@ -694,15 +698,17 @@ class API:
         """
         List keyphrases
         """
+        params = {
+            "page": page,
+            "page_size": page_size,
+        }
+        if sort is not None:
+            params["sort"] = sort
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
             headers=self._headers,
-            json={
-                "page": page,
-                "page_size": page_size,
-                "sort": sort,
-            },
+            json=params,
         )
         return get_response(response)
 
