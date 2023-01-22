@@ -177,7 +177,18 @@ class Field:
             "`get_keyphrase` not available for non keyphrase_fields"
         )
 
-    def update_keyphrase(self, keyphrase_id: str, update: dict):
+    def update_keyphrase(
+        self,
+        keyphrase_id: str,
+        alias: str,
+        keyphrase: str,
+        frequency: int = 0,
+        ancestors: list = None,
+        parents: list = None,
+        metadata: dict = None,
+        keyphrase_score: float = 0,
+        level: int = 0,
+    ):
         raise NotImplementedError(
             "`update_keyphrase` not available for non keyphrase_fields"
         )
@@ -187,12 +198,12 @@ class Field:
             "`remove_keyphrase` not available for non keyphrase_fields"
         )
 
-    def bulk_update_keyphrases(self, updates: List):
+    def bulk_update_keyphrases(self, updates: List[Union[Keyphrase, dict]]):
         raise NotImplementedError(
             "`bulk_update_keyphrases` not available for non keyphrase_fields"
         )
 
-    def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
+    def list_keyphrases(page_size: int = 100, page: int = 1, sort: list = None):
         raise NotImplementedError(
             "`list_keyphrases` not available for non keyphrase_fields"
         )
@@ -248,24 +259,39 @@ class KeyphraseField(Field):
         self._keyphrase_text_field = text_field
         self._keyphrase_alias = alias
 
-    def get_keyphrase(self, keyphrase_id: str, **kwargs):
+    def get_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._get_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
-            **kwargs
         )
 
-    def update_keyphrase(self, keyphrase_id: str, update: Union[Keyphrase, dict]):
+    def update_keyphrase(
+        self,
+        keyphrase_id: str,
+        keyphrase: Union[Keyphrase, str],
+        frequency: int = 0,
+        ancestors: list = None,
+        parents: list = None,
+        metadata: dict = None,
+        keyphrase_score: float = 0,
+        level: int = 0,
+    ):
         if isinstance(update, Keyphrase):
             update = asdict(update)
-        return self._dataset.api._update_keyphrase(
-            dataset_id=self.dataset_id,
+        return self._dataset._api._update_keyphrase(
+            dataset_id=self._dataset._dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
-            update=update,
+            keyphrase=keyphrase,
+            frequency=frequency,
+            ancestors=ancestors,
+            parents=parents,
+            metadata=metadata,
+            keyphrase_score=keyphrase_score,
+            level=level,
         )
 
     def delete_keyphrase(self, keyphrase_id: str):

@@ -647,16 +647,41 @@ class API:
 
     @retry()
     def _update_keyphrase(
-        self, dataset_id: str, field: str, keyphrase_id: str, alias: str
+        self,
+        dataset_id: str,
+        field: str,
+        keyphrase_id: str,
+        alias: str,
+        keyphrase: str,
+        frequency: int = 0,
+        ancestors: list = None,
+        parents: list = None,
+        metadata: dict = None,
+        keyphrase_score: float = 0,
+        level: int = 0,
     ):
         # missing update contents here?
         """
         Update keyphrases
         """
+        params = {
+            "_id": keyphrase_id,
+            "text": keyphrase,
+            "frequency": frequency,
+            "keyphrase_score": keyphrase_score,
+            "level": level,
+        }
+        if ancestors is not None:
+            params["ancestors"] = ancestors
+        if parents is not None:
+            params["parents"] = parents
+        if metadata is not None:
+            params["metadata"] = metadata
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
             headers=self._headers,
+            json=params,
         )
         return get_response(response)
 
@@ -668,16 +693,22 @@ class API:
         alias: str,
         page: int = 0,
         page_size: int = 100,
-        sort: list = [],
+        sort: list = None,
     ):
         """
         List keyphrases
         """
+        params = {
+            "page": page,
+            "page_size": page_size,
+        }
+        if sort is not None:
+            params["sort"] = sort
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
             headers=self._headers,
-            json={"page": page, "page_size": page_size, "sort": sort},
+            json=params,
         )
         return get_response(response)
 
