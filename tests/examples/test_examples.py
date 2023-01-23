@@ -11,19 +11,20 @@ from workflows_core.workflow.abstract_workflow import Workflow
 from workflows_core.engine.cluster_engine import InMemoryEngine
 from workflows_core.workflow.helpers import decode_workflow_token
 
+from tests.conftest import SentimentConfig
+
 
 def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
-    config = decode_workflow_token(test_sentiment_workflow_token)
+    config = SentimentConfig.read_token(test_sentiment_workflow_token)
 
-    job_id = config["job_id"]
-    token = config["authorizationToken"]
-    dataset_id = config["dataset_id"]
-    text_field = config["text_field"]
-    alias = config.get("alias")
-    total_workers = config.get("total_workers", 3)
-    worker_number = config.get("worker_number", 2)
-    send_email = config.get("send_email", False)
-    additional_information = config.get("additional_information", "")
+    job_id = config.job_id
+    token = config.authorizationToken
+    dataset_id = config.dataset_id
+    text_field = config.text_field
+    alias = config.alias
+    total_workers = config.total_workers
+    send_email = config.send_email
+    additional_information = config.additional_information
 
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
@@ -38,7 +39,6 @@ def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
         select_fields=[text_field],
         filters=filters,
         total_workers=total_workers,
-        worker_number=worker_number,
     )
 
     workflow = Workflow(

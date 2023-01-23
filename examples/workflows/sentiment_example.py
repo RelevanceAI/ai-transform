@@ -80,7 +80,7 @@ class SentimentConfig(BaseConfig):
     # BaseConfig automatically handles authorizationToken, job_id, etc.
     # We put the SentimentConfig here so that we can auto-generate
     # a JSONSchema
-    textFields: str = Field(..., description="The text field to run sentiment on.")
+    text_field: str = Field(..., description="The text field to run sentiment on.")
     alias: Optional[str] = Field(
         None, description="The alias for each sentiment component."
     )
@@ -95,7 +95,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     job_id = config.job_id
     token = config.authorizationToken
     dataset_id = config.dataset_id
-    text_field = config.textFields
+    text_field = config.text_field
     total_workers = config.total_workers
     alias = config.alias
     transform_chunksize = config.transform_chunksize

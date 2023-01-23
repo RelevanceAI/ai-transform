@@ -7,6 +7,7 @@ import pytest
 import string
 import time
 
+from pydantic import Field
 from typing import List, Dict
 
 from workflows_core.api.client import Client
@@ -22,7 +23,8 @@ from workflows_core.utils.example_documents import (
     static_documents,
     tag_documents,
 )
-from workflows_core.utils.keyphrase import Keyphrase
+from workflows_core.config import BaseTransformConfig
+
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
@@ -31,9 +33,19 @@ rd = random.Random()
 rd.seed(0)
 
 
+class SentimentConfig(BaseTransformConfig):
+    text_field: str = Field(...)
+    alias: str = Field(None)
+
+
 def create_id():
     # This makes IDs reproducible for tests related to Modulo function
     return str(uuid.UUID(int=rd.getrandbits(128)))
+
+
+@pytest.fixture(scope="function")
+def test_sentiment_config() -> SentimentConfig:
+    return SentimentConfig(text_field="sample_label_1")
 
 
 @pytest.fixture(scope="session")

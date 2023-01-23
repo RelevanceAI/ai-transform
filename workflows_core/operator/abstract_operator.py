@@ -5,7 +5,7 @@ import numpy as np
 from copy import deepcopy
 from abc import ABC, abstractmethod
 
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional, TypeVar
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document
@@ -13,6 +13,8 @@ from workflows_core.utils.document_list import DocumentList
 from workflows_core.config import BaseConfig
 
 logger = logging.getLogger(__file__)
+
+Self = TypeVar("Self", bound="AbstractOperator")
 
 
 def is_different(field: str, value1: Any, value2: Any) -> bool:
@@ -63,11 +65,16 @@ class AbstractOperator(ABC):
         raise NotImplementedError
 
     @classmethod
-    def from_config(self, config: BaseConfig, **kwargs):
-        operator_args = self.__init__.__code__.co_varnames
-        operator_args += super().__init__.__code__.co_varnames
+    def from_config(cls: type[Self], config: BaseConfig, **kwargs) -> Self:
+        operator_args = set(cls.__init__.__code__.co_varnames)
+        operator_args.update(AbstractOperator.__init__.__code__.co_varnames)
+        for kw in ["self", "args", "kwargs"]:
+            try:
+                operator_args.remove(kw)
+            except:
+                pass
         kwargs = {**kwargs, **config.dict(include=operator_args)}
-        return self(**kwargs)
+        return cls(**kwargs)
 
     def __repr__(self):
         return str(type(self).__name__)

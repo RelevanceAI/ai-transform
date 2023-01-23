@@ -2,14 +2,18 @@ import uuid
 import logging
 import warnings
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TypeVar
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.errors import WorkflowFailedError
 from workflows_core.workflow.context_manager import WorkflowContextManager
 from workflows_core.operator.abstract_operator import AbstractOperator
 
+from workflows_core.config import BaseConfig
+
 logger = logging.getLogger(__name__)
+
+Self = TypeVar("Self", bound="Workflow")
 
 
 class Workflow:
@@ -51,6 +55,27 @@ class Workflow:
         self._success_threshold = success_threshold
         self._mark_as_complete_after_polling = mark_as_complete_after_polling
         self._email = email
+
+    @classmethod
+    def from_config(
+        cls: type[Self],
+        config: BaseConfig,
+        engine: AbstractEngine,
+        **kwargs,
+    ) -> Self:
+        operator_args = set(cls.__init__.__code__.co_varnames)
+        operator_args.update(Workflow.__init__.__code__.co_varnames)
+        for kw in ["self", "args", "kwargs"]:
+            try:
+                operator_args.remove(kw)
+            except:
+                pass
+        kwargs = {
+            "engine": engine,
+            **kwargs,
+            **config.dict(include=operator_args),
+        }
+        return cls(**kwargs)
 
     @property
     def name(self):

@@ -4,7 +4,7 @@ import logging
 import warnings
 import inspect
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, TypeVar
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
 
@@ -20,6 +20,8 @@ logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
 )
 logger = logging.getLogger(__name__)
+
+Self = TypeVar("Self", bound="AbstractEngine")
 
 
 class AbstractEngine(ABC):
@@ -118,18 +120,27 @@ class AbstractEngine(ABC):
         self._error_logs = None
 
     @classmethod
-    def from_config(self, config: BaseConfig, **kwargs):
-        sig = inspect.signature(self.__init__)
-        operator_args = {
-            key for key, value in sig.parameters.items() if value.kind.value == 3
+    def from_config(
+        cls: type[Self],
+        config: BaseConfig,
+        dataset: Dataset,
+        operator: AbstractOperator,
+        **kwargs,
+    ) -> Self:
+        operator_args = set(cls.__init__.__code__.co_varnames)
+        operator_args.update(AbstractEngine.__init__.__code__.co_varnames)
+        for kw in ["self", "args", "kwargs"]:
+            try:
+                operator_args.remove(kw)
+            except:
+                pass
+        kwargs = {
+            "dataset": dataset,
+            "operator": operator,
+            **kwargs,
+            **config.dict(include=operator_args),
         }
-
-        sig = inspect.signature(super().__init__)
-        operator_args.union(
-            {key for key, value in sig.parameters.items() if value.kind.value == 3}
-        )
-        kwargs = {**kwargs, **config.dict(include=operator_args)}
-        return self(**kwargs)
+        return cls(**kwargs)
 
     @property
     def num_chunks(self) -> int:
