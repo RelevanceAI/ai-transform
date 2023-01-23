@@ -273,6 +273,27 @@ class ClusterField(Field):
                 page += 1
         return all_centroids
 
+    def label_openai(
+        self,
+        field: str,
+        question_suffix: str,
+        accuracy: int = 4,
+        cluster_ids: list = None,
+        dont_save_summaries: bool = True,
+        filters: list = None,
+    ):
+        return self._dataset._api._label_openai(
+            dataset_id=self.dataset_id,
+            vector_field=self._cluster_vector_field,
+            field=field,
+            alias=self._cluster_alias,
+            question_suffix=question_suffix,
+            accuracy=accuracy,
+            cluster_ids=cluster_ids if cluster_ids is not None else [],
+            dont_save_summaries=dont_save_summaries,
+            filters=filters if filters is not None else [],
+        )
+
 
 class KeyphraseField(Field):
     def __init__(self, dataset, field: str):
