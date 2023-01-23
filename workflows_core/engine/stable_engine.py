@@ -31,7 +31,7 @@ class StableEngine(AbstractEngine):
             the number of documents that are downloaded
 
         """
-        filters = kwargs.get(filters, [])
+        filters = kwargs.pop("filters", [])
         if not refresh:
             output_field_filters = []
             for output_field in self.operator._output_fields:
