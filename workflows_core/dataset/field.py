@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import Dict, Any, List, Optional, Union
 
 from workflows_core.types import Filter
 from workflows_core.utils.document_list import DocumentList
@@ -177,7 +177,18 @@ class Field:
             "`get_keyphrase` not available for non keyphrase_fields"
         )
 
-    def update_keyphrase(self, keyphrase_id: str, update: dict):
+    def update_keyphrase(
+        self,
+        keyphrase_id: str,
+        alias: str,
+        keyphrase: str,
+        frequency: int = 0,
+        ancestors: list = None,
+        parents: list = None,
+        metadata: dict = None,
+        keyphrase_score: float = 0,
+        level: int = 0,
+    ):
         raise NotImplementedError(
             "`update_keyphrase` not available for non keyphrase_fields"
         )
@@ -187,58 +198,101 @@ class Field:
             "`remove_keyphrase` not available for non keyphrase_fields"
         )
 
-    def bulk_update_keyphrases(self, updates: List):
+    def bulk_update_keyphrases(self, updates: List[Union[Keyphrase, dict]]):
         raise NotImplementedError(
             "`bulk_update_keyphrases` not available for non keyphrase_fields"
         )
 
-    def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
+    def list_keyphrases(page_size: int = 100, page: int = 1, sort: list = None):
         raise NotImplementedError(
             "`list_keyphrases` not available for non keyphrase_fields"
         )
 
 
-class VectorField(Field):
+class ClusterField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
+        _, vector_field, alias, *_ = field.split(".")
+        self._cluster_vector_field = vector_field
+        self._cluster_alias = alias
 
-    def insert_centroids(self, centroid_documents: DocumentList, alias: str):
+    def insert_centroids(
+        self, centroid_documents: Union[List[Dict[str, Any]], DocumentList]
+    ):
+        if isinstance(centroid_documents, DocumentList):
+            centroid_documents = centroid_documents.to_json()
         return self._dataset.api._insert_centroids(
             dataset_id=self.dataset_id,
             cluster_centers=centroid_documents,
-            vector_fields=[self._text_field],
-            alias=alias,
+            vector_fields=[self._cluster_vector_field],
+            alias=self._cluster_alias,
         )
 
-    def get_centroids(self, alias: str, **kwargs):
+    def get_centroids(
+        self,
+        page_size: int = 5,
+        page: int = 1,
+        cluster_ids: Optional[List] = None,
+        include_vector: bool = False,
+    ):
         return self._dataset.api._get_centroids(
             dataset_id=self.dataset_id,
-            vector_fields=[self._text_field],
-            alias=alias,
-            **kwargs
+            vector_fields=[self._cluster_vector_field],
+            alias=self._cluster_alias,
+            page_size=page_size,
+            page=page,
+            cluster_ids=cluster_ids,
+            include_vector=include_vector,
         )
 
-    def get_all_centroids(self, alias: str, **kwargs):
+    def get_all_centroids(
+        self,
+        page_size: int = 5,
+        cluster_ids: Optional[List] = None,
+        include_vector: bool = False,
+    ):
         """
         Get all centroids and returns as a dictionary for easy access
         """
-        all_centroids = {}
+        all_centroids = {"results": []}
         page = 1
         while True:
             res = self._dataset.api._get_centroids(
                 dataset_id=self.dataset_id,
-                vector_fields=[self._text_field],
-                alias=alias,
-                include_vector=True,
-                page_size=100,
+                vector_fields=[self._cluster_vector_field],
+                alias=self._cluster_alias,
+                page_size=page_size,
+                cluster_ids=cluster_ids,
+                include_vector=include_vector,
                 page=page,
             )["results"]
             if len(res) == 0:
                 break
-            page += 1
-            for info in res:
-                all_centroids[info["_id"]] = info[self._text_field]
+            else:
+                all_centroids["results"] += res
+                page += 1
         return all_centroids
+
+    def label_openai(
+        self,
+        field: str,
+        question_suffix: str,
+        accuracy: int = 4,
+        cluster_ids: list = None,
+        dont_save_summaries: bool = True,
+        filters: list = None,
+    ):
+        return self._dataset._api._label_openai(
+            dataset_id=self.dataset_id,
+            vector_field=self._cluster_vector_field,
+            field=field,
+            alias=self._cluster_alias,
+            question_suffix=question_suffix,
+            accuracy=accuracy,
+            cluster_ids=cluster_ids if cluster_ids is not None else [],
+            dont_save_summaries=dont_save_summaries,
+            filters=filters if filters is not None else [],
+        )
 
 
 class KeyphraseField(Field):
@@ -248,24 +302,39 @@ class KeyphraseField(Field):
         self._keyphrase_text_field = text_field
         self._keyphrase_alias = alias
 
-    def get_keyphrase(self, keyphrase_id: str, **kwargs):
+    def get_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._get_keyphrase(
             dataset_id=self.dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
-            **kwargs
         )
 
-    def update_keyphrase(self, keyphrase_id: str, update: Union[Keyphrase, dict]):
+    def update_keyphrase(
+        self,
+        keyphrase_id: str,
+        keyphrase: Union[Keyphrase, str],
+        frequency: int = 0,
+        ancestors: list = None,
+        parents: list = None,
+        metadata: dict = None,
+        keyphrase_score: float = 0,
+        level: int = 0,
+    ):
         if isinstance(update, Keyphrase):
             update = asdict(update)
-        return self._dataset.api._update_keyphrase(
-            dataset_id=self.dataset_id,
+        return self._dataset._api._update_keyphrase(
+            dataset_id=self._dataset._dataset_id,
             field=self._keyphrase_text_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
-            update=update,
+            keyphrase=keyphrase,
+            frequency=frequency,
+            ancestors=ancestors,
+            parents=parents,
+            metadata=metadata,
+            keyphrase_score=keyphrase_score,
+            level=level,
         )
 
     def delete_keyphrase(self, keyphrase_id: str):

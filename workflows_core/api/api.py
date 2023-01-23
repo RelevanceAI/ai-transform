@@ -284,6 +284,7 @@ class API:
         send_email: bool = True,
         worker_number: int = None,
         output: dict = None,
+        email: dict = None
     ):
         # add edge case for API
         if job_id == "":
@@ -306,6 +307,11 @@ class API:
 
         if output:
             parameters["output"] = {"results": output}
+        
+        if email:
+            # in the form of 
+            # 'secondary_cta': { 'url': <url>, 'text': <text>}
+            parameters['email'] = email
 
         response = requests.post(
             url=self._base_url + f"/workflows/{job_id}/status",
@@ -647,16 +653,41 @@ class API:
 
     @retry()
     def _update_keyphrase(
-        self, dataset_id: str, field: str, keyphrase_id: str, alias: str
+        self,
+        dataset_id: str,
+        field: str,
+        keyphrase_id: str,
+        alias: str,
+        keyphrase: str,
+        frequency: int = 0,
+        ancestors: list = None,
+        parents: list = None,
+        metadata: dict = None,
+        keyphrase_score: float = 0,
+        level: int = 0,
     ):
         # missing update contents here?
         """
         Update keyphrases
         """
+        params = {
+            "_id": keyphrase_id,
+            "text": keyphrase,
+            "frequency": frequency,
+            "keyphrase_score": keyphrase_score,
+            "level": level,
+        }
+        if ancestors is not None:
+            params["ancestors"] = ancestors
+        if parents is not None:
+            params["parents"] = parents
+        if metadata is not None:
+            params["metadata"] = metadata
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
             headers=self._headers,
+            json=params,
         )
         return get_response(response)
 
@@ -668,16 +699,22 @@ class API:
         alias: str,
         page: int = 0,
         page_size: int = 100,
-        sort: list = [],
+        sort: list = None,
     ):
         """
         List keyphrases
         """
+        params = {
+            "page": page,
+            "page_size": page_size,
+        }
+        if sort is not None:
+            params["sort"] = sort
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
             headers=self._headers,
-            json={"page": page, "page_size": page_size, "sort": sort},
+            json=params,
         )
         return get_response(response)
 
@@ -783,5 +820,48 @@ class API:
             params=dict(
                 page_size=page_size,
             ),
+        )
+        return get_response(response)
+
+    @retry()
+    def _label_openai(
+        self,
+        dataset_id: str,
+        vector_field: str,
+        field: str,
+        alias: str,
+        question_suffix: str,
+        accuracy: int = 4,
+        cluster_ids: list = None,
+        dont_save_summaries: bool = True,
+        filters: list = None,
+    ):
+        params = {
+            "vector_fields": [vector_field],
+            # legacy parameter
+            "centroid_vector_fields": [vector_field],
+            "alias": alias,
+            "dataset_id": dataset_id,
+            "cluster_ids": cluster_ids,
+            "dont_save_summaries": dont_save_summaries,
+            "questions": [
+                {
+                    "cluster_ids": cluster_ids,
+                    "config": {
+                        "accuracy": accuracy,
+                        "examples": [],
+                        "field": field,
+                        "question_suffix": question_suffix,
+                    },
+                }
+            ],
+        }
+        if filters is not None:
+            params["filters"] = filters
+        response = requests.get(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/cluster/centroids/labels/create",
+            headers=self._headers,
+            params=params,
         )
         return get_response(response)
