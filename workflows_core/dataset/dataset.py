@@ -11,7 +11,6 @@ from workflows_core.dataset.field import (
     Field,
     KeyphraseField,
     ClusterField,
-    ClusterField,
 )
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
