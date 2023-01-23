@@ -12,8 +12,14 @@
 import logging
 import traceback
 
+from typing import Optional, List
+
+from workflows_core.dataset.dataset import Dataset
+from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.utils.document_list import DocumentList
+from workflows_core.types import Filter
+
 from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
@@ -21,7 +27,23 @@ logger = logging.getLogger(__file__)
 
 class StableEngine(AbstractEngine):
     def __init__(
-        self, *args, transform_chunksize: int = 20, refresh: bool = False, **kwargs
+        self,
+        dataset: Dataset = None,
+        operator: AbstractOperator = None,
+        filters: Optional[List[Filter]] = None,
+        select_fields: Optional[List[str]] = None,
+        pull_chunksize: Optional[int] = 3000,
+        refresh: bool = True,
+        after_id: Optional[List[str]] = None,
+        worker_number: int = None,
+        total_workers: int = None,
+        check_for_missing_fields: bool = True,
+        seed: int = 42,
+        output_to_status: Optional[bool] = False,
+        documents: Optional[List[object]] = None,
+        limit_documents: Optional[int] = None,
+        transform_chunksize: int = 20,
+        show_progress_bar: bool = True,
     ):
         """
         Parameters
@@ -31,17 +53,31 @@ class StableEngine(AbstractEngine):
             the number of documents that are downloaded
 
         """
-        filters = kwargs.pop("filters", [])
         if not refresh:
             output_field_filters = []
-            for output_field in self.operator._output_fields:
-                output_field_filters.append(self.dataset[output_field].not_exists())
+            for output_field in operator._output_fields:
+                output_field_filters.append(dataset[output_field].not_exists())
             filters += [{"filter_type": "or", "condition_value": output_field_filters}]
 
-        super().__init__(*args, **kwargs, filters=filters)
+        super().__init__(
+            dataset=dataset,
+            operator=operator,
+            filters=filters,
+            select_fields=select_fields,
+            pull_chunksize=pull_chunksize,
+            refresh=refresh,
+            after_id=after_id,
+            worker_number=worker_number,
+            total_workers=total_workers,
+            check_for_missing_fields=check_for_missing_fields,
+            seed=seed,
+            output_to_status=output_to_status,
+            documents=documents,
+            limit_documents=limit_documents,
+        )
 
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
-        self._show_progress_bar = kwargs.pop("show_progress_bar", True)
+        self._show_progress_bar = show_progress_bar
 
     def _filter_for_non_empty_list(self, docs: DocumentList):
         # if there are more keys than just _id in each document
