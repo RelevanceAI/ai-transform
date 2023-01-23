@@ -109,3 +109,10 @@ There are a few reasons for the pydantic choice:
 - good strong validation
 - outputs nicely to OpenAPI which allows us to generate workflow docs automatically in future for Workflow APIs
 - used in FastAPI stack so workflows can also be FastAPI compatible in the future.
+
+### For Developers 
+
+When developing with Workflows Core, we have the following philosophies:
+
+- Support for only 1 entrypoint where possible
+- Readable comments for anything that others might not understand
