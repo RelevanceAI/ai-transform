@@ -118,7 +118,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
             metadata={},
             status="complete",
             send_email=False,
-            worker_numer=worker_number
+            worker_number=worker_number,
         )
 
     filters = dataset[text_field].exists()
