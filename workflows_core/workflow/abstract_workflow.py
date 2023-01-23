@@ -23,7 +23,7 @@ class Workflow:
         send_email: bool = True,
         success_threshold: float = 0.5,
         mark_as_complete_after_polling: bool = False,
-        email: dict=None,
+        email: dict = None,
     ):
         self._name = name
         self._engine = engine
@@ -96,7 +96,7 @@ class Workflow:
                         send_email=self._send_email,
                         metadata={"error": WORKFLOW_FAIL_MESSAGE},
                         worker_number=self.engine.worker_number,
-                        email=self._email
+                        email=self._email,
                     )
                     raise WorkflowFailedError(
                         f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self._success_threshold:.2f}% threshold"

@@ -31,16 +31,17 @@ class StableEngine(AbstractEngine):
             the number of documents that are downloaded
 
         """
-        self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
-        self._show_progress_bar = kwargs.pop("show_progress_bar", True)
-
         filters = kwargs.get(filters, [])
         if not refresh:
             output_field_filters = []
             for output_field in self.operator._output_fields:
                 output_field_filters.append(self.dataset[output_field].not_exists())
             filters += [{"filter_type": "or", "condition_value": output_field_filters}]
+
         super().__init__(*args, **kwargs, filters=filters)
+
+        self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
+        self._show_progress_bar = kwargs.pop("show_progress_bar", True)
 
     def _filter_for_non_empty_list(self, docs: DocumentList):
         # if there are more keys than just _id in each document
