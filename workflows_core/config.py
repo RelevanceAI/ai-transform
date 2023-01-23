@@ -1,15 +1,15 @@
 """
 Config class
 """
-import argparse
-import base64
-import json
 import uuid
+import json
+import base64
+import argparse
+
 from typing import Optional, List
 from workflows_core.workflow.helpers import decode_workflow_token
 
 from pydantic import BaseModel, Field
-from pydantic.schema import schema
 
 
 class BaseConfig(BaseModel):
