@@ -251,6 +251,27 @@ class VectorField(Field):
                 all_centroids[info["_id"]] = info[self._text_field]
         return all_centroids
 
+    def label_openai(
+        self,
+        field: str,
+        question_suffix: str,
+        accuracy: int = 4,
+        cluster_ids: list = None,
+        dont_save_summaries: bool = True,
+        filters: list = None,
+    ):
+        return self._api._label_openai(
+            self.dataset_id,
+            self._text_field,
+            field,
+            alias,
+            question_suffix,
+            accuracy,
+            cluster_ids,
+            dont_save_summaries,
+            filters,
+        )
+
 
 class KeyphraseField(Field):
     def __init__(self, dataset, field: str):

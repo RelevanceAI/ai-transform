@@ -816,3 +816,46 @@ class API:
             ),
         )
         return get_response(response)
+
+    @retry()
+    def _label_openai(
+        self,
+        dataset_id: str,
+        vector_field: str,
+        field: str,
+        alias: str,
+        question_suffix: str,
+        accuracy: int = 4,
+        cluster_ids: list = None,
+        dont_save_summaries: bool = True,
+        filters: list = None,
+    ):
+        params = {
+            "vector_fields": [vector_field],
+            # legacy parameter
+            "centroid_vector_fields": [vector_field],
+            "alias": alias,
+            "dataset_id": dataset_id,
+            "cluster_ids": cluster_ids,
+            "dont_save_summaries": dont_save_summaries,
+            "questions": [
+                {
+                    "cluster_ids": cluster_ids,
+                    "config": {
+                        "accuracy": accuracy,
+                        "examples": [],
+                        "field": field,
+                        "question_suffix": question_suffix,
+                    },
+                }
+            ],
+        }
+        if filters is not None:
+            params["filters"] = filters
+        response = requests.get(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/cluster/centroids/labels/create",
+            headers=self._headers,
+            params=params,
+        )
+        return get_response(response)
