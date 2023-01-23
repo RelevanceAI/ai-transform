@@ -1,6 +1,5 @@
 import time
 import logging
-import requests
 
 from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Union
@@ -8,7 +7,12 @@ from typing import Any, Dict, List, Optional, Union
 from workflows_core.api.api import API
 from workflows_core.types import Filter, Schema
 from workflows_core.errors import MaxRetriesError
-from workflows_core.dataset.field import Field, KeyphraseField, VectorField
+from workflows_core.dataset.field import (
+    Field,
+    KeyphraseField,
+    ClusterField,
+    ClusterField,
+)
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 
@@ -24,8 +28,8 @@ class Dataset:
 
     def __getitem__(self, index: str) -> Field:
         if isinstance(index, str):
-            if "_vector_" in index:
-                return VectorField(dataset=self, field=index)
+            if index.startswith("_cluster_"):
+                return ClusterField(dataset=self, field=index)
             elif "_keyphrase_" in index:
                 return KeyphraseField(dataset=self, field=index)
             else:
