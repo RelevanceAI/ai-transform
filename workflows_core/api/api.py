@@ -284,6 +284,7 @@ class API:
         send_email: bool = True,
         worker_number: int = None,
         output: dict = None,
+        email: dict = None
     ):
         # add edge case for API
         if job_id == "":
@@ -306,6 +307,11 @@ class API:
 
         if output:
             parameters["output"] = {"results": output}
+        
+        if email:
+            # in the form of 
+            # 'secondary_cta': { 'url': <url>, 'text': <text>}
+            parameters['email'] = email
 
         response = requests.post(
             url=self._base_url + f"/workflows/{job_id}/status",
