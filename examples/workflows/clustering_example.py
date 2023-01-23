@@ -56,12 +56,8 @@ class ClusterOperator(AbstractOperator):
             dict(_id=f"cluster_{_id}", centroid_vector=centroid_vector)
             for _id, centroid_vector in enumerate(self._model.cluster_centers_.tolist())
         ]
-
-        alias = self._alias
-        vector_field = self._vector_field
-
-        dataset[vector_field].insert_centroids(
-            centroid_documents=centroid_documents, alias=alias
+        dataset[self._output_field].insert_centroids(
+            centroid_documents=centroid_documents
         )
 
 
