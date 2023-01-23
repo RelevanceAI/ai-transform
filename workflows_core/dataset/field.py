@@ -282,16 +282,16 @@ class ClusterField(Field):
         dont_save_summaries: bool = True,
         filters: list = None,
     ):
-        return self._api._label_openai(
-            self.dataset_id,
-            self._text_field,
-            field,
-            alias,
-            question_suffix,
-            accuracy,
-            cluster_ids,
-            dont_save_summaries,
-            filters,
+        return self._dataset._api._label_openai(
+            dataset_id=self.dataset_id,
+            vector_field=self._cluster_vector_field,
+            field=field,
+            alias=self._cluster_alias,
+            question_suffix=question_suffix,
+            accuracy=accuracy,
+            cluster_ids=cluster_ids if cluster_ids is not None else [],
+            dont_save_summaries=dont_save_summaries,
+            filters=filters if filters is not None else [],
         )
 
 
