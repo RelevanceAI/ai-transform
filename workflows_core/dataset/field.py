@@ -162,19 +162,41 @@ class Field:
             }
         ]
 
-    def insert_centroids(self, centroid_documents: DocumentList, alias: str):
+    def insert_centroids(self, centroid_documents: DocumentList):
         raise NotImplementedError(
-            "`insert_centroids` not available for non vector_fields"
+            f"`insert_centroids` not available for non-vector fields"
         )
 
-    def get_centroids(self):
+    def label_openai(
+        self,
+        field: str,
+        question_suffix: str,
+        accuracy: int = 4,
+        cluster_ids: list = None,
+        dont_save_summaries: bool = True,
+        filters: list = None,
+    ):
+        raise NotImplementedError(f"`label_openai` not available for non-vector fields")
+
+    def get_centroids(
+        self,
+        page_size: int = 5,
+        page: int = 1,
+        cluster_ids: Optional[List] = None,
+        include_vector: bool = False,
+    ):
         raise NotImplementedError(
-            "`insert_centroids` not available for non vector_fields"
+            f"`get_centroids` not available for non-vector fields"
+        )
+
+    def get_all_centroids(self):
+        raise NotImplementedError(
+            f"`get_all_centroids` not available for non-vector fields"
         )
 
     def get_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
-            "`get_keyphrase` not available for non keyphrase_fields"
+            f"`get_keyphrase` not available for non-keyphrase fields"
         )
 
     def update_keyphrase(
@@ -190,30 +212,30 @@ class Field:
         level: int = 0,
     ):
         raise NotImplementedError(
-            "`update_keyphrase` not available for non keyphrase_fields"
+            f"`update_keyphrase` not available for non-keyphrase fields"
         )
 
     def delete_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
-            "`remove_keyphrase` not available for non keyphrase_fields"
+            f"`delete_keyphrase` not available for non-keyphrase fields"
         )
 
     def bulk_update_keyphrases(self, updates: List[Union[Keyphrase, dict]]):
         raise NotImplementedError(
-            "`bulk_update_keyphrases` not available for non keyphrase_fields"
+            f"`bulk_update_keyphrases` not available for non-keyphrase fields"
         )
 
-    def list_keyphrases(page_size: int = 100, page: int = 1, sort: list = None):
+    def list_keyphrases(slef, page_size: int = 100, page: int = 1, sort: list = None):
         raise NotImplementedError(
-            "`list_keyphrases` not available for non keyphrase_fields"
+            f"`list_keyphrases` not available for non-keyphrase fields"
         )
 
 
 class ClusterField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
-        _, vector_field, alias, *_ = field.split(".")
-        self._cluster_vector_field = vector_field
+        _, *middle_fields, alias = field.split(".")
+        self._cluster_field = ".".join(middle_fields)
         self._cluster_alias = alias
 
     def insert_centroids(
@@ -224,7 +246,7 @@ class ClusterField(Field):
         return self._dataset.api._insert_centroids(
             dataset_id=self.dataset_id,
             cluster_centers=centroid_documents,
-            vector_fields=[self._cluster_vector_field],
+            vector_fields=[self._cluster_field],
             alias=self._cluster_alias,
         )
 
@@ -237,7 +259,7 @@ class ClusterField(Field):
     ):
         return self._dataset.api._get_centroids(
             dataset_id=self.dataset_id,
-            vector_fields=[self._cluster_vector_field],
+            vector_fields=[self._cluster_field],
             alias=self._cluster_alias,
             page_size=page_size,
             page=page,
@@ -259,7 +281,7 @@ class ClusterField(Field):
         while True:
             res = self._dataset.api._get_centroids(
                 dataset_id=self.dataset_id,
-                vector_fields=[self._cluster_vector_field],
+                vector_fields=[self._cluster_field],
                 alias=self._cluster_alias,
                 page_size=page_size,
                 cluster_ids=cluster_ids,
@@ -284,7 +306,7 @@ class ClusterField(Field):
     ):
         return self._dataset._api._label_openai(
             dataset_id=self.dataset_id,
-            vector_field=self._cluster_vector_field,
+            vector_field=self._cluster_field,
             field=field,
             alias=self._cluster_alias,
             question_suffix=question_suffix,
@@ -298,14 +320,14 @@ class ClusterField(Field):
 class KeyphraseField(Field):
     def __init__(self, dataset, field: str):
         super().__init__(dataset=dataset, field=field)
-        _, text_field, alias, *_ = field.split(".")
-        self._keyphrase_text_field = text_field
+        _, *middle_fields, alias = field.split(".")
+        self._keyphrase_field = ".".join(middle_fields)
         self._keyphrase_alias = alias
 
     def get_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._get_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._keyphrase_text_field,
+            field=self._keyphrase_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
         )
@@ -325,7 +347,7 @@ class KeyphraseField(Field):
             update = asdict(update)
         return self._dataset._api._update_keyphrase(
             dataset_id=self._dataset._dataset_id,
-            field=self._keyphrase_text_field,
+            field=self._keyphrase_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
             keyphrase=keyphrase,
@@ -340,7 +362,7 @@ class KeyphraseField(Field):
     def delete_keyphrase(self, keyphrase_id: str):
         return self._dataset.api._delete_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._keyphrase_text_field,
+            field=self._keyphrase_field,
             alias=self._keyphrase_alias,
             keyphrase_id=keyphrase_id,
         )
@@ -354,7 +376,7 @@ class KeyphraseField(Field):
                 updates_list.append(update)
         return self._dataset.api._bulk_update_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._keyphrase_text_field,
+            field=self._keyphrase_field,
             alias=self._keyphrase_alias,
             updates=updates_list,
         )
@@ -362,7 +384,7 @@ class KeyphraseField(Field):
     def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
         return self._dataset.api._list_keyphrase(
             dataset_id=self.dataset_id,
-            field=self._keyphrase_text_field,
+            field=self._keyphrase_field,
             alias=self._keyphrase_alias,
             page_size=page_size,
             page=page,
