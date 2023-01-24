@@ -1,13 +1,24 @@
-import requests
 import time
 import uuid
 import logging
+import requests
 import traceback
+
 from json import JSONDecodeError
 from functools import wraps
+
 from typing import Any, Dict, List, Optional
+
 from workflows_core.utils import document
-from workflows_core.types import Credentials, FieldTransformer, Filter, Schema
+from workflows_core.types import (
+    Credentials,
+    FieldTransformer,
+    Filter,
+    Schema,
+    GroupBy,
+    Metric,
+)
+
 from workflows_core import __version__
 
 logger = logging.getLogger(__name__)
@@ -46,8 +57,6 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
 
 # We implement retry as a function for several reasons
 # first - we can get a
-
-
 def retry(num_of_retries: int = 3, timeout: int = 30):
     """
     Allows the function to retry upon failure.
@@ -284,7 +293,7 @@ class API:
         send_email: bool = True,
         worker_number: int = None,
         output: dict = None,
-        email: dict = None
+        email: dict = None,
     ):
         # add edge case for API
         if job_id == "":
@@ -307,11 +316,11 @@ class API:
 
         if output:
             parameters["output"] = {"results": output}
-        
+
         if email:
-            # in the form of 
+            # in the form of
             # 'secondary_cta': { 'url': <url>, 'text': <text>}
-            parameters['email'] = email
+            parameters["email"] = email
 
         response = requests.post(
             url=self._base_url + f"/workflows/{job_id}/status",
@@ -863,5 +872,31 @@ class API:
             + f"/datasets/{dataset_id}/cluster/centroids/labels/create",
             headers=self._headers,
             params=params,
+        )
+        return get_response(response)
+
+    @retry()
+    def _aggregate(
+        self,
+        dataset_id: str,
+        page_size: str = 20,
+        page: str = 1,
+        asc: str = False,
+        aggregation_query: Dict[str, List[Dict[str, Any]]] = None,
+        dataset_ids: List[str] = None,
+        filters: List[Filter] = None,
+    ):
+        response = requests.post(
+            url=self._base_url + f"/datasets/{dataset_id}/aggregate",
+            headers=self._headers,
+            json=dict(
+                filters=[] if filters is None else filters,
+                aggregation_query=aggregation_query,
+                page_size=page_size,
+                page=page,
+                asc=asc,
+                dataset_ids=[] if dataset_ids is None else dataset_ids,
+                dataset_id=dataset_id,
+            ),
         )
         return get_response(response)

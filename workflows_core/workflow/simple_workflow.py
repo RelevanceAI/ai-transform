@@ -28,8 +28,8 @@ class SimpleWorkflow(API):
         additional_information: str = "",
         send_email: bool = True,
         worker_number: int = None,
-        email: dict=None,
-        # Adding kwargs in case we ever remove params - just for 
+        email: dict = None,
+        # Adding kwargs in case we ever remove params - just for
         # backwards compatibility
         **kwargs
     ) -> None:
@@ -48,8 +48,7 @@ class SimpleWorkflow(API):
         """
         The workflow is in progress
         """
-        self._set_status(status=self.IN_PROGRESS, worker_number=None,
-            email=self._email)
+        self._set_status(status=self.IN_PROGRESS, worker_number=None, email=self._email)
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
@@ -71,7 +70,7 @@ class SimpleWorkflow(API):
             self._set_status(status=self.COMPLETE, worker_number=self._worker_number)
             return True
 
-    def _set_status(self, status: str, worker_number: int = None, email: dict=None):
+    def _set_status(self, status: str, worker_number: int = None, email: dict = None):
         """
         Set the status of the workflow
         """
@@ -83,7 +82,7 @@ class SimpleWorkflow(API):
             additional_information=self._additional_information,
             send_email=self._send_email,
             worker_number=worker_number,
-            email=email
+            email=email,
         )
         from workflows_core import __version__
 

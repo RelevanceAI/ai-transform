@@ -5,7 +5,7 @@ from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Union
 
 from workflows_core.api.api import API
-from workflows_core.types import Filter, Schema
+from workflows_core.types import Filter, Schema, GroupBy, Metric
 from workflows_core.errors import MaxRetriesError
 from workflows_core.dataset.field import (
     Field,
@@ -241,4 +241,29 @@ class Dataset:
     def list_field_children(self, page: int = 0, page_size: int = 10000):
         return self._api._list_field_children(
             dataset_id=self._dataset_id, page=page, page_size=page_size
+        )
+
+    def aggregate(
+        self,
+        page_size: str = 20,
+        page: str = 1,
+        asc: str = False,
+        groupby: List[GroupBy] = None,
+        metrics: List[Metric] = None,
+        sort: List[Any] = None,
+        dataset_ids: List[str] = None,
+        filters: List[Filter] = None,
+    ):
+        return self._api._aggregate(
+            dataset_id=self._dataset_id,
+            page_size=page_size,
+            page=page,
+            asc=asc,
+            aggregation_query=dict(
+                groupby=[] if groupby is None else groupby,
+                metrics=[] if metrics is None else metrics,
+                sort=[] if sort is None else sort,
+            ),
+            dataset_ids=dataset_ids,
+            filters=filters,
         )
