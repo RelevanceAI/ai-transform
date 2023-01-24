@@ -1,5 +1,3 @@
-import sys
-
 from typing import Dict, Any, List, Optional, Union
 
 from workflows_core.types import Filter
@@ -166,7 +164,7 @@ class Field:
 
     def insert_centroids(self, centroid_documents: DocumentList):
         raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-vector fields"
+            f"`insert_centroids` not available for non-vector fields"
         )
 
     def label_openai(
@@ -178,9 +176,7 @@ class Field:
         dont_save_summaries: bool = True,
         filters: list = None,
     ):
-        raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-vector fields"
-        )
+        raise NotImplementedError(f"`label_openai` not available for non-vector fields")
 
     def get_centroids(
         self,
@@ -190,17 +186,17 @@ class Field:
         include_vector: bool = False,
     ):
         raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-vector fields"
+            f"`get_centroids` not available for non-vector fields"
         )
 
     def get_all_centroids(self):
         raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-vector fields"
+            f"`get_all_centroids` not available for non-vector fields"
         )
 
     def get_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-keyphrase fields"
+            f"`get_keyphrase` not available for non-keyphrase fields"
         )
 
     def update_keyphrase(
@@ -216,22 +212,22 @@ class Field:
         level: int = 0,
     ):
         raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-keyphrase fields"
+            f"`update_keyphrase` not available for non-keyphrase fields"
         )
 
     def delete_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-keyphrase fields"
+            f"`delete_keyphrase` not available for non-keyphrase fields"
         )
 
     def bulk_update_keyphrases(self, updates: List[Union[Keyphrase, dict]]):
         raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-keyphrase fields"
+            f"`bulk_update_keyphrases` not available for non-keyphrase fields"
         )
 
     def list_keyphrases(slef, page_size: int = 100, page: int = 1, sort: list = None):
         raise NotImplementedError(
-            f"`{sys._getframe().f_code.co_name}` not available for non-keyphrase fields"
+            f"`list_keyphrases` not available for non-keyphrase fields"
         )
 
 
