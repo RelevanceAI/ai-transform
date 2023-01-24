@@ -162,12 +162,17 @@ class Field:
             }
         ]
 
-    def insert_centroids(self, centroid_documents: DocumentList, alias: str):
+    def insert_centroids(self, centroid_documents: DocumentList):
         raise NotImplementedError(
             "`insert_centroids` not available for non vector_fields"
         )
 
     def get_centroids(self):
+        raise NotImplementedError(
+            "`insert_centroids` not available for non vector_fields"
+        )
+
+    def get_all_centroids(self):
         raise NotImplementedError(
             "`insert_centroids` not available for non vector_fields"
         )
