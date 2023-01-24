@@ -14,6 +14,7 @@ core_test_requirements = [
     "pytest",
     "pytest-xdist",
     "pytest-cov",
+    'sentence-splitter'
 ]
 
 example_test_requirements = core_test_requirements + [
