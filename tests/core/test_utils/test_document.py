@@ -41,7 +41,7 @@ class TestDocument:
         assert test_document["field1.field2"] == 5
     
     def test_split(self):
-        document = from workflows_core.utils import Document
+        from workflows_core.utils import Document
 
         doc = Document({"sentence": "This is going to be an interesting time for us all. Won't it be?"})
 
