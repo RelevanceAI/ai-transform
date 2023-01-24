@@ -15,3 +15,7 @@ class Credentials(NamedTuple):
     api_key: str
     region: str
     firebase_uid: str
+
+
+GroupBy = NewType("GroupBy", List[Dict[str, Any]])
+Metric = NewType("Metric", List[Dict[str, Any]])
