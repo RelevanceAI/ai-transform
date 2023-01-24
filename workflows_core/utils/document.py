@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 import uuid
 
 from copy import deepcopy
@@ -90,7 +91,8 @@ class Document(UserDict):
         return [d.get(field, default=default) for d in document_list.data]
 
     def _create_chunk_documents(
-        self, field: str, values: list, generate_id: bool = False
+        self, field: str, values: list, generate_id: bool = False,
+        include_offsets: bool=True
     ):
         """
         create chunk documents based on a given field and value.
@@ -104,8 +106,18 @@ class Document(UserDict):
             ]
         else:
             docs = [{field: values[i], "_order_": i} for i in range(len(values))]
-
+        if include_offsets:
+            for d in docs:
+                offsets = self._calculate_offset(values[i], d[field])
+                d['_offsets_'] = offsets
         return DocumentList(docs)
+    
+    def _calculate_offset(self, text_to_find, string):
+        result = [{
+            "start": m.start(), 
+            "end": m.end()
+        } for m in re.finditer(text_to_find, string)]
+        return result
 
     def set_chunk(
         self, chunk_field: str, field: str, values: list, generate_id: bool = False
