@@ -259,9 +259,11 @@ class Dataset:
             page_size=page_size,
             page=page,
             asc=asc,
-            groupby=groupby,
-            metrics=metrics,
-            sort=sort,
+            aggregation_query=dict(
+                groupby=[] if groupby is None else groupby,
+                metrics=[] if metrics is None else metrics,
+                sort=[] if sort is None else sort,
+            ),
             dataset_ids=dataset_ids,
             filters=filters,
         )

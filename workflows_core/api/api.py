@@ -882,9 +882,7 @@ class API:
         page_size: str = 20,
         page: str = 1,
         asc: str = False,
-        groupby: List[GroupBy] = None,
-        metrics: List[Metric] = None,
-        sort: List[Any] = None,
+        aggregation_query: Dict[str, List[Dict[str, Any]]] = None,
         dataset_ids: List[str] = None,
         filters: List[Filter] = None,
     ):
@@ -893,11 +891,7 @@ class API:
             headers=self._headers,
             json=dict(
                 filters=[] if filters is None else filters,
-                aggregation_query=dict(
-                    groupby=[] if groupby is None else groupby,
-                    metrics=[] if metrics is None else metrics,
-                    sort=[] if sort is None else sort,
-                ),
+                aggregation_query=aggregation_query,
                 page_size=page_size,
                 page=page,
                 asc=asc,
