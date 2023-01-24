@@ -39,37 +39,52 @@ class TestDocument:
     def test_inplace(self, test_document: Document):
         test_document["field1.field2"] += 4
         assert test_document["field1.field2"] == 5
-    
+
     def test_split(self):
         from workflows_core.utils import Document
 
-        doc = Document({"sentence": "This is going to be an interesting time for us all. Won't it be?"})
+        doc = Document(
+            {
+                "sentence": "This is going to be an interesting time for us all. Won't it be?"
+            }
+        )
 
         from sentence_splitter import split_text_into_sentences
         from functools import partial
 
-
         def split_text_into_sentences_max(
-            text, 
-            language, 
-            max_number_of_chunks: int = 20
+            text, language, max_number_of_chunks: int = 20
         ):
             if max_number_of_chunks == 0:
                 return split_text_into_sentences(text, language=language)
             else:
-                return split_text_into_sentences(text, language=language)[:max_number_of_chunks]
+                return split_text_into_sentences(text, language=language)[
+                    :max_number_of_chunks
+                ]
 
-
-        split_function = partial(split_text_into_sentences_max, language='en')
+        split_function = partial(split_text_into_sentences_max, language="en")
 
         documents = [doc]
 
         [
-            d.split(
-                split_function, 
-                chunk_field="_chunks_.sentence",
-                field="sentence"
-            ) for d in documents
+            d.split(split_function, chunk_field="_chunks_.sentence", field="sentence")
+            for d in documents
         ]
 
-        assert documents[0] == {'sentence': "This is going to be an interesting time for us all. Won't it be?", '_chunks_': {'sentence': [{'sentence': 'This is going to be an interesting time for us all.', '_order_': 0, '_offsets_': [{'start': 0, 'end': 51}]}, {'sentence': "Won't it be?", '_order_': 1, '_offsets_': [{'start': 52, 'end': 63}]}]}}
+        assert documents[0] == {
+            "sentence": "This is going to be an interesting time for us all. Won't it be?",
+            "_chunks_": {
+                "sentence": [
+                    {
+                        "sentence": "This is going to be an interesting time for us all.",
+                        "_order_": 0,
+                        "_offsets_": [{"start": 0, "end": 51}],
+                    },
+                    {
+                        "sentence": "Won't it be?",
+                        "_order_": 1,
+                        "_offsets_": [{"start": 52, "end": 63}],
+                    },
+                ]
+            },
+        }
