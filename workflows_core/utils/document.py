@@ -99,11 +99,11 @@ class Document(UserDict):
 
         if generate_id:
             docs = [
-                {"_id": uuid.uuid4().__str__(), field: values[i]}
+                {"_id": uuid.uuid4().__str__(), field: values[i], "_order_": i}
                 for i in range(len(values))
             ]
         else:
-            docs = [{field: values[i]} for i in range(len(values))]
+            docs = [{field: values[i], "_order_": i} for i in range(len(values))]
 
         return DocumentList(docs)
 
