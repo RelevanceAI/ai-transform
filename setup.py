@@ -10,11 +10,7 @@ ray_requirements = [
     "ray==2.0.0",
 ]
 
-core_test_requirements = [
-    "pytest",
-    "pytest-xdist",
-    "pytest-cov",
-]
+core_test_requirements = ["pytest", "pytest-xdist", "pytest-cov", "sentence-splitter"]
 
 example_test_requirements = core_test_requirements + [
     "torch",

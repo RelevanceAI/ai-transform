@@ -1,4 +1,5 @@
 import pandas as pd
+import re
 import uuid
 
 from copy import deepcopy
@@ -90,7 +91,10 @@ class Document(UserDict):
         return [d.get(field, default=default) for d in document_list.data]
 
     def _create_chunk_documents(
-        self, field: str, values: list, generate_id: bool = False
+        self,
+        field: str,
+        values: list,
+        generate_id: bool = False,
     ):
         """
         create chunk documents based on a given field and value.
@@ -104,11 +108,21 @@ class Document(UserDict):
             ]
         else:
             docs = [{field: values[i], "_order_": i} for i in range(len(values))]
-
         return DocumentList(docs)
 
+    def _calculate_offset(self, text_to_find, string):
+        result = [
+            {"start": m.start(), "end": m.end()}
+            for m in re.finditer(text_to_find, string)
+        ]
+        return result
+
     def set_chunk(
-        self, chunk_field: str, field: str, values: list, generate_id: bool = False
+        self,
+        chunk_field: str,
+        field: str,
+        values: list,
+        generate_id: bool = False,
     ):
         """
         doc.list_chunks()
@@ -119,7 +133,9 @@ class Document(UserDict):
         from workflows_core.utils.document_list import DocumentList
 
         new_chunk_docs = self._create_chunk_documents(
-            field, values=values, generate_id=generate_id
+            field,
+            values=values,
+            generate_id=generate_id,
         )
         # Update on the old chunk docs
         old_chunk_docs = DocumentList(self.get(chunk_field))
@@ -132,6 +148,8 @@ class Document(UserDict):
         chunk_field: str,
         field: str,
         default: Any = None,
+        include_offsets: bool = True,
+        generate_id: bool = False,
     ):
         """
         The split operation is as follows:
@@ -143,7 +161,15 @@ class Document(UserDict):
             default = []
         value = self.get(field, default)
         split_values = split_operation(value)
-        chunk_documents = self._create_chunk_documents(field=field, values=split_values)
+        chunk_documents = self._create_chunk_documents(
+            field=field, values=split_values, generate_id=generate_id
+        )
+
+        if include_offsets:
+            for i, d in enumerate(chunk_documents):
+                offsets = self._calculate_offset(d[field], value)
+                d["_offsets_"] = offsets
+
         self.set(chunk_field, chunk_documents)
 
     def operate_on_chunk(
