@@ -92,13 +92,14 @@ class WorkflowContextManager(API):
             if self._mark_as_complete_after_polling:
                 # TODO: trigger a polling job while keeping this one in progress
                 # When triggering this poll job - we can send the job ID
-                self._trigger_polling_workflow(
+                result = self._trigger_polling_workflow(
                     dataset_id=self._dataset_id,
                     input_field=self._operator._input_fields[0],
                     output_field=self._operator._output_fields[0],
                     job_id=self._job_id,
                     workflow_name=self._workflow_name,
                 )
+                logger.debug({"trigger_poll_id": result})
             else:
                 self._set_status(
                     status=self.COMPLETE,

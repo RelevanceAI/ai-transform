@@ -505,6 +505,9 @@ class API:
             ),
             workflow_id=workflow_id,
             version=version,
+            notebook_path="",
+            instance_type="batch",
+            host_type="batch"
         )
 
     @retry()
