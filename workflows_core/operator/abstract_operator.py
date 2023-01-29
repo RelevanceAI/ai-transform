@@ -67,11 +67,11 @@ class AbstractOperator(ABC):
     def __call__(self, old_documents: DocumentList) -> DocumentList:
         new_documents = deepcopy(old_documents)
         new_documents = self.transform(new_documents)
-        new_documents = AbstractOperator._postprocess(new_documents, old_documents)
+        new_documents = self.postprocess(new_documents, old_documents)
         return new_documents
 
     @staticmethod
-    def _postprocess(new_batch: DocumentList, old_batch: DocumentList) -> DocumentList:
+    def postprocess(new_batch: DocumentList, old_batch: DocumentList) -> DocumentList:
         """
         Removes fields from `new_batch` that are present in the `old_keys` list.
         Necessary to avoid bloating the upload payload with unnecesary information.
@@ -83,6 +83,9 @@ class AbstractOperator(ABC):
                 batch.append(document_diff)
 
         return DocumentList(batch)
+
+    # Adding this for backwards compatibility
+    _postprocess = postprocess
 
     def transform_for_playground(
         self,
