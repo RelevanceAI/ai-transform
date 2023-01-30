@@ -1,7 +1,7 @@
 import logging
 
 from inspect import Traceback
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from workflows_core.api.api import API
 from workflows_core.dataset.dataset import Dataset
@@ -27,7 +27,7 @@ class WorkflowContextManager(API):
         job_id: str,
         engine: AbstractEngine,
         dataset: Dataset,
-        operator: AbstractOperator,
+        operator_or_operators: Union[List[AbstractOperator], AbstractOperator],
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
@@ -36,14 +36,26 @@ class WorkflowContextManager(API):
         super().__init__(dataset.api._credentials, job_id, workflow_name)
 
         self._engine = engine
-        self._operator = operator
+        self._operator = operator_or_operators
         self._dataset = dataset
         self._dataset_id = dataset.dataset_id
 
-        self._update_field_children = (
-            self._operator._input_fields is not None
-            and self._operator._output_fields is not None
-        )
+        if isinstance(operator_or_operators, AbstractOperator):
+            self._update_field_children = (
+                self._operator._input_fields is not None
+                and self._operator._output_fields is not None
+            )
+        else:
+            update_field_children = False
+            for operator in operator_or_operators:
+                if (
+                    operator._input_fields is not None
+                    and operator._output_fields is not None
+                ):
+                    update_field_children = True
+                    break
+            self._update_field_children = update_field_children
+
         self._workflow_name = workflow_name
         self._job_id = job_id
 

@@ -52,7 +52,7 @@ class MultiPassEngine(AbstractEngine):
 
         super().__init__(
             dataset=dataset,
-            operator=operator,
+            operators=operators,
             filters=filters,
             select_fields=select_fields,
             pull_chunksize=pull_chunksize,
