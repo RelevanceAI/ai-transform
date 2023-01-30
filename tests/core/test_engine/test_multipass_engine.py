@@ -2,7 +2,7 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.multipass_engine import MultiPassEngine
 
 from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from workflows_core.workflow.abstract_workflow import Workflow
 
 
 class TestStableEngine:
@@ -16,7 +16,7 @@ class TestStableEngine:
                 test_operator,
             ],
         )
-        workflow = AbstractWorkflow(
+        workflow = Workflow(
             name="workflow_test123",
             engine=engine,
             job_id="test_job123",

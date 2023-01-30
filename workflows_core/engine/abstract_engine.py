@@ -111,8 +111,9 @@ class AbstractEngine(ABC):
 
         if operator is not None:
             self._operator = operator
-            self._operators = [operators]
+            self._operators = [operator]
         else:
+            self._operator = None
             self._operators = operators
 
         self._refresh = refresh
@@ -169,9 +170,7 @@ class AbstractEngine(ABC):
         raise NotImplementedError
 
     def __call__(self) -> Any:
-        self.operator.pre_hooks(self._dataset)
         self.apply()
-        self.operator.post_hooks(self._dataset)
 
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable

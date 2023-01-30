@@ -76,10 +76,10 @@ class MultiPassEngine(AbstractEngine):
         """
         if self.documents is None or len(self.documents) == 0:
             # Iterate through dataset
-            iterator = self.iterate()
+            dataset_iterator = self.iterate()
         else:
             # Iterate through passed in documents
-            iterator = self.chunk_documents(
+            dataset_iterator = self.chunk_documents(
                 chunksize=min(100, len(self.documents)), documents=self.documents
             )
 
@@ -87,22 +87,22 @@ class MultiPassEngine(AbstractEngine):
         error_logs = []
 
         self.update_progress(0)
+        progress_bar = tqdm(
+            range(len(self.operators) * self.num_chunks),
+            desc=repr(self.operator),
+            disable=(not self._show_progress_bar),
+            total=self.num_chunks,
+        )
 
-        for operator_index, operator in self.operators:
-            for batch_index, mega_batch in enumerate(
-                tqdm(
-                    iterator,
-                    desc=repr(self.operator),
-                    disable=(not self._show_progress_bar),
-                    total=self.num_chunks,
-                )
-            ):
+        for operator_index, operator in enumerate(self.operators):
+            for batch_index, mega_batch in enumerate(dataset_iterator):
                 batch_to_insert: List[Document] = []
 
                 for mini_batch in AbstractEngine.chunk_documents(
                     self._transform_chunksize, mega_batch
                 ):
                     try:
+                        operator.pre_hooks(self._dataset)
                         # note: do not put an IF inside ths try-except-else loop - the if code will not work
                         transformed_batch = operator(mini_batch)
                     except Exception as e:
@@ -120,6 +120,7 @@ class MultiPassEngine(AbstractEngine):
                         # schema updates
                         successful_chunks += 1
                         batch_to_insert += transformed_batch
+                        operator.post_hooks(self._dataset)
 
                 if self.output_to_status:
                     # Store in output documents
@@ -146,6 +147,8 @@ class MultiPassEngine(AbstractEngine):
                 if self.job_id:
                     progress_index = operator_index + batch_index + 1
                     self.update_progress(progress_index)
+
+                progress_bar.update(1)
 
         self._error_logs = error_logs
         if self.num_chunks > 0:
