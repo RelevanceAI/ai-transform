@@ -4,7 +4,7 @@ import time
 import logging
 import warnings
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Sequence
 from abc import ABC, abstractmethod
 
 from workflows_core.types import Filter
@@ -38,6 +38,7 @@ class AbstractEngine(ABC):
         seed: int = 42,
         output_to_status: Optional[bool] = False,
         documents: Optional[List[object]] = None,
+        operators: AbstractOperator = None,
         limit_documents: Optional[int] = None,
     ):
         set_seed(seed)
@@ -107,7 +108,11 @@ class AbstractEngine(ABC):
             # Force output to status if running on documents
             self._output_to_status = True
 
-        self._operator = operator
+        if operator is not None:
+            self._operator = operator
+            self._operators = [operators]
+        else:
+            self._operators = operators
 
         self._refresh = refresh
         self._after_id = after_id
@@ -122,6 +127,10 @@ class AbstractEngine(ABC):
     @property
     def operator(self) -> AbstractOperator:
         return self._operator
+
+    @property
+    def operators(self) -> Sequence[AbstractOperator]:
+        return self._operators
 
     @property
     def dataset(self) -> Dataset:
@@ -153,7 +162,6 @@ class AbstractEngine(ABC):
 
     def extend_output_documents(self, documents: DocumentList):
         self._output_documents.extend(documents)
-        return
 
     @abstractmethod
     def apply(self) -> None:
@@ -317,3 +325,6 @@ class AbstractEngine(ABC):
     @name.setter
     def name(self, value):
         self._name = value
+
+    def set_success_ratio(self, successful_chunks: int) -> None:
+        self._success_ratio = successful_chunks / self.num_chunks
