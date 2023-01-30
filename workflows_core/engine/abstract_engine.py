@@ -10,6 +10,7 @@ from abc import ABC, abstractmethod
 from workflows_core.types import Filter
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 from workflows_core.errors import MaxRetriesError
 from workflows_core.utils import set_seed
@@ -149,7 +150,7 @@ class AbstractEngine(ABC):
         return self._limit_documents
 
     @property
-    def documents(self) -> DocumentList:
+    def documents(self) -> List[Document]:
         return self._documents
 
     @property
@@ -160,7 +161,7 @@ class AbstractEngine(ABC):
     def output_documents(self) -> bool:
         return self._output_documents
 
-    def extend_output_documents(self, documents: DocumentList):
+    def extend_output_documents(self, documents: List[Document]):
         self._output_documents.extend(documents)
 
     @abstractmethod
@@ -244,7 +245,11 @@ class AbstractEngine(ABC):
                 if not chunk["documents"]:
                     break
 
-                yield chunk["documents"]
+                documents = chunk["documents"]
+                documents = self._filter_for_non_empty_list(documents)
+                if documents:
+                    yield documents
+
                 retry_count = 0
                 # If document limit is hit, break the loop
                 documents_processed += chunk["count"]
@@ -255,7 +260,7 @@ class AbstractEngine(ABC):
                     break
 
     @staticmethod
-    def chunk_documents(chunksize: int, documents: DocumentList):
+    def chunk_documents(chunksize: int, documents: List[Document]):
         num_chunks = len(documents) // chunksize + 1
         for i in range(num_chunks):
             start = i * chunksize
@@ -266,7 +271,7 @@ class AbstractEngine(ABC):
 
     def update_chunk(
         self,
-        chunk: DocumentList,
+        chunk: List[Document],
         max_retries: int = 3,
         ingest_in_background: bool = True,
         update_schema: bool = False,
@@ -328,3 +333,16 @@ class AbstractEngine(ABC):
 
     def set_success_ratio(self, successful_chunks: int) -> None:
         self._success_ratio = successful_chunks / self.num_chunks
+
+    @staticmethod
+    def _filter_for_non_empty_list(documents: List[Document]) -> List[Document]:
+        # if there are more keys than just _id in each document
+        # then return that as a list of Documents
+        # length of a dictionary is just 1 if there is only 1 key
+        return DocumentList(
+            [document for document in documents if len(document.keys()) > 1]
+        )
+
+    @staticmethod
+    def _get_chunks_ids(documents: List[Document]) -> List[Document]:
+        return [document["_id"] for document in documents]
