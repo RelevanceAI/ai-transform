@@ -2,7 +2,7 @@ import uuid
 import logging
 import warnings
 
-from typing import Any, List, Dict, Optional, Union
+from typing import Any, List, Dict, Optional, Union, Sequence
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.errors import WorkflowFailedError
@@ -72,7 +72,7 @@ class Workflow:
             return self.engine.operators
 
     def run(self):
-        if not isinstance(self.operator, list):
+        if not isinstance(self.operator, Sequence):
             operators = [self.operator]
 
         try:
