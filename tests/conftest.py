@@ -125,7 +125,10 @@ def test_operator() -> AbstractOperator:
             """
 
             for document in documents:
-                document["new_field"] = 3
+                if "new_field" in document:
+                    document["new_field"] += 3
+                else:
+                    document["new_field"] = 0
 
             return documents
 

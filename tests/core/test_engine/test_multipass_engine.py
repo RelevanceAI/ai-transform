@@ -22,4 +22,6 @@ class TestStableEngine:
             job_id="test_job123",
         )
         workflow.run()
-        assert True
+
+        for document in full_dataset.get_all_documents()["documents"]:
+            assert document["new_field"] == 6
