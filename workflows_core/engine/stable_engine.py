@@ -97,6 +97,7 @@ class StableEngine(AbstractEngine):
 
         self.update_progress(0)
 
+        self.operator.post_hooks(self._dataset)
         for batch_index, mega_batch in enumerate(
             tqdm(
                 iterator,
@@ -111,7 +112,6 @@ class StableEngine(AbstractEngine):
                 self._transform_chunksize, mega_batch
             ):
                 try:
-                    self.operator.pre_hooks(self._dataset)
                     # note: do not put an IF inside ths try-except-else loop - the if code will not work
                     transformed_batch = self.operator(mini_batch)
                 except Exception as e:
@@ -129,7 +129,6 @@ class StableEngine(AbstractEngine):
                     # schema updates
                     successful_chunks += 1
                     batch_to_insert += transformed_batch
-                    self.operator.post_hooks(self._dataset)
 
             if self.output_to_status:
                 # Store in output documents
@@ -155,6 +154,8 @@ class StableEngine(AbstractEngine):
             # executes after everything wraps up
             if self.job_id:
                 self.update_progress(batch_index + 1)
+
+            self._operator.post_hooks(self._dataset)
 
         self._error_logs = error_logs
         if self.num_chunks > 0:
