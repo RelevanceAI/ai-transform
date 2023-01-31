@@ -2,7 +2,7 @@ import uuid
 import logging
 import warnings
 
-from typing import Any, Dict, Optional
+from typing import Any, List, Dict, Optional, Union, Sequence
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.errors import WorkflowFailedError
@@ -65,8 +65,11 @@ class Workflow:
         return self.engine.dataset
 
     @property
-    def operator(self) -> AbstractOperator:
-        return self.engine.operator
+    def operators(self) -> List[AbstractOperator]:
+        if isinstance(self.engine.operator, AbstractOperator):
+            return [self.engine.operator]
+        else:
+            return self.engine.operators
 
     def run(self):
         try:
@@ -75,7 +78,7 @@ class Workflow:
                 job_id=self._job_id,
                 engine=self.engine,
                 dataset=self.dataset,
-                operator=self.operator,
+                operators=self.operators,
                 metadata=self._metadata,
                 additional_information=self._additional_information,
                 send_email=self._send_email,

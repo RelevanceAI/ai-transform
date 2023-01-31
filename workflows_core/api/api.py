@@ -507,7 +507,7 @@ class API:
             version=version,
             notebook_path="",
             instance_type="batch",
-            host_type="batch"
+            host_type="batch",
         )
 
     @retry()

@@ -67,8 +67,9 @@ class AbstractOperator(ABC):
     def __call__(self, old_documents: DocumentList) -> DocumentList:
         new_documents = deepcopy(old_documents)
         new_documents = self.transform(new_documents)
-        new_documents = self.postprocess(new_documents, old_documents)
-        return new_documents
+        if new_documents is not None:
+            new_documents = self.postprocess(new_documents, old_documents)
+            return new_documents
 
     @staticmethod
     def postprocess(new_batch: DocumentList, old_batch: DocumentList) -> DocumentList:
