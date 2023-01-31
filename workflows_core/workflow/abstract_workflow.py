@@ -65,23 +65,20 @@ class Workflow:
         return self.engine.dataset
 
     @property
-    def operator(self) -> Union[List[AbstractOperator], AbstractOperator]:
-        if self.engine.operator is not None:
-            return self.engine.operator
+    def operators(self) -> List[AbstractOperator]:
+        if isinstance(self.engine.operator, AbstractOperator):
+            return [self.engine.operator]
         else:
             return self.engine.operators
 
     def run(self):
-        if not isinstance(self.operator, Sequence):
-            operators = [self.operator]
-
         try:
             with WorkflowContextManager(
                 workflow_name=self._name,
                 job_id=self._job_id,
                 engine=self.engine,
                 dataset=self.dataset,
-                operators=operators,
+                operators=self.operators,
                 metadata=self._metadata,
                 additional_information=self._additional_information,
                 send_email=self._send_email,
