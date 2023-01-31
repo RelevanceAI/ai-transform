@@ -85,10 +85,6 @@ class MultiPassEngine(AbstractEngine):
         )
 
         for operator_index, operator in enumerate(self.operators):
-
-            import pdb
-
-            pdb.set_trace()
             operator.pre_hooks(self._dataset)
 
             if self.documents is None or len(self.documents) == 0:
