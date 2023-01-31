@@ -77,9 +77,11 @@ class MultiPassEngine(AbstractEngine):
         """
 
         self.update_progress(0)
+
+        desc = " -> ".join([repr(operator) for operator in self._operators])
         progress_bar = tqdm(
-            range(len(self.operators) * self.num_chunks),
-            desc=repr(self.operator),
+            range(self.num_chunks),
+            desc=desc,
             disable=(not self._show_progress_bar),
             total=self.num_chunks,
         )

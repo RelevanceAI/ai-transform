@@ -27,7 +27,7 @@ class WorkflowContextManager(API):
         job_id: str,
         engine: AbstractEngine,
         dataset: Dataset,
-        operator_or_operators: Union[List[AbstractOperator], AbstractOperator],
+        operators: List[AbstractOperator],
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
@@ -39,26 +39,17 @@ class WorkflowContextManager(API):
         self._dataset = dataset
         self._dataset_id = dataset.dataset_id
 
-        if isinstance(operator_or_operators, AbstractOperator):
-            operator = operator_or_operators
-            self._update_field_children = (
+        update_field_children = False
+        for operator in operators:
+            if (
                 operator._input_fields is not None
                 and operator._output_fields is not None
-            )
-            self._operator_or_operators = [operator_or_operators]
+            ):
+                update_field_children = True
+                break
 
-        else:
-            update_field_children = False
-            for operator in operator_or_operators:
-                if (
-                    operator._input_fields is not None
-                    and operator._output_fields is not None
-                ):
-                    update_field_children = True
-                    break
-
-            self._operator_or_operators = operator_or_operators
-            self._update_field_children = update_field_children
+        self._operators = operators
+        self._update_field_children = update_field_children
 
         self._workflow_name = workflow_name
         self._job_id = job_id
@@ -110,8 +101,8 @@ class WorkflowContextManager(API):
                 # When triggering this poll job - we can send the job ID
                 result = self._trigger_polling_workflow(
                     dataset_id=self._dataset_id,
-                    input_field=self._operator._input_fields[0],
-                    output_field=self._operator._output_fields[0],
+                    input_field=self._operators[0]._input_fields[0],
+                    output_field=self._operators[-1]._output_fields[0],
                     job_id=self._job_id,
                     workflow_name=self._workflow_name,
                 )
@@ -123,7 +114,7 @@ class WorkflowContextManager(API):
                     output=self._engine.output_documents,
                 )
             if self._update_field_children:
-                for operator in self._operator_or_operators:
+                for operator in self._operators:
                     for input_field in operator._input_fields:
                         self._set_field_children(
                             dataset_id=self._dataset_id,

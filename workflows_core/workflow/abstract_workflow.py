@@ -72,13 +72,16 @@ class Workflow:
             return self.engine.operators
 
     def run(self):
+        if not isinstance(self.operator, list):
+            operators = [self.operator]
+
         try:
             with WorkflowContextManager(
                 workflow_name=self._name,
                 job_id=self._job_id,
                 engine=self.engine,
                 dataset=self.dataset,
-                operator_or_operators=self.operator,
+                operators=operators,
                 metadata=self._metadata,
                 additional_information=self._additional_information,
                 send_email=self._send_email,

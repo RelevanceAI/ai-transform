@@ -39,7 +39,7 @@ class AbstractEngine(ABC):
         seed: int = 42,
         output_to_status: Optional[bool] = False,
         documents: Optional[List[object]] = None,
-        operators: AbstractOperator = None,
+        operators: Sequence[AbstractOperator] = None,
         limit_documents: Optional[int] = None,
     ):
         set_seed(seed)
