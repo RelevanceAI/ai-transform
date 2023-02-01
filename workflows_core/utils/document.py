@@ -1,7 +1,7 @@
-import pandas as pd
 import re
 import uuid
 
+from typing import List
 from copy import deepcopy
 from typing import Any, Optional
 from collections import UserDict
@@ -55,17 +55,30 @@ class Document(UserDict):
         self.__setitem__(key, value)
 
     def keys(self):
-        try:
-            df = pd.json_normalize(self.data, sep=".")
-            return list(df.columns)
-        except:
-            return super().keys()
+        def get_fields(d, parent_key: str = "", fields: List[str] = None):
+            """
+            ChatGPT wrote this function
+            """
+            if parent_key != "" and parent_key not in fields:
+                fields.append(parent_key[:-1])
+            if fields is None:
+                fields = []
+            if isinstance(d, dict):
+                for k, v in d.items():
+                    key = parent_key + k
+                    if isinstance(v, (dict, list)):
+                        get_fields(v, key + ".", fields)
+                    else:
+                        fields.append(key)
+            elif isinstance(d, list):
+                for item in d:
+                    get_fields(item, parent_key, fields)
+            return fields
+
+        return get_fields(self.data)
 
     def __contains__(self, key) -> bool:
-        try:
-            return key in self.keys()
-        except:
-            return super().__contains__(key)
+        return key in self.keys()
 
     def to_json(self):
         return json_encoder(deepcopy(self.data))
