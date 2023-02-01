@@ -57,7 +57,20 @@ class Document(UserDict):
     def keys(self):
         try:
             df = pd.json_normalize(self.data, sep=".")
-            return list(df.columns)
+            keys = set(df.columns)
+
+            keys_to_add = []
+            for key in keys:
+                try:
+                    extra_keys = key.split(".")
+                except:
+                    continue
+                else:
+                    for index in range(1, len(extra_keys)):
+                        new_key = ".".join(extra_keys[:index])
+                        keys_to_add.append(new_key)
+            keys.update(keys_to_add)
+            return list(keys)
         except:
             return super().keys()
 
