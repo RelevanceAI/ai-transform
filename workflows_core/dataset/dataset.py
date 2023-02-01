@@ -27,7 +27,7 @@ class Dataset:
 
     def __getitem__(self, index: str) -> Field:
         if isinstance(index, str):
-            if index.startswith("_cluster_"):
+            if index.startswith(("_cluster_", "_cluster_otm_")):
                 return ClusterField(dataset=self, field=index)
             elif "_keyphrase_" in index:
                 return KeyphraseField(dataset=self, field=index)
