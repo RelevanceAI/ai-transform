@@ -13,7 +13,7 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 from workflows_core.errors import MaxRetriesError
-from workflows_core.utils import set_seed
+from workflows_core.utils import set_seed, get_optimal_chunksize
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
@@ -41,6 +41,7 @@ class AbstractEngine(ABC):
         documents: Optional[List[object]] = None,
         operators: Sequence[AbstractOperator] = None,
         limit_documents: Optional[int] = None,
+        optimise_payloads: bool = False,
     ):
         set_seed(seed)
         if select_fields is not None:
@@ -121,6 +122,8 @@ class AbstractEngine(ABC):
 
         self._success_ratio = None
         self._error_logs = None
+
+        self._optimise_payloads = optimise_payloads
 
     @property
     def num_chunks(self) -> int:
@@ -209,14 +212,16 @@ class AbstractEngine(ABC):
 
         retry_count = 0
         documents_processed = 0
+        optimised = False
 
         while True:
             try:
                 # Adjust chunksize to get correct amount of documents
-                if (
+                allow_optimise = (
                     self.limit_documents is None
                     or documents_processed + self.pull_chunksize < self.limit_documents
-                ):
+                )
+                if allow_optimise:
                     pull_chunksize = self._pull_chunksize
                 else:
                     pull_chunksize = self.limit_documents - documents_processed
@@ -232,6 +237,11 @@ class AbstractEngine(ABC):
                     random_state=random_state,
                     is_random=is_random,
                 )
+
+                if self._optimise_payloads and not optimised and allow_optimise:
+                    pull_chunksize = get_optimal_chunksize(chunk["documents"])
+                    optimised = True
+
             except (ConnectionError, JSONDecodeError) as e:
                 logger.error(e)
                 retry_count += 1

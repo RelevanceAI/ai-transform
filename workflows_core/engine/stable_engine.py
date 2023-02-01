@@ -44,6 +44,7 @@ class StableEngine(AbstractEngine):
         limit_documents: Optional[int] = None,
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
+        optimise_payloads: bool = False,
     ):
         """
         Parameters
@@ -74,6 +75,7 @@ class StableEngine(AbstractEngine):
             output_to_status=output_to_status,
             documents=documents,
             limit_documents=limit_documents,
+            optimise_payloads=optimise_payloads,
         )
 
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)

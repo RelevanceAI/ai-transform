@@ -34,6 +34,7 @@ class MultiPassEngine(AbstractEngine):
         limit_documents: Optional[int] = None,
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
+        optimise_payloads: bool = False,
     ):
         """
         Parameters
@@ -65,6 +66,7 @@ class MultiPassEngine(AbstractEngine):
             output_to_status=output_to_status,
             documents=documents,
             limit_documents=limit_documents,
+            optimise_payloads=optimise_payloads,
         )
 
         self._num_chunks *= len(operators)
