@@ -229,12 +229,13 @@ class Field:
         raise NotImplementedError(
             f"`list_keyphrases` not available for non-keyphrase fields"
         )
-    
+
     def get_parent(self):
         # Returns None if there is no parent
-        for r in self._dataset.list_field_children()['results']:
-            if self._field in r['field_children']:
-                return r['field']
+        for r in self._dataset.list_field_children()["results"]:
+            if self._field in r["field_children"]:
+                return r["field"]
+
 
 class ClusterField(Field):
     def __init__(self, dataset, field: str):

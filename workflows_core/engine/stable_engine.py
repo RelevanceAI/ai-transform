@@ -17,7 +17,7 @@ from typing import Optional, List
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
-from workflows_core.utils.document_list import DocumentList
+from workflows_core.utils.document import Document
 from workflows_core.types import Filter
 
 from tqdm.auto import tqdm
@@ -79,12 +79,6 @@ class StableEngine(AbstractEngine):
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
 
-    def _filter_for_non_empty_list(self, docs: DocumentList):
-        # if there are more keys than just _id in each document
-        # then return that as a list of Documents
-        # length of a dictionary is just 1 if there is only 1 key
-        return DocumentList([d for d in docs if len(d) > 1])
-
     def apply(self) -> None:
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
@@ -101,7 +95,10 @@ class StableEngine(AbstractEngine):
         successful_chunks = 0
         error_logs = []
 
-        for chunk_counter, large_chunk in enumerate(
+        self.update_progress(0)
+
+        self.operator.post_hooks(self._dataset)
+        for batch_index, mega_batch in enumerate(
             tqdm(
                 iterator,
                 desc=repr(self.operator),
@@ -109,61 +106,58 @@ class StableEngine(AbstractEngine):
                 total=self.num_chunks,
             )
         ):
-            self.update_progress(0)
-            chunk_to_update = []
-            for chunk in AbstractEngine.chunk_documents(
-                self._transform_chunksize, large_chunk
+            batch_to_insert: List[Document] = []
+
+            for mini_batch in AbstractEngine.chunk_documents(
+                self._transform_chunksize, mega_batch
             ):
-                # place here and not in large_chunk to ensure consistency
-                # across progress and success etc.
-                chunk = self._filter_for_non_empty_list(chunk)
-                if len(chunk) == 0:
-                    new_batch = []
                 try:
                     # note: do not put an IF inside ths try-except-else loop - the if code will not work
-                    new_batch = self.operator(chunk)
+                    transformed_batch = self.operator(mini_batch)
                 except Exception as e:
                     chunk_error_log = {
                         "exception": str(e),
                         "traceback": traceback.format_exc(),
-                        "chunk_ids": [document["_id"] for document in chunk],
+                        "chunk_ids": self._get_chunks_ids(mini_batch),
                     }
                     error_logs.append(chunk_error_log)
-                    logger.error(chunk)
-                    logger.error(traceback.format_exc())
+                    logger.error(mini_batch)
                 else:
                     # if there is no exception then this block will be executed
                     # we only update schema on the first chunk
                     # otherwise it breaks down how the backend handles
                     # schema updates
                     successful_chunks += 1
-                    chunk_to_update.extend(new_batch)
+                    batch_to_insert += transformed_batch
 
             if self.output_to_status:
                 # Store in output documents
                 self.extend_output_documents(
-                    [document.to_json() for document in chunk_to_update]
+                    [document.to_json() for document in batch_to_insert]
                 )
             else:
                 # Store in dataset
                 # We want to make sure the schema updates
                 # on the first chunk upserting
-                if chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER:
+                if batch_index < self.MAX_SCHEMA_UPDATE_LIMITER:
                     ingest_in_background = False
                 else:
                     ingest_in_background = True
+
                 result = self.update_chunk(
-                    chunk_to_update,
-                    update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
+                    batch_to_insert,
+                    update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
                     ingest_in_background=ingest_in_background,
                 )
                 logger.debug(result)
 
             # executes after everything wraps up
             if self.job_id:
-                self.update_progress(chunk_counter + 1)
+                self.update_progress(batch_index + 1)
+
+            self._operator.post_hooks(self._dataset)
 
         self._error_logs = error_logs
         if self.num_chunks > 0:
-            self._success_ratio = successful_chunks / self.num_chunks
+            self.set_success_ratio(successful_chunks)
             logger.debug({"success_ratio": self._success_ratio})

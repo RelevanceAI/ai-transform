@@ -12,6 +12,10 @@ from workflows_core.workflow.helpers import decode_workflow_token
 from pydantic import BaseModel, Field
 
 
+def generate_random_string():
+    return str(uuid.uuid4())
+
+
 class BaseConfig(BaseModel):
     """
     An example configuration for workflows so that we can modify the the schema.
@@ -30,7 +34,9 @@ class BaseConfig(BaseModel):
 
     authorizationToken: str = None
     dataset_id: Optional[str] = None
-    job_id: Optional[str] = Field(default=str(uuid.uuid4()), description="the job ID")
+    job_id: Optional[str] = Field(
+        default_factory=generate_random_string, description="the job ID"
+    )
     total_workers: Optional[int] = Field(default=None, description="Total workers.")
     send_email: Optional[bool] = Field(
         default=True,
