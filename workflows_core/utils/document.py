@@ -1,7 +1,7 @@
-import pandas as pd
 import re
 import uuid
 
+from typing import List
 from copy import deepcopy
 from typing import Any, Optional
 from collections import UserDict
@@ -56,21 +56,28 @@ class Document(UserDict):
 
     def keys(self):
         try:
-            df = pd.json_normalize(self.data, sep=".")
-            keys = set(df.columns)
 
-            keys_to_add = []
-            for key in keys:
-                try:
-                    extra_keys = key.split(".")
-                except:
-                    continue
-                else:
-                    for index in range(1, len(extra_keys)):
-                        new_key = ".".join(extra_keys[:index])
-                        keys_to_add.append(new_key)
-            keys.update(keys_to_add)
-            return list(keys)
+            def get_fields(d, parent_key: str = "", fields: List[str] = None):
+                """
+                ChatGPT wrote this function
+                """
+                if parent_key != "" and parent_key not in fields:
+                    fields.append(parent_key)
+                if fields is None:
+                    fields = []
+                if isinstance(d, dict):
+                    for k, v in d.items():
+                        key = parent_key + k
+                        if isinstance(v, (dict, list)):
+                            get_fields(v, key + ".", fields)
+                        else:
+                            fields.append(key)
+                elif isinstance(d, list):
+                    for item in d:
+                        get_fields(item, parent_key, fields)
+                return fields
+
+            return get_fields(self.data)
         except:
             return super().keys()
 
