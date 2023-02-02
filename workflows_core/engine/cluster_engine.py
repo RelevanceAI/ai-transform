@@ -5,7 +5,7 @@ import traceback
 from typing import Any
 
 from workflows_core.engine.abstract_engine import AbstractEngine
-from workflows_core.utils.payload_optimiser import get_sizeof_document_mb
+from workflows_core.utils.payload_optimiser import get_optimal_chunksize
 from tqdm.auto import tqdm
 
 
@@ -46,40 +46,27 @@ class InMemoryEngine(AbstractEngine):
         else:
             self._success_ratio = 1.0
 
-        max_payload_size = float(os.getenv("WORKFLOWS_MAX_MB", 20))
-
         batch_to_insert = []
         payload_size = 0
         upload_progress = 0
 
-        for document in transformed_documents:
-            document_size = get_sizeof_document_mb(document)
-            if payload_size + document_size >= max_payload_size:
+        push_chunksize = get_optimal_chunksize(transformed_documents[:50])
+        for batch_to_insert in self.chunk_documents(
+            push_chunksize, transformed_documents
+        ):
+            logger.debug({"payload_size": payload_size})
+            result = self.update_chunk(
+                batch_to_insert,
+                update_schema=upload_progress < self.MAX_SCHEMA_UPDATE_LIMITER,
+                ingest_in_background=True,
+            )
+            logger.debug(result)
 
-                logger.debug({"payload_size": payload_size})
-                result = self.update_chunk(
-                    batch_to_insert,
-                    update_schema=upload_progress < self.MAX_SCHEMA_UPDATE_LIMITER,
-                    ingest_in_background=True,
-                )
-                logger.debug(result)
-                batch_to_insert = []
-                payload_size = 0
-                progress += 1
-                upload_progress += 1
+            progress += 1
+            upload_progress += 1
 
-                if self.job_id:
-                    self.update_progress(progress)
-
-            batch_to_insert.append(document)
-            payload_size += document_size
-
-        result = self.update_chunk(
-            batch_to_insert,
-            update_schema=True,
-            ingest_in_background=True,
-        )
-        logger.debug(result)
+            if self.job_id:
+                self.update_progress(progress)
 
         # executes after everything wraps up
         if self.job_id:

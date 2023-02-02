@@ -19,7 +19,7 @@ from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.utils.document import Document
-from workflows_core.utils.payload_optimiser import get_sizeof_document_mb
+from workflows_core.utils.payload_optimiser import get_optimal_chunksize
 from workflows_core.types import Filter
 
 from tqdm.auto import tqdm
@@ -152,33 +152,22 @@ class StableEngine(AbstractEngine):
                 else:
                     ingest_in_background = True
 
-                for document in transformed_mega_batch:
-                    document_size = get_sizeof_document_mb(document)
-                    if payload_size + document_size >= max_payload_size:
+                push_chunksize = get_optimal_chunksize(transformed_mega_batch[:50])
 
-                        logger.debug({"payload_size": payload_size})
-                        result = self.update_chunk(
-                            batch_to_insert,
-                            update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
-                            ingest_in_background=ingest_in_background,
-                        )
-                        logger.debug(result)
-                        batch_to_insert = []
-                        payload_size = 0
-
-                    batch_to_insert.append(document)
-                    payload_size += document_size
+                for batch_to_insert in self.chunk_documents(
+                    push_chunksize, transformed_mega_batch
+                ):
+                    logger.debug({"payload_size": payload_size})
+                    result = self.update_chunk(
+                        batch_to_insert,
+                        update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
+                        ingest_in_background=ingest_in_background,
+                    )
+                    logger.debug(result)
 
             # executes after everything wraps up
             if self.job_id:
                 self.update_progress(batch_index + 1)
-
-            result = self.update_chunk(
-                batch_to_insert,
-                update_schema=True,
-                ingest_in_background=True,
-            )
-            logger.debug(result)
 
             self._operator.post_hooks(self._dataset)
 
