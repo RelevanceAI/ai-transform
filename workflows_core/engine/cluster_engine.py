@@ -1,8 +1,11 @@
+import os
 import logging
 import traceback
+
 from typing import Any
 
 from workflows_core.engine.abstract_engine import AbstractEngine
+from workflows_core.utils.payload_optimiser import get_sizeof_document_mb
 from tqdm.auto import tqdm
 
 
@@ -46,15 +49,40 @@ class InMemoryEngine(AbstractEngine):
         else:
             self._success_ratio = 1.0
 
-        # Update this in series
-        for i in range(self._num_chunks):
-            chunk = new_batch[i * self.pull_chunksize : (i + 1) * self._pull_chunksize]
-            self.update_chunk(
-                chunk,
-                ingest_in_background=True,
-                # Update schema only on the first chunk otherwise it crashes the
-                # schema update
-                update_schema=True if i < self.MAX_SCHEMA_UPDATE_LIMITER else False,
-            )
-            if self.job_id:
-                self.update_progress(i + 1)
+        max_payload_size = float(os.getenv("WORKFLOWS_MAX_MB", 20))
+
+        num_updates = 0
+        batch_to_insert = []
+        payload_size = 0
+
+        for document in chunk:
+            document_size = get_sizeof_document_mb(document)
+            if payload_size + document_size >= max_payload_size:
+
+                logger.debug({"payload_size": payload_size})
+                result = self.update_chunk(
+                    batch_to_insert,
+                    update_schema=num_updates < self.MAX_SCHEMA_UPDATE_LIMITER,
+                    ingest_in_background=True,
+                )
+                logger.debug(result)
+                batch_to_insert = []
+                payload_size = 0
+                num_updates += 1
+
+                if self.job_id:
+                    self.update_progress(num_updates)
+
+            batch_to_insert.append(document)
+            payload_size += document_size
+
+        # executes after everything wraps up
+        if self.job_id:
+            self.update_progress(num_updates + 1)
+
+        result = self.update_chunk(
+            batch_to_insert,
+            update_schema=True,
+            ingest_in_background=True,
+        )
+        logger.debug(result)

@@ -1,4 +1,5 @@
 import io
+import os
 import sys
 import json
 
@@ -7,7 +8,18 @@ from typing import List, Dict, Any
 from workflows_core.utils import json_encoder
 
 ONE_MB = 2**20
-MAX_MB = 20
+MAX_MB = float(os.getenv("WORKFLOWS_MAX_MB", 20))
+
+
+def get_sizeof_document_mb(document: Dict[str, Any], encoding: str = "utf-8") -> float:
+    document = json_encoder(document)
+    documents_json_string = json.dumps(document)
+
+    buffer = io.BytesIO()
+    buffer.write(bytes(documents_json_string, encoding=encoding))
+    payload_bytes = sys.getsizeof(buffer)
+
+    return payload_bytes / ONE_MB
 
 
 def get_optimal_chunksize(
