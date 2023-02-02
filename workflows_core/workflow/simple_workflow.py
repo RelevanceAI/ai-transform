@@ -60,7 +60,7 @@ class SimpleWorkflow(API):
                 metadata=dict(
                     _error_=dict(
                         exc_value=str(exc_value),
-                        traceback=str(traceback),
+                        traceback=str(traceback.format_exc()),
                     ),
                 ),
             )
