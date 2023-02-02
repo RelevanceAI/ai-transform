@@ -903,3 +903,53 @@ class API:
             ),
         )
         return get_response(response)
+
+    @retry()
+    def _list_closest_to_center(
+        self,
+        dataset_id: str,
+        vector_fields: List[str],
+        centroid_vector_fields: List[str],
+        cluster_field: str,
+        alias: str,
+        approx: int = 0,
+        sum_fields: bool = True,
+        page: int = 1,
+        similarity_metric: str = "cosine",
+        min_score: float = 0,
+        include_vector: bool = False,
+        include_count: bool = True,
+        include_relevance: bool = False,
+        page_size: int = 20,
+        cluster_properties_filter: Dict[str, Any] = None,
+        cluster_ids: List[str] = None,
+        filters: List[Filter] = None,
+        select_fields: List[str] = None,
+    ):
+        response = requests.post(
+            url=self._base_url
+            + f"/datasets/{dataset_id}/cluster/centroids/list_closest_to_center",
+            headers=self._headers,
+            json=dict(
+                vector_fields=vector_fields,
+                centroid_vector_fields=centroid_vector_fields,
+                alias=alias,
+                approx=approx,
+                sum_fields=sum_fields,
+                page=page,
+                similarity_metric=similarity_metric,
+                min_score=min_score,
+                include_vector=include_vector,
+                include_count=include_count,
+                include_relevance=include_relevance,
+                cluster_field=cluster_field,
+                page_size=page_size,
+                cluster_properties_filter=cluster_properties_filter
+                if cluster_properties_filter is not None
+                else {},
+                filters=filters if filters is not None else [],
+                cluster_ids=cluster_ids if cluster_ids is not None else [],
+                select_fields=select_fields if select_fields is not None else [],
+            ),
+        )
+        return get_response(response)
