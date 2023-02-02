@@ -6,8 +6,8 @@ from typing import Optional, Sequence, List
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
-from workflows_core.utils.document_list import DocumentList
 from workflows_core.utils.document import Document
+from workflows_core.utils.payload_optimiser import get_optimal_chunksize
 from workflows_core.types import Filter
 
 from tqdm.auto import tqdm
@@ -102,9 +102,10 @@ class MultiPassEngine(AbstractEngine):
 
             successful_chunks = 0
             error_logs = []
+            optimised = False
 
             for batch_index, mega_batch in enumerate(dataset_iterator):
-                batch_to_insert: List[Document] = []
+                transformed_mega_batch: List[Document] = []
 
                 for mini_batch in AbstractEngine.chunk_documents(
                     self._transform_chunksize, mega_batch
@@ -127,12 +128,12 @@ class MultiPassEngine(AbstractEngine):
                         # schema updates
                         successful_chunks += 1
                         if transformed_batch is not None:
-                            batch_to_insert += transformed_batch
+                            transformed_mega_batch += transformed_batch
 
                 if self.output_to_status:
                     # Store in output documents
                     self.extend_output_documents(
-                        [document.to_json() for document in batch_to_insert]
+                        [document.to_json() for document in transformed_mega_batch]
                     )
                 else:
                     # Store in dataset
@@ -143,12 +144,20 @@ class MultiPassEngine(AbstractEngine):
                     else:
                         ingest_in_background = True
 
-                    result = self.update_chunk(
-                        batch_to_insert,
-                        update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
-                        ingest_in_background=ingest_in_background,
-                    )
-                    logger.debug(result)
+                    if not optimised:
+                        push_chunksize = get_optimal_chunksize(
+                            transformed_mega_batch[:50]
+                        )
+
+                    for batch_to_insert in self.chunk_documents(
+                        push_chunksize, transformed_mega_batch
+                    ):
+                        result = self.update_chunk(
+                            batch_to_insert,
+                            update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
+                            ingest_in_background=ingest_in_background,
+                        )
+                        logger.debug(result)
 
                 # executes after everything wraps up
                 if self.job_id:

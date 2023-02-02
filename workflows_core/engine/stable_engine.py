@@ -97,11 +97,8 @@ class StableEngine(AbstractEngine):
             )
 
         successful_chunks = 0
+        optimised = False
         error_logs = []
-
-        payload_size = 0
-        batch_to_insert = []
-        max_payload_size = float(os.getenv("WORKFLOWS_MAX_MB", 20))
 
         self.update_progress(0)
 
@@ -152,12 +149,12 @@ class StableEngine(AbstractEngine):
                 else:
                     ingest_in_background = True
 
-                push_chunksize = get_optimal_chunksize(transformed_mega_batch[:50])
+                if not optimised:
+                    push_chunksize = get_optimal_chunksize(transformed_mega_batch[:50])
 
                 for batch_to_insert in self.chunk_documents(
                     push_chunksize, transformed_mega_batch
                 ):
-                    logger.debug({"payload_size": payload_size})
                     result = self.update_chunk(
                         batch_to_insert,
                         update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
