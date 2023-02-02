@@ -101,7 +101,6 @@ class StableEngine(AbstractEngine):
 
         payload_size = 0
         batch_to_insert = []
-        overflow = []
         max_payload_size = float(os.getenv("WORKFLOWS_MAX_MB", 20))
 
         self.update_progress(0)

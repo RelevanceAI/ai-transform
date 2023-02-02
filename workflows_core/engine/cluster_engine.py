@@ -13,15 +13,8 @@ logger = logging.getLogger(__file__)
 
 
 class InMemoryEngine(AbstractEngine):
-    def __init__(self, show_progress_bar: bool = True, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        self._show_progress_bar = show_progress_bar
-        self._progress = tqdm(
-            desc=repr(self.operator),
-            total=self.num_chunks,
-            disable=(not show_progress_bar),
-        )
 
     def apply(self) -> Any:
 
@@ -29,13 +22,17 @@ class InMemoryEngine(AbstractEngine):
         iterator = self.iterate()
         error_logs = []
 
+        progress = 0
         documents = []
+
         for chunk in iterator:
             documents += chunk
-            self._progress.update(1)
+
+            if self.job_id:
+                self.update_progress(progress)
 
         try:
-            new_batch = self.operator(documents)
+            transformed_documents = self.operator(documents)
         except Exception as e:
             chunk_error_log = {
                 "exception": str(e),
@@ -51,34 +48,31 @@ class InMemoryEngine(AbstractEngine):
 
         max_payload_size = float(os.getenv("WORKFLOWS_MAX_MB", 20))
 
-        num_updates = 0
         batch_to_insert = []
         payload_size = 0
+        upload_progress = 0
 
-        for document in chunk:
+        for document in transformed_documents:
             document_size = get_sizeof_document_mb(document)
             if payload_size + document_size >= max_payload_size:
 
                 logger.debug({"payload_size": payload_size})
                 result = self.update_chunk(
                     batch_to_insert,
-                    update_schema=num_updates < self.MAX_SCHEMA_UPDATE_LIMITER,
+                    update_schema=upload_progress < self.MAX_SCHEMA_UPDATE_LIMITER,
                     ingest_in_background=True,
                 )
                 logger.debug(result)
                 batch_to_insert = []
                 payload_size = 0
-                num_updates += 1
+                progress += 1
+                upload_progress += 1
 
                 if self.job_id:
-                    self.update_progress(num_updates)
+                    self.update_progress(progress)
 
             batch_to_insert.append(document)
             payload_size += document_size
-
-        # executes after everything wraps up
-        if self.job_id:
-            self.update_progress(num_updates + 1)
 
         result = self.update_chunk(
             batch_to_insert,
@@ -86,3 +80,7 @@ class InMemoryEngine(AbstractEngine):
             ingest_in_background=True,
         )
         logger.debug(result)
+
+        # executes after everything wraps up
+        if self.job_id:
+            self.update_progress(progress + 1)
