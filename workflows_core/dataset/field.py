@@ -1,3 +1,5 @@
+import numpy as np
+
 from typing import Dict, Any, List, Optional, Union
 
 from workflows_core.types import Filter
@@ -194,6 +196,15 @@ class Field:
             f"`get_all_centroids` not available for non-vector fields"
         )
 
+    def create_centroid_documents(
+        self,
+        vectors: Union[np.ndarray, List[List[float]]],
+        labels: Union[np.ndarray, List[int]],
+    ):
+        raise NotImplementedError(
+            f"`create_centroid_documents` not available for non-vector fields"
+        )
+
     def get_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
             f"`get_keyphrase` not available for non-keyphrase fields"
@@ -321,6 +332,32 @@ class ClusterField(Field):
             dont_save_summaries=dont_save_summaries,
             filters=filters if filters is not None else [],
         )
+
+    def create_centroid_documents(
+        self,
+        vectors: Union[np.ndarray, List[List[float]]],
+        labels: Union[np.ndarray, List[int]],
+    ):
+        if isinstance(vectors, list):
+            vectors = np.array(vectors)
+        n_clusters = len(np.unique(labels))
+
+        centroid_documents = []
+
+        selected_vectors: np.ndarray
+        centroid_vector: np.ndarray
+
+        for index in range(n_clusters):
+            selected_vectors = vectors[labels == index]
+            centroid_vector = selected_vectors.mean(0)
+
+            centroid_document = {
+                "_id": f"cluster_{index}",
+                f"{self._cluster_field}": centroid_vector.tolist(),
+            }
+            centroid_documents.append(centroid_document)
+
+        return centroid_documents
 
 
 class KeyphraseField(Field):
