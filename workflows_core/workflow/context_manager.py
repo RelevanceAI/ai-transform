@@ -1,4 +1,5 @@
 import logging
+import os
 
 from inspect import Traceback
 from typing import Any, Dict, List, Optional, Union
@@ -83,12 +84,17 @@ class WorkflowContextManager(API):
             self._set_status(
                 status=self.FAILED, worker_number=self._engine.worker_number
             )
+            if hasattr(traceback, "format_exc"):
+                traceback_error_logs = traceback.format_exc()
+            else:
+                traceback_error_logs = ""
+
             self._update_workflow_metadata(
                 job_id=self._job_id,
                 metadata=dict(
                     _error_=dict(
                         exc_value=str(exc_value),
-                        traceback=str(traceback),
+                        traceback=traceback_error_logs,
                         logs=self._engine._error_logs,
                     ),
                 ),
@@ -116,15 +122,29 @@ class WorkflowContextManager(API):
             if self._update_field_children:
                 for operator in self._operators:
                     for input_field in operator._input_fields:
-                        self._set_field_children(
-                            dataset_id=self._dataset_id,
-                            fieldchildren_id=self._workflow_name.lower().replace(
-                                "workflow", ""
-                            ),
-                            field=input_field,
-                            field_children=operator._output_fields,
+                        self.set_field_children(
+                            input_field=input_field,
+                            output_fields=operator._output_fields
                         )
             return True
+        
+    def set_field_children(self, input_field: str, output_fields: list):
+        # Implement the config ID and authorization token
+        # Receive these from the env variables in production - do not touch
+        script_path = os.getenv("script_path", "")
+        metadata = {
+            "job_id": self._job_id,
+            "workflow_id": script_path.split('/')[0]
+        }
+        return self._set_field_children(
+            dataset_id=self._dataset_id,
+            fieldchildren_id=self._workflow_name.lower().replace(
+                "workflow", ""
+            ),
+            field=input_field,
+            field_children=output_fields,
+            metadata=metadata
+        )
 
     def _set_status(
         self,
