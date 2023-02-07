@@ -86,7 +86,10 @@ def json_encoder(obj: Any, force_string: bool = False):
         encoded_list = []
         for item in obj:
             encoded_list.append(json_encoder(item, force_string=force_string))
-        return encoded_list
+        import pandas as pd
+
+        encoded_df = pd.DataFrame(encoded_list)
+        return encoded_df.to_dict("records")
 
     # Loop through dictionaries and convert
     if isinstance(obj, dict):
@@ -95,7 +98,10 @@ def json_encoder(obj: Any, force_string: bool = False):
             encoded_key = json_encoder(key, force_string=force_string)
             encoded_value = json_encoder(value, force_string=force_string)
             encoded_dict[encoded_key] = encoded_value
-        return encoded_dict
+        import pandas as pd
+
+        encoded_df = pd.DataFrame(encoded_dict)
+        return encoded_df.to_dict("records")
 
     # Custom conversions
     if dataclasses.is_dataclass(obj):

@@ -14,6 +14,7 @@ from workflows_core.dataset.field import (
 )
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
+from workflows_core.utils.json_encoder import json_encoder
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -72,6 +73,7 @@ class Dataset:
             for index in range(len(documents)):
                 if hasattr(documents[index], "to_json"):
                     documents[index] = documents[index].to_json()
+        documents = json_encoder(documents)
         return self._api._bulk_insert(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
@@ -89,6 +91,7 @@ class Dataset:
             for index in range(len(documents)):
                 if hasattr(documents[index], "to_json"):
                     documents[index] = documents[index].to_json()
+        documents = json_encoder(documents)
         return self._api._bulk_update(
             dataset_id=self._dataset_id,
             documents=documents,
