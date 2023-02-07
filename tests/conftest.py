@@ -136,6 +136,25 @@ def test_operator() -> AbstractOperator:
 
 
 @pytest.fixture(scope="function")
+def test_dense_operator() -> AbstractOperator:
+    class DenseOperator(AbstractOperator):
+        def transform(self, documents: DocumentList) -> DocumentList:
+            """
+            Main transform function
+            """
+
+            for document in documents:
+                if "new_field" not in document:
+                    document["new_field"] = 0
+
+                document["new_field"] += 3
+
+            return [documents] * len(documents)
+
+    return DenseOperator()
+
+
+@pytest.fixture(scope="function")
 def test_engine(full_dataset: Dataset, test_operator: AbstractOperator) -> StableEngine:
     return StableEngine(
         dataset=full_dataset,
