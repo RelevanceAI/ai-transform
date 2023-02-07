@@ -84,12 +84,17 @@ class WorkflowContextManager(API):
             self._set_status(
                 status=self.FAILED, worker_number=self._engine.worker_number
             )
+            if hasattr(traceback, "format_exc"):
+                traceback_error_logs = traceback.format_exc()
+            else:
+                traceback_error_logs = ""
+
             self._update_workflow_metadata(
                 job_id=self._job_id,
                 metadata=dict(
                     _error_=dict(
                         exc_value=str(exc_value),
-                        traceback=traceback.format_exc(),
+                        traceback=traceback_error_logs,
                         logs=self._engine._error_logs,
                     ),
                 ),
