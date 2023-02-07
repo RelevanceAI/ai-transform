@@ -1,3 +1,5 @@
+import numpy as np
+
 from typing import Dict, Any, List, Optional, Union
 
 from workflows_core.types import Filter
@@ -194,6 +196,37 @@ class Field:
             f"`get_all_centroids` not available for non-vector fields"
         )
 
+    def create_centroid_documents(
+        self,
+        vectors: Union[np.ndarray, List[List[float]]],
+        labels: Union[np.ndarray, List[int]],
+    ):
+        raise NotImplementedError(
+            f"`create_centroid_documents` not available for non-vector fields"
+        )
+
+    def list_closest_to_center(
+        self,
+        centroid_vector_fields: List[str],
+        cluster_field: str,
+        approx: int = 0,
+        sum_fields: bool = True,
+        page: int = 1,
+        similarity_metric: str = "cosine",
+        min_score: float = 0,
+        include_vector: bool = False,
+        include_count: bool = True,
+        include_relevance: bool = False,
+        page_size: int = 20,
+        cluster_properties_filter: Dict[str, Any] = None,
+        cluster_ids: List[str] = None,
+        filters: List[Filter] = None,
+        select_fields: List[str] = None,
+    ):
+        raise NotImplementedError(
+            "`list_closest_to_center` not available for non-vector fields"
+        )
+
     def get_keyphrase(self, keyphrase_id: str):
         raise NotImplementedError(
             f"`get_keyphrase` not available for non-keyphrase fields"
@@ -320,6 +353,71 @@ class ClusterField(Field):
             cluster_ids=cluster_ids if cluster_ids is not None else [],
             dont_save_summaries=dont_save_summaries,
             filters=filters if filters is not None else [],
+        )
+
+    def create_centroid_documents(
+        self,
+        vectors: Union[np.ndarray, List[List[float]]],
+        labels: Union[np.ndarray, List[int]],
+    ):
+        if isinstance(vectors, list):
+            vectors = np.array(vectors)
+        n_clusters = len(np.unique(labels))
+
+        centroid_documents = []
+
+        selected_vectors: np.ndarray
+        centroid_vector: np.ndarray
+
+        for index in range(n_clusters):
+            selected_vectors = vectors[labels == index]
+            centroid_vector = selected_vectors.mean(0)
+
+            centroid_document = {
+                "_id": f"cluster_{index}",
+                f"{self._cluster_field}": centroid_vector.tolist(),
+            }
+            centroid_documents.append(centroid_document)
+
+        return centroid_documents
+
+    def list_closest_to_center(
+        self,
+        centroid_vector_fields: List[str],
+        cluster_field: str,
+        approx: int = 0,
+        sum_fields: bool = True,
+        page: int = 1,
+        similarity_metric: str = "cosine",
+        min_score: float = 0,
+        include_vector: bool = False,
+        include_count: bool = True,
+        include_relevance: bool = False,
+        page_size: int = 20,
+        cluster_properties_filter: Dict[str, Any] = None,
+        cluster_ids: List[str] = None,
+        filters: List[Filter] = None,
+        select_fields: List[str] = None,
+    ):
+        return self._dataset._api._list_closest_to_center(
+            dataset_id=self.dataset_id,
+            alias=self._cluster_alias,
+            vector_fields=self._cluster_field[0],
+            centroid_vector_fields=centroid_vector_fields,
+            cluster_field=cluster_field,
+            approx=approx,
+            sum_fields=sum_fields,
+            page=page,
+            similarity_metric=similarity_metric,
+            min_score=min_score,
+            include_vector=include_vector,
+            include_count=include_count,
+            include_relevance=include_relevance,
+            page_size=page_size,
+            cluster_properties_filter=cluster_properties_filter,
+            cluster_ids=cluster_ids,
+            filters=filters,
+            select_fields=select_fields,
         )
 
 

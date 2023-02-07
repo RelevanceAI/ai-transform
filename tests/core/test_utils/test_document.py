@@ -40,6 +40,10 @@ class TestDocument:
         test_document["field1.field2"] += 4
         assert test_document["field1.field2"] == 5
 
+    def test_keys(self, test_document: Document):
+        assert "field1" in test_document
+        assert "field1.field2" in test_document
+
     def test_split(self):
         from workflows_core.utils import Document
 
