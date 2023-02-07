@@ -50,6 +50,7 @@ class InMemoryEngine(AbstractEngine):
         payload_size = 0
         upload_progress = 0
 
+        # we only get 50 documents because this is an expensive operation
         push_chunksize = get_optimal_chunksize(transformed_documents[:50])
         for batch_to_insert in self.chunk_documents(
             push_chunksize, transformed_documents

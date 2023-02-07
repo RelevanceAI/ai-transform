@@ -47,6 +47,7 @@ class StableEngine(AbstractEngine):
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
         optimise_payloads: bool = False,
+        push_chunksize: int = None,
     ):
         """
         Parameters
@@ -81,6 +82,7 @@ class StableEngine(AbstractEngine):
         )
 
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
+        self._push_chunksize = push_chunksize
         self._show_progress_bar = show_progress_bar
 
     def apply(self) -> None:
@@ -149,8 +151,10 @@ class StableEngine(AbstractEngine):
                 else:
                     ingest_in_background = True
 
-                if not optimised:
+                if not optimised and self._push_chunksize is not None:
                     push_chunksize = get_optimal_chunksize(transformed_mega_batch[:50])
+                else:
+                    push_chunksize = self._push_chunksize
 
                 for batch_to_insert in self.chunk_documents(
                     push_chunksize, transformed_mega_batch
