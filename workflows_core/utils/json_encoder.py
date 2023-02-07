@@ -79,6 +79,8 @@ def json_encoder(obj: Any, force_string: bool = False):
     >>> client.json_encoder = jsonable_encoder
 
     """
+    import pandas as pd
+
     from workflows_core.utils import DocumentList, Document
 
     # Loop through iterators and convert
@@ -86,10 +88,7 @@ def json_encoder(obj: Any, force_string: bool = False):
         encoded_list = []
         for item in obj:
             encoded_list.append(json_encoder(item, force_string=force_string))
-        import pandas as pd
-
-        encoded_df = pd.DataFrame(encoded_list)
-        return encoded_df.to_dict("records")
+        return encoded_list
 
     # Loop through dictionaries and convert
     if isinstance(obj, dict):
@@ -98,10 +97,7 @@ def json_encoder(obj: Any, force_string: bool = False):
             encoded_key = json_encoder(key, force_string=force_string)
             encoded_value = json_encoder(value, force_string=force_string)
             encoded_dict[encoded_key] = encoded_value
-        import pandas as pd
-
-        encoded_df = pd.DataFrame(encoded_dict)
-        return encoded_df.to_dict("records")
+        return encoded_dict
 
     # Custom conversions
     if dataclasses.is_dataclass(obj):
@@ -116,8 +112,15 @@ def json_encoder(obj: Any, force_string: bool = False):
         if math.isnan(obj):
             return None
         return obj
-    if isinstance(obj, (Document, DocumentList)):
-        return obj.to_json()
+
+    if isinstance(obj, (DocumentList)):
+        df = pd.DataFrame(json_encoder(obj.to_json()))
+        return df.to_dict("records")
+
+    if isinstance(obj, (Document)):
+        df = pd.DataFrame([json_encoder(obj.to_json())])
+        return df.to_dict("records")[0]
+
     if type(obj) in ENCODERS_BY_TYPE:
         return ENCODERS_BY_TYPE[type(obj)](obj)  # type: ignore
 
