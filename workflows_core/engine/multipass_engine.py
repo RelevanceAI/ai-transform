@@ -34,6 +34,7 @@ class MultiPassEngine(AbstractEngine):
         limit_documents: Optional[int] = None,
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
+        use_document_progress: bool=True
     ):
         """
         Parameters
@@ -65,6 +66,7 @@ class MultiPassEngine(AbstractEngine):
             output_to_status=output_to_status,
             documents=documents,
             limit_documents=limit_documents,
+            use_document_progress=use_document_progress
         )
 
         self._num_chunks *= len(operators)
@@ -76,7 +78,8 @@ class MultiPassEngine(AbstractEngine):
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
 
-        self.update_progress(0)
+        if self._use_document_progress:
+            self.update_progress(0)
 
         desc = " -> ".join([repr(operator) for operator in self._operators])
         progress_bar = tqdm(
@@ -149,7 +152,7 @@ class MultiPassEngine(AbstractEngine):
                     logger.debug(result)
 
                 # executes after everything wraps up
-                if self.job_id:
+                if self.job_id and self._use_document_progress:
                     progress_index = operator_index + batch_index + 1
                     self.update_progress(progress_index)
 

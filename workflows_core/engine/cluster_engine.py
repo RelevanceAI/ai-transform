@@ -21,8 +21,8 @@ class InMemoryEngine(AbstractEngine):
         )
 
     def apply(self) -> Any:
-
-        self.update_progress(0)
+        if self._use_document_progress:
+            self.update_progress(0)
         iterator = self.iterate()
         error_logs = []
 
@@ -56,5 +56,5 @@ class InMemoryEngine(AbstractEngine):
                 # schema update
                 update_schema=True if i < self.MAX_SCHEMA_UPDATE_LIMITER else False,
             )
-            if self.job_id:
+            if self.job_id and self._use_document_progress:
                 self.update_progress(i + 1)

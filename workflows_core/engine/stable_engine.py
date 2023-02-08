@@ -44,6 +44,7 @@ class StableEngine(AbstractEngine):
         limit_documents: Optional[int] = None,
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
+        use_document_progress: bool = True
     ):
         """
         Parameters
@@ -51,7 +52,9 @@ class StableEngine(AbstractEngine):
 
         pull_chunksize
             the number of documents that are downloaded
-
+        use_document_progress:
+            If True, this uses the default document progress. Otherwise, it assumes the user 
+            updates progress on their side
         """
         if not refresh:
             output_field_filters = []
@@ -74,8 +77,8 @@ class StableEngine(AbstractEngine):
             output_to_status=output_to_status,
             documents=documents,
             limit_documents=limit_documents,
+            use_document_progress=use_document_progress
         )
-
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
 
@@ -95,7 +98,8 @@ class StableEngine(AbstractEngine):
         successful_chunks = 0
         error_logs = []
 
-        self.update_progress(0)
+        if self._use_document_progress:
+            self.update_progress(0)
 
         self.operator.post_hooks(self._dataset)
         for batch_index, mega_batch in enumerate(
@@ -152,7 +156,7 @@ class StableEngine(AbstractEngine):
                 logger.debug(result)
 
             # executes after everything wraps up
-            if self.job_id:
+            if self.job_id and self._use_document_progress:
                 self.update_progress(batch_index + 1)
 
             self._operator.post_hooks(self._dataset)

@@ -41,6 +41,7 @@ class AbstractEngine(ABC):
         documents: Optional[List[object]] = None,
         operators: Sequence[AbstractOperator] = None,
         limit_documents: Optional[int] = None,
+        use_document_progress: bool=True
     ):
         set_seed(seed)
         if select_fields is not None:
@@ -71,6 +72,7 @@ class AbstractEngine(ABC):
 
         self._limit_documents = limit_documents
 
+        # Used for progress
         self._size = (
             dataset.len(filters=filters)
             if self._limit_documents is None
@@ -121,6 +123,10 @@ class AbstractEngine(ABC):
 
         self._success_ratio = None
         self._error_logs = None
+
+        # A flag across all engines to see if you want to track progress 
+        # using documents. This effects things like pricing
+        self._use_document_progress = use_document_progress
 
     @property
     def num_chunks(self) -> int:
@@ -298,12 +304,13 @@ class AbstractEngine(ABC):
         n_processed - the name of what is processed
         """
         # Update the progress of the workflow
+        n_total = self._size
         return self.dataset.api._update_workflow_progress(
             workflow_id=self.job_id,
             worker_number=self.worker_number,
             step=self.name,
-            n_processed=min(n_processed * self.pull_chunksize, self._size),
-            n_total=self._size,
+            n_processed=min(n_processed * self.pull_chunksize, n_total),
+            n_total=n_total,
         )
 
     #####################################3
