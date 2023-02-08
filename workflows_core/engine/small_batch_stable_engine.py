@@ -83,7 +83,8 @@ class SmallBatchStableEngine(AbstractEngine):
             disable=(not self._show_progress_bar),
             total=self._num_chunks,
         ):
-            self.update_progress(chunk_counter)
+            if self._use_document_progress:
+                self.update_progress(chunk_counter)
             batch += small_chunk
 
             if len(batch) >= self._transform_threshold:
@@ -135,7 +136,7 @@ class SmallBatchStableEngine(AbstractEngine):
                 batch = []
 
         # executes after everything wraps up
-        if self.job_id:
+        if self.job_id and self._use_document_progress:
             self.update_progress(chunk_counter + 1)
 
         self._error_logs = error_logs
