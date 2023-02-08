@@ -50,9 +50,17 @@ class AbstractOperator(ABC):
         self,
         input_fields: Optional[List[str]] = None,
         output_fields: Optional[List[str]] = None,
+        enable_postprocess: Optional[bool] = True,
     ):
         self._input_fields = input_fields
         self._output_fields = output_fields
+        self._enable_postprocess = enable_postprocess
+
+    def toggle_postprocess(self):
+        self._enable_postprocess ^= True
+
+    def set_postprocess(self, state: bool):
+        self._enable_postprocess = state
 
     @abstractmethod
     def transform(self, documents: DocumentList) -> DocumentList:
@@ -67,9 +75,9 @@ class AbstractOperator(ABC):
     def __call__(self, old_documents: DocumentList) -> DocumentList:
         new_documents = deepcopy(old_documents)
         new_documents = self.transform(new_documents)
-        if new_documents is not None:
+        if new_documents is not None and self._enable_postprocess:
             new_documents = self.postprocess(new_documents, old_documents)
-            return new_documents
+        return new_documents
 
     @staticmethod
     def postprocess(new_batch: DocumentList, old_batch: DocumentList) -> DocumentList:

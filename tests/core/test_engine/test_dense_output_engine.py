@@ -17,20 +17,20 @@ else:
     from workflows_core.utils.example_documents import mock_documents
 
     class TestStableEngine:
-        def test_dense_output_engine_abstract(
+        def test_dense_output_engine(
             self, test_client: Client, test_dense_operator: AbstractOperator
         ):
             input_dataset = test_client.Dataset("input_dataset1")
             input_dataset.insert_documents(mock_documents(2))
 
-            ouptut_dataset1 = test_client.Dataset("ouptut_dataset1")
-            ouptut_dataset2 = test_client.Dataset("ouptut_dataset2")
+            output_dataset1 = test_client.Dataset("ouptut_dataset1")
+            output_dataset2 = test_client.Dataset("ouptut_dataset2")
 
             engine = DenseOutputEngine(
                 input_dataset=input_dataset,
-                ouptut_datasets=[
-                    ouptut_dataset1,
-                    ouptut_dataset2,
+                output_datasets=[
+                    output_dataset1,
+                    output_dataset2,
                 ],
                 operator=test_dense_operator,
             )
@@ -43,10 +43,17 @@ else:
 
             time.sleep(4)
 
-            documents = ouptut_dataset1.get_all_documents(select_fields=["new_field"])
+            documents = input_dataset.get_all_documents(select_fields=["new_field"])
+            assert len(documents["documents"]) == 2
             for document in documents["documents"]:
-                assert document["new_field"] == 6
+                assert "new_field" not in document
 
-            documents = ouptut_dataset2.get_all_documents(select_fields=["new_field"])
+            documents = output_dataset1.get_all_documents(select_fields=["new_field"])
+            assert len(documents["documents"]) == 2
             for document in documents["documents"]:
-                assert document["new_field"] == 6
+                assert document["new_field"] == 3
+
+            documents = output_dataset2.get_all_documents(select_fields=["new_field"])
+            assert len(documents["documents"]) == 2
+            for document in documents["documents"]:
+                assert document["new_field"] == 3

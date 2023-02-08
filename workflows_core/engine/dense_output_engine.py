@@ -59,6 +59,8 @@ class DenseOutputEngine(AbstractEngine):
             output_datasets
         ), "You must have an output dataset dataset for every document your input dataset"
 
+        operator.set_postprocess(False)
+
         super().__init__(
             dataset=input_dataset,
             operator=operator,
@@ -112,24 +114,7 @@ class DenseOutputEngine(AbstractEngine):
             for mini_batch in AbstractEngine.chunk_documents(
                 self._transform_chunksize, mega_batch
             ):
-                try:
-                    # note: do not put an IF inside ths try-except-else loop - the if code will not work
-                    transformed_batch = self.operator(mini_batch)
-                except Exception as e:
-                    chunk_error_log = {
-                        "exception": str(e),
-                        "traceback": traceback.format_exc(),
-                        "chunk_ids": self._get_chunks_ids(mini_batch),
-                    }
-                    error_logs.append(chunk_error_log)
-                    logger.error(mini_batch)
-                else:
-                    # if there is no exception then this block will be executed
-                    # we only update schema on the first chunk
-                    # otherwise it breaks down how the backend handles
-                    # schema updates
-                    successful_chunks += 1
-                    ragged_array_of_documents += transformed_batch
+                ragged_array_of_documents += self.operator(mini_batch)
 
             if self.output_to_status:
                 # Store in output documents
