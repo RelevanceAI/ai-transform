@@ -68,6 +68,14 @@ class WorkflowContextManager(API):
             status=self.IN_PROGRESS, worker_number=self._engine.worker_number
         )
 
+        if self._update_field_children:
+            for operator in self._operators:
+                for input_field in operator._input_fields:
+                    self.set_field_children(
+                        input_field=input_field,
+                        output_fields=operator._output_fields
+                    )
+
         self._dataset.api._update_workflow_progress(
             workflow_id=self._job_id,
             worker_number=self._engine.worker_number,
@@ -75,7 +83,6 @@ class WorkflowContextManager(API):
             n_processed=0,
             n_total=self._engine._size,
         )
-
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
@@ -119,13 +126,6 @@ class WorkflowContextManager(API):
                     worker_number=self._engine.worker_number,
                     output=self._engine.output_documents,
                 )
-            if self._update_field_children:
-                for operator in self._operators:
-                    for input_field in operator._input_fields:
-                        self.set_field_children(
-                            input_field=input_field,
-                            output_fields=operator._output_fields
-                        )
             return True
         
     def set_field_children(self, input_field: str, output_fields: list):
