@@ -44,6 +44,7 @@ class StableEngine(AbstractEngine):
         limit_documents: Optional[int] = None,
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
+        catch_errors: bool = True,
     ):
         """
         Parameters
@@ -79,6 +80,36 @@ class StableEngine(AbstractEngine):
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
 
+        self._successful_chunks = 0
+        self._error_logs = []
+        self._catch_errors = catch_errors
+
+    def _operate(self, mini_batch):
+        if self._catch_errors:
+            try:
+                # note: do not put an IF inside ths try-except-else loop - the if code will not work
+                transformed_batch = self.operator(mini_batch)
+            except Exception as e:
+                chunk_error_log = {
+                    "exception": str(e),
+                    "traceback": traceback.format_exc(),
+                    "chunk_ids": self._get_chunks_ids(mini_batch),
+                }
+                self._error_logs.append(chunk_error_log)
+                logger.error(mini_batch)
+            else:
+                # if there is no exception then this block will be executed
+                # we only update schema on the first chunk
+                # otherwise it breaks down how the backend handles
+                # schema updates
+                self._successful_chunks += 1
+
+        else:
+            transformed_batch = self.operator(mini_batch)
+            self._successful_chunks += 1
+
+        return transformed_batch
+
     def apply(self) -> None:
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
@@ -91,9 +122,6 @@ class StableEngine(AbstractEngine):
             iterator = self.chunk_documents(
                 chunksize=min(100, len(self.documents)), documents=self.documents
             )
-
-        successful_chunks = 0
-        error_logs = []
 
         self.update_progress(0)
 
@@ -111,24 +139,7 @@ class StableEngine(AbstractEngine):
             for mini_batch in AbstractEngine.chunk_documents(
                 self._transform_chunksize, mega_batch
             ):
-                try:
-                    # note: do not put an IF inside ths try-except-else loop - the if code will not work
-                    transformed_batch = self.operator(mini_batch)
-                except Exception as e:
-                    chunk_error_log = {
-                        "exception": str(e),
-                        "traceback": traceback.format_exc(),
-                        "chunk_ids": self._get_chunks_ids(mini_batch),
-                    }
-                    error_logs.append(chunk_error_log)
-                    logger.error(mini_batch)
-                else:
-                    # if there is no exception then this block will be executed
-                    # we only update schema on the first chunk
-                    # otherwise it breaks down how the backend handles
-                    # schema updates
-                    successful_chunks += 1
-                    batch_to_insert += transformed_batch
+                batch_to_insert += self._operate(mini_batch)
 
             if self.output_to_status:
                 # Store in output documents
@@ -157,7 +168,6 @@ class StableEngine(AbstractEngine):
 
             self._operator.post_hooks(self._dataset)
 
-        self._error_logs = error_logs
         if self.num_chunks > 0:
-            self.set_success_ratio(successful_chunks)
+            self.set_success_ratio()
             logger.debug({"success_ratio": self._success_ratio})

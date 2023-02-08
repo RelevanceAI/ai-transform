@@ -123,7 +123,7 @@ class MultiPassEngine(AbstractEngine):
                         # we only update schema on the first chunk
                         # otherwise it breaks down how the backend handles
                         # schema updates
-                        successful_chunks += 1
+                        self._successful_chunks += 1
                         if transformed_batch is not None:
                             batch_to_insert += transformed_batch
 
@@ -159,5 +159,5 @@ class MultiPassEngine(AbstractEngine):
 
         self._error_logs = error_logs
         if self.num_chunks > 0:
-            self.set_success_ratio(successful_chunks)
+            self.set_success_ratio()
             logger.debug({"success_ratio": self._success_ratio})

@@ -119,6 +119,7 @@ class AbstractEngine(ABC):
         self._refresh = refresh
         self._after_id = after_id
 
+        self._successful_chunks = 0
         self._success_ratio = None
         self._error_logs = None
 
@@ -330,8 +331,8 @@ class AbstractEngine(ABC):
     def name(self, value):
         self._name = value
 
-    def set_success_ratio(self, successful_chunks: int) -> None:
-        self._success_ratio = successful_chunks / self.num_chunks
+    def set_success_ratio(self) -> None:
+        self._success_ratio = self._successful_chunks / self.num_chunks
 
     @staticmethod
     def _filter_for_non_empty_list(documents: List[Document]) -> List[Document]:
