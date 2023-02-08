@@ -10,9 +10,8 @@
 
 """
 import logging
-import traceback
 
-from typing import Optional, List, Sequence
+from typing import Optional, Dict, Any, List, Sequence, NamedTuple
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
@@ -23,6 +22,11 @@ from workflows_core.types import Filter
 from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
+
+
+class DenseOutput(NamedTuple):
+    dataset_id: str
+    documents: Sequence[Dict[str, Any]]
 
 
 class DenseOutputEngine(AbstractEngine):
