@@ -57,3 +57,7 @@ else:
             assert len(documents["documents"]) == 2
             for document in documents["documents"]:
                 assert document["new_field"] == 3
+
+            test_client.delete_dataset("input_dataset1")
+            test_client.delete_dataset("ouptut_dataset1")
+            test_client.delete_dataset("ouptut_dataset2")
