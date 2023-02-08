@@ -345,3 +345,12 @@ class AbstractEngine(ABC):
     @staticmethod
     def _get_chunks_ids(documents: List[Document]) -> List[Document]:
         return [document["_id"] for document in documents]
+
+    def _store_dataset_relationship(
+        self, input_dataset: Dataset, output_datasets: List[Dataset]
+    ):
+        input_dataset.update_metadata(
+            {"_child_datasets_": [o.dataset_id for o in output_datasets]}
+        )
+        for o in output_datasets:
+            o.update_metadata({"_parent_dataset_": input_dataset.dataset_id})

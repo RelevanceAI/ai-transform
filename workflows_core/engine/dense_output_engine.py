@@ -61,6 +61,9 @@ class DenseOutputEngine(AbstractEngine):
 
         operator.set_postprocess(False)
 
+        self._store_dataset_relationship(
+            input_dataset=input_dataset, output_datasets=output_datasets
+        )
         super().__init__(
             dataset=input_dataset,
             operator=operator,
