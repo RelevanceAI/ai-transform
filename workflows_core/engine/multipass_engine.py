@@ -119,11 +119,13 @@ class MultiPassEngine(AbstractEngine):
         self.update_progress(0)
 
         desc = " -> ".join([repr(operator) for operator in self._operators])
+
+        progress_bar_size = len(self.operators) * self.size
         progress_bar = tqdm(
-            range(self.num_chunks),
+            range(progress_bar_size),
             desc=desc,
             disable=(not self._show_progress_bar),
-            total=self.num_chunks,
+            total=progress_bar_size,
         )
 
         for operator_index, operator in enumerate(self.operators):
@@ -155,7 +157,7 @@ class MultiPassEngine(AbstractEngine):
                     documents_inserted, n_total=len(self.operators) * self.size
                 )
 
-                progress_bar.update(1)
+                progress_bar.update(len(batch_to_insert))
 
             operator.post_hooks(self._dataset)
 
