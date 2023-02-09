@@ -10,10 +10,10 @@
 
 """
 import logging
-import traceback
 
 from typing import Optional, List
 
+from workflows_core.helpers import format_logging_info
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
@@ -85,27 +85,24 @@ class StableEngine(AbstractEngine):
         self._catch_errors = catch_errors
 
     def _operate(self, mini_batch):
-        if self._catch_errors:
-            try:
-                # note: do not put an IF inside ths try-except-else loop - the if code will not work
-                transformed_batch = self.operator(mini_batch)
-            except Exception as e:
-                chunk_error_log = {
-                    "exception": str(e),
-                    "traceback": traceback.format_exc(),
-                    "chunk_ids": self._get_chunks_ids(mini_batch),
-                }
-                self._error_logs.append(chunk_error_log)
-                logger.error(mini_batch)
-            else:
-                # if there is no exception then this block will be executed
-                # we only update schema on the first chunk
-                # otherwise it breaks down how the backend handles
-                # schema updates
-                self._successful_chunks += 1
-
-        else:
+        try:
+            # note: do not put an IF inside ths try-except-else loop - the if code will not work
             transformed_batch = self.operator(mini_batch)
+        except Exception as e:
+            logger.exception(e)
+            logger.error(
+                format_logging_info(
+                    {
+                        "chunk_ids": str(self._get_chunks_ids(mini_batch)[:5])[:-1]
+                        + " ...",
+                    }
+                )
+            )
+        else:
+            # if there is no exception then this block will be executed
+            # we only update schema on the first chunk
+            # otherwise it breaks down how the backend handles
+            # schema updates
             self._successful_chunks += 1
 
         return transformed_batch
