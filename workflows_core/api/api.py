@@ -302,15 +302,16 @@ class API:
             raise ValueError(
                 "state should be one of `['inprogress', 'complete', 'failed']`"
             )
-        if metadata is None:
-            metadata = {}
         parameters = dict(
-            metadata=metadata,
             status=status,
             workflow_name=workflow_name,
             additional_information=additional_information,
             send_email=send_email,
         )
+        # metadata can't be an empty dictionary as it overwrites
+        if metadata is not None and metadata != {}:
+            parameters['metadata'] = metadata
+
         if worker_number is not None:
             parameters["worker_number"] = worker_number
 
