@@ -12,7 +12,10 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 
 logger = logging.getLogger(__name__)
 
-WORKFLOW_FAIL_MESSAGE = "Workflow ran successfully on {:.2f}% of documents, less than the required {:.2f}% threshold"
+WORKFLOW_FAIL_MESSAGE = (
+    "Workflow processed {:.2f}%"
+    + " of documents. This is less than the success threshold of {:.2f}%"
+)
 
 
 class Workflow:
