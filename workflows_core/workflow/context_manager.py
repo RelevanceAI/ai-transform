@@ -1,9 +1,11 @@
+import json
 import logging
 import os
 
 from inspect import Traceback
 from typing import Any, Dict, List, Optional, Union
 
+from workflows_core.helpers import format_logging_info
 from workflows_core.api.api import API
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
@@ -162,13 +164,15 @@ class WorkflowContextManager(API):
         from workflows_core import __version__
 
         logger.debug(
-            {
-                "status": status,
-                "job_id": self._job_id,
-                "workflow_name": self._workflow_name,
-                "worker_number": worker_number,
-                "result": result,
-                "workflows_core_version": __version__,
-            }
+            format_logging_info(
+                {
+                    "status": status,
+                    "job_id": self._job_id,
+                    "workflow_name": self._workflow_name,
+                    "worker_number": worker_number,
+                    "result": result,
+                    "workflows_core_version": __version__,
+                }
+            )
         )
         return result

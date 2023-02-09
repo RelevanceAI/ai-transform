@@ -12,6 +12,8 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 
 logger = logging.getLogger(__name__)
 
+WORKFLOW_FAIL_MESSAGE = "Workflow ran successfully on {success_ratio:.2f}% of documents, less than the required {self.success_threshold:.2f}% threshold"
+
 
 class Workflow:
     def __init__(
@@ -91,21 +93,27 @@ class Workflow:
             ):
                 self.engine()
                 success_ratio = self.engine._success_ratio
+
+                fail_message = WORKFLOW_FAIL_MESSAGE.format(
+                    dict(
+                        success_ratio=100 * success_ratio,
+                        success_threshold=100 * self.success_threshold,
+                    )
+                )
+
                 if success_ratio is not None and success_ratio < self.success_threshold:
-                    WORKFLOW_FAIL_MESSAGE = f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self.success_threshold:.2f}% threshold"
                     self._api._set_workflow_status(
                         job_id=self._job_id,
                         workflow_name=self._name,
-                        additional_information=WORKFLOW_FAIL_MESSAGE,
+                        additional_information=fail_message,
                         status="failed",
                         send_email=self._send_email,
-                        metadata={"error": WORKFLOW_FAIL_MESSAGE},
+                        metadata={"error": fail_message},
                         worker_number=self.engine.worker_number,
                         email=self._email,
                     )
-                    raise WorkflowFailedError(
-                        f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self.success_threshold:.2f}% threshold"
-                    )
+                    raise WorkflowFailedError(fail_message)
+
         except WorkflowFailedError as e:
             logger.exception(e)
 
