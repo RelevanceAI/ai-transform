@@ -38,7 +38,7 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
             )
             raise e
     else:
-        datum = {"error": response.content}
+        datum = {"error": response.content.decode("utf-8")}
         if "x-trace-id" in response.headers:
             datum["x-trace-id"] = response.headers["x-trace-id"]
 

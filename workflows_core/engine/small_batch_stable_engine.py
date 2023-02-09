@@ -90,7 +90,9 @@ class SmallBatchStableEngine(AbstractEngine):
         batch_to_insert = []
 
         for chunk in AbstractEngine.chunk_documents(self._transform_chunksize, batch):
-            batch_to_insert += self._operate(chunk)
+            transformed_batch = self._operate(chunk)
+            if transformed_batch is not None:
+                batch_to_insert += transformed_batch
 
         self.handle_upsert(batch_index, batch_to_insert)
         self.update_progress(len(batch_to_insert))
