@@ -144,7 +144,7 @@ class MultiPassEngine(AbstractEngine):
                 for mini_batch in AbstractEngine.chunk_documents(
                     self._transform_chunksize, mega_batch
                 ):
-                    transformed_batch = self._operate(mini_batch)
+                    transformed_batch = self._operate(operator, mini_batch)
                     if transformed_batch is not None:
                         batch_to_insert += transformed_batch
 

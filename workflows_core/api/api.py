@@ -346,16 +346,18 @@ class API:
         metadata: extra parameters associated with operation
         i.e. n_clusters, n_init, softmax_temperature, etc...
         """
+        params = dict(
+            field=field,
+            field_children=field_children,
+            category=fieldchildren_id,
+            metadata={} if metadata is None else metadata,
+        )
+        logger.debug(format_logging_info(params))
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
             headers=self._headers,
-            json=dict(
-                field=field,
-                field_children=field_children,
-                category=fieldchildren_id,
-                metadata={} if metadata is None else metadata,
-            ),
+            json=params,
         )
         return get_response(response)
 
