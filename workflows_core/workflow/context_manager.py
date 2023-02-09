@@ -72,8 +72,7 @@ class WorkflowContextManager(API):
             for operator in self._operators:
                 for input_field in operator._input_fields:
                     self.set_field_children(
-                        input_field=input_field,
-                        output_fields=operator._output_fields
+                        input_field=input_field, output_fields=operator._output_fields
                     )
 
         self._dataset.api._update_workflow_progress(
@@ -127,23 +126,18 @@ class WorkflowContextManager(API):
                     output=self._engine.output_documents,
                 )
             return True
-        
+
     def set_field_children(self, input_field: str, output_fields: list):
         # Implement the config ID and authorization token
         # Receive these from the env variables in production - do not touch
         script_path = os.getenv("script_path", "")
-        metadata = {
-            "job_id": self._job_id,
-            "workflow_id": script_path.split('/')[0]
-        }
+        metadata = {"job_id": self._job_id, "workflow_id": script_path.split("/")[0]}
         return self._set_field_children(
             dataset_id=self._dataset_id,
-            fieldchildren_id=self._workflow_name.lower().replace(
-                "workflow", ""
-            ),
+            fieldchildren_id=self._workflow_name.lower().replace("workflow", ""),
             field=input_field,
             field_children=output_fields,
-            metadata=metadata
+            metadata=metadata,
         )
 
     def _set_status(
