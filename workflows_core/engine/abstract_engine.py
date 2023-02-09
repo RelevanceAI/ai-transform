@@ -373,9 +373,7 @@ class AbstractEngine(ABC):
     def set_success_ratio(self) -> None:
         if self.num_chunks > 0:
             self._success_ratio = self._successful_chunks / self.num_chunks
-            logger.debug(
-                "\n" + format_logging_info({"success_ratio": self._success_ratio})
-            )
+            logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
 
     @staticmethod
     def _filter_for_non_empty_list(documents: List[Document]) -> List[Document]:

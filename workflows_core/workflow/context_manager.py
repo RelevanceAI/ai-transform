@@ -115,7 +115,7 @@ class WorkflowContextManager(API):
                     job_id=self._job_id,
                     workflow_name=self._workflow_name,
                 )
-                logger.debug("\n" + format_logging_info({"trigger_poll_id": result}))
+                logger.debug(format_logging_info({"trigger_poll_id": result}))
             else:
                 self._set_status(
                     status=self.COMPLETE,

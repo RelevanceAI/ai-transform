@@ -12,7 +12,7 @@ def format_logging_info(
     compact=True,
     sort_dicts=False,
 ):
-    return pprint.pformat(
+    return "\n" + pprint.pformat(
         info,
         indent=indent,
         width=width,

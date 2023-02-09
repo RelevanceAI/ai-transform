@@ -44,7 +44,7 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
 
         try:
             # Log this somewhere if it errors
-            logger.error("\n" + format_logging_info(datum))
+            logger.error(format_logging_info(datum))
         except Exception as no_content_e:
             # in case there's no content
             logger.exception(no_content_e)
@@ -530,7 +530,7 @@ class API:
             n_total=n_total,
         )
         logger.debug("adding progress...")
-        logger.debug("\n" + format_logging_info(params))
+        logger.debug(format_logging_info(params))
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,
