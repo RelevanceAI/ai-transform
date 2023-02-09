@@ -21,10 +21,6 @@ class TestStableEngine:
 
         engine = DenseOutputEngine(
             dataset=input_dataset,
-            output_datasets=[
-                output_dataset1,
-                output_dataset2,
-            ],
             operator=test_dense_operator,
         )
         workflow = Workflow(
@@ -51,11 +47,11 @@ class TestStableEngine:
         for document in documents["documents"]:
             assert document["new_field"] == 3
 
-        input_dataset_metadata = input_dataset.get_metadata()
+        input_dataset_metadata = input_dataset.get_metadata()["results"]
         assert "_child_datasets_" in input_dataset_metadata
 
         for output_dataset in [output_dataset1, output_dataset2]:
-            output_dataset_metadata = output_dataset.get_metadata()
+            output_dataset_metadata = output_dataset.get_metadata()["results"]
             assert "_parent_dataset_" in output_dataset_metadata
 
         test_client.delete_dataset("input_dataset")

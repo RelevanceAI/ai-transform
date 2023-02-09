@@ -18,7 +18,6 @@ from workflows_core.utils.document_list import DocumentList
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.operator.dense_operator import DenseOperator
 from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.engine.dense_output_engine import DenseOutput
 from workflows_core.utils.example_documents import (
     mock_documents,
     static_documents,

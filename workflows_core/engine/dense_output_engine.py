@@ -11,7 +11,7 @@
 """
 import logging
 
-from typing import Optional, Dict, Any, List, Sequence, NamedTuple
+from typing import Optional, List, Sequence
 
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.dense_operator import DenseOperator
@@ -21,11 +21,6 @@ from workflows_core.types import Filter
 from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
-
-
-class DenseOutput(NamedTuple):
-    dataset_id: str
-    documents: Sequence[Dict[str, Any]]
 
 
 class DenseOutputEngine(AbstractEngine):
