@@ -5,6 +5,7 @@ from abc import abstractmethod
 from typing import Dict, Sequence
 
 from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.dataset.dataset import Dataset
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 
@@ -29,3 +30,18 @@ class DenseOperator(AbstractOperator):
     @abstractmethod
     def transform(self, documents: DocumentList) -> DenseOperatorOutput:
         raise NotImplementedError
+
+    def store_dataset_relationship(
+        self, input_dataset: Dataset, output_datasets: Sequence[Dataset]
+    ):
+        input_dataset.update_metadata(
+            {
+                "_child_datasets_": [
+                    output_dataset.dataset_id for output_dataset in output_datasets
+                ]
+            }
+        )
+        for output_dataset in output_datasets:
+            output_dataset.update_metadata(
+                {"_parent_dataset_": input_dataset.dataset_id}
+            )

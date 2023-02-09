@@ -14,9 +14,8 @@ import logging
 from typing import Optional, Dict, Any, List, Sequence, NamedTuple
 
 from workflows_core.dataset.dataset import Dataset
-from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.operator.dense_operator import DenseOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
-from workflows_core.utils.document import Document
 from workflows_core.types import Filter
 
 from tqdm.auto import tqdm
@@ -32,9 +31,8 @@ class DenseOutput(NamedTuple):
 class DenseOutputEngine(AbstractEngine):
     def __init__(
         self,
-        input_dataset: Dataset = None,
-        output_datasets: Sequence[Dataset] = None,
-        operator: AbstractOperator = None,
+        dataset: Dataset = None,
+        operator: DenseOperator = None,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
         pull_chunksize: Optional[int] = 3000,
@@ -59,17 +57,10 @@ class DenseOutputEngine(AbstractEngine):
 
         """
 
-        assert input_dataset.len(filters=filters) == len(
-            output_datasets
-        ), "You must have an output dataset dataset for every document your input dataset"
+        self.token = dataset.token
 
-        operator.set_postprocess(False)
-        self.token = input_dataset.token
-        self._store_dataset_relationship(
-            input_dataset=input_dataset, output_datasets=output_datasets
-        )
         super().__init__(
-            dataset=input_dataset,
+            dataset=dataset,
             operator=operator,
             filters=filters,
             select_fields=select_fields,
@@ -85,7 +76,6 @@ class DenseOutputEngine(AbstractEngine):
             limit_documents=limit_documents,
         )
 
-        self._output_datasets = output_datasets
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
 
@@ -107,6 +97,8 @@ class DenseOutputEngine(AbstractEngine):
 
         self.update_progress(0)
 
+        output_dataset_ids = []
+
         self.operator.post_hooks(self._dataset)
         for batch_index, mega_batch in enumerate(
             tqdm(
@@ -121,6 +113,7 @@ class DenseOutputEngine(AbstractEngine):
             ):
                 document_mapping = self.operator(mini_batch)
                 for dataset_id, documents in document_mapping.items():
+                    output_dataset_ids.append(dataset_id)
                     dataset = Dataset.from_details(dataset_id, self.token)
                     result = dataset.bulk_insert(documents)
                     logger.debug({"dataset_id": dataset_id, "result": result})
@@ -131,7 +124,15 @@ class DenseOutputEngine(AbstractEngine):
 
             self._operator.post_hooks(self._dataset)
 
+        output_datasets = self.datasets_from_ids(output_dataset_ids)
+        self.operator.store_dataset_relationship(self.dataset, output_datasets)
+
         self._error_logs = error_logs
         if self.num_chunks > 0:
             self.set_success_ratio(successful_chunks)
             logger.debug({"success_ratio": self._success_ratio})
+
+    def datasets_from_ids(self, dataset_ids: Sequence[str]) -> Sequence[Dataset]:
+        return [
+            Dataset.from_details(dataset_id, self.token) for dataset_id in dataset_ids
+        ]
