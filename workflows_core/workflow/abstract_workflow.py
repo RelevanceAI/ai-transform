@@ -12,7 +12,7 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 
 logger = logging.getLogger(__name__)
 
-WORKFLOW_FAIL_MESSAGE = "Workflow ran successfully on {success_ratio:.2f}% of documents, less than the required {self.success_threshold:.2f}% threshold"
+WORKFLOW_FAIL_MESSAGE = "Workflow ran successfully on {:.2f}% of documents, less than the required {:.2f}% threshold"
 
 
 class Workflow:
@@ -95,10 +95,8 @@ class Workflow:
                 success_ratio = self.engine._success_ratio
 
                 fail_message = WORKFLOW_FAIL_MESSAGE.format(
-                    dict(
-                        success_ratio=100 * success_ratio,
-                        success_threshold=100 * self.success_threshold,
-                    )
+                    100 * success_ratio,
+                    100 * self.success_threshold,
                 )
 
                 if success_ratio is not None and success_ratio < self.success_threshold:

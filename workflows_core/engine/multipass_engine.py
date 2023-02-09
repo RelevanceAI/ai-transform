@@ -1,8 +1,8 @@
 import logging
-import traceback
 
 from typing import Optional, Sequence, List
 
+from workflows_core.helpers import format_logging_info
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
@@ -71,6 +71,46 @@ class MultiPassEngine(AbstractEngine):
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
 
+    def handle_upsert(self, batch_index: int, batch_to_insert: List[Document]):
+        if self.output_to_status:
+            # Store in output documents
+            self.extend_output_documents(
+                [document.to_json() for document in batch_to_insert]
+            )
+        else:
+            # Store in dataset
+            # We want to make sure the schema updates
+            # on the first chunk upserting
+            if batch_index < self.MAX_SCHEMA_UPDATE_LIMITER:
+                ingest_in_background = False
+            else:
+                ingest_in_background = True
+
+            result = self.update_chunk(
+                batch_to_insert,
+                update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
+                ingest_in_background=ingest_in_background,
+            )
+            logger.debug(format_logging_info(result))
+
+    def _operate(self, operator: AbstractOperator, mini_batch: List[Document]):
+        try:
+            # note: do not put an IF inside ths try-except-else loop - the if code will not work
+            transformed_batch = operator(mini_batch)
+        except Exception as e:
+            logger.exception(e)
+            logger.error(
+                "\n"
+                + format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)})
+            )
+        else:
+            # if there is no exception then this block will be executed
+            # we only update schema on the first chunk
+            # otherwise it breaks down how the backend handles
+            # schema updates
+            self._successful_chunks += 1
+            return transformed_batch
+
     def apply(self) -> None:
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
@@ -98,66 +138,23 @@ class MultiPassEngine(AbstractEngine):
                     chunksize=min(100, len(self.documents)), documents=self.documents
                 )
 
-            successful_chunks = 0
-            error_logs = []
-
             for batch_index, mega_batch in enumerate(dataset_iterator):
                 batch_to_insert: List[Document] = []
 
                 for mini_batch in AbstractEngine.chunk_documents(
                     self._transform_chunksize, mega_batch
                 ):
-                    try:
-                        # note: do not put an IF inside ths try-except-else loop - the if code will not work
-                        transformed_batch = operator(mini_batch)
-                    except Exception as e:
-                        chunk_error_log = {
-                            "exception": str(e),
-                            "traceback": traceback.format_exc(),
-                            "chunk_ids": self._get_chunks_ids(mini_batch),
-                        }
-                        error_logs.append(chunk_error_log)
-                        logger.error(mini_batch)
-                    else:
-                        # if there is no exception then this block will be executed
-                        # we only update schema on the first chunk
-                        # otherwise it breaks down how the backend handles
-                        # schema updates
-                        self._successful_chunks += 1
-                        if transformed_batch is not None:
-                            batch_to_insert += transformed_batch
+                    batch_to_insert += self._operate(operator, mini_batch)
 
-                if self.output_to_status:
-                    # Store in output documents
-                    self.extend_output_documents(
-                        [document.to_json() for document in batch_to_insert]
-                    )
-                else:
-                    # Store in dataset
-                    # We want to make sure the schema updates
-                    # on the first chunk upserting
-                    if batch_index < self.MAX_SCHEMA_UPDATE_LIMITER:
-                        ingest_in_background = False
-                    else:
-                        ingest_in_background = True
+                self.handle_upsert(batch_index, batch_to_insert)
 
-                    result = self.update_chunk(
-                        batch_to_insert,
-                        update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
-                        ingest_in_background=ingest_in_background,
-                    )
-                    logger.debug(result)
-
-                # executes after everything wraps up
-                if self.job_id:
-                    progress_index = operator_index + batch_index + 1
-                    self.update_progress(progress_index)
+                progress_index = operator_index + batch_index + 1
+                self.update_progress(
+                    progress_index, n_total=len(self.operators) * self.size
+                )
 
                 progress_bar.update(1)
 
             operator.post_hooks(self._dataset)
 
-        self._error_logs = error_logs
-        if self.num_chunks > 0:
-            self.set_success_ratio()
-            logger.debug({"success_ratio": self._success_ratio})
+        self.set_success_ratio()

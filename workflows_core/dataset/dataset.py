@@ -155,7 +155,7 @@ class Dataset:
                     is_random=is_random,
                 )
             except ConnectionError as e:
-                logger.error(e)
+                logger.exception(e)
                 retry_count += 1
                 time.sleep(retry_delay)
 
@@ -163,7 +163,7 @@ class Dataset:
                     raise MaxRetriesError("max number of retries exceeded")
 
             except JSONDecodeError as e:
-                logger.error(e)
+                logger.exception(e)
                 retry_count += 1
                 time.sleep(retry_delay)
 

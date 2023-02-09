@@ -7,7 +7,7 @@ from workflows_core.workflow.abstract_workflow import AbstractWorkflow
 
 
 class TestStableEngine:
-    def test_stable_engine_abstract(
+    def test_stable_engine(
         self, full_dataset: Dataset, test_operator: AbstractOperator
     ):
         engine = StableEngine(full_dataset, test_operator, worker_number=0)
@@ -19,7 +19,7 @@ class TestStableEngine:
         workflow.run()
         assert True
 
-    def test_small_batch_stable_engine_abstract(
+    def test_small_batch_stable_engine(
         self, full_dataset: Dataset, test_operator: AbstractOperator
     ):
         engine = SmallBatchStableEngine(full_dataset, test_operator)

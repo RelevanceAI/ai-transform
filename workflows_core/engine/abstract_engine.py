@@ -1,19 +1,22 @@
-from json import JSONDecodeError
 import math
 import time
 import logging
 import warnings
 
-from typing import Any, List, Optional, Sequence
+from json import JSONDecodeError
+from typing import Any, List, Optional, Sequence, Iterator
 from abc import ABC, abstractmethod
 
+from workflows_core.helpers import format_logging_info
 from workflows_core.types import Filter
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.operator.abstract_operator import AbstractOperator
+
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
-from workflows_core.errors import MaxRetriesError
 from workflows_core.utils import set_seed
+
+from workflows_core.errors import MaxRetriesError
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
@@ -121,7 +124,6 @@ class AbstractEngine(ABC):
 
         self._successful_chunks = 0
         self._success_ratio = None
-        self._error_logs = None
 
     @property
     def num_chunks(self) -> int:
@@ -163,6 +165,10 @@ class AbstractEngine(ABC):
     def output_documents(self) -> bool:
         return self._output_documents
 
+    @property
+    def size(self) -> int:
+        return self._size
+
     def extend_output_documents(self, documents: List[Document]):
         self._output_documents.extend(documents)
 
@@ -172,6 +178,24 @@ class AbstractEngine(ABC):
 
     def __call__(self) -> Any:
         self.apply()
+
+    def _operate(self, mini_batch):
+        try:
+            # note: do not put an IF inside ths try-except-else loop - the if code will not work
+            transformed_batch = self.operator(mini_batch)
+        except Exception as e:
+            logger.exception(e)
+            logger.error(
+                "\n"
+                + format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)})
+            )
+        else:
+            # if there is no exception then this block will be executed
+            # we only update schema on the first chunk
+            # otherwise it breaks down how the backend handles
+            # schema updates
+            self._successful_chunks += 1
+            return transformed_batch
 
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable
@@ -189,6 +213,17 @@ class AbstractEngine(ABC):
                     }
                 ]
         return []
+
+    def get_iterator(self) -> Iterator:
+        if self.documents is None or len(self.documents) == 0:
+            # Iterate through dataset
+            iterator = self.iterate()
+        else:
+            # Iterate through passed in documents
+            iterator = self.chunk_documents(
+                chunksize=min(100, len(self.documents)), documents=self.documents
+            )
+        return iterator
 
     def iterate(
         self,
@@ -234,7 +269,7 @@ class AbstractEngine(ABC):
                     is_random=is_random,
                 )
             except (ConnectionError, JSONDecodeError) as e:
-                logger.error(e)
+                logger.exception(e)
                 retry_count += 1
                 time.sleep(1)
 
@@ -285,27 +320,31 @@ class AbstractEngine(ABC):
                         update_schema=update_schema,
                     )
                 except Exception as e:
-                    logger.error(e)
+                    logger.exception(e)
                 else:
                     return update_json
 
             raise MaxRetriesError("max number of retries exceeded")
 
-    def update_progress(self, n_processed: int):
+    def update_progress(self, n_processed: int, n_total: int = None):
         """
-        Parameters:
-        job_id - the job ID
-        name - the name of the job
-        n_processed - the name of what is processed
+        n_process: int
+            the number of documents that have been processed:
+
+        n_total: int
+            the total number of documets to be processed
         """
-        # Update the progress of the workflow
-        return self.dataset.api._update_workflow_progress(
-            workflow_id=self.job_id,
-            worker_number=self.worker_number,
-            step=self.name,
-            n_processed=min(n_processed * self.pull_chunksize, self._size),
-            n_total=self._size,
-        )
+        if self.job_id:
+            if n_total is None:
+                n_total = self.size
+
+            return self.dataset.api._update_workflow_progress(
+                workflow_id=self.job_id,
+                worker_number=self.worker_number,
+                step=self.name,
+                n_processed=n_processed,
+                n_total=n_total,
+            )
 
     #####################################3
     # The following attributes are set by the workflow
@@ -332,7 +371,11 @@ class AbstractEngine(ABC):
         self._name = value
 
     def set_success_ratio(self) -> None:
-        self._success_ratio = self._successful_chunks / self.num_chunks
+        if self.num_chunks > 0:
+            self._success_ratio = self._successful_chunks / self.num_chunks
+            logger.debug(
+                "\n" + format_logging_info({"success_ratio": self._success_ratio})
+            )
 
     @staticmethod
     def _filter_for_non_empty_list(documents: List[Document]) -> List[Document]:

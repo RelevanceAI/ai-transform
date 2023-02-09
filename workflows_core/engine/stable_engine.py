@@ -81,43 +81,35 @@ class StableEngine(AbstractEngine):
         self._show_progress_bar = show_progress_bar
 
         self._successful_chunks = 0
-        self._error_logs = []
         self._catch_errors = catch_errors
 
-    def _operate(self, mini_batch):
-        try:
-            # note: do not put an IF inside ths try-except-else loop - the if code will not work
-            transformed_batch = self.operator(mini_batch)
-        except Exception as e:
-            logger.exception(e)
-            logger.error(
-                format_logging_info(
-                    {
-                        "chunk_ids": str(self._get_chunks_ids(mini_batch)[:5])[:-1]
-                        + " ...",
-                    }
-                )
+    def handle_upsert(self, batch_index: int, batch_to_insert: List[Document]):
+        if self.output_to_status:
+            # Store in output documents
+            self.extend_output_documents(
+                [document.to_json() for document in batch_to_insert]
             )
         else:
-            # if there is no exception then this block will be executed
-            # we only update schema on the first chunk
-            # otherwise it breaks down how the backend handles
-            # schema updates
-            self._successful_chunks += 1
-            return transformed_batch
+            # Store in dataset
+            # We want to make sure the schema updates
+            # on the first chunk upserting
+            if batch_index < self.MAX_SCHEMA_UPDATE_LIMITER:
+                ingest_in_background = False
+            else:
+                ingest_in_background = True
+
+            result = self.update_chunk(
+                batch_to_insert,
+                update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
+                ingest_in_background=ingest_in_background,
+            )
+            logger.debug(format_logging_info(result))
 
     def apply(self) -> None:
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
-        if self.documents is None or len(self.documents) == 0:
-            # Iterate through dataset
-            iterator = self.iterate()
-        else:
-            # Iterate through passed in documents
-            iterator = self.chunk_documents(
-                chunksize=min(100, len(self.documents)), documents=self.documents
-            )
+        iterator = self.get_iterator()
 
         self.update_progress(0)
 
@@ -137,33 +129,10 @@ class StableEngine(AbstractEngine):
             ):
                 batch_to_insert += self._operate(mini_batch)
 
-            if self.output_to_status:
-                # Store in output documents
-                self.extend_output_documents(
-                    [document.to_json() for document in batch_to_insert]
-                )
-            else:
-                # Store in dataset
-                # We want to make sure the schema updates
-                # on the first chunk upserting
-                if batch_index < self.MAX_SCHEMA_UPDATE_LIMITER:
-                    ingest_in_background = False
-                else:
-                    ingest_in_background = True
+            self.handle_upsert(batch_index, batch_to_insert)
 
-                result = self.update_chunk(
-                    batch_to_insert,
-                    update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
-                    ingest_in_background=ingest_in_background,
-                )
-                logger.debug(result)
-
-            # executes after everything wraps up
-            if self.job_id:
-                self.update_progress(batch_index + 1)
+            self.update_progress(batch_index + 1)
 
             self._operator.post_hooks(self._dataset)
 
-        if self.num_chunks > 0:
-            self.set_success_ratio()
-            logger.debug({"success_ratio": self._success_ratio})
+        self.set_success_ratio()
