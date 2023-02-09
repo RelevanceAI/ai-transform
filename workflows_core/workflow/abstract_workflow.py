@@ -24,7 +24,7 @@ class Workflow:
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
-        success_threshold: float = 0.5,
+        success_threshold: float = 0.8,
         mark_as_complete_after_polling: bool = False,
         email: dict = None,
     ):
