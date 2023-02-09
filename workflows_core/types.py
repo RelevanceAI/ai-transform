@@ -11,6 +11,7 @@ Schema = NewType("Schema", Dict[str, str])
 
 
 class Credentials(NamedTuple):
+    token: str
     project: str
     api_key: str
     region: str

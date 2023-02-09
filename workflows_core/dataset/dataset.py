@@ -5,6 +5,7 @@ from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Union
 
 from workflows_core.api.api import API
+from workflows_core.api.helpers import process_token
 from workflows_core.types import Filter, Schema, GroupBy, Metric
 from workflows_core.errors import MaxRetriesError
 from workflows_core.dataset.field import (
@@ -26,6 +27,14 @@ class Dataset:
     def __init__(self, api: API, dataset_id: str):
         self._api = api
         self._dataset_id = dataset_id
+
+    @classmethod
+    def from_details(cls: "Dataset", dataset_id: str, token: str) -> "Dataset":
+        return cls(API(process_token(token)), dataset_id)
+
+    @property
+    def token(self):
+        return self._api._credentials.token
 
     def __getitem__(self, index: str) -> Field:
         if isinstance(index, str):

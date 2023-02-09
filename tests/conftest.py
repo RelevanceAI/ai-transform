@@ -7,7 +7,7 @@ import pytest
 import string
 import time
 
-from typing import List, Dict
+from typing import List, Dict, Sequence
 
 from workflows_core.api.client import Client
 from workflows_core.dataset.dataset import Dataset
@@ -16,7 +16,9 @@ from workflows_core.engine.stable_engine import StableEngine
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.operator.dense_operator import DenseOperator
 from workflows_core.engine.stable_engine import StableEngine
+from workflows_core.engine.dense_output_engine import DenseOutput
 from workflows_core.utils.example_documents import (
     mock_documents,
     static_documents,
@@ -137,7 +139,11 @@ def test_operator() -> AbstractOperator:
 
 @pytest.fixture(scope="function")
 def test_dense_operator() -> AbstractOperator:
-    class DenseOperator(AbstractOperator):
+    class TestDenseOperator(DenseOperator):
+        def __init__(self, output_dataset_ids: Sequence[str]):
+            self.output_dataset_ids = output_dataset_ids
+            super().__init__()
+
         def transform(self, documents: DocumentList) -> DocumentList:
             """
             Main transform function
@@ -149,9 +155,10 @@ def test_dense_operator() -> AbstractOperator:
 
                 document["new_field"] += 3
 
-            return [documents] * len(documents)
+            return {dataset_id: documents for dataset_id in self.output_dataset_ids}
 
-    return DenseOperator()
+    output_dataset_ids = ("ouptut_dataset1", "ouptut_dataset2")
+    return TestDenseOperator(output_dataset_ids)
 
 
 @pytest.fixture(scope="function")

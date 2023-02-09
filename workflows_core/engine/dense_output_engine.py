@@ -64,7 +64,7 @@ class DenseOutputEngine(AbstractEngine):
         ), "You must have an output dataset dataset for every document your input dataset"
 
         operator.set_postprocess(False)
-
+        self.token = input_dataset.token
         self._store_dataset_relationship(
             input_dataset=input_dataset, output_datasets=output_datasets
         )
@@ -116,24 +116,14 @@ class DenseOutputEngine(AbstractEngine):
                 total=self.num_chunks,
             )
         ):
-            ragged_array_of_documents: List[Document] = []
-
             for mini_batch in AbstractEngine.chunk_documents(
                 self._transform_chunksize, mega_batch
             ):
-                ragged_array_of_documents += self.operator(mini_batch)
-
-            if self.output_to_status:
-                # Store in output documents
-                self.extend_output_documents(
-                    [document.to_json() for document in ragged_array_of_documents]
-                )
-            else:
-                for ragged_documents, dataset in zip(
-                    ragged_array_of_documents, self._output_datasets
-                ):
-                    result = dataset.bulk_insert(ragged_documents)
-                    logger.debug({"dataset_id": dataset.dataset_id, "result": result})
+                document_mapping = self.operator(mini_batch)
+                for dataset_id, documents in document_mapping.items():
+                    dataset = Dataset.from_details(dataset_id, self.token)
+                    result = dataset.bulk_insert(documents)
+                    logger.debug({"dataset_id": dataset_id, "result": result})
 
             # executes after everything wraps up
             if self.job_id:
