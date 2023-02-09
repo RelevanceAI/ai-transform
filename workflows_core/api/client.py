@@ -23,6 +23,10 @@ class Client:
         else:
             print(WELCOME_MESSAGE.format(self._credentials.project))
 
+    @property
+    def credentials(self):
+        return self._credentials
+
     def list_datasets(self):
         return self._api._list_datasets()
 

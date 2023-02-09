@@ -2,7 +2,7 @@ from workflows_core.types import Credentials
 
 
 def process_token(token: str) -> Credentials:
-    return Credentials(token, *token.split(":"))
+    return Credentials(token.split(":"))
 
 
 def requests_post_mock(url="", headers=None, json=None):

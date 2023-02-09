@@ -179,18 +179,13 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     job_id = str(uuid.uuid4())
     config = dict(
         job_id=job_id,
-        authorizationToken=test_client._token,
+        authorizationToken=test_client.credentials.token,
         dataset_id=dataset_id,
         text_field="sample_1_label",
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
-    # test_client._api._trigger(
-    #     dataset_id,
-    #     params=config,
-    #     workflow_id=job_id,
-    # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 
@@ -202,7 +197,7 @@ def test_sentiment_workflow_document_token(test_client: Client) -> str:
     job_id = str(uuid.uuid4())
     config = dict(
         job_id=job_id,
-        authorizationToken=test_client._token,
+        authorizationToken=test_client.credentials.token,
         text_field="sample_1_label",
         documents=mock_documents(10).to_json(),
     )
@@ -222,18 +217,13 @@ def test_simple_workflow_token(test_client: Client) -> str:
     job_id = str(uuid.uuid4())
     config = dict(
         job_id=job_id,
-        authorizationToken=test_client._token,
+        authorizationToken=test_client.credentials.token,
         dataset_id=dataset_id,
         send_email=True,
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
-    # test_client._api._trigger(
-    #     dataset_id,
-    #     params=config,
-    #     workflow_id=job_id,
-    # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 
@@ -248,18 +238,13 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     print(job_id)
     config = dict(
         job_id=job_id,
-        authorizationToken=test_client._token,
+        authorizationToken=test_client.credentials.token,
         dataset_id=dataset_id,
         vector_fields=["sample_1_vector_"],
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
-    # test_client._api._trigger(
-    #     dataset_id,
-    #     params=config,
-    #     workflow_id=job_id,
-    # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 
