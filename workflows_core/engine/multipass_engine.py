@@ -146,18 +146,15 @@ class MultiPassEngine(AbstractEngine):
                 for mini_batch in AbstractEngine.chunk_documents(
                     self._transform_chunksize, mega_batch
                 ):
+                    progress_bar.update(len(mini_batch))
+                    self.update_progress(
+                        len(mini_batch), n_total=len(self.operators) * self.size
+                    )
                     transformed_batch = self._operate(operator, mini_batch)
                     if transformed_batch is not None:
                         batch_to_insert += transformed_batch
 
                 self.handle_upsert(batch_index, batch_to_insert)
-
-                documents_inserted = len(batch_to_insert)
-                self.update_progress(
-                    documents_inserted, n_total=len(self.operators) * self.size
-                )
-
-                progress_bar.update(len(batch_to_insert))
 
             operator.post_hooks(self._dataset)
 
