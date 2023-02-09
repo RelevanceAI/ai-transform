@@ -104,8 +104,7 @@ class StableEngine(AbstractEngine):
             # otherwise it breaks down how the backend handles
             # schema updates
             self._successful_chunks += 1
-
-        return transformed_batch
+            return transformed_batch
 
     def apply(self) -> None:
         """
