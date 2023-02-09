@@ -310,7 +310,7 @@ class API:
         )
         # metadata can't be an empty dictionary as it overwrites
         if metadata is not None and metadata != {}:
-            parameters['metadata'] = metadata
+            parameters["metadata"] = metadata
 
         if worker_number is not None:
             parameters["worker_number"] = worker_number
