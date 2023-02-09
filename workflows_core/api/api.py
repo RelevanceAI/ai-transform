@@ -518,6 +518,7 @@ class API:
         worker_number: int = 0,
         step: str = "Workflow",
         n_processed: int = 0,
+        n_processed_pricing: Optional[int] = None,
         n_total: int = 0,
     ):
         """
@@ -531,6 +532,8 @@ class API:
             n_processed=n_processed,
             n_total=n_total,
         )
+        if n_processed_pricing:
+            params['n_processed_pricing '] = n_processed_pricing
         logger.debug("adding progress...")
         logger.debug(params)
         response = requests.post(

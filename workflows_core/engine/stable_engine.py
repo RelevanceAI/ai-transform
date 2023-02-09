@@ -114,6 +114,11 @@ class StableEngine(AbstractEngine):
                 try:
                     # note: do not put an IF inside ths try-except-else loop - the if code will not work
                     transformed_batch = self.operator(mini_batch)
+                    if isinstance(transformed_batch, dict):
+                        n_processed_pricing = transformed_batch['n_processed_pricing']
+                        transformed_batch = transformed_batch['documents']
+                    else:
+                        n_processed_pricing = None
                 except Exception as e:
                     chunk_error_log = {
                         "exception": str(e),
@@ -153,7 +158,10 @@ class StableEngine(AbstractEngine):
 
             # executes after everything wraps up
             if self.job_id:
-                self.update_progress(batch_index + 1)
+                self.update_progress(
+                    batch_index + 1, 
+                    n_processed_pricing=n_processed_pricing
+                )
 
             self._operator.post_hooks(self._dataset)
 

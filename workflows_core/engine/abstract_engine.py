@@ -290,7 +290,7 @@ class AbstractEngine(ABC):
 
             raise MaxRetriesError("max number of retries exceeded")
 
-    def update_progress(self, n_processed: int):
+    def update_progress(self, n_processed: int, n_processed_pricing: Optional[int]=None):
         """
         Parameters:
         job_id - the job ID
@@ -304,8 +304,9 @@ class AbstractEngine(ABC):
             step=self.name,
             n_processed=min(n_processed * self.pull_chunksize, self._size),
             n_total=self._size,
+            n_processed_pricing=n_processed_pricing
         )
-
+    
     #####################################3
     # The following attributes are set by the workflow
     # and provides the update progress functionality
