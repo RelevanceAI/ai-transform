@@ -150,9 +150,9 @@ class MultiPassEngine(AbstractEngine):
 
                 self.handle_upsert(batch_index, batch_to_insert)
 
-                progress_index = operator_index + batch_index + 1
+                documents_inserted = len(batch_to_insert)
                 self.update_progress(
-                    progress_index, n_total=len(self.operators) * self.size
+                    documents_inserted, n_total=len(self.operators) * self.size
                 )
 
                 progress_bar.update(1)

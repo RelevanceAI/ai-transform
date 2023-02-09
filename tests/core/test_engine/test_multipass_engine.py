@@ -49,7 +49,6 @@ else:
                         [document[self._vector_field] for document in documents]
                     )
                     self._model.partial_fit(vectors)
-                    return documents
 
             class PredictOperator(AbstractOperator):
                 def __init__(
