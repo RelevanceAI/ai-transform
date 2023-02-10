@@ -155,7 +155,7 @@ class StableEngine(AbstractEngine):
             if self.job_id:
                 self.update_progress(batch_index + 1)
 
-            self._operator.post_hooks(self._dataset)
+        self._operator.post_hooks(self._dataset)
 
         self._error_logs = error_logs
         if self.num_chunks > 0:
