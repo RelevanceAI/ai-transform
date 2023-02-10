@@ -32,6 +32,7 @@ class WorkflowContextManager(API):
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
+        email: dict = None,
         mark_as_complete_after_polling: bool = False,
     ) -> None:
         super().__init__(dataset.api._credentials, job_id, workflow_name)
@@ -58,6 +59,7 @@ class WorkflowContextManager(API):
         self._metadata = metadata
         self._additional_information = additional_information
         self._send_email = send_email
+        self._email = email
         self._mark_as_complete_after_polling = mark_as_complete_after_polling
 
     def __enter__(self):
@@ -156,6 +158,7 @@ class WorkflowContextManager(API):
             workflow_name=self._workflow_name,
             additional_information=self._additional_information,
             send_email=self._send_email,
+            email=self._email,
             worker_number=worker_number,
             output=[] if output is None else output,
         )

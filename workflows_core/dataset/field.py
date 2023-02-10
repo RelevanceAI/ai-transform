@@ -362,6 +362,10 @@ class ClusterField(Field):
     ):
         if isinstance(vectors, list):
             vectors = np.array(vectors)
+
+        if isinstance(labels, list):
+            labels = np.array(labels)
+
         n_clusters = len(np.unique(labels))
 
         centroid_documents = []
