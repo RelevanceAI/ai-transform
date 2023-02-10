@@ -98,6 +98,7 @@ class StableEngine(AbstractEngine):
         self.update_progress(0)
 
         self.operator.post_hooks(self._dataset)
+        
         for batch_index, mega_batch in enumerate(
             tqdm(
                 iterator,
@@ -117,9 +118,8 @@ class StableEngine(AbstractEngine):
                     if isinstance(transformed_batch, dict):
                         n_processed_pricing = transformed_batch['n_processed_pricing']
                         transformed_batch = transformed_batch['documents']
-                    else:
-                        n_processed_pricing = None
                 except Exception as e:
+                    n_processed_pricing = None
                     chunk_error_log = {
                         "exception": str(e),
                         "traceback": traceback.format_exc(),
