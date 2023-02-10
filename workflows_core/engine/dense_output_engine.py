@@ -94,7 +94,8 @@ class DenseOutputEngine(AbstractEngine):
 
         output_dataset_ids = []
 
-        self.operator.post_hooks(self._dataset)
+        self.operator.pre_hooks(self._dataset)
+
         for batch_index, mega_batch in enumerate(
             tqdm(
                 iterator,
@@ -117,7 +118,9 @@ class DenseOutputEngine(AbstractEngine):
             if self.job_id:
                 self.update_progress(batch_index + 1)
 
-            self._operator.post_hooks(self._dataset)
+            self.operator.post_hooks(self._dataset)
+
+        self.operator.post_hooks(self._dataset)
 
         output_datasets = self.datasets_from_ids(output_dataset_ids)
         self.operator.store_dataset_relationship(self.dataset, output_datasets)

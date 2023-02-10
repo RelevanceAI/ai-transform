@@ -26,7 +26,7 @@ class InMemoryEngine(AbstractEngine):
         iterator = self.iterate()
         error_logs = []
 
-        self._operator.pre_hooks(self._dataset)
+        self.operator.pre_hooks(self._dataset)
 
         documents = []
         for chunk in iterator:
@@ -61,4 +61,4 @@ class InMemoryEngine(AbstractEngine):
             if self.job_id:
                 self.update_progress(i + 1)
 
-        self._operator.post_hooks(self._dataset)
+        self.operator.post_hooks(self._dataset)
