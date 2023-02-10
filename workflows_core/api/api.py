@@ -310,7 +310,7 @@ class API:
         )
         # metadata can't be an empty dictionary as it overwrites
         if metadata is not None and metadata != {}:
-            parameters['metadata'] = metadata
+            parameters["metadata"] = metadata
 
         if worker_number is not None:
             parameters["worker_number"] = worker_number
@@ -319,8 +319,12 @@ class API:
             parameters["output"] = {"results": output}
 
         if email:
-            # in the form of
-            # 'secondary_cta': { 'url': <url>, 'text': <text>}
+            # adding some assertions here for better developer experience
+            assert isinstance(email, dict)
+            assert "secondary_cta" in email
+            assert "url" in email["secondary_cta"]
+            assert "text" in email["secondary_cta"]
+
             parameters["email"] = email
 
         response = requests.post(
