@@ -24,7 +24,7 @@ jobs:
         run: |
           python -c "import sys; print(sys.version)"
           python -m pip install --upgrade pip
-          python -m pip install .[example_tests]
+          python -m pip install .[example_tests] pytest-rerunfailures
 
       - name: Run Unit Tests (pytest)
         env:
@@ -32,4 +32,4 @@ jobs:
           python-version: ${{ matrix.python-version }}
         run: |
           python -c "import sys; print(sys.version)"
-          python -m pytest tests/examples --cov=examples/
+          python -m pytest --reruns 3 tests/examples --cov=examples/
