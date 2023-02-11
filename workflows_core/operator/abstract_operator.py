@@ -13,6 +13,10 @@ from workflows_core.utils.document_list import DocumentList
 
 logger = logging.getLogger(__file__)
 
+def are_vectors_similar(vector_1, vector_2):
+    element_wise_diff = abs(np.array(vector_1)) - abs(np.array(vector_2))
+    sums = np.sum(element_wise_diff)
+    return sums > 0
 
 def is_different(field: str, value1: Any, value2: Any) -> bool:
     """
@@ -31,10 +35,7 @@ def is_different(field: str, value1: Any, value2: Any) -> bool:
         and isinstance(value1, list)
         and isinstance(value2, list)
     ):
-        element_wise_diff = abs(np.array(value1)) - abs(np.array(value2))
-        sums = np.sum(element_wise_diff)
-        return sums > 0
-
+        return are_vectors_similar(value1, value2)
     elif isinstance(value1, dict) and isinstance(value2, dict):
         return json.dumps(value1, sort_keys=True) != json.dumps(value2, sort_keys=True)
 
