@@ -27,7 +27,7 @@ def is_different(field: str, value1: Any, value2: Any) -> bool:
 
     # check if its a vector field but only if it ends with it
     elif (
-        field.endswith("_vector_")
+        field.endswith(("_vector_", "_chunkvector_"))
         and isinstance(value1, list)
         and isinstance(value2, list)
     ):
