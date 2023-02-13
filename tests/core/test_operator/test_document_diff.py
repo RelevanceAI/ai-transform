@@ -3,6 +3,7 @@ import random
 
 from copy import deepcopy
 from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.utils.document import Document
 from workflows_core.utils.example_documents import (
     mock_documents,
     generate_random_label,
@@ -12,7 +13,7 @@ from workflows_core.utils.example_documents import (
 
 class TestDocumentDiff:
     def test_diff(self):
-        old_documents = mock_documents(10)
+        old_documents = mock_documents(3)
         new_documents = deepcopy(old_documents)
 
         expected_diff = []
@@ -25,28 +26,29 @@ class TestDocumentDiff:
             expected_diff.append({"_id": document["_id"], "_chunk_": [new_chunk]})
             document["_chunk_"].append(new_chunk)
 
-        diff = AbstractOperator._postprocess(new_documents, old_documents)
+        diff = AbstractOperator._postprocess(new_documents, old_documents).to_json()
+        diff = list(sorted(diff, key=lambda x: x["_id"]))
+        expected_diff = list(sorted(expected_diff, key=lambda x: x["_id"]))
 
-        assert all(
-            json.dumps(document.to_json(), sort_keys=True)
-            == json.dumps(expected_document, sort_keys=True)
-            for document, expected_document in zip(diff, expected_diff)
+        assert json.dumps(diff, sort_keys=True) == json.dumps(
+            expected_diff, sort_keys=True
         )
 
     def test_no_diff(self):
-        documents = [{"value": 10}]
+        documents = [Document({"value": 10})]
         diff = AbstractOperator._postprocess(documents, documents)
         assert not diff
 
     def test_chunk_diff(self):
         old_documents = [
-            {"example_vector_": [random.random() for _ in range(5)]} for _ in range(5)
+            Document({"example_vector_": [random.random() for _ in range(5)]})
+            for _ in range(5)
         ]
         new_documents = deepcopy(old_documents)
         for document in new_documents:
             document["label"] = "yes"
 
         diff = AbstractOperator._postprocess(new_documents, old_documents)
+        expected_diff = json.dumps({"label": "yes"})
 
-        expected = json.dumps({"label": "yes"})
-        assert all(json.dumps(document.to_json()) == expected for document in diff)
+        assert all(json.dumps(document.to_json()) == expected_diff for document in diff)

@@ -68,7 +68,11 @@ else:
                     )
                     labels = self._model.predict(vectors)
                     for document, label in zip(documents, labels):
+                        import pdb
+
+                        pdb.set_trace()
                         document[self._output_field] = f"cluster_{label}"
+
                     return documents
 
             vector_field = "sample_1_vector_"

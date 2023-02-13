@@ -1,7 +1,7 @@
 import re
 import uuid
 
-from typing import List
+from typing import Dict, Any
 from copy import deepcopy
 from typing import Any, Optional
 from collections import UserDict
@@ -19,18 +19,35 @@ class Document(UserDict):
         except:
             super().__setitem__(key, value)
         else:
-            # Assign a pointer.
-            pointer = self.data
-            for depth, field in enumerate(fields):
-                # Assign the value if this is the last entry e.g. stores.fastfood.kfc.item will be item
-                if depth == len(fields) - 1:
-                    pointer.__setitem__(field, value)
-                else:
-                    if field in pointer.keys():
-                        pointer = pointer.__getitem__(field)
-                    else:
-                        pointer.update({field: {}})
-                        pointer = pointer.__getitem__(field)
+            obj = self.data
+            for curr_field, next_field in zip(fields, fields[1:] + [None]):
+                if next_field is not None:
+                    if curr_field.isdigit():
+                        curr_field = int(curr_field)
+                        try:
+                            obj = obj[curr_field]
+                        except:
+                            if not len(obj):
+                                obj.append({})
+                            if curr_field >= len(obj):
+                                curr_field = len(obj) - 1
+                            obj = obj[curr_field]
+                        continue
+
+                    if next_field.isdigit():
+                        curr_val = obj.get(curr_field, [{}])
+                        next_val = curr_val[min(int(next_field), len(curr_val) - 1)]
+                        if not isinstance(next_val.get(next_field), list):
+                            obj[curr_field] = [next_val]
+                            obj = obj[curr_field]
+
+                    elif not next_field.isdigit() and not isinstance(
+                        obj.get(curr_field, {}).get(next_field), dict
+                    ):
+                        obj[curr_field] = {}
+                        obj = obj[curr_field]
+
+        obj[fields[-1]] = value
 
     def __getitem__(self, key: Any) -> Any:
         try:
@@ -38,12 +55,12 @@ class Document(UserDict):
         except:
             return super().__getitem__(key)
         else:
-            pointer = self.data
-            for depth, field in enumerate(fields):
-                if depth == len(fields) - 1:
-                    return pointer.__getitem__(field)
-                else:
-                    pointer = pointer.__getitem__(field)
+            obj = self.data
+            for curr_field in fields[:-1]:
+                if curr_field.isdigit():
+                    curr_field = int(curr_field)
+                obj = obj[curr_field]
+            return obj[fields[-1]]
 
     def get(self, key: Any, default: Optional[Any] = None) -> Any:
         try:
@@ -54,28 +71,43 @@ class Document(UserDict):
     def set(self, key: Any, value: Any) -> None:
         self.__setitem__(key, value)
 
-    def keys(self):
-        def get_fields(d, parent_key: str = "", fields: List[str] = None):
-            """
-            ChatGPT wrote this function
-            """
-            if parent_key != "" and parent_key not in fields:
-                fields.append(parent_key[:-1])
-            if fields is None:
-                fields = []
-            if isinstance(d, dict):
-                for k, v in d.items():
-                    key = parent_key + k
-                    if isinstance(v, (dict, list)):
-                        get_fields(v, key + ".", fields)
-                    else:
-                        fields.append(key)
-            elif isinstance(d, list):
-                for item in d:
-                    get_fields(item, parent_key, fields)
-            return fields
+    def keys(self, detailed: bool = True):
+        def get_keys(dictionary: Dict[str, Any], prefix=""):
+            keys = []
+            for key, value in dictionary.items():
+                current_key = prefix + "." + key if prefix else key
+                if isinstance(value, dict):
+                    keys.extend(get_keys(value, current_key))
+                elif isinstance(value, list):
+                    for i, item in enumerate(value):
+                        if isinstance(item, dict):
+                            keys.extend(get_keys(item, current_key + "." + str(i)))
+                    keys.append(current_key)
+                else:
+                    keys.append(current_key)
 
-        return get_fields(self.data)
+            return keys
+
+        keys = set(get_keys(self.data))
+
+        keys_to_add = set()
+        for key in keys:
+            subkeys = key.split(".")
+            for i in range(1, len(subkeys)):
+                keys_to_add.add(".".join(subkeys[:i]))
+        keys.update(keys_to_add)
+
+        if detailed:
+            keys_to_add = set()
+            for key in keys:
+                subkeys = key.split(".")
+                for i in range(1, len(subkeys) + 1):
+                    keys_to_add.add(
+                        ".".join([k for k in subkeys[:i] if not k.isdigit()])
+                    )
+            keys.update(keys_to_add)
+
+        return list(sorted(keys))
 
     def __contains__(self, key) -> bool:
         return key in self.keys()
