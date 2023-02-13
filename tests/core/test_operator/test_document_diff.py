@@ -12,7 +12,7 @@ from workflows_core.utils.example_documents import (
 
 
 class TestDocumentDiff:
-    def test_diff(self):
+    def test_diff1(self):
         old_documents = mock_documents(3)
         new_documents = deepcopy(old_documents)
 
@@ -33,6 +33,17 @@ class TestDocumentDiff:
         assert json.dumps(diff, sort_keys=True) == json.dumps(
             expected_diff, sort_keys=True
         )
+
+    def test_update_diff(self):
+        old_documents = [Document({"label": "yes"}) for _ in range(5)]
+        new_documents = deepcopy(old_documents)
+        for document in new_documents:
+            document["label"] = "no"
+
+        diff = AbstractOperator._postprocess(new_documents, old_documents)
+        expected_diff = json.dumps({"label": "no"})
+
+        assert all(json.dumps(document.to_json()) == expected_diff for document in diff)
 
     def test_no_diff(self):
         documents = [Document({"value": 10})]
