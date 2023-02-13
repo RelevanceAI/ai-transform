@@ -81,7 +81,7 @@ class WorkflowContextManager(API):
                     workflow_id=self._job_id,
                     step=self._workflow_name,
                     worker_number=self._engine.worker_number,
-                    n_processed=operator.n_processed_pricing,
+                    n_processed_pricing=operator.n_processed_pricing,
                 )
 
         self._dataset.api._update_workflow_progress(
@@ -139,7 +139,7 @@ class WorkflowContextManager(API):
     def set_field_children(self, input_field: str, output_fields: list):
         # Implement the config ID and authorization token
         # Receive these from the env variables in production - do not touch
-        script_path = os.getenv("script_path", "")
+        script_path = os.getenv("script_path", "/")
         metadata = {"job_id": self._job_id, "workflow_id": script_path.split("/")[0]}
         return self._set_field_children(
             dataset_id=self._dataset_id,
