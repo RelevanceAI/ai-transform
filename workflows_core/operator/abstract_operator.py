@@ -13,10 +13,12 @@ from workflows_core.utils.document_list import DocumentList
 
 logger = logging.getLogger(__file__)
 
+
 def are_vectors_similar(vector_1, vector_2):
     element_wise_diff = abs(np.array(vector_1)) - abs(np.array(vector_2))
     sums = np.sum(element_wise_diff)
     return sums > 0
+
 
 def is_different(field: str, value1: Any, value2: Any) -> bool:
     """

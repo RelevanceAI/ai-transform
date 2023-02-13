@@ -1,8 +1,10 @@
+import pprint
 import logging
 
 from inspect import Traceback
 from typing import Any, Dict, Optional
 
+from workflows_core.helpers import format_logging_info
 from workflows_core.api.api import API
 from workflows_core.api.helpers import Credentials
 
@@ -53,14 +55,13 @@ class SimpleWorkflow(API):
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         if exc_type is not None:
-            logger.exception("Exception")
             self._set_status(status=self.FAILED, worker_number=self._worker_number)
             self._update_workflow_metadata(
                 job_id=self._job_id,
                 metadata=dict(
                     _error_=dict(
-                        exc_value=str(exc_value),
-                        traceback=str(traceback.format_exc()),
+                        exc_value=pprint.pformat(exc_value),
+                        traceback=traceback.format_exc(),
                     ),
                 ),
             )
@@ -87,14 +88,17 @@ class SimpleWorkflow(API):
         from workflows_core import __version__
 
         logger.debug(
-            {
-                "status": status,
-                "job_id": self._job_id,
-                "workflow_name": self._workflow_name,
-                "worker_number": worker_number,
-                "result": result,
-                "workflows_core_version": __version__,
-            }
+            "\n"
+            + format_logging_info(
+                {
+                    "status": status,
+                    "job_id": self._job_id,
+                    "workflow_name": self._workflow_name,
+                    "worker_number": worker_number,
+                    "result": result,
+                    "workflows_core_version": __version__,
+                }
+            )
         )
         return result
 

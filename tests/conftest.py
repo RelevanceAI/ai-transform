@@ -123,7 +123,6 @@ def test_operator() -> AbstractOperator:
             """
             Main transform function
             """
-
             for document in documents:
                 if "new_field" not in document:
                     document["new_field"] = 0

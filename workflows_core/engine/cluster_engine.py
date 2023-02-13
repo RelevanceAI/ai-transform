@@ -21,36 +21,22 @@ class InMemoryEngine(AbstractEngine):
         )
 
     def apply(self) -> Any:
-
         self.update_progress(0)
         iterator = self.iterate()
-        error_logs = []
 
-        self._operator.pre_hooks(self._dataset)
+        self.operator.pre_hooks(self._dataset)
 
         documents = []
         for chunk in iterator:
             documents += chunk
             self._progress.update(1)
 
-        try:
-            new_batch = self.operator(documents)
-        except Exception as e:
-            chunk_error_log = {
-                "exception": str(e),
-                "traceback": traceback.format_exc(),
-                "chunk_ids": [document["_id"] for document in chunk],
-            }
-            error_logs.append(chunk_error_log)
-            logger.error(chunk)
-            logger.error(traceback.format_exc())
-            self._success_ratio = 0.0
-        else:
-            self._success_ratio = 1.0
+        new_batch = self._operate(documents)
 
         # Update this in series
         for i in range(self._num_chunks):
             chunk = new_batch[i * self.pull_chunksize : (i + 1) * self._pull_chunksize]
+
             self.update_chunk(
                 chunk,
                 ingest_in_background=True,
@@ -58,7 +44,10 @@ class InMemoryEngine(AbstractEngine):
                 # schema update
                 update_schema=True if i < self.MAX_SCHEMA_UPDATE_LIMITER else False,
             )
-            if self.job_id:
-                self.update_progress(i + 1)
 
-        self._operator.post_hooks(self._dataset)
+            n_processed = len(chunk)
+            self.update_progress(n_processed)
+
+        self.set_success_ratio()
+
+        self.operator.post_hooks(self._dataset)

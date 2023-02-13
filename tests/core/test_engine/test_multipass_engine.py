@@ -14,7 +14,7 @@ else:
     from workflows_core.workflow.abstract_workflow import Workflow
 
     class TestStableEngine:
-        def test_multipass_engine_abstract(
+        def test_multipass_engine(
             self, full_dataset: Dataset, test_operator: AbstractOperator
         ):
             engine = MultiPassEngine(
@@ -25,9 +25,9 @@ else:
                 ],
             )
             workflow = Workflow(
-                name="workflow_test123",
+                name="test_multipass_engine",
                 engine=engine,
-                job_id="test_job123",
+                job_id="test_multipass_engine",
             )
             workflow.run()
 
@@ -49,7 +49,6 @@ else:
                         [document[self._vector_field] for document in documents]
                     )
                     self._model.partial_fit(vectors)
-                    return documents
 
             class PredictOperator(AbstractOperator):
                 def __init__(
@@ -89,9 +88,9 @@ else:
                 transform_chunksize=batch_size,
             )
             workflow = Workflow(
-                name="workflow_test123",
+                name="test_multipass_engine_with_clustering",
                 engine=engine,
-                job_id="test_job123",
+                job_id="test_multipass_engine_with_clustering",
             )
             workflow.run()
 
