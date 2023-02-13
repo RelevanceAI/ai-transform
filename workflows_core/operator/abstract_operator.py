@@ -14,15 +14,30 @@ from workflows_core.utils.document_list import DocumentList
 logger = logging.getLogger(__file__)
 
 
+def are_vectors_similar(vector_1, vector_2):
+    element_wise_diff = abs(np.array(vector_1)) - abs(np.array(vector_2))
+    sums = np.sum(element_wise_diff)
+    return sums > 0
+
+
 def is_different(field: str, value1: Any, value2: Any) -> bool:
     """
     An all purpose function that checks if two values are different
     """
-    if "_vector_" in field and isinstance(value1, list) and isinstance(value2, list):
-        element_wise_diff = abs(np.array(value1)) - abs(np.array(value2))
-        sums = np.sum(element_wise_diff)
-        return sums > 0
+    # TODO: Implement a better fix for chunks - but this will do for now
+    if isinstance(value1, list) and isinstance(value2, list):
+        if (len(value1) > 0 and isinstance(value1[0], dict)) or (
+            len(value2) > 0 and isinstance(value2[0], dict)
+        ):
+            return True
 
+    # check if its a vector field but only if it ends with it
+    elif (
+        field.endswith(("_vector_", "_chunkvector_"))
+        and isinstance(value1, list)
+        and isinstance(value2, list)
+    ):
+        return are_vectors_similar(value1, value2)
     elif isinstance(value1, dict) and isinstance(value2, dict):
         return json.dumps(value1, sort_keys=True) != json.dumps(value2, sort_keys=True)
 
@@ -50,9 +65,11 @@ class AbstractOperator(ABC):
         self,
         input_fields: Optional[List[str]] = None,
         output_fields: Optional[List[str]] = None,
+        ignore_postprocess: bool = False,
     ):
         self._input_fields = input_fields
         self._output_fields = output_fields
+        self._ignore_postprocess = ignore_postprocess
 
     @abstractmethod
     def transform(self, documents: DocumentList) -> DocumentList:
@@ -68,8 +85,15 @@ class AbstractOperator(ABC):
         new_documents = deepcopy(old_documents)
         new_documents = self.transform(new_documents)
         if new_documents is not None:
-            new_documents = self.postprocess(new_documents, old_documents)
-        return new_documents
+            if not self._ignore_postprocess:
+                # TODO - the postprocess function is too bugy at the moment
+                import warnings
+
+                warnings.warn(
+                    "To turn off post-processing in case of error, please add ignore_postprocess=True in the operator super().__init__ function."
+                )
+                new_documents = self.postprocess(new_documents, old_documents)
+            return new_documents
 
     @staticmethod
     def postprocess(new_batch: DocumentList, old_batch: DocumentList) -> DocumentList:

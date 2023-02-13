@@ -109,6 +109,8 @@ class SmallBatchStableEngine(AbstractEngine):
 
         batch = []
 
+        self.operator.pre_hooks(self._dataset)
+
         progress = tqdm(
             desc=repr(self.operator),
             disable=(not self._show_progress_bar),
@@ -130,3 +132,5 @@ class SmallBatchStableEngine(AbstractEngine):
         progress.update(len(batch))
 
         self.set_success_ratio()
+
+        self.operator.post_hooks(self._dataset)

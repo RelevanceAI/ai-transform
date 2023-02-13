@@ -315,8 +315,12 @@ class API:
             parameters["output"] = {"results": output}
 
         if email:
-            # in the form of
-            # 'secondary_cta': { 'url': <url>, 'text': <text>}
+            # adding some assertions here for better developer experience
+            assert isinstance(email, dict)
+            assert "secondary_cta" in email
+            assert "url" in email["secondary_cta"]
+            assert "text" in email["secondary_cta"]
+
             parameters["email"] = email
 
         response = requests.post(

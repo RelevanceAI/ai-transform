@@ -113,7 +113,7 @@ class StableEngine(AbstractEngine):
 
         self.update_progress(0)
 
-        self.operator.post_hooks(self._dataset)
+        self.operator.pre_hooks(self._dataset)
         for batch_index, mega_batch in enumerate(
             tqdm(
                 iterator,
@@ -135,6 +135,6 @@ class StableEngine(AbstractEngine):
 
             self.update_progress(batch_index + 1)
 
-            self._operator.post_hooks(self._dataset)
+        self._operator.post_hooks(self._dataset)
 
         self.set_success_ratio()

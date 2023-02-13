@@ -24,6 +24,8 @@ class InMemoryEngine(AbstractEngine):
         self.update_progress(0)
         iterator = self.iterate()
 
+        self.operator.pre_hooks(self._dataset)
+
         documents = []
         for chunk in iterator:
             documents += chunk
@@ -47,3 +49,5 @@ class InMemoryEngine(AbstractEngine):
             self.update_progress(n_processed)
 
         self.set_success_ratio()
+
+        self.operator.post_hooks(self._dataset)
