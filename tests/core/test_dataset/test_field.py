@@ -5,6 +5,7 @@ from types import FunctionType
 
 from workflows_core.api.client import Client
 from workflows_core.dataset.field import Field, ClusterField, KeyphraseField
+from workflows_core.utils.example_documents import mock_documents
 
 
 def list_methods(cls):
@@ -47,17 +48,16 @@ class TestField:
 
 
 def test_create_centroid_documents(test_client: Client, test_dataset_id: str):
-    vectors = np.random.random((20, 4))
     labels = np.arange(10, dtype=np.longdouble)
-    labels = np.concatenate((labels, labels), axis=-1)
 
     test_dataset = test_client.Dataset(test_dataset_id)
-    cluster_field = "_cluster_.vector_field.alias"
+    vector_field = "sample_1_vector_"
+    cluster_field = f"_cluster_.{vector_field}.alias"
+    documents = mock_documents(10)
+    test_dataset.insert_documents(documents)
 
-    centroid_documents = test_dataset[cluster_field].create_centroid_documents(
-        vectors, labels
-    )
+    centroid_documents = test_dataset[cluster_field].create_centroid_documents(labels)
 
     assert len(centroid_documents) == 10
     for centroid_document in centroid_documents:
-        assert len(centroid_document["vector_field"]) == 4
+        assert len(centroid_document[vector_field]) == 5
