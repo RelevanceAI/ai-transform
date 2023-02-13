@@ -9,14 +9,13 @@ from functools import wraps
 
 from typing import Any, Dict, List, Optional
 
+from workflows_core.helpers import format_logging_info
 from workflows_core.utils import document
 from workflows_core.types import (
     Credentials,
     FieldTransformer,
     Filter,
     Schema,
-    GroupBy,
-    Metric,
 )
 
 from workflows_core import __version__
@@ -32,27 +31,25 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
         try:
             return response.json()
         except Exception as e:
-            logger.error({"error": e, "x-trace-id": response.headers["x-trace-id"]})
+            logger.exception(e)
+            logger.error(
+                format_logging_info({"x-trace-id": response.headers["x-trace-id"]})
+            )
             raise e
     else:
+        datum = {"error": response.content.decode("utf-8")}
         if "x-trace-id" in response.headers:
-            logger.error(
-                {
-                    "x-trace-id": response.headers["x-trace-id"],
-                    "error": response.content,
-                }
-            )
-        else:
-            logger.error({"error": response.content})
-    try:
-        # Log this somewhere if it errors
-        logger.error(response.content)
-    except Exception as no_content_e:
-        # in case there's no content
-        logger.error(no_content_e)
-        # we still want to raise the right error for retrying
-        # continue to raise exception so that any retry logic still holds
-        raise no_content_e
+            datum["x-trace-id"] = response.headers["x-trace-id"]
+
+        try:
+            # Log this somewhere if it errors
+            logger.error(format_logging_info(datum))
+        except Exception as no_content_e:
+            # in case there's no content
+            logger.exception(no_content_e)
+            # we still want to raise the right error for retrying
+            # continue to raise exception so that any retry logic still holds
+            raise no_content_e
 
 
 # We implement retry as a function for several reasons
@@ -75,10 +72,8 @@ def retry(num_of_retries: int = 3, timeout: int = 30):
                     return func(*args, **kwargs)
                 # Using general error to avoid any possible error dependencies.
                 except (ConnectionError, JSONDecodeError) as error:
-                    logger.debug("Ran into connection or JSON DecodeError")
-                    logger.debug({"error": error, "traceback": traceback.format_exc()})
+                    logger.exception(error)
                     time.sleep(timeout)
-                    logger.debug("Retrying...")
                     if i == num_of_retries - 1:
                         raise error
                     continue
@@ -354,16 +349,18 @@ class API:
         metadata: extra parameters associated with operation
         i.e. n_clusters, n_init, softmax_temperature, etc...
         """
+        params = dict(
+            field=field,
+            field_children=field_children,
+            category=fieldchildren_id,
+            metadata={} if metadata is None else metadata,
+        )
+        logger.debug(format_logging_info(params))
         response = requests.post(
             url=self._base_url
             + f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
             headers=self._headers,
-            json=dict(
-                field=field,
-                field_children=field_children,
-                category=fieldchildren_id,
-                metadata={} if metadata is None else metadata,
-            ),
+            json=params,
         )
         return get_response(response)
 
@@ -566,7 +563,7 @@ class API:
             n_processed_pricing=n_processed_pricing,
         )
         logger.debug("adding progress...")
-        logger.debug(params)
+        logger.debug(format_logging_info(params))
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,

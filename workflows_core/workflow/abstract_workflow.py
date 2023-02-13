@@ -1,5 +1,6 @@
 import uuid
 import logging
+import traceback
 import warnings
 
 from typing import Any, List, Dict, Optional, Union, Sequence
@@ -11,6 +12,11 @@ from workflows_core.operator.abstract_operator import AbstractOperator
 
 logger = logging.getLogger(__name__)
 
+WORKFLOW_FAIL_MESSAGE = (
+    "Workflow processed {:.2f}%"
+    + " of documents. This is less than the success threshold of {:.2f}%"
+)
+
 
 class Workflow:
     def __init__(
@@ -21,7 +27,7 @@ class Workflow:
         metadata: Optional[Dict[str, Any]] = None,
         additional_information: str = "",
         send_email: bool = True,
-        success_threshold: float = 0.5,
+        success_threshold: float = 0.8,
         mark_as_complete_after_polling: bool = False,
         email: dict = None,
     ):
@@ -51,6 +57,10 @@ class Workflow:
         self._success_threshold = success_threshold
         self._mark_as_complete_after_polling = mark_as_complete_after_polling
         self._email = email
+
+    @property
+    def success_threshold(self):
+        return self._success_threshold
 
     @property
     def name(self):
@@ -87,28 +97,27 @@ class Workflow:
             ):
                 self.engine()
                 success_ratio = self.engine._success_ratio
-                if (
-                    success_ratio is not None
-                    and success_ratio < self._success_threshold
-                ):
-                    WORKFLOW_FAIL_MESSAGE = f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self._success_threshold:.2f}% threshold"
+
+                fail_message = WORKFLOW_FAIL_MESSAGE.format(
+                    100 * success_ratio,
+                    100 * self.success_threshold,
+                )
+
+                if success_ratio is not None and success_ratio < self.success_threshold:
                     self._api._set_workflow_status(
                         job_id=self._job_id,
                         workflow_name=self._name,
-                        additional_information=WORKFLOW_FAIL_MESSAGE,
+                        additional_information=fail_message,
                         status="failed",
                         send_email=self._send_email,
-                        metadata={"error": WORKFLOW_FAIL_MESSAGE},
+                        metadata={"error": fail_message},
                         worker_number=self.engine.worker_number,
                         email=self._email,
                     )
-                    raise WorkflowFailedError(
-                        f"Workflow ran successfully on {100 * success_ratio:.2f}% of documents, less than the required {100 * self._success_threshold:.2f}% threshold"
-                    )
-        except WorkflowFailedError as e:
-            logger.error(e)
+                    raise WorkflowFailedError(fail_message)
 
-        return
+        except WorkflowFailedError as e:
+            logger.exception(e)
 
     def get_status(self):
         return self._api._get_workflow_status(self._job_id)
