@@ -10,12 +10,16 @@
 
 """
 import logging
-import traceback
 
+from typing import List
+
+from workflows_core.helpers import format_logging_info
 from workflows_core.operator.abstract_operator import AbstractOperator
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
 from workflows_core.utils.document_list import DocumentList
+from workflows_core.utils.document import Document
+
 from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
@@ -67,82 +71,66 @@ class SmallBatchStableEngine(AbstractEngine):
         # length of a dictionary is just 1 if there is only 1 key
         return DocumentList([d for d in docs if len(d) > 1])
 
+    def handle_upsert(self, chunk_counter: int, chunk_to_update: List[Document]):
+        # We want to make sure the schema updates
+        # on the first chunk upserting
+        if chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER:
+            ingest_in_background = False
+        else:
+            ingest_in_background = True
+
+        result = self.update_chunk(
+            chunk_to_update,
+            update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
+            ingest_in_background=ingest_in_background,
+        )
+        logger.debug(format_logging_info(result))
+
+    def _transform_and_upsert(self, batch_index: int, batch: List[Document]):
+        batch_to_insert = []
+
+        for chunk in AbstractEngine.chunk_documents(self._transform_chunksize, batch):
+            transformed_batch = self._operate(chunk)
+            if transformed_batch is not None:
+                batch_to_insert += transformed_batch
+
+        self.handle_upsert(batch_index, batch_to_insert)
+        self.update_progress(len(batch_to_insert))
+
+        return batch_to_insert
+
     def apply(self) -> None:
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
         iterator = self.iterate()
-        successful_chunks = 0
-        error_logs = []
+
+        self.update_progress(0)
 
         batch = []
 
-        self._operator.pre_hooks(self.dataset)
+        self.operator.pre_hooks(self._dataset)
 
-        for chunk_counter, small_chunk in tqdm(
-            enumerate(iterator),
+        progress = tqdm(
             desc=repr(self.operator),
             disable=(not self._show_progress_bar),
-            total=self._num_chunks,
-        ):
-            self.update_progress(chunk_counter)
-            batch += small_chunk
+            total=self.size,
+        )
+
+        upload_index = 0
+        for minibatch in iterator:
+            batch += minibatch
 
             if len(batch) >= self._transform_threshold:
-                chunk_to_update = []
-
-                for chunk in AbstractEngine.chunk_documents(
-                    self._transform_chunksize, batch
-                ):
-                    # place here and not in large_chunk to ensure consistency
-                    # across progress and success etc.
-                    chunk = self._filter_for_non_empty_list(chunk)
-                    if len(chunk) == 0:
-                        new_batch = []
-
-                    try:
-                        # note: do not put an IF inside ths try-except-else loop - the if code will not work
-                        new_batch = self.operator(chunk)
-                    except Exception as e:
-                        chunk_error_log = {
-                            "exception": str(e),
-                            "traceback": traceback.format_exc(),
-                            "chunk_ids": [document["_id"] for document in chunk],
-                        }
-                        error_logs.append(chunk_error_log)
-                        logger.error(chunk)
-                        logger.error(traceback.format_exc())
-                    else:
-                        # if there is no exception then this block will be executed
-                        # we only update schema on the first chunk
-                        # otherwise it breaks down how the backend handles
-                        # schema updates
-                        chunk_to_update += new_batch
-
-                    # We want to make sure the schema updates
-                    # on the first chunk upserting
-                    if chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER:
-                        ingest_in_background = False
-                    else:
-                        ingest_in_background = True
-
-                result = self.update_chunk(
-                    chunk_to_update,
-                    update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
-                    ingest_in_background=ingest_in_background,
-                )
-
-                successful_chunks += 1
-                logger.debug(result)
+                self._transform_and_upsert(upload_index, batch)
+                upload_index += 1
                 batch = []
 
-        self._operator.post_hooks(self.dataset)
+            progress.update(len(batch))
 
-        # executes after everything wraps up
-        if self.job_id:
-            self.update_progress(chunk_counter + 1)
+        self._transform_and_upsert(upload_index, batch)
+        progress.update(len(batch))
 
-        self._error_logs = error_logs
-        if self.num_chunks > 0:
-            self._success_ratio = successful_chunks / self.num_chunks
-            logger.debug({"success_ratio": self._success_ratio})
+        self.set_success_ratio()
+
+        self.operator.post_hooks(self._dataset)
