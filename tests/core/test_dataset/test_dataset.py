@@ -28,7 +28,13 @@ class TestDataset2:
         documents = mock_documents(5)
         keys = documents[0].keys()
         schema = full_dataset.schema
-        assert all([key in schema for key in keys if key not in ["_id"]])
+        assert all(
+            [
+                schema_key in keys
+                for schema_key in schema
+                if schema_key not in {"insert_date_"}
+            ]
+        )
 
     def test_series(self, full_dataset: Dataset):
         schema = full_dataset.schema

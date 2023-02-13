@@ -13,7 +13,7 @@ else:
     from workflows_core.operator.abstract_operator import AbstractOperator
     from workflows_core.workflow.abstract_workflow import Workflow
 
-    class TestStableEngine:
+    class TestMultiPassEngine:
         def test_multipass_engine(
             self, full_dataset: Dataset, test_operator: AbstractOperator
         ):
@@ -68,6 +68,7 @@ else:
                     labels = self._model.predict(vectors)
                     for document, label in zip(documents, labels):
                         document[self._output_field] = f"cluster_{label}"
+
                     return documents
 
             vector_field = "sample_1_vector_"
