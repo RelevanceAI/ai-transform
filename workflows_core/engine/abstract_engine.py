@@ -186,8 +186,7 @@ class AbstractEngine(ABC):
         except Exception as e:
             logger.exception(e)
             logger.error(
-                "\n"
-                + format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)})
+                format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)})
             )
         else:
             # if there is no exception then this block will be executed

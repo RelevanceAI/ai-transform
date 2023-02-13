@@ -33,8 +33,7 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
         except Exception as e:
             logger.exception(e)
             logger.error(
-                "\n"
-                + format_logging_info({"x-trace-id": response.headers["x-trace-id"]})
+                format_logging_info({"x-trace-id": response.headers["x-trace-id"]})
             )
             raise e
     else:

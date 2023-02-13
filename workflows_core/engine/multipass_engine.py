@@ -72,6 +72,12 @@ class MultiPassEngine(AbstractEngine):
         self._show_progress_bar = show_progress_bar
 
     def handle_upsert(self, batch_index: int, batch_to_insert: List[Document]):
+        """
+        This functions handles the reinsertion of new transformed data back
+        into the dataset. This could happen for two reasons:
+            1. For a regular workflow
+            2. For outputting to status
+        """
         if self.output_to_status:
             # Store in output documents
             self.extend_output_documents(
