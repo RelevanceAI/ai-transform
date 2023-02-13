@@ -56,7 +56,9 @@ def get_document_diff(old_document: Document, new_document: Document) -> Documen
             old_value = old_document.get(field, None)
             new_value = new_document.get(field, None)
             value_diff = is_different(field, old_value, new_value)
-            if field not in old_fields or value_diff or field == "_id":
+            if (
+                field not in old_fields or value_diff or field == "_id"
+            ) and field not in pp_document.keys():
                 pp_document[field] = new_value
 
     if len(pp_document.keys()) > 1:
@@ -68,11 +70,9 @@ class AbstractOperator(ABC):
         self,
         input_fields: Optional[List[str]] = None,
         output_fields: Optional[List[str]] = None,
-        ignore_postprocess: bool = False,
     ):
         self._input_fields = input_fields
         self._output_fields = output_fields
-        self._ignore_postprocess = ignore_postprocess
 
     @abstractmethod
     def transform(self, documents: DocumentList) -> DocumentList:
@@ -88,14 +88,7 @@ class AbstractOperator(ABC):
         new_documents = deepcopy(old_documents)
         new_documents = self.transform(new_documents)
         if new_documents is not None:
-            if not self._ignore_postprocess:
-                # TODO - the postprocess function is too bugy at the moment
-                import warnings
-
-                warnings.warn(
-                    "To turn off post-processing in case of error, please add ignore_postprocess=True in the operator super().__init__ function."
-                )
-                new_documents = self.postprocess(new_documents, old_documents)
+            new_documents = self.postprocess(new_documents, old_documents)
             return new_documents
 
     @staticmethod
