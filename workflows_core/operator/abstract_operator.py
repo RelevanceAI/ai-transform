@@ -14,14 +14,30 @@ from workflows_core.utils.document_list import DocumentList
 logger = logging.getLogger(__file__)
 
 
+def are_vectors_similar(vector_1, vector_2):
+    element_wise_diff = abs(np.array(vector_1)) - abs(np.array(vector_2))
+    sums = np.sum(element_wise_diff)
+    return sums > 0
+
+
 def is_different(field: str, value1: Any, value2: Any) -> bool:
     """
     An all purpose function that checks if two values are different
     """
-    if "_vector_" in field and isinstance(value1, list) and isinstance(value2, list):
-        element_wise_diff = abs(np.array(value1)) - abs(np.array(value2))
-        sums = np.sum(element_wise_diff)
-        return sums > 0
+    # TODO: Implement a better fix for chunks - but this will do for now
+    if isinstance(value1, list) and isinstance(value2, list):
+        return any(
+            is_different(field, chunk1_value, chunk2_value)
+            for chunk1_value, chunk2_value in zip(value1, value2)
+        )
+
+    # check if its a vector field but only if it ends with it
+    elif (
+        field.endswith(("_vector_", "_chunkvector_"))
+        and isinstance(value1, list)
+        and isinstance(value2, list)
+    ):
+        return are_vectors_similar(value1, value2)
 
     elif isinstance(value1, dict) and isinstance(value2, dict):
         return json.dumps(value1, sort_keys=True) != json.dumps(value2, sort_keys=True)
@@ -32,14 +48,18 @@ def is_different(field: str, value1: Any, value2: Any) -> bool:
 
 def get_document_diff(old_document: Document, new_document: Document) -> Document:
     pp_document = Document()
-    new_fields = new_document.keys()
-    old_fields = old_document.keys()
+    new_fields = new_document.keys(detailed=False)
+    old_fields = old_document.keys(detailed=False)
     for field in new_fields:
-        old_value = old_document.get(field, None)
-        new_value = new_document.get(field, None)
-        value_diff = is_different(field, old_value, new_value)
-        if field not in old_fields or value_diff or field == "_id":
-            pp_document[field] = new_value
+        *_, last_field = field.split(".")
+        if not last_field.isdigit():
+            old_value = old_document.get(field, None)
+            new_value = new_document.get(field, None)
+            value_diff = is_different(field, old_value, new_value)
+            if (
+                field not in old_fields or value_diff or field == "_id"
+            ) and field not in pp_document.keys():
+                pp_document[field] = new_value
 
     if len(pp_document.keys()) > 1:
         return pp_document
@@ -90,7 +110,7 @@ class AbstractOperator(ABC):
             document_diff = get_document_diff(old_document, new_document)
             if document_diff:
                 batch.append(document_diff)
-
+        # import pdb;pdb.set_trace()
         return DocumentList(batch)
 
     # Adding this for backwards compatibility
@@ -131,3 +151,20 @@ class AbstractOperator(ABC):
 
     def post_hooks(self, dataset: Dataset):
         pass
+
+    @property
+    def n_processed_pricing(self):
+        if hasattr(self, "_n_processed_pricing"):
+            return self._n_processed_pricing
+        return 0
+
+    @n_processed_pricing.getter
+    def n_processed_pricing(self):
+        # default it to 0
+        if hasattr(self, "_n_processed_pricing"):
+            return self._n_processed_pricing
+        return 0
+
+    @n_processed_pricing.setter
+    def n_processed_pricing(self, value):
+        self._n_processed_pricing = value

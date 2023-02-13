@@ -1,9 +1,11 @@
-import logging
 import os
+import pprint
+import logging
 
 from inspect import Traceback
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
+from workflows_core.helpers import format_logging_info
 from workflows_core.api.api import API
 from workflows_core.dataset.dataset import Dataset
 from workflows_core.engine.abstract_engine import AbstractEngine
@@ -76,6 +78,13 @@ class WorkflowContextManager(API):
                     self.set_field_children(
                         input_field=input_field, output_fields=operator._output_fields
                     )
+                
+                self._dataset.api._update_workflow_pricing(
+                    workflow_id=self._job_id,
+                    step=self._workflow_name,
+                    worker_number=self._engine.worker_number,
+                    n_processed_pricing=operator.n_processed_pricing,
+                )
 
         self._dataset.api._update_workflow_progress(
             workflow_id=self._job_id,
@@ -88,22 +97,17 @@ class WorkflowContextManager(API):
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         if exc_type is not None:
-            logger.exception("Exception")
             self._set_status(
                 status=self.FAILED, worker_number=self._engine.worker_number
             )
-            if hasattr(traceback, "format_exc"):
-                traceback_error_logs = traceback.format_exc()
-            else:
-                traceback_error_logs = ""
+
+            logger.exception(exc_value)
 
             self._update_workflow_metadata(
                 job_id=self._job_id,
                 metadata=dict(
                     _error_=dict(
-                        exc_value=str(exc_value),
-                        traceback=traceback_error_logs,
-                        logs=self._engine._error_logs,
+                        exc_value=pprint.pformat(exc_value),
                     ),
                 ),
             )
@@ -120,7 +124,7 @@ class WorkflowContextManager(API):
                     job_id=self._job_id,
                     workflow_name=self._workflow_name,
                 )
-                logger.debug({"trigger_poll_id": result})
+                logger.debug(format_logging_info({"trigger_poll_id": result}))
             else:
                 self._set_status(
                     status=self.COMPLETE,
@@ -165,13 +169,16 @@ class WorkflowContextManager(API):
         from workflows_core import __version__
 
         logger.debug(
-            {
-                "status": status,
-                "job_id": self._job_id,
-                "workflow_name": self._workflow_name,
-                "worker_number": worker_number,
-                "result": result,
-                "workflows_core_version": __version__,
-            }
+            "\n"
+            + format_logging_info(
+                {
+                    "status": status,
+                    "job_id": self._job_id,
+                    "workflow_name": self._workflow_name,
+                    "worker_number": worker_number,
+                    "result": result,
+                    "workflows_core_version": __version__,
+                }
+            )
         )
         return result
