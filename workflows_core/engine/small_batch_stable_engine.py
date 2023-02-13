@@ -77,6 +77,8 @@ class SmallBatchStableEngine(AbstractEngine):
 
         batch = []
 
+        self._operator.pre_hooks(self.dataset)
+
         for chunk_counter, small_chunk in tqdm(
             enumerate(iterator),
             desc=repr(self.operator),
@@ -133,6 +135,8 @@ class SmallBatchStableEngine(AbstractEngine):
                 successful_chunks += 1
                 logger.debug(result)
                 batch = []
+
+        self._operator.post_hooks(self.dataset)
 
         # executes after everything wraps up
         if self.job_id:

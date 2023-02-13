@@ -21,6 +21,6 @@ class TestDocumentDiff:
         assert all(json.dumps(document.to_json()) == expected for document in diff)
 
     def test_no_diff(self):
-        documents = mock_documents()
+        documents = [{"value": 10}]
         diff = AbstractOperator._postprocess(documents, documents)
         assert not diff

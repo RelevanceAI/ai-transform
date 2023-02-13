@@ -98,7 +98,6 @@ class StableEngine(AbstractEngine):
         self.update_progress(0)
 
         self.operator.pre_hooks(self._dataset)
-        
         for batch_index, mega_batch in enumerate(
             tqdm(
                 iterator,
@@ -159,7 +158,7 @@ class StableEngine(AbstractEngine):
                     n_processed_pricing=self._operator.n_processed_pricing
                 )
 
-            self._operator.post_hooks(self._dataset)
+        self._operator.post_hooks(self._dataset)
 
         self._error_logs = error_logs
         if self.num_chunks > 0:
