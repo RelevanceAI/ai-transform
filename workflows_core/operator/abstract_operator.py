@@ -143,3 +143,20 @@ class AbstractOperator(ABC):
 
     def post_hooks(self, dataset: Dataset):
         pass
+
+    @property
+    def n_processed_pricing(self):
+        if hasattr(self, '_n_processed_pricing'):
+            return self._n_processed_pricing
+        return 0
+
+    @n_processed_pricing.getter
+    def n_processed_pricing(self):
+        # default it to 0
+        if hasattr(self, "_n_processed_pricing"):
+            return self._n_processed_pricing
+        return 0
+
+    @n_processed_pricing.setter
+    def n_processed_pricing(self, value):
+        self._n_processed_pricing = value
