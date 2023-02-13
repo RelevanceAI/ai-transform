@@ -83,7 +83,7 @@ class WorkflowContextManager(API):
                     workflow_id=self._job_id,
                     step=self._workflow_name,
                     worker_number=self._engine.worker_number,
-                    n_processed=operator.n_processed_pricing,
+                    n_processed_pricing=operator.n_processed_pricing,
                 )
 
         self._dataset.api._update_workflow_progress(
