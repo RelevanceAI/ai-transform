@@ -2,7 +2,7 @@
 Test components
 """
 
-from workflows_core.components import *
+from ai_transform.components import *
 
 
 def test_instantiate_components():

@@ -1,9 +1,9 @@
 from typing import Any
 
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils import mock_documents
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.utils import mock_documents
 
 
 class TestEnginePlayground:

@@ -2,7 +2,7 @@ import json
 import random
 import string
 from copy import deepcopy
-from workflows_core.utils.document_list import DocumentList
+from ai_transform.utils.document_list import DocumentList
 
 
 class TestDocumentList:

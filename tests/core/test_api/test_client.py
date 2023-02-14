@@ -1,4 +1,4 @@
-from workflows_core.api.client import Client
+from ai_transform.api.client import Client
 
 
 class TestClient:

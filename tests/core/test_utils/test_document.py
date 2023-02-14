@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from workflows_core.utils.document import Document
+from ai_transform.utils.document import Document
 
 
 class TestDocument:
@@ -45,7 +45,7 @@ class TestDocument:
         assert "field1.field2" in test_document
 
     def test_split(self):
-        from workflows_core.utils import Document
+        from ai_transform.utils import Document
 
         doc = Document(
             {

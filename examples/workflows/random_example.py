@@ -1,5 +1,5 @@
 """
-An example showing how to write a simple workflow. 
+An example showing how to write a simple workflow.
 In this workflow, we add one to every number.
 """
 # For this workflow to to run, you need the following;
@@ -10,12 +10,12 @@ import uuid
 import random
 from typing import Callable, List, Optional
 
-from workflows_core.api.client import Client
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.workflow.helpers import decode_workflow_token
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.document_list import DocumentList
+from ai_transform.api.client import Client
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.workflow.helpers import decode_workflow_token
+from ai_transform.workflow.abstract_workflow import AbstractWorkflow
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.utils.document_list import DocumentList
 
 
 class RandomOperator(AbstractOperator):
