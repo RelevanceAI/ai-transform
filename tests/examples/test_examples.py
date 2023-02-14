@@ -52,11 +52,15 @@ def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
     time.sleep(2)
 
     health = dataset.health()
-    for output_field in operator._output_fields:
+    for output_field in operator.output_fields:
         assert health[output_field]["exists"] == engine.size
 
     status_dict = workflow.get_status()
     assert status_dict["status"].lower() == "complete", status_dict
+
+    field_children = dataset.list_field_children()["results"]
+    assert field_children[0]["field"] == text_field
+    assert field_children[0]["field_children"][0] == operator.output_fields[0]
 
 
 def test_sentiment_documents(test_sentiment_workflow_document_token: str):
@@ -130,11 +134,15 @@ def test_sentiment_example_wsmall_batch_stable_engine(
     time.sleep(2)
 
     health = dataset.health()
-    for output_field in operator._output_fields:
+    for output_field in operator.output_fields:
         assert health[output_field]["exists"] == engine.size
 
     status_dict = workflow.get_status()
     assert status_dict["status"].lower() == "complete", status_dict
+
+    field_children = dataset.list_field_children()["results"]
+    assert field_children[0]["field"] == text_field
+    assert field_children[0]["field_children"][0] == operator.output_fields[0]
 
 
 def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
@@ -183,13 +191,17 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     # This can vary depending on modulo
     # assert engine._size in [0, 1, 2, 3, 4, 5], "incorrect engine size"
 
-    for output_field in operator._output_fields:
+    for output_field in operator.output_fields:
         assert health[output_field]["exists"] == engine._size
 
     status_dict = workflow.get_status()
     # This should in THEORY be inprogress still but his will only work
     # on sufficiently large datasets
     assert status_dict["status"].lower() == "complete", status_dict
+
+    field_children = dataset.list_field_children()["results"]
+    assert field_children[0]["field"] == text_field
+    assert field_children[0]["field_children"][0] == operator.output_fields[0]
 
 
 def test_cluster_example(test_cluster_workflow_token: str):
@@ -238,6 +250,10 @@ def test_cluster_example(test_cluster_workflow_token: str):
     health = dataset.health()
     cluster_field = operator._output_field
     assert health[cluster_field]["exists"] == 20
+
+    field_children = dataset.list_field_children()["results"]
+    assert field_children[0]["field"] == vector_field
+    assert field_children[0]["field_children"][0] == operator.output_fields[0]
 
 
 def test_fail_example(test_sentiment_workflow_token: str):

@@ -139,6 +139,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     )
     workflow.run()
 
+    field_children = dataset.list_field_children()["results"]
+    assert field_children[0]["field"] == text_field
+    assert field_children[0]["field_children"][0] == operator.output_fields[0]
+
 
 if __name__ == "__main__":
     # For script things

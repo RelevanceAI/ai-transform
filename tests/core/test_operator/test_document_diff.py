@@ -23,8 +23,10 @@ class TestDocumentDiff:
                 "label": generate_random_label(),
                 "label_chunkvector_": generate_random_vector(),
             }
-            expected_diff.append({"_id": document["_id"], "_chunk_": [new_chunk]})
             document["_chunk_"].append(new_chunk)
+            expected_diff.append(
+                {"_id": document["_id"], "_chunk_": document["_chunk_"]}
+            )
 
         diff = AbstractOperator._postprocess(new_documents, old_documents).to_json()
         diff = list(sorted(diff, key=lambda x: x["_id"]))

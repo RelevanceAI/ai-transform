@@ -46,7 +46,7 @@ class MultiPassEngine(AbstractEngine):
         if not refresh:
             output_field_filters = []
             for operator in operators:
-                for output_field in operator._output_fields:
+                for output_field in operator.output_fields:
                     output_field_filters.append(dataset[output_field].not_exists())
             filters += [{"filter_type": "or", "condition_value": output_field_filters}]
 
@@ -106,8 +106,7 @@ class MultiPassEngine(AbstractEngine):
         except Exception as e:
             logger.exception(e)
             logger.error(
-                "\n"
-                + format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)})
+                format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)})
             )
         else:
             # if there is no exception then this block will be executed
