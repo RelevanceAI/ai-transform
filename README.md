@@ -25,12 +25,12 @@ To get started, please refer to the example scripts in `scripts/`
 ```python
 
 import random
-from workflows_core.api.client import Clien
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.workflow.helpers import decode_workflow_token
-from workflows_core.workflow import Workflow
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.random import Document
+from ai_transform.api.client import Clien
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.workflow.helpers import decode_workflow_token
+from ai_transform.workflow import Workflow
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.utils.random import Document
 
 class RandomOperator(AbstractOperator):
     def __init__(self, upper_bound: int=10):
@@ -80,9 +80,9 @@ The advantage this has over `StableEngine` with `chunksize=None` is that the pul
 pushing documents is done in batch, but the operation is done in bulk. With `StableEngine`,
 this would have involved extremely large API calls with larger datasets.
 
-### Polling 
+### Polling
 
-Sometimes you will want to wait until the Relevance AI 
+Sometimes you will want to wait until the Relevance AI
 schema updates before proceeding to the next step. For more information - look at `workflow/helpers.py` file.
 
 ```{python}
@@ -97,20 +97,20 @@ poll_until_health_updates_with_input_field(
 ```
 
 
-### How to release 
+### How to release
 
 To cut a release, go to "Releases" and create a new version from `main` branch.
 
 ### Architecture Decisions
 
-#### Pydantic 
+#### Pydantic
 
 There are a few reasons for the pydantic choice:
 - good strong validation
 - outputs nicely to OpenAPI which allows us to generate workflow docs automatically in future for Workflow APIs
 - used in FastAPI stack so workflows can also be FastAPI compatible in the future.
 
-### For Developers 
+### For Developers
 
 When developing with Workflows Core, we have the following philosophies:
 

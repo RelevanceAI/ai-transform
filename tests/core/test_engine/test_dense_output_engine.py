@@ -1,13 +1,13 @@
 import time
 
-from workflows_core.api.client import Client
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.engine.dense_output_engine import DenseOutputEngine
+from ai_transform.api.client import Client
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.engine.dense_output_engine import DenseOutputEngine
 
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.workflow.abstract_workflow import Workflow
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.workflow.abstract_workflow import Workflow
 
-from workflows_core.utils.example_documents import mock_documents
+from ai_transform.utils.example_documents import mock_documents
 
 
 class TestDenseOutputEngine:

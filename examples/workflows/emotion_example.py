@@ -8,12 +8,12 @@ import torch
 from typing import Callable, List, Optional
 
 from transformers import pipeline
-from workflows_core.api.client import Client
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.workflow.helpers import decode_workflow_token
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.example_documents import DocumentList
+from ai_transform.api.client import Client
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.workflow.helpers import decode_workflow_token
+from ai_transform.workflow.abstract_workflow import AbstractWorkflow
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.utils.example_documents import DocumentList
 
 
 class EmotionOperator(AbstractOperator):

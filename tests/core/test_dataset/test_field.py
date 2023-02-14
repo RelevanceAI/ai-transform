@@ -3,9 +3,9 @@ import numpy as np
 
 from types import FunctionType
 
-from workflows_core.api.client import Client
-from workflows_core.dataset.field import Field, ClusterField, KeyphraseField
-from workflows_core.utils.example_documents import mock_documents
+from ai_transform.api.client import Client
+from ai_transform.dataset.field import Field, ClusterField, KeyphraseField
+from ai_transform.utils.example_documents import mock_documents
 
 
 def list_methods(cls):

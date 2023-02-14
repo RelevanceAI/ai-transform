@@ -1,8 +1,8 @@
 import pytest
 import random
 
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.utils.example_documents import mock_documents
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.utils.example_documents import mock_documents
 
 
 @pytest.mark.usefixtures("empty_dataset")

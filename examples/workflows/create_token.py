@@ -1,5 +1,5 @@
 import os
-from workflows_core.utils import encode_parameters
+from ai_transform.utils import encode_parameters
 
 token = encode_parameters(
     parameters={

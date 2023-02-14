@@ -1,5 +1,5 @@
-from workflows_core.utils import Document
-from workflows_core.utils import DocumentList
+from ai_transform.utils import Document
+from ai_transform.utils import DocumentList
 
 
 class TestDocumentChunk:

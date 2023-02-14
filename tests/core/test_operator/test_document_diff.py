@@ -2,9 +2,9 @@ import json
 import random
 
 from copy import deepcopy
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.document import Document
-from workflows_core.utils.example_documents import (
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.utils.document import Document
+from ai_transform.utils.example_documents import (
     mock_documents,
     generate_random_label,
     generate_random_vector,

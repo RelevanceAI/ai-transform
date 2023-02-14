@@ -1,9 +1,9 @@
-from workflows_core.api.client import Client
-from workflows_core.engine.abstract_engine import AbstractEngine
-from workflows_core.workflow.abstract_workflow import Workflow
+from ai_transform.api.client import Client
+from ai_transform.engine.abstract_engine import AbstractEngine
+from ai_transform.workflow.abstract_workflow import Workflow
 
 
-from workflows_core.config import BaseConfig
+from ai_transform.config import BaseConfig
 from pydantic import Field
 
 
