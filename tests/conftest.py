@@ -1,11 +1,11 @@
 import os
 import json
 import uuid
+import time
 import base64
 import random
 import pytest
 import string
-import time
 
 from typing import List, Dict, Sequence
 
@@ -23,18 +23,9 @@ from workflows_core.utils.example_documents import (
     static_documents,
     tag_documents,
 )
-from workflows_core.utils.keyphrase import Keyphrase
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
-
-rd = random.Random()
-rd.seed(0)
-
-
-def create_id():
-    # This makes IDs reproducible for tests related to Modulo function
-    return str(uuid.UUID(int=rd.getrandbits(128)))
 
 
 @pytest.fixture(scope="session")
@@ -98,6 +89,34 @@ def static_dataset(test_client: Client) -> Dataset:
     test_client.delete_dataset(dataset_id)
 
 
+@pytest.fixture(scope="class")
+def dense_input_dataset(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    dataset.insert_documents(static_documents(2))
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
+def dense_output_dataset1(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
+def dense_output_dataset2(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
 @pytest.fixture(scope="function")
 def test_document() -> Document:
     raw_dict = {
@@ -136,7 +155,10 @@ def test_operator() -> AbstractOperator:
 
 
 @pytest.fixture(scope="function")
-def test_dense_operator() -> DenseOperator:
+def test_dense_operator(
+    dense_output_dataset1: Dataset,
+    dense_output_dataset2: Dataset,
+) -> DenseOperator:
     class TestDenseOperator(DenseOperator):
         def __init__(self, output_dataset_ids: Sequence[str]):
             self.output_dataset_ids = output_dataset_ids
@@ -154,7 +176,10 @@ def test_dense_operator() -> DenseOperator:
 
             return {dataset_id: documents for dataset_id in self.output_dataset_ids}
 
-    output_dataset_ids = ("ouptut_dataset1", "ouptut_dataset2")
+    output_dataset_ids = (
+        dense_output_dataset1.dataset_id,
+        dense_output_dataset2.dataset_id,
+    )
     return TestDenseOperator(output_dataset_ids)
 
 
