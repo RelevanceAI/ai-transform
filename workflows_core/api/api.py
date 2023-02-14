@@ -520,7 +520,7 @@ class API:
         step: str = "Workflow",
         n_processed: int = 0,
         n_total: int = 0,
-        n_processed_pricing: Optional[int] = None, # optional parameter
+        n_processed_pricing: Optional[int] = None,  # optional parameter
     ):
         """
         Tracks Workflow Progress
@@ -534,16 +534,18 @@ class API:
             n_total=n_total,
         )
         if n_processed_pricing:
-            params['n_processed_pricing '] = n_processed_pricing
+            params["n_processed_pricing "] = n_processed_pricing
+
         logger.debug("adding progress...")
-        logger.debug(params)
+        logger.debug(format_logging_info(params))
+
         response = requests.post(
             url=self._base_url + f"/workflows/{workflow_id}/progress",
             headers=self._headers,
             json=params,
         )
         return get_response(response)
-    
+
     @retry()
     def _update_workflow_pricing(
         self,
@@ -553,8 +555,8 @@ class API:
         n_processed_pricing: Optional[int] = None,
     ):
         """
-        Pricing endpoint is really part of progress endpoint but this is being 
-        abstracted away for now due to the fact that the pricing is actually 
+        Pricing endpoint is really part of progress endpoint but this is being
+        abstracted away for now due to the fact that the pricing is actually
         something outside of progress.
         """
         params = dict(
