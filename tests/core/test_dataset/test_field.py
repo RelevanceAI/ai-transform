@@ -67,4 +67,5 @@ def test_create_centroid_documents(test_client: Client, test_dataset_id: str):
     assert len(centroid_documents) == n_clusters
     for centroid_document in centroid_documents:
         assert len(centroid_document[vector_field]) == 5
+        assert centroid_document["_id"].startswith("cluster_")
         assert not math.isnan(sum(centroid_document[vector_field]))

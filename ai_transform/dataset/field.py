@@ -365,23 +365,22 @@ class ClusterField(Field):
         label_map = {}
         for label in labels:
             if label not in label_map:
-                label_map[len(label_map)] = label
-        inv_label_map = {value: key for key, value in label_map.items()}
+                label_map[label] = len(label_map)
 
-        n_clusters = len(np.unique(labels))
+        n_clusters = len(label_map)
         centroid_documents = []
 
         selected_vectors: np.ndarray
         centroid_vector: np.ndarray
 
-        labels_indices = np.array([inv_label_map[label] for label in labels])
+        label_indices = np.array([label_map[label] for label in labels])
 
         for index in range(n_clusters):
-            selected_vectors = vectors[labels_indices == index]
+            selected_vectors = vectors[label_indices == index]
             centroid_vector = selected_vectors.mean(0)
 
             centroid_document = {
-                "_id": label_map[index],
+                "_id": f"cluster_{index}",
                 f"{self._cluster_field}": centroid_vector.tolist(),
             }
             centroid_documents.append(centroid_document)
