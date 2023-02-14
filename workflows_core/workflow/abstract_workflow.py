@@ -28,6 +28,7 @@ class Workflow:
         additional_information: str = "",
         send_email: bool = True,
         success_threshold: float = 0.8,
+        # this is bugged
         mark_as_complete_after_polling: bool = False,
         email: dict = None,
     ):
@@ -97,7 +98,8 @@ class Workflow:
             ):
                 self.engine()
                 success_ratio = self.engine._success_ratio
-
+                if success_ratio is None:
+                    success_ratio = 1
                 fail_message = WORKFLOW_FAIL_MESSAGE.format(
                     100 * success_ratio,
                     100 * self.success_threshold,
