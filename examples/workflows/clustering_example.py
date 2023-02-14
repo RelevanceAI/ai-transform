@@ -3,14 +3,14 @@ import numpy as np
 
 from typing import Callable, List, Optional
 
-from workflows_core.api.client import Client
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.engine.cluster_engine import InMemoryEngine
-from workflows_core.workflow.helpers import decode_workflow_token
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
-from workflows_core.operator.abstract_operator import AbstractOperator
+from ai_transform.api.client import Client
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.engine.cluster_engine import InMemoryEngine
+from ai_transform.workflow.helpers import decode_workflow_token
+from ai_transform.workflow.abstract_workflow import AbstractWorkflow
+from ai_transform.operator.abstract_operator import AbstractOperator
 
-from workflows_core.utils.document_list import DocumentList
+from ai_transform.utils.document_list import DocumentList
 
 from sklearn.cluster import KMeans
 
@@ -101,6 +101,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         additional_information=additional_information,
     )
     workflow.run()
+
+    field_children = dataset.list_field_children()["results"]
+    assert field_children[0]["field"] == vector_fields[0]
+    assert field_children[0]["field_children"][0] == operator.output_fields[0]
 
 
 if __name__ == "__main__":

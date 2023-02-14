@@ -7,11 +7,11 @@ else:
     import time
     import numpy as np
 
-    from workflows_core.dataset.dataset import Dataset
-    from workflows_core.engine.multipass_engine import MultiPassEngine
+    from ai_transform.dataset.dataset import Dataset
+    from ai_transform.engine.multipass_engine import MultiPassEngine
 
-    from workflows_core.operator.abstract_operator import AbstractOperator
-    from workflows_core.workflow.abstract_workflow import Workflow
+    from ai_transform.operator.abstract_operator import AbstractOperator
+    from ai_transform.workflow.abstract_workflow import Workflow
 
     class TestMultiPassEngine:
         def test_multipass_engine(

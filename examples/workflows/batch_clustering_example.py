@@ -3,14 +3,14 @@ import numpy as np
 
 from typing import Callable, List, Optional
 
-from workflows_core.api.client import Client
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.workflow.helpers import decode_workflow_token
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
-from workflows_core.operator.abstract_operator import AbstractOperator
+from ai_transform.api.client import Client
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.workflow.helpers import decode_workflow_token
+from ai_transform.workflow.abstract_workflow import AbstractWorkflow
+from ai_transform.operator.abstract_operator import AbstractOperator
 
-from workflows_core.utils.document_list import DocumentList
+from ai_transform.utils.document_list import DocumentList
 
 from sklearn.cluster import MiniBatchKMeans
 

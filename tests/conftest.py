@@ -1,39 +1,31 @@
 import os
 import json
 import uuid
+import time
 import base64
 import random
 import pytest
 import string
-import time
 
-from typing import List, Dict
+from typing import List, Dict, Sequence
 
-from workflows_core.api.client import Client
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.api.helpers import process_token
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.utils.document import Document
-from workflows_core.utils.document_list import DocumentList
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.utils.example_documents import (
+from ai_transform.api.client import Client
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.api.helpers import process_token
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.utils.document import Document
+from ai_transform.utils.document_list import DocumentList
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.operator.dense_operator import DenseOperator
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.utils.example_documents import (
     mock_documents,
     static_documents,
     tag_documents,
 )
-from workflows_core.utils.keyphrase import Keyphrase
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
-
-rd = random.Random()
-rd.seed(0)
-
-
-def create_id():
-    # This makes IDs reproducible for tests related to Modulo function
-    return str(uuid.UUID(int=rd.getrandbits(128)))
 
 
 @pytest.fixture(scope="session")
@@ -97,6 +89,34 @@ def static_dataset(test_client: Client) -> Dataset:
     test_client.delete_dataset(dataset_id)
 
 
+@pytest.fixture(scope="class")
+def dense_input_dataset(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    dataset.insert_documents(static_documents(2))
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
+def dense_output_dataset1(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
+def dense_output_dataset2(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
 @pytest.fixture(scope="function")
 def test_document() -> Document:
     raw_dict = {
@@ -135,6 +155,35 @@ def test_operator() -> AbstractOperator:
 
 
 @pytest.fixture(scope="function")
+def test_dense_operator(
+    dense_output_dataset1: Dataset,
+    dense_output_dataset2: Dataset,
+) -> DenseOperator:
+    class TestDenseOperator(DenseOperator):
+        def __init__(self, output_dataset_ids: Sequence[str]):
+            self.output_dataset_ids = output_dataset_ids
+            super().__init__()
+
+        def transform(self, documents: DocumentList) -> DocumentList:
+            """
+            Main transform function
+            """
+            for document in documents:
+                if "new_field" not in document:
+                    document["new_field"] = 0
+
+                document["new_field"] += 3
+
+            return {dataset_id: documents for dataset_id in self.output_dataset_ids}
+
+    output_dataset_ids = (
+        dense_output_dataset1.dataset_id,
+        dense_output_dataset2.dataset_id,
+    )
+    return TestDenseOperator(output_dataset_ids)
+
+
+@pytest.fixture(scope="function")
 def test_engine(full_dataset: Dataset, test_operator: AbstractOperator) -> StableEngine:
     return StableEngine(
         dataset=full_dataset,
@@ -152,18 +201,13 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     job_id = str(uuid.uuid4())
     config = dict(
         job_id=job_id,
-        authorizationToken=test_client._token,
+        authorizationToken=test_client.credentials.token,
         dataset_id=dataset_id,
         text_field="sample_1_label",
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
-    # test_client._api._trigger(
-    #     dataset_id,
-    #     params=config,
-    #     workflow_id=job_id,
-    # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 
@@ -175,7 +219,7 @@ def test_sentiment_workflow_document_token(test_client: Client) -> str:
     job_id = str(uuid.uuid4())
     config = dict(
         job_id=job_id,
-        authorizationToken=test_client._token,
+        authorizationToken=test_client.credentials.token,
         text_field="sample_1_label",
         documents=mock_documents(10).to_json(),
     )
@@ -195,18 +239,13 @@ def test_simple_workflow_token(test_client: Client) -> str:
     job_id = str(uuid.uuid4())
     config = dict(
         job_id=job_id,
-        authorizationToken=test_client._token,
+        authorizationToken=test_client.credentials.token,
         dataset_id=dataset_id,
         send_email=True,
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
-    # test_client._api._trigger(
-    #     dataset_id,
-    #     params=config,
-    #     workflow_id=job_id,
-    # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 
@@ -221,18 +260,13 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     print(job_id)
     config = dict(
         job_id=job_id,
-        authorizationToken=test_client._token,
+        authorizationToken=test_client.credentials.token,
         dataset_id=dataset_id,
         vector_fields=["sample_1_vector_"],
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
     workflow_token = base64.b64encode(config_bytes).decode()
-    # test_client._api._trigger(
-    #     dataset_id,
-    #     params=config,
-    #     workflow_id=job_id,
-    # )
     yield workflow_token
     test_client.delete_dataset(dataset_id)
 

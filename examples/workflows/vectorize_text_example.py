@@ -2,12 +2,12 @@ import argparse
 
 from typing import Callable, List, Optional
 
-from workflows_core.api.client import Client
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.workflow.helpers import decode_workflow_token
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.document_list import DocumentList
+from ai_transform.api.client import Client
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.workflow.helpers import decode_workflow_token
+from ai_transform.workflow.abstract_workflow import AbstractWorkflow
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.utils.document_list import DocumentList
 
 from sentence_transformers import SentenceTransformer
 
@@ -79,6 +79,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         job_id=job_id,
     )
     workflow.run()
+
+    field_children = dataset.list_field_children()["results"]
+    assert field_children[0]["field"] == text_field
+    assert field_children[0]["field_children"][0] == operator.output_fields[0]
 
 
 if __name__ == "__main__":

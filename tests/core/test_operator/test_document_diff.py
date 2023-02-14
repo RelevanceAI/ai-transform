@@ -2,9 +2,9 @@ import json
 import random
 
 from copy import deepcopy
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.utils.document import Document
-from workflows_core.utils.example_documents import (
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.utils.document import Document
+from ai_transform.utils.example_documents import (
     mock_documents,
     generate_random_label,
     generate_random_vector,
@@ -23,8 +23,10 @@ class TestDocumentDiff:
                 "label": generate_random_label(),
                 "label_chunkvector_": generate_random_vector(),
             }
-            expected_diff.append({"_id": document["_id"], "_chunk_": [new_chunk]})
             document["_chunk_"].append(new_chunk)
+            expected_diff.append(
+                {"_id": document["_id"], "_chunk_": document["_chunk_"]}
+            )
 
         diff = AbstractOperator._postprocess(new_documents, old_documents).to_json()
         diff = list(sorted(diff, key=lambda x: x["_id"]))
