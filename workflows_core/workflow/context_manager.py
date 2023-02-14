@@ -149,6 +149,10 @@ class WorkflowContextManager(API):
                 worker_number=self._engine.worker_number,
                 output=self._engine.output_documents,
             )
+
+        return True
+
+    def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         if self._update_field_children:
             for operator in self._operators:
                 for input_field in operator.input_fields:
@@ -157,9 +161,6 @@ class WorkflowContextManager(API):
                         output_fields=operator.output_fields,
                     )
                     logger.debug(format_logging_info(res))
-        return True
-
-    def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         if exc_type is not None:
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
