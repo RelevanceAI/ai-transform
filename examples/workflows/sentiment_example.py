@@ -139,6 +139,8 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     )
     workflow.run()
 
+    dataset.list_field_children()
+
 
 if __name__ == "__main__":
     # For script things
