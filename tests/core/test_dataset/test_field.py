@@ -1,5 +1,6 @@
+import time
+import math
 import itertools
-import numpy as np
 
 from types import FunctionType
 
@@ -48,16 +49,23 @@ class TestField:
 
 
 def test_create_centroid_documents(test_client: Client, test_dataset_id: str):
-    labels = np.arange(10, dtype=np.longdouble)
+    n_clusters = 5
 
     test_dataset = test_client.Dataset(test_dataset_id)
     vector_field = "sample_1_vector_"
     cluster_field = f"_cluster_.{vector_field}.alias"
     documents = mock_documents(10)
+    for index, document in enumerate(documents):
+        document[cluster_field] = "cluster_" + str(index % n_clusters)
+
     test_dataset.insert_documents(documents)
 
-    centroid_documents = test_dataset[cluster_field].create_centroid_documents(labels)
+    time.sleep(2)
 
-    assert len(centroid_documents) == 10
+    centroid_documents = test_dataset[cluster_field].create_centroid_documents()
+
+    assert len(centroid_documents) == n_clusters
     for centroid_document in centroid_documents:
         assert len(centroid_document[vector_field]) == 5
+        assert centroid_document["_id"].startswith("cluster_")
+        assert not math.isnan(sum(centroid_document[vector_field]))
