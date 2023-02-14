@@ -89,7 +89,6 @@ class WorkflowContextManager(API):
         return
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
-        self._calculate_pricing()
         if exc_type is not None:
             self._set_status(
                 status=self.FAILED, worker_number=self._engine.worker_number
@@ -108,6 +107,7 @@ class WorkflowContextManager(API):
             return False
         else:
             # Workflow must have run successfully
+            self._calculate_pricing()
             if self._mark_as_complete_after_polling:
                 # TODO: trigger a polling job while keeping this one in progress
                 # When triggering this poll job - we can send the job ID
