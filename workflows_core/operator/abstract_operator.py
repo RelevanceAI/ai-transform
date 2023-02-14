@@ -72,6 +72,14 @@ class AbstractOperator(ABC):
         self._input_fields = input_fields
         self._output_fields = output_fields
 
+    @property
+    def input_fields(self):
+        return self._input_fields
+
+    @property
+    def output_fields(self):
+        return self._output_fields
+
     @abstractmethod
     def transform(self, documents: DocumentList) -> DocumentList:
         """

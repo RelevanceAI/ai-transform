@@ -52,7 +52,7 @@ def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
     time.sleep(2)
 
     health = dataset.health()
-    for output_field in operator._output_fields:
+    for output_field in operator.output_fields:
         assert health[output_field]["exists"] == engine.size
 
     status_dict = workflow.get_status()
@@ -130,7 +130,7 @@ def test_sentiment_example_wsmall_batch_stable_engine(
     time.sleep(2)
 
     health = dataset.health()
-    for output_field in operator._output_fields:
+    for output_field in operator.output_fields:
         assert health[output_field]["exists"] == engine.size
 
     status_dict = workflow.get_status()
@@ -183,7 +183,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     # This can vary depending on modulo
     # assert engine._size in [0, 1, 2, 3, 4, 5], "incorrect engine size"
 
-    for output_field in operator._output_fields:
+    for output_field in operator.output_fields:
         assert health[output_field]["exists"] == engine._size
 
     status_dict = workflow.get_status()

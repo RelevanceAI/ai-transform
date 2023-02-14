@@ -45,10 +45,7 @@ class WorkflowContextManager(API):
 
         update_field_children = False
         for operator in operators:
-            if (
-                operator._input_fields is not None
-                and operator._output_fields is not None
-            ):
+            if operator.input_fields is not None and operator.output_fields is not None:
                 update_field_children = True
                 break
 
@@ -74,9 +71,9 @@ class WorkflowContextManager(API):
 
         if self._update_field_children:
             for operator in self._operators:
-                for input_field in operator._input_fields:
+                for input_field in operator.input_fields:
                     res = self.set_field_children(
-                        input_field=input_field, output_fields=operator._output_fields
+                        input_field=input_field, output_fields=operator.output_fields
                     )
                     logger.debug(format_logging_info(res))
 
@@ -120,8 +117,8 @@ class WorkflowContextManager(API):
                 # When triggering this poll job - we can send the job ID
                 result = self._trigger_polling_workflow(
                     dataset_id=self._dataset_id,
-                    input_field=self._operators[0]._input_fields[0],
-                    output_field=self._operators[-1]._output_fields[0],
+                    input_field=self._operators[0].input_fields[0],
+                    output_field=self._operators[-1].output_fields[0],
                     job_id=self._job_id,
                     workflow_name=self._workflow_name,
                 )

@@ -46,7 +46,7 @@ class MultiPassEngine(AbstractEngine):
         if not refresh:
             output_field_filters = []
             for operator in operators:
-                for output_field in operator._output_fields:
+                for output_field in operator.output_fields:
                     output_field_filters.append(dataset[output_field].not_exists())
             filters += [{"filter_type": "or", "condition_value": output_field_filters}]
 
