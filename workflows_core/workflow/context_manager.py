@@ -81,24 +81,7 @@ class WorkflowContextManager(API):
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
     ):
         self._set_status(status=self.FAILED, worker_number=self._engine.worker_number)
-
         logger.exception(exc_value)
-
-        n_processed_pricing = 0
-        for operator in self._operators:
-            n_processed_pricing += operator.n_processed_pricing
-
-        # Set default pricing to the the number of documents
-        if n_processed_pricing == 0:
-            n_processed_pricing = self._engine.size
-
-        self._dataset.api._update_workflow_pricing(
-            workflow_id=self._job_id,
-            step=self._workflow_name,
-            worker_number=self._engine.worker_number,
-            n_processed_pricing=n_processed_pricing,
-        )
-
         self._update_workflow_metadata(
             job_id=self._job_id,
             metadata=dict(
