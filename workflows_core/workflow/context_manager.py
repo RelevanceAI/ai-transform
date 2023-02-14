@@ -96,21 +96,6 @@ class WorkflowContextManager(API):
 
             logger.exception(exc_value)
 
-            n_processed_pricing = 0
-            for operator in self._operators:
-                n_processed_pricing += operator.n_processed_pricing
-
-            # Set default pricing to the the number of documents
-            if n_processed_pricing == 0:
-                n_processed_pricing = self._engine.size
-
-            self._dataset.api._update_workflow_pricing(
-                workflow_id=self._job_id,
-                step=self._workflow_name,
-                worker_number=self._engine.worker_number,
-                n_processed_pricing=n_processed_pricing,
-            )
-
             self._update_workflow_metadata(
                 job_id=self._job_id,
                 metadata=dict(
@@ -122,6 +107,7 @@ class WorkflowContextManager(API):
             return False
         else:
             # Workflow must have run successfully
+            self._calculate_pricing()
             if self._mark_as_complete_after_polling:
                 # TODO: trigger a polling job while keeping this one in progress
                 # When triggering this poll job - we can send the job ID
@@ -140,6 +126,23 @@ class WorkflowContextManager(API):
                     output=self._engine.output_documents,
                 )
             return True
+        
+    def _calculate_pricing(self):
+        n_processed_pricing = 0
+        for operator in self._operators:
+            n_processed_pricing += operator.n_processed_pricing
+
+        # Set default pricing to the the number of documents
+        if n_processed_pricing == 0:
+            n_processed_pricing = self._engine.size
+
+        self._dataset.api._update_workflow_pricing(
+            workflow_id=self._job_id,
+            step=self._workflow_name,
+            worker_number=self._engine.worker_number,
+            n_processed_pricing=n_processed_pricing,
+        )
+
 
     def set_field_children(self, input_field: str, output_fields: list):
         # Implement the config ID and authorization token
