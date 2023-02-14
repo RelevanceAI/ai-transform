@@ -9,7 +9,7 @@ from workflows_core.workflow.abstract_workflow import Workflow
 from workflows_core.utils.example_documents import mock_documents
 
 
-class TestStableEngine:
+class TestDenseOutputEngine:
     def test_dense_output_engine(
         self, test_client: Client, test_dense_operator: AbstractOperator
     ):
