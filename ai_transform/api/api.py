@@ -93,12 +93,12 @@ class API:
         )
         self._headers = dict(
             Authorization=f"{self._credentials.project}:{self._credentials.api_key}",
-            workflows_core_version=__version__,
+            ai_transform_version=__version__,
         )
         if job_id is not None:
-            self._headers.update(workflows_core_job_id=job_id)
+            self._headers.update(ai_transform_job_id=job_id)
         if name is not None:
-            self._headers.update(workflows_core_name=name)
+            self._headers.update(ai_transform_name=name)
 
     @retry()
     def _list_datasets(self):

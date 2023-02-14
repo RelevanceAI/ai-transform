@@ -43,8 +43,8 @@ class Workflow:
 
         # Update the header
         self._engine.dataset.api._headers.update(
-            workflows_core_job_id=job_id,
-            workflows_core_name=name,
+            ai_transform_job_id=job_id,
+            ai_transform_name=name,
         )
 
         self._engine.job_id = job_id

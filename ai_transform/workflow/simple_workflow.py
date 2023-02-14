@@ -96,7 +96,7 @@ class SimpleWorkflow(API):
                     "workflow_name": self._workflow_name,
                     "worker_number": worker_number,
                     "result": result,
-                    "workflows_core_version": __version__,
+                    "ai_transform_version": __version__,
                 }
             )
         )

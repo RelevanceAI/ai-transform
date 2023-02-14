@@ -22,7 +22,7 @@ class BaseConfig(BaseModel):
 
     .. code-block::
 
-        from workflows_core.config import BaseConfig
+        from ai_transform.config import BaseConfig
 
         class SentimentConfig(BaseConfig):
             text_field: str
