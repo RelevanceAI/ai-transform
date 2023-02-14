@@ -136,7 +136,7 @@ def test_operator() -> AbstractOperator:
 
 
 @pytest.fixture(scope="function")
-def test_dense_operator() -> AbstractOperator:
+def test_dense_operator() -> DenseOperator:
     class TestDenseOperator(DenseOperator):
         def __init__(self, output_dataset_ids: Sequence[str]):
             self.output_dataset_ids = output_dataset_ids
@@ -146,7 +146,6 @@ def test_dense_operator() -> AbstractOperator:
             """
             Main transform function
             """
-
             for document in documents:
                 if "new_field" not in document:
                     document["new_field"] = 0
