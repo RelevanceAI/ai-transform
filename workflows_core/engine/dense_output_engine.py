@@ -104,8 +104,8 @@ class DenseOutputEngine(AbstractEngine):
                     result = dataset.bulk_insert(documents)
                     logger.debug({"dataset_id": dataset_id, "result": result})
 
-            # executes after everything wraps up
-            self.update_progress(batch_index + 1)
+                # executes after everything wraps up
+                self.update_progress(len(mini_batch))
 
         self.operator.post_hooks(self._dataset)
 

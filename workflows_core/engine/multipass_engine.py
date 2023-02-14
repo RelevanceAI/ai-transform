@@ -133,7 +133,7 @@ class MultiPassEngine(AbstractEngine):
             total=progress_bar_size,
         )
 
-        for operator_index, operator in enumerate(self.operators):
+        for operator in self.operators:
             operator.pre_hooks(self._dataset)
 
             if self.documents is None or len(self.documents) == 0:

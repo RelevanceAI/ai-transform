@@ -132,8 +132,7 @@ class StableEngine(AbstractEngine):
                     batch_to_insert += transformed_batch
 
             self.handle_upsert(batch_index, batch_to_insert)
-
-            self.update_progress(batch_index + 1)
+            self.update_progress(len(batch_to_insert))
 
         self.operator.post_hooks(self._dataset)
 
