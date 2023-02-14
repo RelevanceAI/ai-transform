@@ -54,8 +54,17 @@ def get_document_diff(old_document: Document, new_document: Document) -> Documen
         old_value = old_document.get(field, None)
         new_value = new_document.get(field, None)
         value_diff = is_different(field, old_value, new_value)
+
+        is_list = isinstance(new_value, list)
+        if is_list:
+            contains_chunks = all([isinstance(value, dict) for value in new_value])
+        else:
+            contains_chunks = False
+
+        is_chunk_field = is_list and contains_chunks
+
         if (
-            field not in old_fields or value_diff or field == "_id"
+            field not in old_fields or value_diff or field == "_id" or is_chunk_field
         ) and field not in pp_document.keys():
             pp_document[field] = new_value
 

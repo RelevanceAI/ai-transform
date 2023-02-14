@@ -2,16 +2,13 @@ import time
 import uuid
 import logging
 import requests
-import contextlib
 
 from json import JSONDecodeError
 from functools import wraps
 
-from http.client import HTTPConnection
 from typing import Any, Dict, List, Optional
 
 from workflows_core.helpers import format_logging_info
-from workflows_core.utils.json_encoder import json_encoder
 from workflows_core.utils import document
 from workflows_core.types import (
     Credentials,
