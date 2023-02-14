@@ -75,10 +75,11 @@ class WorkflowContextManager(API):
         if self._update_field_children:
             for operator in self._operators:
                 for input_field in operator._input_fields:
-                    self.set_field_children(
+                    res = self.set_field_children(
                         input_field=input_field, output_fields=operator._output_fields
                     )
-                
+                    logger.debug(format_logging_info(res))
+
                 self._dataset.api._update_workflow_pricing(
                     workflow_id=self._job_id,
                     step=self._workflow_name,
