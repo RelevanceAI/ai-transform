@@ -5,6 +5,7 @@ from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Union
 
 from workflows_core.api.api import API
+from workflows_core.api.helpers import process_token
 from workflows_core.types import Filter, Schema, GroupBy, Metric
 from workflows_core.errors import MaxRetriesError
 from workflows_core.dataset.field import (
@@ -15,6 +16,8 @@ from workflows_core.dataset.field import (
 from workflows_core.utils.document import Document
 from workflows_core.utils.document_list import DocumentList
 
+from concurrent.futures import ThreadPoolExecutor
+
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger()
@@ -24,6 +27,14 @@ class Dataset:
     def __init__(self, api: API, dataset_id: str):
         self._api = api
         self._dataset_id = dataset_id
+
+    @classmethod
+    def from_details(cls: "Dataset", dataset_id: str, token: str) -> "Dataset":
+        return cls(API(process_token(token)), dataset_id)
+
+    @property
+    def token(self):
+        return self._api._credentials.token
 
     def __getitem__(self, index: str) -> Field:
         if isinstance(index, str):
@@ -62,6 +73,36 @@ class Dataset:
 
     def delete(self):
         return self._api._delete_dataset(self._dataset_id)
+
+    def bulk_insert(
+        self,
+        documents: Union[List[Document], DocumentList],
+        insert_chunksize: int = 20,
+        max_workers: int = 2,
+        **kwargs
+    ):
+        def chunk_documents_with_kwargs(documents):
+            for i in range(len(documents) // insert_chunksize + 1):
+                yield {
+                    "documents": documents[
+                        i * insert_chunksize : (i + 1) * insert_chunksize
+                    ],
+                    **kwargs,
+                }
+
+        results = {}
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = executor.map(
+                lambda kw: self.insert_documents(**kw),
+                chunk_documents_with_kwargs(documents),
+            )
+
+        results = {"inserted": 0, "failed_documents": []}
+        for result in futures:
+            results["inserted"] += result["inserted"]
+            results["failed_documents"] += result["failed_documents"]
+
+        return results
 
     def insert_documents(
         self, documents: Union[List[Document], DocumentList], *args, **kwargs

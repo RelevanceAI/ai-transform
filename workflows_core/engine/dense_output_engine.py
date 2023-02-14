@@ -11,13 +11,11 @@
 """
 import logging
 
-from typing import Optional, List
+from typing import Optional, List, Sequence
 
-from workflows_core.helpers import format_logging_info
 from workflows_core.dataset.dataset import Dataset
-from workflows_core.operator.abstract_operator import AbstractOperator
+from workflows_core.operator.dense_operator import DenseOperator
 from workflows_core.engine.abstract_engine import AbstractEngine
-from workflows_core.utils.document import Document
 from workflows_core.types import Filter
 
 from tqdm.auto import tqdm
@@ -25,11 +23,11 @@ from tqdm.auto import tqdm
 logger = logging.getLogger(__file__)
 
 
-class StableEngine(AbstractEngine):
+class DenseOutputEngine(AbstractEngine):
     def __init__(
         self,
         dataset: Dataset = None,
-        operator: AbstractOperator = None,
+        operator: DenseOperator = None,
         filters: Optional[List[Filter]] = None,
         select_fields: Optional[List[str]] = None,
         pull_chunksize: Optional[int] = 3000,
@@ -44,7 +42,6 @@ class StableEngine(AbstractEngine):
         limit_documents: Optional[int] = None,
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
-        catch_errors: bool = True,
     ):
         """
         Parameters
@@ -54,11 +51,8 @@ class StableEngine(AbstractEngine):
             the number of documents that are downloaded
 
         """
-        if not refresh:
-            output_field_filters = []
-            for output_field in operator.output_fields:
-                output_field_filters.append(dataset[output_field].not_exists())
-            filters += [{"filter_type": "or", "condition_value": output_field_filters}]
+
+        self.token = dataset.token
 
         super().__init__(
             dataset=dataset,
@@ -80,31 +74,6 @@ class StableEngine(AbstractEngine):
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
 
-        self._successful_chunks = 0
-        self._catch_errors = catch_errors
-
-    def handle_upsert(self, batch_index: int, batch_to_insert: List[Document]):
-        if self.output_to_status:
-            # Store in output documents
-            self.extend_output_documents(
-                [document.to_json() for document in batch_to_insert]
-            )
-        else:
-            # Store in dataset
-            # We want to make sure the schema updates
-            # on the first chunk upserting
-            if batch_index < self.MAX_SCHEMA_UPDATE_LIMITER:
-                ingest_in_background = False
-            else:
-                ingest_in_background = True
-
-            result = self.update_chunk(
-                batch_to_insert,
-                update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
-                ingest_in_background=ingest_in_background,
-            )
-            logger.debug(format_logging_info(result))
-
     def apply(self) -> None:
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
@@ -113,7 +82,10 @@ class StableEngine(AbstractEngine):
 
         self.update_progress(0)
 
+        output_dataset_ids = []
+
         self.operator.pre_hooks(self._dataset)
+
         for batch_index, mega_batch in enumerate(
             tqdm(
                 iterator,
@@ -122,18 +94,27 @@ class StableEngine(AbstractEngine):
                 total=self.num_chunks,
             )
         ):
-            batch_to_insert: List[Document] = []
-
             for mini_batch in AbstractEngine.chunk_documents(
                 self._transform_chunksize, mega_batch
             ):
-                transformed_batch = self._operate(mini_batch)
-                if transformed_batch is not None:
-                    batch_to_insert += transformed_batch
+                document_mapping = self.operator(mini_batch)
+                for dataset_id, documents in document_mapping.items():
+                    output_dataset_ids.append(dataset_id)
+                    dataset = Dataset.from_details(dataset_id, self.token)
+                    result = dataset.bulk_insert(documents)
+                    logger.debug({"dataset_id": dataset_id, "result": result})
 
-            self.handle_upsert(batch_index, batch_to_insert)
-            self.update_progress(len(batch_to_insert))
+                # executes after everything wraps up
+                self.update_progress(len(mini_batch))
 
         self.operator.post_hooks(self._dataset)
 
+        output_datasets = self.datasets_from_ids(output_dataset_ids)
+        self.operator.store_dataset_relationship(self.dataset, output_datasets)
+
         self.set_success_ratio()
+
+    def datasets_from_ids(self, dataset_ids: Sequence[str]) -> Sequence[Dataset]:
+        return [
+            Dataset.from_details(dataset_id, self.token) for dataset_id in dataset_ids
+        ]

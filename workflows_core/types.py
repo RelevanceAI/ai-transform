@@ -16,6 +16,10 @@ class Credentials(NamedTuple):
     region: str
     firebase_uid: str
 
+    @property
+    def token(self):
+        return f"{self.project}:{self.api_key}:{self.region}:{self.firebase_uid}"
+
 
 GroupBy = NewType("GroupBy", List[Dict[str, Any]])
 Metric = NewType("Metric", List[Dict[str, Any]])

@@ -109,7 +109,7 @@ class SmallBatchStableEngine(AbstractEngine):
 
         batch = []
 
-        self.operator.pre_hooks(self._dataset)
+        self.operator.pre_hooks(self.dataset)
 
         progress = tqdm(
             desc=repr(self.operator),
@@ -126,11 +126,9 @@ class SmallBatchStableEngine(AbstractEngine):
                 upload_index += 1
                 batch = []
 
-            progress.update(len(batch))
+        self.operator.post_hooks(self.dataset)
 
         self._transform_and_upsert(upload_index, batch)
         progress.update(len(batch))
 
         self.set_success_ratio()
-
-        self.operator.post_hooks(self._dataset)
