@@ -27,14 +27,12 @@ class TestDataset2:
     def test_schema(self, full_dataset: Dataset):
         documents = mock_documents(5)
         keys = documents[0].keys()
+        keys = [
+            ".".join([sf for sf in nested_field.split(".") if not sf.isdigit()])
+            for nested_field in keys
+        ]
         schema = full_dataset.schema
-        assert all(
-            [
-                schema_key in keys
-                for schema_key in schema
-                if schema_key not in {"insert_date_"}
-            ]
-        )
+        assert all([key in schema for key in keys if key not in ["_id"]])
 
     def test_series(self, full_dataset: Dataset):
         schema = full_dataset.schema

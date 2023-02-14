@@ -1,4 +1,4 @@
-from copy import deepcopy
+from workflows_core.utils import Document
 from workflows_core.utils import DocumentList
 
 
@@ -20,3 +20,15 @@ class TestDocumentChunk:
         new_labels = ["new_value"]
         doc.set_chunk(chunk_field="_chunk_", field="set-label", values=new_labels)
         assert doc.get_chunk("_chunk_", "set-label") == new_labels
+
+    def test_set_chunk_index(self):
+        d = Document()
+        d["a.b"] = [{"a": 3}, {"a": 3}]
+        assert len(d["a.b"]) == 2
+
+        d["a.b.1.a"] = 4
+        assert len(d["a.b"]) == 2
+        assert isinstance(d["a.b.0"], dict)
+        assert isinstance(d["a.b.1"], dict)
+        assert d["a.b.1.a"] == 4
+        assert d["a.b.1"]

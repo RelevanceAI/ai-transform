@@ -20,34 +20,35 @@ class Document(UserDict):
             super().__setitem__(key, value)
         else:
             obj = self.data
-            for curr_field, next_field in zip(fields, fields[1:] + [None]):
-                if next_field is not None:
-                    if curr_field.isdigit():
-                        curr_field = int(curr_field)
-                        try:
-                            obj = obj[curr_field]
-                        except:
-                            if not len(obj):
-                                obj.append({})
-                            if curr_field >= len(obj):
-                                curr_field = len(obj) - 1
-                            obj = obj[curr_field]
-                        continue
+            for curr_field, next_field in zip(fields, fields[1:]):
+                if curr_field.isdigit():
+                    curr_field = int(curr_field)
 
+                if (isinstance(obj, dict) and (curr_field not in obj)) or (
+                    isinstance(obj, list) and (curr_field >= len(obj))
+                ):
                     if next_field.isdigit():
-                        curr_val = obj.get(curr_field, [{}])
-                        next_val = curr_val[min(int(next_field), len(curr_val) - 1)]
-                        if not isinstance(next_val.get(next_field), list):
-                            obj[curr_field] = [next_val]
-                            obj = obj[curr_field]
+                        obj[curr_field] = [{}]
+                    else:
+                        if isinstance(curr_field, int):
+                            curr_field = min(len(obj) - 1, int(curr_field))
+                            if next_field not in obj[curr_field]:
+                                obj[curr_field] = {}
+                        else:
+                            obj[curr_field] = {}
 
-                    elif not next_field.isdigit() and not isinstance(
-                        obj.get(curr_field, {}).get(next_field), dict
-                    ):
-                        obj[curr_field] = {}
-                        obj = obj[curr_field]
+                try:
+                    obj = obj[curr_field]
+                except IndexError:
+                    obj = obj[0]
+                except KeyError:
+                    obj = obj[curr_field]
 
-        obj[fields[-1]] = value
+            if fields[-1].isdigit():
+                field = min(len(obj) - 1, int(fields[-1]))
+            else:
+                field = fields[-1]
+            obj[field] = value
 
     def __getitem__(self, key: Any) -> Any:
         try:
@@ -56,11 +57,17 @@ class Document(UserDict):
             return super().__getitem__(key)
         else:
             obj = self.data
-            for curr_field in fields[:-1]:
-                if curr_field.isdigit():
-                    curr_field = int(curr_field)
-                obj = obj[curr_field]
-            return obj[fields[-1]]
+            for field in fields[:-1]:
+                if field.isdigit():
+                    field = int(field)
+
+                obj = obj[field]
+
+            if fields[-1].isdigit():
+                field = min(len(obj) - 1, int(fields[-1]))
+            else:
+                field = fields[-1]
+            return obj[field]
 
     def get(self, key: Any, default: Optional[Any] = None) -> Any:
         try:
@@ -71,7 +78,7 @@ class Document(UserDict):
     def set(self, key: Any, value: Any) -> None:
         self.__setitem__(key, value)
 
-    def keys(self, detailed: bool = True):
+    def keys(self):
         def get_keys(dictionary: Dict[str, Any], prefix=""):
             keys = []
             for key, value in dictionary.items():
@@ -96,16 +103,6 @@ class Document(UserDict):
             for i in range(1, len(subkeys)):
                 keys_to_add.add(".".join(subkeys[:i]))
         keys.update(keys_to_add)
-
-        if detailed:
-            keys_to_add = set()
-            for key in keys:
-                subkeys = key.split(".")
-                for i in range(1, len(subkeys) + 1):
-                    keys_to_add.add(
-                        ".".join([k for k in subkeys[:i] if not k.isdigit()])
-                    )
-            keys.update(keys_to_add)
 
         return list(sorted(keys))
 
