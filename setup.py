@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-from workflows_core import __version__
+from ai_transform import __version__
 
 requirements = [
     "tqdm>=4.49.0",
@@ -24,7 +24,7 @@ example_test_requirements = core_test_requirements + [
 ]
 
 setup(
-    name="RelevanceAI Workflows Core",
+    name="ai_transform",
     version=__version__,
     url="https://tryrelevance.com/",
     author="Relevance AI",

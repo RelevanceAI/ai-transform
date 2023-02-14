@@ -1,5 +1,5 @@
 from copy import deepcopy
-from workflows_core.utils import DocumentList
+from ai_transform.utils import DocumentList
 
 
 class TestDocumentChunk:

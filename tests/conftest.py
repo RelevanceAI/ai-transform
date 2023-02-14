@@ -9,20 +9,20 @@ import time
 
 from typing import List, Dict
 
-from workflows_core.api.client import Client
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.api.helpers import process_token
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.utils.document import Document
-from workflows_core.utils.document_list import DocumentList
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.utils.example_documents import (
+from ai_transform.api.client import Client
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.api.helpers import process_token
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.utils.document import Document
+from ai_transform.utils.document_list import DocumentList
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.utils.example_documents import (
     mock_documents,
     static_documents,
     tag_documents,
 )
-from workflows_core.utils.keyphrase import Keyphrase
+from ai_transform.utils.keyphrase import Keyphrase
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)

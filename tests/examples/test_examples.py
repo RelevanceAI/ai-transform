@@ -4,12 +4,12 @@ from examples.fail_example import BadOperator
 from examples.workflows.sentiment_example import SentimentOperator
 from examples.workflows.clustering_example import ClusterOperator
 
-from workflows_core.api.client import Client
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.engine.small_batch_stable_engine import SmallBatchStableEngine
-from workflows_core.workflow.abstract_workflow import Workflow
-from workflows_core.engine.cluster_engine import InMemoryEngine
-from workflows_core.workflow.helpers import decode_workflow_token
+from ai_transform.api.client import Client
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.engine.small_batch_stable_engine import SmallBatchStableEngine
+from ai_transform.workflow.abstract_workflow import Workflow
+from ai_transform.engine.cluster_engine import InMemoryEngine
+from ai_transform.workflow.helpers import decode_workflow_token
 
 
 def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
@@ -70,7 +70,7 @@ def test_sentiment_documents(test_sentiment_workflow_document_token: str):
     worker_number = config.get("worker_number", 2)
     send_email = config.get("send_email", False)
     additional_information = config.get("additional_information", "")
-    from workflows_core.api.client import Client
+    from ai_transform.api.client import Client
 
     client = Client(token)
 
