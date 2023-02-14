@@ -100,12 +100,12 @@ class Workflow:
                 success_ratio = self.engine._success_ratio
                 if success_ratio is None:
                     success_ratio = 1
-                fail_message = WORKFLOW_FAIL_MESSAGE.format(
-                    100 * success_ratio,
-                    100 * self.success_threshold,
-                )
 
                 if success_ratio is not None and success_ratio < self.success_threshold:
+                    fail_message = WORKFLOW_FAIL_MESSAGE.format(
+                        100 * success_ratio,
+                        100 * self.success_threshold,
+                    )
                     self._api._set_workflow_status(
                         job_id=self._job_id,
                         workflow_name=self._name,
