@@ -78,17 +78,7 @@ class DenseOutputEngine(AbstractEngine):
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
-        if self.documents is None or len(self.documents) == 0:
-            # Iterate through dataset
-            iterator = self.iterate()
-        else:
-            # Iterate through passed in documents
-            iterator = self.chunk_documents(
-                chunksize=min(100, len(self.documents)), documents=self.documents
-            )
-
-        successful_chunks = 0
-        error_logs = []
+        iterator = self.get_iterator()
 
         self.update_progress(0)
 
@@ -115,20 +105,14 @@ class DenseOutputEngine(AbstractEngine):
                     logger.debug({"dataset_id": dataset_id, "result": result})
 
             # executes after everything wraps up
-            if self.job_id:
-                self.update_progress(batch_index + 1)
-
-            self.operator.post_hooks(self._dataset)
+            self.update_progress(batch_index + 1)
 
         self.operator.post_hooks(self._dataset)
 
         output_datasets = self.datasets_from_ids(output_dataset_ids)
         self.operator.store_dataset_relationship(self.dataset, output_datasets)
 
-        self._error_logs = error_logs
-        if self.num_chunks > 0:
-            self.set_success_ratio(successful_chunks)
-            logger.debug({"success_ratio": self._success_ratio})
+        self.set_success_ratio()
 
     def datasets_from_ids(self, dataset_ids: Sequence[str]) -> Sequence[Dataset]:
         return [
