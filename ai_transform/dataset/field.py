@@ -196,7 +196,7 @@ class Field:
             f"`get_all_centroids` not available for non-vector fields"
         )
 
-    def create_centroid_documents(self, labels: Union[np.ndarray, List[int]]):
+    def create_centroid_documents(self):
         raise NotImplementedError(
             f"`create_centroid_documents` not available for non-vector fields"
         )
@@ -351,22 +351,32 @@ class ClusterField(Field):
             filters=filters if filters is not None else [],
         )
 
-    def create_centroid_documents(self, labels: List[int]):
-        if not isinstance(labels, np.ndarray):
-            labels = np.array(labels)
+    def create_centroid_documents(self):
 
-        documents = self._dataset.get_all_documents(select_fields=[self._cluster_field])
+        documents = self._dataset.get_all_documents(
+            select_fields=[self._cluster_field, self._field]
+        )
         documents = documents["documents"]
+
         vectors = np.array([document[self._cluster_field] for document in documents])
 
-        n_clusters = len(np.unique(labels))
+        labels = [document[self._field] for document in documents]
+
+        label_map = {}
+        for label in labels:
+            if label not in label_map:
+                label_map[label] = len(label_map)
+
+        n_clusters = len(label_map)
         centroid_documents = []
 
         selected_vectors: np.ndarray
         centroid_vector: np.ndarray
 
+        label_indices = np.array([label_map[label] for label in labels])
+
         for index in range(n_clusters):
-            selected_vectors = vectors[labels == index]
+            selected_vectors = vectors[label_indices == index]
             centroid_vector = selected_vectors.mean(0)
 
             centroid_document = {
