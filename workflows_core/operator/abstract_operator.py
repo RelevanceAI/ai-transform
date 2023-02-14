@@ -48,18 +48,16 @@ def is_different(field: str, value1: Any, value2: Any) -> bool:
 
 def get_document_diff(old_document: Document, new_document: Document) -> Document:
     pp_document = Document()
-    new_fields = new_document.keys(detailed=False)
-    old_fields = old_document.keys(detailed=False)
+    new_fields = new_document.keys()
+    old_fields = old_document.keys()
     for field in new_fields:
-        *_, last_field = field.split(".")
-        if not last_field.isdigit():
-            old_value = old_document.get(field, None)
-            new_value = new_document.get(field, None)
-            value_diff = is_different(field, old_value, new_value)
-            if (
-                field not in old_fields or value_diff or field == "_id"
-            ) and field not in pp_document.keys():
-                pp_document[field] = new_value
+        old_value = old_document.get(field, None)
+        new_value = new_document.get(field, None)
+        value_diff = is_different(field, old_value, new_value)
+        if (
+            field not in old_fields or value_diff or field == "_id"
+        ) and field not in pp_document.keys():
+            pp_document[field] = new_value
 
     if len(pp_document.keys()) > 1:
         return pp_document
@@ -102,7 +100,6 @@ class AbstractOperator(ABC):
             document_diff = get_document_diff(old_document, new_document)
             if document_diff:
                 batch.append(document_diff)
-        # import pdb;pdb.set_trace()
         return DocumentList(batch)
 
     # Adding this for backwards compatibility
@@ -146,7 +143,7 @@ class AbstractOperator(ABC):
 
     @property
     def n_processed_pricing(self):
-        if hasattr(self, '_n_processed_pricing'):
+        if hasattr(self, "_n_processed_pricing"):
             return self._n_processed_pricing
         return 0
 
