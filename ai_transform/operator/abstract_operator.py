@@ -79,6 +79,22 @@ class AbstractOperator(ABC):
         output_fields: Optional[List[str]] = None,
         enable_postprocess: Optional[bool] = True,
     ):
+        if input_fields is not None:
+            assert isinstance(input_fields, list), "`input_fields` must be of type list"
+            for field_index, input_field in enumerate(input_fields):
+                assert isinstance(
+                    input_field, str
+                ), f"input_field at index {field_index} of `input_fields` is not of type string"
+
+        if output_fields is not None:
+            assert isinstance(
+                output_fields, list
+            ), "`output_fields`  must be of type list"
+            for field_index, output_field in enumerate(output_fields):
+                assert isinstance(
+                    output_field, str
+                ), f"output_field at index {field_index} of `output_fields` is not of type string"
+
         self._input_fields = input_fields
         self._output_fields = output_fields
         self._enable_postprocess = enable_postprocess
