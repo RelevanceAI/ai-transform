@@ -12,7 +12,7 @@ from ai_transform.workflow.simple_workflow import SimpleWorkflow
 class Client:
     def __init__(self, token: str) -> None:
 
-        self.credentials = process_token(token)
+        self._credentials = process_token(token)
         self._token = token
         self._api = API(credentials=self.credentials)
 
@@ -25,7 +25,7 @@ class Client:
 
     @property
     def credentials(self):
-        return self.credentials
+        return self._credentials
 
     @property
     def api(self) -> API:
