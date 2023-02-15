@@ -165,7 +165,7 @@ class AbstractOperator(ABC):
 
         output = self.transform(documents=documents)
         client = Client(authorization_token)
-        return client._api._set_workflow_status(
+        return client.api._set_workflow_status(
             job_id=job_id,
             workflow_name=workflow_name,
             additional_information=additional_information,

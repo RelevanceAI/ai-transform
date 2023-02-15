@@ -37,7 +37,7 @@ class WorkflowContextManager(API):
         email: dict = None,
         mark_as_complete_after_polling: bool = False,
     ) -> None:
-        super().__init__(dataset.api._credentials, job_id, workflow_name)
+        super().__init__(dataset.api.credentials, job_id, workflow_name)
 
         self._engine = engine
         self._dataset = dataset

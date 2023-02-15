@@ -25,7 +25,7 @@ logger = logging.getLogger()
 
 class Dataset:
     def __init__(self, api: API, dataset_id: str):
-        self._api = api
+        self.api = api
         self._dataset_id = dataset_id
 
     @classmethod
@@ -34,7 +34,7 @@ class Dataset:
 
     @property
     def token(self):
-        return self._api._credentials.token
+        return self.api.credentials.token
 
     def __getitem__(self, index: str) -> Field:
         if isinstance(index, str):
@@ -59,20 +59,20 @@ class Dataset:
 
     @property
     def schema(self) -> Schema:
-        return self._api._get_schema(self._dataset_id)
+        return self.api._get_schema(self._dataset_id)
 
     @property
     def api(self) -> API:
-        return self._api
+        return self.api
 
     def health(self) -> Dict[str, Any]:
-        return self._api._get_health(self._dataset_id)
+        return self.api._get_health(self._dataset_id)
 
     def create(self):
-        return self._api._create_dataset(self._dataset_id)
+        return self.api._create_dataset(self._dataset_id)
 
     def delete(self):
-        return self._api._delete_dataset(self._dataset_id)
+        return self.api._delete_dataset(self._dataset_id)
 
     def bulk_insert(
         self,
@@ -113,7 +113,7 @@ class Dataset:
             for index in range(len(documents)):
                 if hasattr(documents[index], "to_json"):
                     documents[index] = documents[index].to_json()
-        return self._api._bulk_insert(
+        return self.api._bulk_insert(
             dataset_id=self._dataset_id, documents=documents, *args, **kwargs
         )
 
@@ -130,7 +130,7 @@ class Dataset:
             for index in range(len(documents)):
                 if hasattr(documents[index], "to_json"):
                     documents[index] = documents[index].to_json()
-        return self._api._bulk_update(
+        return self.api._bulk_update(
             dataset_id=self._dataset_id,
             documents=documents,
             insert_date=insert_date,
@@ -150,7 +150,7 @@ class Dataset:
         after_id: Optional[List] = None,
         worker_number: int = 0,
     ) -> Dict[str, Any]:
-        res = self._api._get_where(
+        res = self.api._get_where(
             dataset_id=self._dataset_id,
             page_size=page_size,
             filters=filters,
@@ -226,12 +226,12 @@ class Dataset:
         """
         Get length of dataset, usually used with filters
         """
-        return self._api._get_where(
+        return self.api._get_where(
             dataset_id=self._dataset_id, page_size=1, *args, **kwargs
         )["count"]
 
     def insert_metadata(self, metadata: Dict[str, Any]):
-        return self._api._update_dataset_metadata(
+        return self.api._update_dataset_metadata(
             dataset_id=self._dataset_id,
             metadata=metadata,
         )
@@ -240,16 +240,16 @@ class Dataset:
         old_metadata: dict = self.get_metadata()["results"]
         # You want the new avlues to overwrite the old ones
         old_metadata.update(metadata)
-        return self._api._update_dataset_metadata(
+        return self.api._update_dataset_metadata(
             dataset_id=self._dataset_id,
             metadata=metadata,
         )
 
     def get_metadata(self) -> Dict[str, Any]:
-        return self._api._get_metadata(dataset_id=self._dataset_id)
+        return self.api._get_metadata(dataset_id=self._dataset_id)
 
     def insert_local_medias(self, file_paths: List[str]) -> List[str]:
-        presigned_urls = self._api._get_file_upload_urls(
+        presigned_urls = self.api._get_file_upload_urls(
             self.dataset_id,
             files=file_paths,
         )
@@ -260,7 +260,7 @@ class Dataset:
             with open(file_path, "rb") as fn_byte:
                 media_content = bytes(fn_byte.read())
             urls.append(url)
-            response = self._api._upload_media(
+            response = self.api._upload_media(
                 presigned_url=upload_url,
                 media_content=media_content,
             )
@@ -274,7 +274,7 @@ class Dataset:
         page_size: int = 10000,
         asc: bool = False,
     ):
-        return self._api._facets(
+        return self.api._facets(
             dataset_id=self.dataset_id,
             fields=fields,
             data_interval=data_interval,
@@ -283,7 +283,7 @@ class Dataset:
         )
 
     def list_field_children(self, page: int = 0, page_size: int = 10000):
-        return self._api._list_field_children(
+        return self.api._list_field_children(
             dataset_id=self._dataset_id, page=page, page_size=page_size
         )
 
@@ -298,7 +298,7 @@ class Dataset:
         dataset_ids: List[str] = None,
         filters: List[Filter] = None,
     ):
-        return self._api._aggregate(
+        return self.api._aggregate(
             dataset_id=self._dataset_id,
             page_size=page_size,
             page=page,
