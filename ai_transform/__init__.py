@@ -1,5 +1,7 @@
 __version__ = "0.23.1"
 
+from ai_transform.timer import *
+
 
 def add_config_paths(verbose: bool = False):
     # Support all config paths

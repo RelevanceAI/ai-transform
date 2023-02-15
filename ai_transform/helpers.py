@@ -1,4 +1,3 @@
-import json
 import pprint
 
 from typing import Dict, Any
