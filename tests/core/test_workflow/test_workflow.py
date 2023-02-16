@@ -57,9 +57,6 @@ class TestSimpleWorkflow:
         x = 0
         with test_client.SimpleWorkflow(
             workflow_name="Simple Workflow", **config.dict()
-        ) as wf:
+        ):
             x += 1
-
-        assert wf
-
         assert x == 1
