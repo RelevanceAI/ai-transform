@@ -519,12 +519,17 @@ class API:
         step: str = "Workflow",
         n_processed: int = 0,
         n_total: int = 0,
+        n_processed_pricing: Optional[int] = None,  # optional parameter
     ):
         """
         Tracks Workflow Progress
         """
         if worker_number is None:
             worker_number = 0
+
+        if n_processed_pricing:
+            params["n_processed_pricing "] = n_processed_pricing
+
         params = dict(
             worker_number=worker_number,
             step=step,
