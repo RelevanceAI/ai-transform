@@ -84,11 +84,7 @@ class WorkflowContextManager(API):
         logger.exception(exc_value)
         self._update_workflow_metadata(
             job_id=self._job_id,
-            metadata=dict(
-                _error_=dict(
-                    exc_value=pprint.pformat(exc_value),
-                ),
-            ),
+            metadata={},
         )
         return False
 

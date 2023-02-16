@@ -1,4 +1,3 @@
-import pprint
 import logging
 
 from inspect import Traceback
@@ -58,12 +57,7 @@ class SimpleWorkflow(API):
             self._set_status(status=self.FAILED, worker_number=self._worker_number)
             self._update_workflow_metadata(
                 job_id=self._job_id,
-                metadata=dict(
-                    _error_=dict(
-                        exc_value=pprint.pformat(exc_value),
-                        traceback=traceback.format_exc(),
-                    ),
-                ),
+                metadata={},
             )
             return False
         else:
