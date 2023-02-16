@@ -45,6 +45,19 @@ class DocumentList(UserList):
         flat_list = itertools.chain(*list_of_lists)
         return list(flat_list)
 
+    def set_chunk_values(
+        self,
+        chunk_field: str,
+        output_field: str,
+        chunk_values: List[List[Any]],
+        sortby: str = "_order_",
+    ):
+        for document, chunk_labels in zip(self.data, chunk_values):
+            chunk = document[chunk_field]
+            chunk = list(sorted(chunk, key=lambda x: x[sortby]))
+            for subchunk, label in zip(chunk, chunk_labels):
+                subchunk[output_field] = label
+
     def set_chunks_from_flat(self, chunk_field: str, field: str, values: list):
         """
         Set chunks from a flat list.
