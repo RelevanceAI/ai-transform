@@ -116,7 +116,15 @@ class SimpleWorkflow(API):
 
         n_processed_pricing = _TIMER.stop()
 
-        self._update_workflow_pricing(
+        return self._update_workflow_pricing(
+            workflow_id=self._job_id,
+            step=self._workflow_name,
+            worker_number=self._worker_number,
+            n_processed_pricing=n_processed_pricing,
+        )
+
+    def update_workflow_pricing(self, n_processed_pricing: float):
+        return self._update_workflow_pricing(
             workflow_id=self._job_id,
             step=self._workflow_name,
             worker_number=self._worker_number,

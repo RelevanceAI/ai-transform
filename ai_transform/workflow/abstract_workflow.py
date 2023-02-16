@@ -133,6 +133,14 @@ class Workflow:
             n_processed_pricing=n_processed_pricing,
         )
 
+    def update_workflow_pricing(self, n_processed_pricing: float):
+        return self._api._update_workflow_pricing(
+            workflow_id=self._job_id,
+            step=self._name,
+            worker_number=self._engine.worker_number,
+            n_processed_pricing=n_processed_pricing,
+        )
+
     def get_status(self):
         return self._api._get_workflow_status(self._job_id)
 
