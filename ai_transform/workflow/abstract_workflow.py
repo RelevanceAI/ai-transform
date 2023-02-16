@@ -122,9 +122,9 @@ class Workflow:
             logger.exception(e)
 
     def calculate_n_processed_pricing_from_timer(self):
-        from ai_transform import timer
+        from ai_transform import _TIMER
 
-        n_processed_pricing = timer.stop()
+        n_processed_pricing = _TIMER.stop()
 
         self._api._update_workflow_pricing(
             workflow_id=self._job_id,

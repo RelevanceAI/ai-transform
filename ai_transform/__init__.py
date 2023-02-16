@@ -3,8 +3,8 @@ __version__ = "0.23.1"
 from ai_transform.timer import Timer
 
 
-timer = Timer()
-timer.start()
+_TIMER = Timer()
+_TIMER.start()
 
 
 def add_config_paths(verbose: bool = False):
