@@ -46,6 +46,7 @@ class TestWorkflow:
         )
         res = workflow.run()
         assert res is None
+        assert workflow.calculate_n_processed_pricing_from_timer() > 0
 
 
 class TestSimpleWorkflow:
@@ -57,7 +58,8 @@ class TestSimpleWorkflow:
         x = 0
         with test_client.SimpleWorkflow(
             workflow_name="Simple Workflow", **config.dict()
-        ):
+        ) as wf:
             x += 1
+            assert wf.calculate_n_processed_pricing_from_timer() > 0
 
         assert x == 1

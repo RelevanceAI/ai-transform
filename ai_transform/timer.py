@@ -8,7 +8,7 @@ class Timer:
 
     @property
     def timer_value(self) -> float:
-        return self._start_time - self._finish_time
+        return self._finish_time - self._start_time
 
     def start(self) -> None:
         self._start_time = time.time()
