@@ -1,17 +1,15 @@
+import os
 import time
-
-START_TIME = 0
-FINISH_TIME = 0
 
 
 class Timer:
     def start(self) -> None:
-        global START_TIME
-        if START_TIME == 0:
-            START_TIME = time.time()
+        if os.getenv("_WORKFLOW_START_TIME") == 0:
+            os.environ["_WORKFLOW_START_TIME"] = time.time()
 
     def stop(self) -> float:
-        global FINISH_TIME
-        if FINISH_TIME == 0:
-            FINISH_TIME = time.time()
-            return FINISH_TIME - START_TIME
+        if os.getenv("_WORKFLOW_FINISH_TIME") == 0:
+            os.environ["_WORKFLOW_FINISH_TIME"] = time.time()
+            _WORKFLOW_START_TIME = os.getenv("_WORKFLOW_START_TIME")
+            _WORKFLOW_FINISH_TIME = os.getenv("_WORKFLOW_FINISH_TIME")
+            return _WORKFLOW_FINISH_TIME - _WORKFLOW_START_TIME
