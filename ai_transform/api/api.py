@@ -558,6 +558,9 @@ class API:
         abstracted away for now due to the fact that the pricing is actually
         something outside of progress.
         """
+        if worker_number is None:
+            worker_number = 0
+
         params = dict(
             worker_number=worker_number,
             step=step,
