@@ -121,7 +121,26 @@ class Workflow:
         except WorkflowFailedError as e:
             logger.exception(e)
 
-    def calculate_n_processed_pricing_from_timer(self):
+        else:
+            n_processed_pricing = self._calculate_pricing()
+            if n_processed_pricing is not None:
+                self.update_workflow_pricing(n_processed_pricing)
+
+    def _calculate_pricing(self):
+        n_processed_pricing = 0
+        is_automatic = False
+
+        for operator in self.operators:
+            is_automatic &= not operator.is_operator_based_pricing
+            if operator.is_operator_based_pricing:
+                n_processed_pricing += operator.n_processed_pricing
+
+        if is_automatic:
+            self._calculate_n_processed_pricing_from_timer()
+        else:
+            return None
+
+    def _calculate_n_processed_pricing_from_timer(self):
         from ai_transform import _TIMER
 
         n_processed_pricing = _TIMER.stop()

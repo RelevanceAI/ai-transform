@@ -98,6 +98,7 @@ class AbstractOperator(ABC):
         self._input_fields = input_fields
         self._output_fields = output_fields
         self._enable_postprocess = enable_postprocess
+        self._n_processed_pricing = None
 
     def toggle_postprocess(self):
         self._enable_postprocess ^= True
@@ -181,3 +182,18 @@ class AbstractOperator(ABC):
 
     def post_hooks(self, dataset: Dataset):
         pass
+
+    @property
+    def is_operator_based_pricing(self):
+        return self._n_processed_pricing is not None and self._n_processed_pricing > 0
+
+    @property
+    def n_processed_pricing(self):
+        if self._n_processed_pricing is not None:
+            return self._n_processed_pricing
+        else:
+            return 0
+
+    @n_processed_pricing.setter
+    def n_processed_pricing(self, value):
+        self._n_processed_pricing = value

@@ -46,7 +46,7 @@ class TestWorkflow:
         )
         res = workflow.run()
         assert res is None
-        assert workflow.calculate_n_processed_pricing_from_timer() > 0
+        assert workflow._calculate_n_processed_pricing_from_timer() > 0
 
 
 class TestSimpleWorkflow:
