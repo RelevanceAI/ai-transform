@@ -1,5 +1,5 @@
 import logging
-import traceback
+
 from typing import Any
 
 from ai_transform.engine.abstract_engine import AbstractEngine
