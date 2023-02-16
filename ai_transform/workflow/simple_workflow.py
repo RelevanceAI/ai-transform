@@ -110,3 +110,15 @@ class SimpleWorkflow(API):
         return self._update_workflow_progress(
             self._job_id, self._worker_number, self._workflow_name, n_processed, n_total
         )
+
+    def calculate_n_processed_pricing_from_timer(self):
+        from ai_transform import _TIMER
+
+        n_processed_pricing = _TIMER.stop()
+
+        self._update_workflow_pricing(
+            workflow_id=self._job_id,
+            step=self._workflow_name,
+            worker_number=self._worker_number,
+            n_processed_pricing=n_processed_pricing,
+        )
