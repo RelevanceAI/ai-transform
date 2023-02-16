@@ -65,7 +65,11 @@ class AbstractEngine(ABC):
                             warnings.warn(f"Not all fields were found. Missing {field}")
 
         self._dataset = dataset
+
+        if any(["_chunk_" in field for field in select_fields]):
+            select_fields += ["_chunk_"]
         self._select_fields = select_fields
+
         self.worker_number = worker_number
         self.total_workers = total_workers
         if filters is None:
