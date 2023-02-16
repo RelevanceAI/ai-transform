@@ -25,8 +25,12 @@ logger = logging.getLogger()
 
 class Dataset:
     def __init__(self, api: API, dataset_id: str):
-        self.api = api
+        self._api = api
         self._dataset_id = dataset_id
+
+    @property
+    def api(self) -> API:
+        return self._api
 
     @classmethod
     def from_details(cls: "Dataset", dataset_id: str, token: str) -> "Dataset":
@@ -60,10 +64,6 @@ class Dataset:
     @property
     def schema(self) -> Schema:
         return self.api._get_schema(self._dataset_id)
-
-    @property
-    def api(self) -> API:
-        return self.api
 
     def health(self) -> Dict[str, Any]:
         return self.api._get_health(self._dataset_id)
