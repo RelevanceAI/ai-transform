@@ -121,6 +121,18 @@ class Workflow:
         except WorkflowFailedError as e:
             logger.exception(e)
 
+    def calculate_n_processed_pricing_from_timer(self):
+        from ai_transform import timer
+
+        n_processed_pricing = timer.stop()
+
+        self._api._update_workflow_pricing(
+            workflow_id=self._job_id,
+            step=self._name,
+            worker_number=self._engine.worker_number,
+            n_processed_pricing=n_processed_pricing,
+        )
+
     def get_status(self):
         return self._api._get_workflow_status(self._job_id)
 
