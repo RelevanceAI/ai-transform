@@ -66,8 +66,13 @@ class AbstractEngine(ABC):
 
         self._dataset = dataset
 
-        if any(["_chunk_" in field for field in select_fields]):
-            select_fields += ["_chunk_"]
+        if select_fields is not None:
+            for field in select_fields:
+                if "_chunk_" in field:
+                    chunk_index = field.index("_chunk_") + len("_chunk_")
+                    chunk_field = field[:chunk_index]
+                    select_fields += [chunk_field]
+
         self._select_fields = select_fields
 
         self.worker_number = worker_number
