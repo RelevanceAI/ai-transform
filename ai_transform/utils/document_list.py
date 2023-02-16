@@ -50,13 +50,28 @@ class DocumentList(UserList):
         chunk_field: str,
         output_field: str,
         chunk_values: List[List[Any]],
-        sortby: str = "_order_",
+        sortby: str = None,
     ):
+        if sortby is None:
+            if any("_order_" in key for key in self.data[0].keys()):
+                sortby = "_order_"
+
+        assert len(chunk_values) == len(
+            self.data
+        ), "The length of your values array should be the same as your documents"
+
         for document, chunk_labels in zip(self.data, chunk_values):
             chunk = document[chunk_field]
-            chunk = list(sorted(chunk, key=lambda x: x[sortby]))
-            for subchunk, label in zip(chunk, chunk_labels):
-                subchunk[output_field] = label
+            if chunk:
+                if sortby is not None:
+                    chunk = list(sorted(chunk, key=lambda x: x[sortby]))
+                assert len(chunk) == len(
+                    chunk_labels
+                ), "The length of your `chunk` array should be the same as your `chunk_values`"
+                for subchunk, label in zip(chunk, chunk_labels):
+                    subchunk[output_field] = label
+            else:
+                document[chunk_field] = chunk_labels
 
     def set_chunks_from_flat(self, chunk_field: str, field: str, values: list):
         """
