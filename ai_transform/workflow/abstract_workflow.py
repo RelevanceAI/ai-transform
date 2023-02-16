@@ -1,9 +1,9 @@
 import uuid
 import logging
-import traceback
 import warnings
 
-from typing import Any, List, Dict, Optional, Union, Sequence
+from typing import Any, List, Dict, Optional
+
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.errors import WorkflowFailedError
@@ -120,6 +120,38 @@ class Workflow:
 
         except WorkflowFailedError as e:
             logger.exception(e)
+
+        else:
+            n_processed_pricing = self._calculate_pricing()
+            if n_processed_pricing is not None:
+                self.update_workflow_pricing(n_processed_pricing)
+
+    def _calculate_pricing(self):
+        n_processed_pricing = 0
+        is_automatic = True
+
+        for operator in self.operators:
+            if operator.is_operator_based_pricing:
+                n_processed_pricing += operator.n_processed_pricing
+                is_automatic = False
+
+        if is_automatic:
+            return self._calculate_n_processed_pricing_from_timer()
+        else:
+            return None
+
+    def _calculate_n_processed_pricing_from_timer(self):
+        from ai_transform import _TIMER
+
+        return _TIMER.stop()
+
+    def update_workflow_pricing(self, n_processed_pricing: float):
+        return self._api._update_workflow_pricing(
+            workflow_id=self._job_id,
+            step=self._name,
+            worker_number=self._engine.worker_number,
+            n_processed_pricing=n_processed_pricing,
+        )
 
     def get_status(self):
         return self._api._get_workflow_status(self._job_id)

@@ -59,5 +59,4 @@ class TestSimpleWorkflow:
             workflow_name="Simple Workflow", **config.dict()
         ):
             x += 1
-
         assert x == 1
