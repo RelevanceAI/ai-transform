@@ -128,29 +128,22 @@ class Workflow:
 
     def _calculate_pricing(self):
         n_processed_pricing = 0
-        is_automatic = False
+        is_automatic = True
 
         for operator in self.operators:
-            is_automatic &= not operator.is_operator_based_pricing
             if operator.is_operator_based_pricing:
                 n_processed_pricing += operator.n_processed_pricing
+                is_automatic = False
 
         if is_automatic:
-            self._calculate_n_processed_pricing_from_timer()
+            return self._calculate_n_processed_pricing_from_timer()
         else:
             return None
 
     def _calculate_n_processed_pricing_from_timer(self):
         from ai_transform import _TIMER
 
-        n_processed_pricing = _TIMER.stop()
-
-        self._api._update_workflow_pricing(
-            workflow_id=self._job_id,
-            step=self._name,
-            worker_number=self._engine.worker_number,
-            n_processed_pricing=n_processed_pricing,
-        )
+        return _TIMER.stop()
 
     def update_workflow_pricing(self, n_processed_pricing: float):
         return self._api._update_workflow_pricing(

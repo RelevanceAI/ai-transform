@@ -41,6 +41,7 @@ class SimpleWorkflow(API):
         self._job_id = job_id
         self._worker_number = worker_number
 
+        self._pricing_was_set = False
         self._metadata = metadata
         self._additional_information = additional_information
         self._send_email = send_email
@@ -68,6 +69,8 @@ class SimpleWorkflow(API):
             return False
         else:
             # Workflow must have run successfully
+            if not self._pricing_was_set:
+                self._calculate_pricing()
             self._set_status(status=self.COMPLETE, worker_number=self._worker_number)
             return True
 
@@ -111,19 +114,17 @@ class SimpleWorkflow(API):
             self._job_id, self._worker_number, self._workflow_name, n_processed, n_total
         )
 
-    def calculate_n_processed_pricing_from_timer(self):
+    def _calculate_pricing(self):
+        n_processed_pricing = self._calculate_n_processed_pricing_from_timer()
+        self.update_workflow_pricing(n_processed_pricing)
+
+    def _calculate_n_processed_pricing_from_timer(self):
         from ai_transform import _TIMER
 
-        n_processed_pricing = _TIMER.stop()
-
-        return self._update_workflow_pricing(
-            workflow_id=self._job_id,
-            step=self._workflow_name,
-            worker_number=self._worker_number,
-            n_processed_pricing=n_processed_pricing,
-        )
+        return _TIMER.stop()
 
     def update_workflow_pricing(self, n_processed_pricing: float):
+        self._pricing_was_set = True
         return self._update_workflow_pricing(
             workflow_id=self._job_id,
             step=self._workflow_name,

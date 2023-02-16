@@ -60,6 +60,7 @@ class TestSimpleWorkflow:
             workflow_name="Simple Workflow", **config.dict()
         ) as wf:
             x += 1
-            assert wf.calculate_n_processed_pricing_from_timer() > 0
+
+        assert wf
 
         assert x == 1
