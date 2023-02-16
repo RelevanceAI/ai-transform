@@ -519,7 +519,6 @@ class API:
         step: str = "Workflow",
         n_processed: int = 0,
         n_total: int = 0,
-        n_processed_pricing: Optional[int] = None,  # optional parameter
     ):
         """
         Tracks Workflow Progress
@@ -532,8 +531,6 @@ class API:
             n_processed=n_processed,
             n_total=n_total,
         )
-        if n_processed_pricing:
-            params["n_processed_pricing "] = n_processed_pricing
 
         logger.debug("adding progress...")
         logger.debug(format_logging_info(params))

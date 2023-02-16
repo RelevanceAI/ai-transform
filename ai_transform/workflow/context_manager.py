@@ -93,14 +93,9 @@ class WorkflowContextManager(API):
         return False
 
     def _calculate_pricing(self):
-        n_processed_pricing = 0
+        from ai_transform import timer
 
-        for operator in self._operators:
-            n_processed_pricing += operator.n_processed_pricing
-
-        # Set default pricing to the the number of documents
-        if n_processed_pricing == 0:
-            n_processed_pricing = self._engine.size
+        n_processed_pricing = timer.stop()
 
         self._dataset.api._update_workflow_pricing(
             workflow_id=self._job_id,

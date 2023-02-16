@@ -1,29 +1,28 @@
 import time
 
-TIMER_START = 0
-TIMER_END = 0
-
 
 class Timer:
-    def start(self):
-        global TIMER_START
-        TIMER_START = time.time()
+    def __init__(self) -> None:
+        self._start_time = 0
+        self._finish_time = 0
 
-    def stop(self):
-        global TIMER_END
-        TIMER_END = time.time()
+    @property
+    def timer_value(self) -> float:
+        return self._start_time - self._finish_time
+
+    def start(self) -> None:
+        self._start_time = time.time()
+
+    def stop(self) -> float:
+        self._finish_time = time.time()
         return self.get()
 
-    def get(self):
-        global TIMER_START
-        global TIMER_END
+    def get(self) -> float:
         assert (
-            TIMER_START > 0 and TIMER_END > 0
+            self._start_time > 0 and self._finish_time > 0
         ), "Please make sure you have called `ai_transform.timer_start()` and `ai_transform.timer_end()`"
-        return TIMER_END - TIMER_START
+        return self.timer_value
 
-    def reset(self):
-        global TIMER_START
-        global TIMER_END
-        TIMER_START = 0
-        TIMER_END = 0
+    def reset(self) -> None:
+        self._start_time = 0
+        self._finish_time = 0
