@@ -337,7 +337,7 @@ class AbstractEngine(ABC):
         if n_total is None:
             n_total = self.size
 
-        n_total = n_total * n_passes
+        total = n_total * n_passes
         inital_value = pass_index * n_total
         self.update_progress(inital_value)
 
@@ -347,18 +347,18 @@ class AbstractEngine(ABC):
             iterator,
             desc=desc,
             disable=(not show_progress_bar),
-            total=n_passes * n_total,
+            total=total,
         )
         tqdm_bar.update(inital_value)
 
         for batch_index, batch in enumerate(tqdm_bar):
             yield batch
-            n_processed = (batch_index + 1) * len(batch) + pass_index * n_total
+            api_n_processed = (batch_index + 1) * len(batch) + pass_index * n_total
             self.update_progress(
-                n_processed=n_processed,
-                n_total=n_total,
+                n_processed=api_n_processed,
+                n_total=total,
             )
-            tqdm_bar.update(n_processed)
+            tqdm_bar.update(len(batch))
 
     def update_progress(self, n_processed: int, n_total: int = None):
         """
