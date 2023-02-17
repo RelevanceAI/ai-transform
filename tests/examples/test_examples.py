@@ -88,7 +88,7 @@ def test_sentiment_documents(test_sentiment_workflow_document_token: str):
         send_email=send_email,
     )
 
-    result = client._api._get_workflow_status(job_id=job_id)
+    result = client.api._get_workflow_status(job_id=job_id)
     # Check it fool
     assert True
 

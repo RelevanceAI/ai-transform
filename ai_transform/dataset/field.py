@@ -339,7 +339,7 @@ class ClusterField(Field):
         dont_save_summaries: bool = True,
         filters: list = None,
     ):
-        return self._dataset._api._label_openai(
+        return self._dataset.api._label_openai(
             dataset_id=self.dataset_id,
             vector_field=self._cluster_field,
             field=field,
@@ -405,7 +405,7 @@ class ClusterField(Field):
         filters: List[Filter] = None,
         select_fields: List[str] = None,
     ):
-        return self._dataset._api._list_closest_to_center(
+        return self._dataset.api._list_closest_to_center(
             dataset_id=self.dataset_id,
             alias=self._cluster_alias,
             vector_fields=self._cluster_field[0],
@@ -455,7 +455,7 @@ class KeyphraseField(Field):
     ):
         if isinstance(update, Keyphrase):
             update = asdict(update)
-        return self._dataset._api._update_keyphrase(
+        return self._dataset.api._update_keyphrase(
             dataset_id=self._dataset._dataset_id,
             field=self._keyphrase_field,
             alias=self._keyphrase_alias,
