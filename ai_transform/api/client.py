@@ -62,7 +62,7 @@ class Client:
         send_email: bool = True,
         worker_number: int = None,
         **kwargs
-    ):
+    ) -> SimpleWorkflow:
         return SimpleWorkflow(
             credentials=self.credentials,
             workflow_name=workflow_name,

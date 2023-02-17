@@ -538,14 +538,16 @@ class API:
         """
         if worker_number is None:
             worker_number = 0
+
+        if n_processed_pricing:
+            params["n_processed_pricing "] = n_processed_pricing
+
         params = dict(
             worker_number=worker_number,
             step=step,
             n_processed=n_processed,
             n_total=n_total,
         )
-        if n_processed_pricing:
-            params["n_processed_pricing "] = n_processed_pricing
 
         logger.debug("adding progress...")
         logger.debug(format_logging_info(params))
@@ -570,6 +572,9 @@ class API:
         abstracted away for now due to the fact that the pricing is actually
         something outside of progress.
         """
+        if worker_number is None:
+            worker_number = 0
+
         params = dict(
             worker_number=worker_number,
             step=step,
