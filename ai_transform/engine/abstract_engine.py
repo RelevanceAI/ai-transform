@@ -334,10 +334,12 @@ class AbstractEngine(ABC):
         assert n_passes >= 1, "`n_passes` must be strictly positive and greater than 0"
         assert pass_index >= 0, "`pass_index` must be strictly positive"
 
-        self.update_progress(0)
-
         if n_total is None:
             n_total = self.size
+
+        n_total *= n_passes
+        inital_value = pass_index * n_total
+        self.update_progress(inital_value)
 
         desc = " -> ".join([repr(operator) for operator in self.operators])
 
@@ -347,7 +349,7 @@ class AbstractEngine(ABC):
             disable=(not show_progress_bar),
             total=n_passes * n_total,
         )
-        n_total *= n_passes
+        tqdm.update(inital_value)
 
         for batch_index, batch in enumerate(tqdm_bar):
             yield batch
