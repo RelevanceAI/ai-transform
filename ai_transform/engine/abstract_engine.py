@@ -349,7 +349,7 @@ class AbstractEngine(ABC):
             disable=(not show_progress_bar),
             total=n_passes * n_total,
         )
-        tqdm.update(inital_value)
+        tqdm_bar.update(inital_value)
 
         for batch_index, batch in enumerate(tqdm_bar):
             yield batch
