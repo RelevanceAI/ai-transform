@@ -347,14 +347,14 @@ class AbstractEngine(ABC):
         desc = " -> ".join([repr(operator) for operator in self.operators])
 
         tqdm_bar = tqdm(
-            iterator,
+            range(total),
             desc=desc,
             disable=(not show_progress_bar),
             total=total,
         )
         tqdm_bar.update(inital_value)
 
-        for batch_index, batch in enumerate(tqdm_bar):
+        for batch_index, batch in enumerate(iterator):
             yield batch
             api_n_processed = (batch_index + 1) * len(batch) + pass_index * n_total
             self.update_progress(
