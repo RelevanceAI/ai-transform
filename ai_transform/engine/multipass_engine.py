@@ -6,7 +6,6 @@ from ai_transform.helpers import format_logging_info
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.engine.abstract_engine import AbstractEngine
-from ai_transform.utils.document_list import DocumentList
 from ai_transform.utils.document import Document
 from ai_transform.types import Filter
 
@@ -67,7 +66,6 @@ class MultiPassEngine(AbstractEngine):
             limit_documents=limit_documents,
         )
 
-        self._num_chunks *= len(operators)
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
 
@@ -136,16 +134,9 @@ class MultiPassEngine(AbstractEngine):
         for operator in self.operators:
             operator.pre_hooks(self._dataset)
 
-            if self.documents is None or len(self.documents) == 0:
-                # Iterate through dataset
-                dataset_iterator = self.iterate()
-            else:
-                # Iterate through passed in documents
-                dataset_iterator = self.chunk_documents(
-                    chunksize=min(100, len(self.documents)), documents=self.documents
-                )
+            iterator = self.get_iterator()
 
-            for batch_index, mega_batch in enumerate(dataset_iterator):
+            for batch_index, mega_batch in enumerate(iterator):
                 batch_to_insert: List[Document] = []
 
                 for mini_batch in AbstractEngine.chunk_documents(

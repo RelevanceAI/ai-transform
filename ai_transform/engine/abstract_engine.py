@@ -165,10 +165,6 @@ class AbstractEngine(ABC):
     def output_documents(self) -> bool:
         return self._output_documents
 
-    @property
-    def size(self) -> int:
-        return self._size
-
     def extend_output_documents(self, documents: List[Document]):
         self._output_documents.extend(documents)
 
