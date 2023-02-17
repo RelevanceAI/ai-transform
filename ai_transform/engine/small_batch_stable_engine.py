@@ -20,8 +20,6 @@ from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.utils.document_list import DocumentList
 from ai_transform.utils.document import Document
 
-from tqdm.auto import tqdm
-
 logger = logging.getLogger(__file__)
 
 
@@ -63,7 +61,6 @@ class SmallBatchStableEngine(AbstractEngine):
         self._transform_chunksize = transform_chunksize
 
         self._show_progress_bar = kwargs.pop("show_progress_bar", True)
-        self._num_chunks = self._size // self._transform_threshold + 1
 
     def _filter_for_non_empty_list(self, docs: DocumentList):
         # if there are more keys than just _id in each document
@@ -109,14 +106,11 @@ class SmallBatchStableEngine(AbstractEngine):
 
         self.operator.pre_hooks(self.dataset)
 
-        progress = tqdm(
-            desc=repr(self.operator),
-            disable=(not self._show_progress_bar),
-            total=self.size,
-        )
-
         upload_index = 0
-        for minibatch in self.api_progress(iterator):
+        for minibatch in self.api_progress(
+            iterator,
+            show_progress_bar=self._show_progress_bar,
+        ):
             batch += minibatch
 
             if len(batch) >= self._transform_threshold:
@@ -127,6 +121,5 @@ class SmallBatchStableEngine(AbstractEngine):
         self.operator.post_hooks(self.dataset)
 
         self._transform_and_upsert(upload_index, batch)
-        progress.update((upload_index + 1) * len(batch))
 
         self.set_success_ratio()

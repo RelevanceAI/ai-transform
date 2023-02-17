@@ -20,8 +20,6 @@ from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.utils.document import Document
 from ai_transform.types import Filter
 
-from tqdm.auto import tqdm
-
 logger = logging.getLogger(__file__)
 
 

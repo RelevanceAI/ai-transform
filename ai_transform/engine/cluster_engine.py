@@ -3,8 +3,6 @@ import logging
 from typing import Any
 
 from ai_transform.engine.abstract_engine import AbstractEngine
-from tqdm.auto import tqdm
-
 
 logger = logging.getLogger(__file__)
 
@@ -14,11 +12,6 @@ class ClusterEngine(AbstractEngine):
         super().__init__(*args, **kwargs)
 
         self._show_progress_bar = show_progress_bar
-        self._progress = tqdm(
-            desc=repr(self.operator),
-            total=self.num_chunks,
-            disable=(not show_progress_bar),
-        )
 
     def apply(self) -> Any:
         iterator = self.get_iterator()
@@ -37,6 +30,7 @@ class ClusterEngine(AbstractEngine):
                 AbstractEngine.chunk_documents(
                     self.pull_chunksize, documents_to_insert
                 ),
+                show_progress_bar=self._show_progress_bar,
             )
         ):
             if batch_index < self.MAX_SCHEMA_UPDATE_LIMITER:

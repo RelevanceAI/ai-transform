@@ -18,7 +18,6 @@ from ai_transform.operator.dense_operator import DenseOperator
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.types import Filter
 
-from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
 
