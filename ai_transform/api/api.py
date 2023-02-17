@@ -1004,7 +1004,7 @@ class API:
         )
         return get_response(response)
 
-    @retry
+    @retry()
     def _list_project_keys(self):
         response = requests.get(
             url=self.base_url + "/projects/keys/list",
@@ -1012,7 +1012,7 @@ class API:
         )
         return get_response(response)
 
-    @retry
+    @retry()
     def _get_project_key(self, key: str, token: str):
         response = requests.post(
             url=self.base_url + "/projects/keys/get",
@@ -1021,7 +1021,7 @@ class API:
         )
         return get_response(response)
 
-    @retry
+    @retry()
     def _set_project_key(self, key: str, value: str):
         response = requests.post(
             url=self.base_url + "/projects/keys/set",
@@ -1030,7 +1030,7 @@ class API:
         )
         return get_response(response)
 
-    @retry
+    @retry()
     def _delete_project_key(self, key: str):
         response = requests.post(
             url=self.base_url + "/projects/keys/delete",

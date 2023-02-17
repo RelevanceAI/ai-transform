@@ -311,3 +311,11 @@ class Dataset:
             dataset_ids=dataset_ids,
             filters=filters,
         )
+
+    def get_settings(self):
+        return self.api._get_dataset_settings(self.dataset_id)
+
+    def update_settings(self, settings: Dict[str, Any]):
+        return self.api._upsert_dataset_settings(
+            dataset_id=self.dataset_id, settings=settings
+        )
