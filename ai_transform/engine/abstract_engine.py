@@ -337,7 +337,7 @@ class AbstractEngine(ABC):
         if n_total is None:
             n_total = self.size
 
-        n_total *= n_passes
+        n_total = n_total * n_passes
         inital_value = pass_index * n_total
         self.update_progress(inital_value)
 

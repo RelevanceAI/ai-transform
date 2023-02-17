@@ -139,7 +139,8 @@ class MultiPassEngine(AbstractEngine):
                     if transformed_batch is not None:
                         batch_to_insert += transformed_batch
 
-                self.handle_upsert(batch_index, batch_to_insert)
+                if batch_to_insert:
+                    self.handle_upsert(batch_index, batch_to_insert)
 
             operator.post_hooks(self._dataset)
 
