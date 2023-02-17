@@ -339,7 +339,10 @@ class AbstractEngine(ABC):
 
         total = n_total * n_passes
         inital_value = pass_index * n_total
-        self.update_progress(inital_value)
+        self.update_progress(
+            n_processed=inital_value,
+            n_total=total,
+        )
 
         desc = " -> ".join([repr(operator) for operator in self.operators])
 
