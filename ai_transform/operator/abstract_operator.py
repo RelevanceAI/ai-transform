@@ -114,6 +114,10 @@ class AbstractOperator(ABC):
     def output_fields(self):
         return self._output_fields
 
+    @property
+    def update_field_children(self):
+        return self.input_fields is not None and self.output_fields is not None
+
     @abstractmethod
     def transform(self, documents: DocumentList) -> DocumentList:
         """

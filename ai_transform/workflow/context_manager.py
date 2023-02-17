@@ -43,15 +43,7 @@ class WorkflowContextManager(API):
         self._dataset = dataset
         self._dataset_id = dataset.dataset_id
 
-        update_field_children = False
-        for operator in operators:
-            if operator.input_fields is not None and operator.output_fields is not None:
-                update_field_children = True
-                break
-
         self._operators = operators
-        self._update_field_children = update_field_children
-
         self._workflow_name = workflow_name
         self._job_id = job_id
 
@@ -113,8 +105,8 @@ class WorkflowContextManager(API):
         return True
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
-        if self._update_field_children:
-            for operator in self._operators:
+        for operator in self._operators:
+            if operator.update_field_children:
                 for input_field in operator.input_fields:
                     res = self.set_field_children(
                         input_field=input_field,
