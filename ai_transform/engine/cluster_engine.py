@@ -33,7 +33,7 @@ class ClusterEngine(AbstractEngine):
 
         # Update this in series
         for chunk_index in self.api_progress(
-            range(self.num_chunks), total=self.num_chunks
+            range(self.num_chunks), n_total=self.num_chunks
         ):
             start = chunk_index * self.pull_chunksize
             end = (chunk_index + 1) * self._pull_chunksize

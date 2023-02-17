@@ -121,15 +121,7 @@ class MultiPassEngine(AbstractEngine):
 
         self.update_progress(0)
 
-        desc = " -> ".join([repr(operator) for operator in self._operators])
-
-        progress_bar_size = len(self.operators) * self.size
-        progress_bar = tqdm(
-            range(progress_bar_size),
-            desc=desc,
-            disable=(not self._show_progress_bar),
-            total=progress_bar_size,
-        )
+        n_total = len(self.operators) * self.size
 
         for operator in self.operators:
             operator.pre_hooks(self._dataset)
@@ -137,7 +129,7 @@ class MultiPassEngine(AbstractEngine):
             iterator = self.get_iterator()
 
             for batch_index, mega_batch in enumerate(
-                self.api_progress(iterator, total=self.size * 3)
+                self.api_progress(iterator, n_total=n_total)
             ):
                 batch_to_insert: List[Document] = []
 
