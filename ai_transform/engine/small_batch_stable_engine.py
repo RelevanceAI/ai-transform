@@ -105,8 +105,6 @@ class SmallBatchStableEngine(AbstractEngine):
         """
         iterator = self.iterate()
 
-        self.update_progress(0)
-
         batch = []
 
         self.operator.pre_hooks(self.dataset)
@@ -118,7 +116,7 @@ class SmallBatchStableEngine(AbstractEngine):
         )
 
         upload_index = 0
-        for minibatch in iterator:
+        for minibatch in self.api_progress(iterator):
             batch += minibatch
 
             if len(batch) >= self._transform_threshold:
@@ -129,6 +127,6 @@ class SmallBatchStableEngine(AbstractEngine):
         self.operator.post_hooks(self.dataset)
 
         self._transform_and_upsert(upload_index, batch)
-        progress.update(len(batch))
+        progress.update((upload_index + 1) * len(batch))
 
         self.set_success_ratio()

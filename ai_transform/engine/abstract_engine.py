@@ -7,6 +7,8 @@ from json import JSONDecodeError
 from typing import Any, List, Optional, Sequence, Iterator
 from abc import ABC, abstractmethod
 
+from tqdm.auto import tqdm
+
 from ai_transform.helpers import format_logging_info
 from ai_transform.types import Filter
 from ai_transform.dataset.dataset import Dataset
@@ -320,6 +322,27 @@ class AbstractEngine(ABC):
                     return update_json
 
             raise MaxRetriesError("max number of retries exceeded")
+
+    def api_progress(
+        self, iterator: Iterator, show_progress_bar: bool = True, total: int = None
+    ) -> Iterator:
+        self.update_progress(0)
+
+        if total is None:
+            total = self.size
+
+        desc = " -> ".join([repr(operator) for operator in self.operators])
+
+        for batch_index, batch in enumerate(
+            tqdm(
+                iterator,
+                desc=desc,
+                disable=(not show_progress_bar),
+                total=total,
+            )
+        ):
+            yield batch
+            self.update_progress((batch_index + 1) * len(batch))
 
     def update_progress(self, n_processed: int, n_total: int = None):
         """

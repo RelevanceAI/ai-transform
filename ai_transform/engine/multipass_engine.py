@@ -136,16 +136,14 @@ class MultiPassEngine(AbstractEngine):
 
             iterator = self.get_iterator()
 
-            for batch_index, mega_batch in enumerate(iterator):
+            for batch_index, mega_batch in enumerate(
+                self.api_progress(iterator, total=self.size * 3)
+            ):
                 batch_to_insert: List[Document] = []
 
                 for mini_batch in AbstractEngine.chunk_documents(
                     self._transform_chunksize, mega_batch
                 ):
-                    progress_bar.update(len(mini_batch))
-                    self.update_progress(
-                        len(mini_batch), n_total=len(self.operators) * self.size
-                    )
                     transformed_batch = self._operate(operator, mini_batch)
                     if transformed_batch is not None:
                         batch_to_insert += transformed_batch

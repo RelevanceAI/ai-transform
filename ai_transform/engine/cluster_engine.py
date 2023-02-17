@@ -21,7 +21,6 @@ class ClusterEngine(AbstractEngine):
         )
 
     def apply(self) -> Any:
-        self.update_progress(0)
         iterator = self.iterate()
 
         self.operator.pre_hooks(self._dataset)
@@ -29,24 +28,30 @@ class ClusterEngine(AbstractEngine):
         documents = []
         for chunk in iterator:
             documents += chunk
-            self._progress.update(1)
 
         new_batch = self._operate(documents)
 
         # Update this in series
-        for i in range(self._num_chunks):
-            chunk = new_batch[i * self.pull_chunksize : (i + 1) * self._pull_chunksize]
+        for chunk_index in self.api_progress(
+            range(self.num_chunks), total=self.num_chunks
+        ):
+            start = chunk_index * self.pull_chunksize
+            end = (chunk_index + 1) * self._pull_chunksize
+
+            chunk = new_batch[start:end]
+
+            if chunk_index < self.MAX_SCHEMA_UPDATE_LIMITER:
+                update_schema = True
+            else:
+                update_schema = False
 
             self.update_chunk(
                 chunk,
                 ingest_in_background=True,
                 # Update schema only on the first chunk otherwise it crashes the
                 # schema update
-                update_schema=True if i < self.MAX_SCHEMA_UPDATE_LIMITER else False,
+                update_schema=update_schema,
             )
-
-            n_processed = len(chunk)
-            self.update_progress(n_processed)
 
         self.set_success_ratio()
 

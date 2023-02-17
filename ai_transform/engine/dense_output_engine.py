@@ -80,20 +80,11 @@ class DenseOutputEngine(AbstractEngine):
         """
         iterator = self.get_iterator()
 
-        self.update_progress(0)
-
         output_dataset_ids = []
 
         self.operator.pre_hooks(self._dataset)
 
-        for batch_index, mega_batch in enumerate(
-            tqdm(
-                iterator,
-                desc=repr(self.operator),
-                disable=(not self._show_progress_bar),
-                total=self.num_chunks,
-            )
-        ):
+        for mega_batch in self.api_progress(iterator):
             for mini_batch in AbstractEngine.chunk_documents(
                 self._transform_chunksize, mega_batch
             ):
@@ -103,9 +94,6 @@ class DenseOutputEngine(AbstractEngine):
                     dataset = Dataset.from_details(dataset_id, self.token)
                     result = dataset.bulk_insert(documents)
                     logger.debug({"dataset_id": dataset_id, "result": result})
-
-                # executes after everything wraps up
-                self.update_progress(len(mini_batch))
 
         self.operator.post_hooks(self._dataset)
 
