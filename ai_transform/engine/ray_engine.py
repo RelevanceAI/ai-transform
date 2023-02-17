@@ -39,7 +39,7 @@ class _RelevanceDataSourceReader(Reader):
         self._schema = self._get_pyarrow_schema()
 
     def _get_pyarrow_schema(self):
-        result = self._dataset._api._get_where(
+        result = self._dataset.api._get_where(
             dataset_id=self._dataset._dataset_id,
             page_size=1,
             select_fields=self._select_fields,
@@ -59,7 +59,7 @@ class _RelevanceDataSourceReader(Reader):
         read_tasks: List[ReadTask] = []
 
         def get_data(*args, **kwargs):
-            result = self._dataset._api._get_where(
+            result = self._dataset.api._get_where(
                 dataset_id=self._dataset._dataset_id, *args, **kwargs
             )
             table = pa.Table.from_pylist(result["documents"])
