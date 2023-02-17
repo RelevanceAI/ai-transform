@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 logger = logging.getLogger(__file__)
 
 
-class InMemoryEngine(AbstractEngine):
+class ClusterEngine(AbstractEngine):
     def __init__(self, show_progress_bar: bool = True, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

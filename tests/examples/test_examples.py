@@ -8,7 +8,7 @@ from ai_transform.api.client import Client
 from ai_transform.engine.stable_engine import StableEngine
 from ai_transform.engine.small_batch_stable_engine import SmallBatchStableEngine
 from ai_transform.workflow.abstract_workflow import Workflow
-from ai_transform.engine.cluster_engine import InMemoryEngine
+from ai_transform.engine.cluster_engine import ClusterEngine
 from ai_transform.workflow.helpers import decode_workflow_token
 
 
@@ -227,7 +227,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
     )
 
     filters = dataset[vector_field].exists()
-    engine = InMemoryEngine(
+    engine = ClusterEngine(
         dataset=dataset,
         operator=operator,
         pull_chunksize=100,

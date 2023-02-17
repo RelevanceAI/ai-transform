@@ -5,7 +5,7 @@ from typing import Callable, List, Optional
 
 from ai_transform.api.client import Client
 from ai_transform.dataset.dataset import Dataset
-from ai_transform.engine.cluster_engine import InMemoryEngine
+from ai_transform.engine.cluster_engine import ClusterEngine
 from ai_transform.workflow.helpers import decode_workflow_token
 from ai_transform.workflow.abstract_workflow import AbstractWorkflow
 from ai_transform.operator.abstract_operator import AbstractOperator
@@ -83,7 +83,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     )
 
     filters = dataset[vector_field].exists()
-    engine = InMemoryEngine(
+    engine = ClusterEngine(
         dataset=dataset,
         operator=operator,
         chunksize=16,
