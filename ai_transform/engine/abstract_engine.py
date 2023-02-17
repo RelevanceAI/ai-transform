@@ -324,8 +324,16 @@ class AbstractEngine(ABC):
             raise MaxRetriesError("max number of retries exceeded")
 
     def api_progress(
-        self, iterator: Iterator, show_progress_bar: bool = True, n_total: int = None
+        self,
+        iterator: Iterator,
+        show_progress_bar: bool = True,
+        n_total: int = None,
+        n_passes: int = 1,
+        pass_index: int = 0,
     ) -> Iterator:
+        assert n_passes >= 1, "`n_passes` must be strictly positive and greater than 0"
+        assert pass_index >= 0, "`pass_index` must be strictly positive"
+
         self.update_progress(0)
 
         if n_total is None:
@@ -342,7 +350,10 @@ class AbstractEngine(ABC):
             )
         ):
             yield batch
-            self.update_progress((batch_index + 1) * len(batch), n_total=n_total)
+            self.update_progress(
+                (batch_index + 1) * len(batch) + pass_index * n_total,
+                n_total=n_passes * n_total,
+            )
 
     def update_progress(self, n_processed: int, n_total: int = None):
         """

@@ -118,18 +118,17 @@ class MultiPassEngine(AbstractEngine):
         """
         Returns the ratio of successful chunks / total chunks needed to iterate over the dataset
         """
-
-        self.update_progress(0)
-
-        n_total = len(self.operators) * self.size
-
-        for operator in self.operators:
+        for operator_index, operator in enumerate(self.operators):
             operator.pre_hooks(self._dataset)
 
             iterator = self.get_iterator()
 
             for batch_index, mega_batch in enumerate(
-                self.api_progress(iterator, n_total=n_total)
+                self.api_progress(
+                    iterator,
+                    pass_index=operator_index,
+                    n_passes=len(self.operators),
+                )
             ):
                 batch_to_insert: List[Document] = []
 

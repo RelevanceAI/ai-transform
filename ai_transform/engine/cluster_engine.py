@@ -21,32 +21,31 @@ class ClusterEngine(AbstractEngine):
         )
 
     def apply(self) -> Any:
-        iterator = self.iterate()
+        iterator = self.get_iterator()
 
         self.operator.pre_hooks(self._dataset)
 
         documents = []
-        for chunk in iterator:
-            documents += chunk
+        for batch in iterator:
+            documents += batch
 
-        new_batch = self._operate(documents)
+        documents_to_insert = self._operate(documents)
 
         # Update this in series
-        for chunk_index in self.api_progress(
-            range(self.num_chunks), n_total=self.num_chunks
+        for batch_index, batch in enumerate(
+            self.api_progress(
+                AbstractEngine.chunk_documents(
+                    self.pull_chunksize, documents_to_insert
+                ),
+            )
         ):
-            start = chunk_index * self.pull_chunksize
-            end = (chunk_index + 1) * self._pull_chunksize
-
-            chunk = new_batch[start:end]
-
-            if chunk_index < self.MAX_SCHEMA_UPDATE_LIMITER:
+            if batch_index < self.MAX_SCHEMA_UPDATE_LIMITER:
                 update_schema = True
             else:
                 update_schema = False
 
             self.update_chunk(
-                chunk,
+                batch,
                 ingest_in_background=True,
                 # Update schema only on the first chunk otherwise it crashes the
                 # schema update
