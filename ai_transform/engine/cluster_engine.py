@@ -46,6 +46,4 @@ class ClusterEngine(AbstractEngine):
                 update_schema=update_schema,
             )
 
-        self.set_success_ratio()
-
         self.operator.post_hooks(self._dataset)

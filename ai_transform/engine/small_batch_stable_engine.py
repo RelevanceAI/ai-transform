@@ -121,5 +121,3 @@ class SmallBatchStableEngine(AbstractEngine):
         self.operator.post_hooks(self.dataset)
 
         self._transform_and_upsert(upload_index, batch)
-
-        self.set_success_ratio()

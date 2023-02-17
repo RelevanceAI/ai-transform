@@ -98,8 +98,6 @@ class AbstractEngine(ABC):
         ):
             self._pull_chunksize = self.limit_documents
 
-        self._num_chunks = math.ceil(self._size / self._pull_chunksize)
-
         if filters is None:
             self._filters = []
         else:
@@ -124,12 +122,8 @@ class AbstractEngine(ABC):
         self._refresh = refresh
         self._after_id = after_id
 
-        self._successful_chunks = 0
+        self._successful_documents = 0
         self._success_ratio = None
-
-    @property
-    def num_chunks(self) -> int:
-        return self._num_chunks
 
     @property
     def operator(self) -> AbstractOperator:
@@ -176,6 +170,7 @@ class AbstractEngine(ABC):
 
     def __call__(self) -> Any:
         self.apply()
+        self.set_success_ratio()
 
     def _operate(self, mini_batch):
         try:
@@ -191,7 +186,7 @@ class AbstractEngine(ABC):
             # we only update schema on the first chunk
             # otherwise it breaks down how the backend handles
             # schema updates
-            self._successful_chunks += 1
+            self._successful_documents += len(mini_batch)
             return transformed_batch
 
     def _get_workflow_filter(self, field: str = "_id"):
@@ -408,9 +403,10 @@ class AbstractEngine(ABC):
         self._name = value
 
     def set_success_ratio(self) -> None:
-        if self.num_chunks > 0:
-            self._success_ratio = self._successful_chunks / self.num_chunks
-            logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
+        self._success_ratio = self._successful_documents / (
+            self.size * len(self.operators)
+        )
+        logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
 
     @staticmethod
     def _filter_for_non_empty_list(documents: List[Document]) -> List[Document]:

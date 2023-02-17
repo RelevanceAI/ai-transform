@@ -141,5 +141,3 @@ class MultiPassEngine(AbstractEngine):
                     self.handle_upsert(batch_index, batch_to_insert)
 
             operator.post_hooks(self._dataset)
-
-        self.set_success_ratio()

@@ -87,7 +87,7 @@ class DenseOutputEngine(AbstractEngine):
             for mini_batch in AbstractEngine.chunk_documents(
                 self._transform_chunksize, mega_batch
             ):
-                document_mapping = self.operator(mini_batch)
+                document_mapping = self._operate(mini_batch)
                 for dataset_id, documents in document_mapping.items():
                     output_dataset_ids.append(dataset_id)
                     dataset = Dataset.from_details(dataset_id, self.token)
@@ -98,8 +98,6 @@ class DenseOutputEngine(AbstractEngine):
 
         output_datasets = self.datasets_from_ids(output_dataset_ids)
         self.operator.store_dataset_relationship(self.dataset, output_datasets)
-
-        self.set_success_ratio()
 
     def datasets_from_ids(self, dataset_ids: Sequence[str]) -> Sequence[Dataset]:
         return [

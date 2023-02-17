@@ -123,5 +123,3 @@ class StableEngine(AbstractEngine):
             self.handle_upsert(batch_index, batch_to_insert)
 
         self.operator.post_hooks(self._dataset)
-
-        self.set_success_ratio()
