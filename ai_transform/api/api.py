@@ -449,9 +449,10 @@ class API:
         dataset_id: str,
         params: dict,
         workflow_id: str,
+        notebook_path: str = None,
+        instance_type: str = None,
         host_type: str = None,
         version: str = "production_version",
-        **kwargs,
     ):
         """
         trigger a workflow
@@ -461,10 +462,14 @@ class API:
             params=params,
             dataset_id=dataset_id,
             workflow_id=workflow_id,
-            host_type=host_type,
             version=version,
         )
-        data.update(kwargs)
+        if notebook_path is not None:
+            data["notebook_path"] = notebook_path
+        if instance_type is not None:
+            data["instance_type"] = instance_type
+        if host_type is not None:
+            data["host_type"] = host_type
         return requests.post(
             url=self._base_url + f"/workflows/trigger", headers=self._headers, json=data
         ).json()
