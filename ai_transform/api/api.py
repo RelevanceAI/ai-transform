@@ -449,8 +449,6 @@ class API:
         dataset_id: str,
         params: dict,
         workflow_id: str,
-        notebook_path: str = None,
-        instance_type: str = None,
         host_type: str = None,
         version: str = "production_version",
         **kwargs,
@@ -463,8 +461,6 @@ class API:
             params=params,
             dataset_id=dataset_id,
             workflow_id=workflow_id,
-            notebook_path=notebook_path,
-            instance_type=instance_type,
             host_type=host_type,
             version=version,
         )
