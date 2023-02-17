@@ -78,9 +78,6 @@ class StableEngine(AbstractEngine):
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
 
-        self._successful_chunks = 0
-        self._catch_errors = catch_errors
-
     def handle_upsert(self, batch_index: int, batch_to_insert: List[Document]):
         if self.output_to_status:
             # Store in output documents

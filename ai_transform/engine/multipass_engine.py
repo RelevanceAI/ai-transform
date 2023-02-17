@@ -109,7 +109,7 @@ class MultiPassEngine(AbstractEngine):
             # we only update schema on the first chunk
             # otherwise it breaks down how the backend handles
             # schema updates
-            self._successful_chunks += 1
+            self._successful_documents += len(mini_batch)
             return transformed_batch
 
     def apply(self) -> None:
