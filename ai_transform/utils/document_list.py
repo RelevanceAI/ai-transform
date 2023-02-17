@@ -61,7 +61,10 @@ class DocumentList(UserList):
         ), "The length of your values array should be the same as your documents"
 
         for document, chunk_labels in zip(self.data, chunk_values):
+            if chunk_field not in document:
+                document[chunk_field] = []
             chunk = document[chunk_field]
+
             if chunk:
                 if sortby is not None:
                     chunk = list(sorted(chunk, key=lambda x: x[sortby]))
