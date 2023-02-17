@@ -17,7 +17,7 @@ class TestStableEngine:
             job_id="test_job123",
         )
         workflow.run()
-        assert True
+        assert engine.success_ratio == 1
 
     def test_small_batch_stable_engine(
         self, full_dataset: Dataset, test_operator: AbstractOperator
@@ -29,4 +29,4 @@ class TestStableEngine:
             job_id="test_job123",
         )
         workflow.run()
-        assert True
+        assert engine.success_ratio == 1

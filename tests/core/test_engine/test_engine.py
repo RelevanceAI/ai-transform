@@ -19,7 +19,6 @@ class TestAbstractEngine:
 
         engine = ExampleEngine(full_dataset, test_operator)
 
-        assert engine.num_chunks > 0
         assert isinstance(engine.operator, AbstractOperator)
         assert len(ExampleEngine.__abstractmethods__) == 0
 

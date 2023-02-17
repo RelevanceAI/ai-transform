@@ -37,6 +37,8 @@ else:
             for document in documents["documents"]:
                 assert document["new_field"] == 6
 
+            assert engine.success_ratio == 1
+
         def test_multipass_engine_with_clustering(self, full_dataset: Dataset):
             class FitOperator(AbstractOperator):
                 def __init__(self, model: MiniBatchKMeans, vector_field: str):
@@ -99,3 +101,5 @@ else:
 
             schema = full_dataset.schema
             assert output_field in schema
+
+            assert engine.success_ratio == 1

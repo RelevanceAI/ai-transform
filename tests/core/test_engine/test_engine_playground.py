@@ -21,7 +21,7 @@ class TestEnginePlayground:
 
         assert engine.output_to_status
 
-        engine.apply()
+        engine()
 
         assert engine.output_documents
         for document in engine.output_documents:

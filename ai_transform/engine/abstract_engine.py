@@ -161,6 +161,10 @@ class AbstractEngine(ABC):
     def output_documents(self) -> bool:
         return self._output_documents
 
+    @property
+    def success_ratio(self) -> float:
+        return self._success_ratio
+
     def extend_output_documents(self, documents: List[Document]):
         self._output_documents.extend(documents)
 
