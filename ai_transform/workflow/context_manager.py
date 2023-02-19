@@ -137,7 +137,6 @@ class WorkflowContextManager(API):
         metadata = {"job_id": self._job_id, "workflow_id": script_path.split("/")[0]}
         return self._set_field_children(
             dataset_id=self._dataset_id,
-            fieldchildren_id=fieldchildren_id,
             field=input_field,
             field_children=output_fields,
             metadata=metadata,
