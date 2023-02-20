@@ -72,7 +72,7 @@ class DocumentList(UserList):
                 assert len(chunk) == len(
                     chunk_labels
                 ), "The length of your `chunk` array should be the same as your `chunk_values`"
-                for chunk_index in enumerate(range(len(chunk_labels))):
+                for chunk_index in range(len(chunk_labels)):
                     subchunk = Document(chunk[chunk_index])
                     label = chunk_labels[chunk_index]
                     subchunk[output_field] = label
