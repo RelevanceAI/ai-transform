@@ -41,9 +41,6 @@ class TestAbstractEngine:
             def apply(self) -> Any:
                 return
 
-        import pdb
-
-        pdb.set_trace()
         engine = ExampleEngine(
             full_dataset, test_operator, select_fields=["_id", "_chunk_.label"]
         )
