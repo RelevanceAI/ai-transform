@@ -16,7 +16,6 @@ from ai_transform.operator.abstract_operator import AbstractOperator
 
 from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
-from ai_transform.utils import set_seed
 
 from ai_transform.errors import MaxRetriesError
 
@@ -41,13 +40,11 @@ class AbstractEngine(ABC):
         worker_number: int = None,
         total_workers: int = None,
         check_for_missing_fields: bool = True,
-        seed: int = 42,
         output_to_status: Optional[bool] = False,
         documents: Optional[List[object]] = None,
         operators: Sequence[AbstractOperator] = None,
         limit_documents: Optional[int] = None,
     ):
-        set_seed(seed)
         if select_fields is not None:
             # We set this to a warning so that workflows that are adding
             # onto an existing field don't need this. For example - adding tags
