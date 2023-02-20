@@ -38,21 +38,17 @@ vector_length: int
 
 """
 
+import uuid
 import random
 import string
 
 from ai_transform.types import Vector
 from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
-import uuid
-
-rd = random.Random()
-rd.seed(2)
 
 
 def create_id():
-    # This makes IDs reproducible for tests related to Modulo function
-    return str(uuid.UUID(int=rd.getrandbits(128)))
+    return str(uuid.uuid4())
 
 
 def generate_random_string(string_length: int = 5) -> str:
