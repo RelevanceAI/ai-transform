@@ -96,8 +96,8 @@ class WorkflowContextManager(API):
                     prev_parents = inverse_graph.get(input_field, [])
                     for prev_parent in prev_parents:
                         res = self.set_field_children(
-                            input_field=input_field,
-                            output_fields=[prev_parent],
+                            input_field=prev_parent,
+                            output_fields=operator.output_fields,
                             fieldchildren_id=self._job_id,
                         )
                         logger.debug(format_logging_info(res))
