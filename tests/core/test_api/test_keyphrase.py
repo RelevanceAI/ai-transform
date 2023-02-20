@@ -21,14 +21,14 @@ class TestClient:
         alias = "default"
         test_dataset_id = test_keyphrase_dataset.dataset_id
 
-        result = test_client._api._bulk_update_keyphrase(
+        result = test_client.api._bulk_update_keyphrase(
             dataset_id=test_dataset_id,
             field=field,
             alias=alias,
             updates=test_keyphrases,
         )
         # Now that that we saw the actual dataset
-        result = test_client._api._get_keyphrase(
+        result = test_client.api._get_keyphrase(
             test_dataset_id, field=field, alias=alias, keyphrase_id="word"
         )
         print(result)
