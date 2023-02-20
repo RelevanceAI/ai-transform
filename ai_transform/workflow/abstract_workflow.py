@@ -146,7 +146,7 @@ class Workflow:
         return _TIMER.stop()
 
     def update_workflow_pricing(self, n_processed_pricing: float):
-        return self._api._update_workflow_pricing(
+        return self.api._update_workflow_pricing(
             workflow_id=self._job_id,
             step=self._name,
             worker_number=self._engine.worker_number,
