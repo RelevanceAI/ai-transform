@@ -362,13 +362,15 @@ class AbstractEngine(ABC):
         )
         tqdm_bar.update(inital_value)
 
-        for batch_index, batch in enumerate(iterator):
+        total_so_far = 0
+        for batch in iterator:
             yield batch
-            api_n_processed = (batch_index + 1) * len(batch) + pass_index * n_total
+            api_n_processed = total_so_far + len(batch) + pass_index * n_total
             self.update_progress(
                 n_processed=api_n_processed,
                 n_total=total,
             )
+            total_so_far += len(batch)
             tqdm_bar.update(len(batch))
 
     def update_progress(self, n_processed: int, n_total: int = None):
