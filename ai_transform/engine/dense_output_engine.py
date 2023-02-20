@@ -18,7 +18,6 @@ from ai_transform.operator.dense_operator import DenseOperator
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.types import Filter
 
-from tqdm.auto import tqdm
 
 logger = logging.getLogger(__file__)
 
@@ -78,39 +77,25 @@ class DenseOutputEngine(AbstractEngine):
         """
         iterator = self.get_iterator()
 
-        self.update_progress(0)
-
         output_dataset_ids = []
 
         self.operator.pre_hooks(self._dataset)
 
-        for batch_index, mega_batch in enumerate(
-            tqdm(
-                iterator,
-                desc=repr(self.operator),
-                disable=(not self._show_progress_bar),
-                total=self.num_chunks,
-            )
-        ):
+        for mega_batch in self.api_progress(iterator):
             for mini_batch in AbstractEngine.chunk_documents(
                 self._transform_chunksize, mega_batch
             ):
-                document_mapping = self.operator(mini_batch)
+                document_mapping = self._operate(mini_batch)
                 for dataset_id, documents in document_mapping.items():
                     output_dataset_ids.append(dataset_id)
                     dataset = Dataset.from_details(dataset_id, self.token)
                     result = dataset.bulk_insert(documents)
                     logger.debug({"dataset_id": dataset_id, "result": result})
 
-                # executes after everything wraps up
-                self.update_progress(len(mini_batch))
-
         self.operator.post_hooks(self._dataset)
 
         output_datasets = self.datasets_from_ids(output_dataset_ids)
         self.operator.store_dataset_relationship(self.dataset, output_datasets)
-
-        self.set_success_ratio()
 
     def datasets_from_ids(self, dataset_ids: Sequence[str]) -> Sequence[Dataset]:
         return [
