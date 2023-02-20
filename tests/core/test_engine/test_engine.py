@@ -40,5 +40,7 @@ class TestAbstractEngine:
             def apply(self) -> Any:
                 return
 
-        engine = ExampleEngine(full_dataset, test_operator, select_fields=["_id"])
-        assert True
+        engine = ExampleEngine(
+            full_dataset, test_operator, select_fields=["_id", "_chunk_.label"]
+        )
+        assert "_chunk_" in engine._select_fields
