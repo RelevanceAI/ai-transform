@@ -9,13 +9,13 @@ Below is a hierarchy diagram for all the moving parts of a workflow.
 Fresh install
 
 ```{bash}
-pip install RelevanceAI-Workflows-Core
+pip install ai-transform
 ```
 
 to upgrade to the latest version
 
 ```{bash}
-pip install --upgrade RelevanceAI-Workflows-Core
+pip install --upgrade ai-transform
 ```
 
 ## 🏃Quickstart
@@ -25,7 +25,7 @@ To get started, please refer to the example scripts in `scripts/`
 ```python
 
 import random
-from ai_transform.api.client import Clien
+from ai_transform.api.client import Client
 from ai_transform.engine.stable_engine import StableEngine
 from ai_transform.workflow.helpers import decode_workflow_token
 from ai_transform.workflow import Workflow
