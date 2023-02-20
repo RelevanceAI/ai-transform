@@ -63,6 +63,7 @@ class WorkflowContextManager(API):
                     res = self.set_field_children(
                         input_field=input_field,
                         output_fields=operator.output_fields,
+                        fieldchildren_id=self._job_id,
                     )
                     logger.debug(format_logging_info(res))
 
