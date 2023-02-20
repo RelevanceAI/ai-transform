@@ -56,11 +56,6 @@ class TestDocumentListTagOperations:
 
 
 class TestDocumentChunkOperations:
-    # def test_get_chunk_values(self, test_documents: DocumentList):
-    #     results = test_documents.get_chunks(chunk_field="_chunk_", field="label")
-    #     for r in results:
-    #         assert isinstance(r, dict), f"Not a dictionary, {r}"
-
     def test_get_chunk_values_as_list(self, test_documents: DocumentList):
         results = test_documents.get_chunks_as_flat("_chunk_", "label")
         for r in results:
@@ -75,6 +70,11 @@ class TestDocumentChunkOperations:
         test_documents.set_chunks_from_flat(
             chunk_field="_chunk_", field="test_label", values=random_values
         )
-        # print([d.get("_chunk_") for d in test_documents])
         results = test_documents.get_chunks_as_flat("_chunk_", "test_label")
         assert results == [x for x in random_values]
+
+    def test_set_chunk_values(self, test_documents: DocumentList):
+        chunk_values = [[n] for n in range(len(test_documents))]
+        test_documents.set_chunk_values("_chunk_", "yes", chunk_values)
+        for i, document in enumerate(test_documents):
+            assert document["_chunk_.0.yes"] == i

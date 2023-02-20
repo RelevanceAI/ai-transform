@@ -65,7 +65,19 @@ class AbstractEngine(ABC):
                             warnings.warn(f"Not all fields were found. Missing {field}")
 
         self._dataset = dataset
+
+        if select_fields is not None:
+            fields_to_add = []
+            for field in select_fields:
+                if "_chunk_" in field:
+                    chunk_index = field.index("_chunk_") + len("_chunk_")
+                    chunk_field = field[:chunk_index]
+                    fields_to_add += [chunk_field]
+            select_fields += fields_to_add
+            select_fields = list(set(select_fields))
+
         self._select_fields = select_fields
+
         self.worker_number = worker_number
         self.total_workers = total_workers
         if filters is None:
