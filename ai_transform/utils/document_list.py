@@ -63,6 +63,7 @@ class DocumentList(UserList):
         for document, chunk_labels in zip(self.data, chunk_values):
             if chunk_field not in document:
                 document[chunk_field] = []
+
             chunk = document[chunk_field]
 
             if chunk:
@@ -71,8 +72,11 @@ class DocumentList(UserList):
                 assert len(chunk) == len(
                     chunk_labels
                 ), "The length of your `chunk` array should be the same as your `chunk_values`"
-                for subchunk, label in zip(chunk, chunk_labels):
+                for chunk_index in range(len(chunk_labels)):
+                    subchunk = Document(chunk[chunk_index])
+                    label = chunk_labels[chunk_index]
                     subchunk[output_field] = label
+                    chunk[chunk_index] = subchunk.to_json()
             else:
                 document[chunk_field] = chunk_labels
 

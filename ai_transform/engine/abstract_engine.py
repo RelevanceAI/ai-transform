@@ -7,6 +7,8 @@ from json import JSONDecodeError
 from typing import Any, List, Optional, Sequence, Iterator
 from abc import ABC, abstractmethod
 
+from tqdm.auto import tqdm
+
 from ai_transform.helpers import format_logging_info
 from ai_transform.types import Filter
 from ai_transform.dataset.dataset import Dataset
@@ -14,7 +16,6 @@ from ai_transform.operator.abstract_operator import AbstractOperator
 
 from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
-from ai_transform.utils import set_seed
 
 from ai_transform.errors import MaxRetriesError
 
@@ -39,13 +40,11 @@ class AbstractEngine(ABC):
         worker_number: int = None,
         total_workers: int = None,
         check_for_missing_fields: bool = True,
-        seed: int = 42,
         output_to_status: Optional[bool] = False,
         documents: Optional[List[object]] = None,
         operators: Sequence[AbstractOperator] = None,
         limit_documents: Optional[int] = None,
     ):
-        set_seed(seed)
         if select_fields is not None:
             # We set this to a warning so that workflows that are adding
             # onto an existing field don't need this. For example - adding tags
@@ -108,8 +107,6 @@ class AbstractEngine(ABC):
         ):
             self._pull_chunksize = self.limit_documents
 
-        self._num_chunks = math.ceil(self._size / self._pull_chunksize)
-
         if filters is None:
             self._filters = []
         else:
@@ -134,12 +131,8 @@ class AbstractEngine(ABC):
         self._refresh = refresh
         self._after_id = after_id
 
-        self._successful_chunks = 0
+        self._successful_documents = 0
         self._success_ratio = None
-
-    @property
-    def num_chunks(self) -> int:
-        return self._num_chunks
 
     @property
     def operator(self) -> AbstractOperator:
@@ -178,8 +171,8 @@ class AbstractEngine(ABC):
         return self._output_documents
 
     @property
-    def size(self) -> int:
-        return self._size
+    def success_ratio(self) -> float:
+        return self._success_ratio
 
     def extend_output_documents(self, documents: List[Document]):
         self._output_documents.extend(documents)
@@ -190,6 +183,7 @@ class AbstractEngine(ABC):
 
     def __call__(self) -> Any:
         self.apply()
+        self.set_success_ratio()
 
     def _operate(self, mini_batch):
         try:
@@ -205,7 +199,7 @@ class AbstractEngine(ABC):
             # we only update schema on the first chunk
             # otherwise it breaks down how the backend handles
             # schema updates
-            self._successful_chunks += 1
+            self._successful_documents += len(mini_batch)
             return transformed_batch
 
     def _get_workflow_filter(self, field: str = "_id"):
@@ -337,6 +331,46 @@ class AbstractEngine(ABC):
 
             raise MaxRetriesError("max number of retries exceeded")
 
+    def api_progress(
+        self,
+        iterator: Iterator,
+        show_progress_bar: bool = True,
+        n_total: int = None,
+        n_passes: int = 1,
+        pass_index: int = 0,
+    ) -> Iterator:
+        assert n_passes >= 1, "`n_passes` must be strictly positive and greater than 0"
+        assert pass_index >= 0, "`pass_index` must be strictly positive"
+
+        if n_total is None:
+            n_total = self.size
+
+        total = n_total * n_passes
+        inital_value = pass_index * n_total
+        self.update_progress(
+            n_processed=inital_value,
+            n_total=total,
+        )
+
+        desc = " -> ".join([repr(operator) for operator in self.operators])
+
+        tqdm_bar = tqdm(
+            range(total),
+            desc=desc,
+            disable=(not show_progress_bar),
+            total=total,
+        )
+        tqdm_bar.update(inital_value)
+
+        for batch_index, batch in enumerate(iterator):
+            yield batch
+            api_n_processed = (batch_index + 1) * len(batch) + pass_index * n_total
+            self.update_progress(
+                n_processed=api_n_processed,
+                n_total=total,
+            )
+            tqdm_bar.update(len(batch))
+
     def update_progress(self, n_processed: int, n_total: int = None):
         """
         n_process: int
@@ -382,9 +416,10 @@ class AbstractEngine(ABC):
         self._name = value
 
     def set_success_ratio(self) -> None:
-        if self.num_chunks > 0:
-            self._success_ratio = self._successful_chunks / self.num_chunks
-            logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
+        self._success_ratio = self._successful_documents / (
+            self.size * len(self.operators)
+        )
+        logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
 
     @staticmethod
     def _filter_for_non_empty_list(documents: List[Document]) -> List[Document]:

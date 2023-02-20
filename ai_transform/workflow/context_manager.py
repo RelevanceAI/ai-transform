@@ -43,15 +43,7 @@ class WorkflowContextManager(API):
         self._dataset = dataset
         self._dataset_id = dataset.dataset_id
 
-        update_field_children = False
-        for operator in operators:
-            if operator.input_fields is not None and operator.output_fields is not None:
-                update_field_children = True
-                break
-
         self._operators = operators
-        self._update_field_children = update_field_children
-
         self._workflow_name = workflow_name
         self._job_id = job_id
 
@@ -65,8 +57,8 @@ class WorkflowContextManager(API):
         """
         The workflow is in progress
         """
-        if self._update_field_children:
-            for operator in self._operators:
+        for operator in self._operators:
+            if operator.update_field_children:
                 for input_field in operator.input_fields:
                     res = self.set_field_children(
                         input_field=input_field,
@@ -77,13 +69,6 @@ class WorkflowContextManager(API):
 
         self._set_status(
             status=self.IN_PROGRESS, worker_number=self._engine.worker_number
-        )
-        self._dataset.api._update_workflow_progress(
-            workflow_id=self._job_id,
-            worker_number=self._engine.worker_number,
-            step=self._workflow_name,
-            n_processed=0,
-            n_total=self._engine._size,
         )
         return
 

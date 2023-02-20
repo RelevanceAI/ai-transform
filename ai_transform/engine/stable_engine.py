@@ -20,8 +20,6 @@ from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.utils.document import Document
 from ai_transform.types import Filter
 
-from tqdm.auto import tqdm
-
 logger = logging.getLogger(__file__)
 
 
@@ -38,7 +36,6 @@ class StableEngine(AbstractEngine):
         worker_number: int = None,
         total_workers: int = None,
         check_for_missing_fields: bool = True,
-        seed: int = 42,
         output_to_status: Optional[bool] = False,
         documents: Optional[List[object]] = None,
         limit_documents: Optional[int] = None,
@@ -71,7 +68,6 @@ class StableEngine(AbstractEngine):
             worker_number=worker_number,
             total_workers=total_workers,
             check_for_missing_fields=check_for_missing_fields,
-            seed=seed,
             output_to_status=output_to_status,
             documents=documents,
             limit_documents=limit_documents,
@@ -79,9 +75,6 @@ class StableEngine(AbstractEngine):
 
         self._transform_chunksize = min(self.pull_chunksize, transform_chunksize)
         self._show_progress_bar = show_progress_bar
-
-        self._successful_chunks = 0
-        self._catch_errors = catch_errors
 
     def handle_upsert(self, batch_index: int, batch_to_insert: List[Document]):
         if self.output_to_status:
@@ -111,17 +104,8 @@ class StableEngine(AbstractEngine):
         """
         iterator = self.get_iterator()
 
-        self.update_progress(0)
-
         self.operator.pre_hooks(self._dataset)
-        for batch_index, mega_batch in enumerate(
-            tqdm(
-                iterator,
-                desc=repr(self.operator),
-                disable=(not self._show_progress_bar),
-                total=self.num_chunks,
-            )
-        ):
+        for batch_index, mega_batch in enumerate(self.api_progress(iterator)):
             batch_to_insert: List[Document] = []
 
             for mini_batch in AbstractEngine.chunk_documents(
@@ -132,8 +116,5 @@ class StableEngine(AbstractEngine):
                     batch_to_insert += transformed_batch
 
             self.handle_upsert(batch_index, batch_to_insert)
-            self.update_progress(len(batch_to_insert))
 
         self.operator.post_hooks(self._dataset)
-
-        self.set_success_ratio()
