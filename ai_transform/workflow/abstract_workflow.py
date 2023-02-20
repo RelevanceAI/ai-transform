@@ -42,7 +42,7 @@ class Workflow:
         self._job_id = job_id
 
         # Update the header
-        self._engine.dataset.api._headers.update(
+        self._engine.dataset.api.headers.update(
             ai_transform_job_id=job_id,
             ai_transform_name=name,
         )
@@ -50,7 +50,7 @@ class Workflow:
         self._engine.job_id = job_id
         self._engine.name = name
 
-        self._api = engine.dataset.api
+        self.api = engine.dataset.api
         self._metadata = metadata
         self._additional_information = additional_information
         self._send_email = send_email
@@ -106,7 +106,7 @@ class Workflow:
                         100 * success_ratio,
                         100 * self.success_threshold,
                     )
-                    self._api._set_workflow_status(
+                    self.api._set_workflow_status(
                         job_id=self._job_id,
                         workflow_name=self._name,
                         additional_information=fail_message,
@@ -146,7 +146,7 @@ class Workflow:
         return _TIMER.stop()
 
     def update_workflow_pricing(self, n_processed_pricing: float):
-        return self._api._update_workflow_pricing(
+        return self.api._update_workflow_pricing(
             workflow_id=self._job_id,
             step=self._name,
             worker_number=self._engine.worker_number,
@@ -154,10 +154,10 @@ class Workflow:
         )
 
     def get_status(self):
-        return self._api._get_workflow_status(self._job_id)
+        return self.api._get_workflow_status(self._job_id)
 
     def update_metadata(self, metadata: Dict[str, Any]):
-        return self._api._update_workflow_metadata(self._job_id, metadata=metadata)
+        return self.api._update_workflow_metadata(self._job_id, metadata=metadata)
 
 
 AbstractWorkflow = Workflow
