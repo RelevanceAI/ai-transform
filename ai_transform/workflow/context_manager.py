@@ -57,6 +57,15 @@ class WorkflowContextManager(API):
         """
         The workflow is in progress
         """
+        for operator in self._operators:
+            if operator.update_field_children:
+                for input_field in operator.input_fields:
+                    res = self.set_field_children(
+                        input_field=input_field,
+                        output_fields=operator.output_fields,
+                    )
+                    logger.debug(format_logging_info(res))
+
         self._set_status(
             status=self.IN_PROGRESS, worker_number=self._engine.worker_number
         )
@@ -98,30 +107,24 @@ class WorkflowContextManager(API):
         return True
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
-        for operator in self._operators:
-            if operator.update_field_children:
-                for input_field in operator.input_fields:
-                    res = self.set_field_children(
-                        input_field=input_field,
-                        output_fields=operator.output_fields,
-                    )
-                    logger.debug(format_logging_info(res))
         if exc_type is not None:
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
             return self._handle_workflow_complete(exc_type, exc_value, traceback)
 
-    def set_field_children(self, input_field: str, output_fields: list):
+    def set_field_children(
+        self, input_field: str, output_fields: list, fieldchildren_id: str
+    ):
         # Implement the config ID and authorization token
         # Receive these from the env variables in production - do not touch
         script_path = os.getenv("script_path", "")
         metadata = {"job_id": self._job_id, "workflow_id": script_path.split("/")[0]}
         return self._set_field_children(
             dataset_id=self._dataset_id,
-            fieldchildren_id=self._workflow_name.lower().replace("workflow", ""),
             field=input_field,
             field_children=output_fields,
             metadata=metadata,
+            fieldchildren_id=fieldchildren_id,
         )
 
     def _set_status(
