@@ -57,8 +57,34 @@ class WorkflowContextManager(API):
         """
         The workflow is in progress
         """
+        self._set_field_children_graph()
+        self._set_status(
+            status=self.IN_PROGRESS, worker_number=self._engine.worker_number
+        )
+        return
+
+    def _get_child_to_parent_mapping(self):
+        field_children = self._list_field_children(self._dataset_id)["results"]
+        inv_graph = {}
+
+        for relationship in field_children:
+            parent = relationship["field"]
+            children = relationship["field_children"]
+
+            for child in children:
+                if child not in inv_graph:
+                    inv_graph[child] = []
+
+                inv_graph[child] += [parent]
+
+        return inv_graph
+
+    def _set_field_children_graph(self):
+        inverse_graph = self._get_child_to_parent_mapping()
+
         for operator in self._operators:
             if operator.update_field_children:
+
                 for input_field in operator.input_fields:
                     res = self.set_field_children(
                         input_field=input_field,
@@ -67,10 +93,14 @@ class WorkflowContextManager(API):
                     )
                     logger.debug(format_logging_info(res))
 
-        self._set_status(
-            status=self.IN_PROGRESS, worker_number=self._engine.worker_number
-        )
-        return
+                    prev_parents = inverse_graph.get(input_field, [])
+                    for prev_parent in prev_parents:
+                        res = self.set_field_children(
+                            input_field=input_field,
+                            output_fields=[prev_parent],
+                            fieldchildren_id=self._job_id,
+                        )
+                        logger.debug(format_logging_info(res))
 
     def _handle_workflow_fail(
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
