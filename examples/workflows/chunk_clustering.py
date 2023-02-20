@@ -5,21 +5,23 @@ In this script, we are looking to perform the following:
 - Vectorize each sentence and store it as a vector inside the chunk
 - Cluster based on the chunks
 """
-import uuid
 import random
 import numpy as np
+
+from functools import partial
 from typing import Callable, List, Optional, Union
+
 from ai_transform.api.client import Client
 from ai_transform.dataset.dataset import Dataset
-from ai_transform.engine.cluster_engine import ClusterEngine
+from ai_transform.engine.in_memory_engine import InMemoryEngine
 from ai_transform.engine.stable_engine import StableEngine
 from ai_transform.workflow.helpers import decode_workflow_token
-from ai_transform.workflow.abstract_workflow import AbstractWorkflow, Workflow
+from ai_transform.workflow.abstract_workflow import Workflow
 from ai_transform.operator.abstract_operator import AbstractOperator
-from ai_transform.utils.document_list import DocumentList, Document
+from ai_transform.utils.document_list import DocumentList
+
 from sklearn.cluster import KMeans
 from sentence_splitter import split_text_into_sentences
-from functools import partial
 
 
 class SentenceSplitterOperator(AbstractOperator):
@@ -210,7 +212,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     )
 
     # filters = dataset[VECTOR_FIELD].exists()
-    engine = ClusterEngine(
+    engine = InMemoryEngine(
         dataset=dataset,
         operator=operator,
         select_fields=[CHUNK_FIELD],
