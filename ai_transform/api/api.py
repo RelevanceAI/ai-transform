@@ -497,7 +497,7 @@ class API:
         # set 95% coverage in case of edge cases like workflow only working
         # on certain proportion of dataset
         minimum_coverage: float = 0.95,
-        max_time: float = 6000,
+        max_time: float = 2 * 60,
         sleep_timer: float = 10,
         workflow_id="poll",
         version="production_version",

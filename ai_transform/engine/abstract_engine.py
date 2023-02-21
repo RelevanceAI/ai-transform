@@ -418,13 +418,8 @@ class AbstractEngine(ABC):
         self._name = value
 
     def set_success_ratio(self) -> None:
-        try:
-            self._success_ratio = self._successful_documents / (
-                self.size * len(self.operators)
-            )
-        except ZeroDivisionError:
-            # if theres no documents just set success ratio at 1
-            self._success_ratio = 1
+        denominator = min((self.size * len(self.operators)), 1)
+        self._success_ratio = self._successful_documents / denominator
         logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
 
     @staticmethod
