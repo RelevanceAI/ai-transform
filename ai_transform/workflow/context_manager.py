@@ -53,54 +53,39 @@ class WorkflowContextManager(API):
         self._email = email
         self._mark_as_complete_after_polling = mark_as_complete_after_polling
 
+    @property
+    def dataset(self) -> Dataset:
+        return self._dataset
+
+    @property
+    def field_children_metadata(self) -> Dict[str, str]:
+        script_path = os.getenv("script_path", "")
+        workflow_id = script_path.split("/")[0]
+        return {
+            "job_id": self._job_id,
+            "workflow_id": workflow_id,
+        }
+
     def __enter__(self):
         """
         The workflow is in progress
         """
-        self._set_field_children_graph()
+        self._set_field_children_recursively()
         self._set_status(
             status=self.IN_PROGRESS, worker_number=self._engine.worker_number
         )
         return
 
-    def _get_child_to_parent_mapping(self):
-        field_children = self._list_field_children(self._dataset_id)["results"]
-        inv_graph = {}
-
-        for relationship in field_children:
-            parent = relationship["field"]
-            children = relationship["field_children"]
-
-            for child in children:
-                if child not in inv_graph:
-                    inv_graph[child] = []
-
-                inv_graph[child] += [parent]
-
-        return inv_graph
-
-    def _set_field_children_graph(self):
-        inverse_graph = self._get_child_to_parent_mapping()
-
+    def _set_field_children_recursively(self):
         for operator in self._operators:
             if operator.update_field_children:
-
                 for input_field in operator.input_fields:
-                    res = self.set_field_children(
-                        input_field=input_field,
-                        output_fields=operator.output_fields,
+                    res = self.dataset[input_field].add_field_children(
+                        field_children=operator.output_fields,
                         fieldchildren_id=self._job_id,
+                        recursive=True,
                     )
                     logger.debug(format_logging_info(res))
-
-                    prev_parents = inverse_graph.get(input_field, [])
-                    for prev_parent in prev_parents:
-                        res = self.set_field_children(
-                            input_field=prev_parent,
-                            output_fields=operator.output_fields,
-                            fieldchildren_id=self._job_id,
-                        )
-                        logger.debug(format_logging_info(res))
 
     def _handle_workflow_fail(
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
@@ -142,21 +127,6 @@ class WorkflowContextManager(API):
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
             return self._handle_workflow_complete(exc_type, exc_value, traceback)
-
-    def set_field_children(
-        self, input_field: str, output_fields: list, fieldchildren_id: str
-    ):
-        # Implement the config ID and authorization token
-        # Receive these from the env variables in production - do not touch
-        script_path = os.getenv("script_path", "")
-        metadata = {"job_id": self._job_id, "workflow_id": script_path.split("/")[0]}
-        return self._set_field_children(
-            dataset_id=self._dataset_id,
-            field=input_field,
-            field_children=output_fields,
-            metadata=metadata,
-            fieldchildren_id=fieldchildren_id,
-        )
 
     def _set_status(
         self,
