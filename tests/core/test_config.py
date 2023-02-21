@@ -16,7 +16,12 @@ def test_from_config(test_sentiment_config: SentimentConfig, full_dataset: Datas
 
     workflow = Workflow.from_config(test_sentiment_config, engine=engine)
 
+    assert operator._text_field == test_sentiment_config.text_field
     assert operator.input_fields
     assert operator.output_fields
     assert engine.dataset
+    assert engine.pull_chunksize == test_sentiment_config.pull_chunksize
     assert workflow.engine
+    assert (
+        workflow._additional_information == test_sentiment_config.additional_information
+    )

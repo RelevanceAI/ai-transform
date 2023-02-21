@@ -40,6 +40,7 @@ test_creds = process_token(TEST_TOKEN)
 class SentimentConfig(BaseTransformConfig):
     text_field: str = Field(...)
     alias: str = Field(None)
+    pull_chunksize: int = 20
 
 
 @pytest.fixture(scope="function")
