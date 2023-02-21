@@ -106,7 +106,7 @@ class AbstractOperator(ABC):
 
     @classmethod
     def from_config(
-        cls: type[Self],
+        cls,
         config: BaseConfig,
         **kwargs,
     ) -> Self:

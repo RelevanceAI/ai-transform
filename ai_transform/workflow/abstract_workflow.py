@@ -66,7 +66,7 @@ class Workflow:
 
     @classmethod
     def from_config(
-        cls: type[Self],
+        cls,
         config: BaseConfig,
         engine: AbstractEngine,
         **kwargs,

@@ -142,7 +142,7 @@ class AbstractEngine(ABC):
 
     @classmethod
     def from_config(
-        cls: type[Self],
+        cls,
         config: BaseConfig,
         dataset: Dataset,
         operator: AbstractOperator,
