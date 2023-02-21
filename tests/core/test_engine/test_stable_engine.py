@@ -1,13 +1,13 @@
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.engine.stable_engine import StableEngine
-from workflows_core.engine.small_batch_stable_engine import SmallBatchStableEngine
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.engine.stable_engine import StableEngine
+from ai_transform.engine.small_batch_stable_engine import SmallBatchStableEngine
 
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.workflow.abstract_workflow import AbstractWorkflow
 
 
 class TestStableEngine:
-    def test_stable_engine_abstract(
+    def test_stable_engine(
         self, full_dataset: Dataset, test_operator: AbstractOperator
     ):
         engine = StableEngine(full_dataset, test_operator, worker_number=0)
@@ -17,9 +17,9 @@ class TestStableEngine:
             job_id="test_job123",
         )
         workflow.run()
-        assert True
+        assert engine.success_ratio == 1
 
-    def test_small_batch_stable_engine_abstract(
+    def test_small_batch_stable_engine(
         self, full_dataset: Dataset, test_operator: AbstractOperator
     ):
         engine = SmallBatchStableEngine(full_dataset, test_operator)
@@ -29,4 +29,4 @@ class TestStableEngine:
             job_id="test_job123",
         )
         workflow.run()
-        assert True
+        assert engine.success_ratio == 1

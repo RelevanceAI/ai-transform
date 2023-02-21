@@ -3,10 +3,10 @@ Test Keyphrase CRUD endpoints
 """
 import uuid
 
-from workflows_core.utils import List
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.api.client import Client
-from workflows_core.utils.keyphrase import Keyphrase
+from ai_transform.utils import List
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.api.client import Client
+from ai_transform.utils.keyphrase import Keyphrase
 
 # write a few tests
 class TestClient:
@@ -21,14 +21,14 @@ class TestClient:
         alias = "default"
         test_dataset_id = test_keyphrase_dataset.dataset_id
 
-        result = test_client._api._bulk_update_keyphrase(
+        result = test_client.api._bulk_update_keyphrase(
             dataset_id=test_dataset_id,
             field=field,
             alias=alias,
             updates=test_keyphrases,
         )
         # Now that that we saw the actual dataset
-        result = test_client._api._get_keyphrase(
+        result = test_client.api._get_keyphrase(
             test_dataset_id, field=field, alias=alias, keyphrase_id="word"
         )
         print(result)

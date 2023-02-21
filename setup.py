@@ -1,8 +1,13 @@
 from setuptools import find_packages, setup
 
-from workflows_core import __version__
+from ai_transform import __version__
 
-requirements = ["tqdm>=4.49.0", "requests>=2.0.0", "pandas>=1.5.0", "pydantic>=1.10.2"]
+requirements = [
+    "tqdm>=4.49.0",
+    "requests>=2.0.0",
+    "pandas>=1.5.0",
+    "pydantic>=1.10.2",
+]
 
 ray_requirements = [
     "numpy>=1.19.0",
@@ -10,11 +15,7 @@ ray_requirements = [
     "ray==2.0.0",
 ]
 
-core_test_requirements = [
-    "pytest",
-    "pytest-xdist",
-    "pytest-cov",
-]
+core_test_requirements = ["pytest", "pytest-xdist", "pytest-cov", "sentence-splitter"]
 
 example_test_requirements = core_test_requirements + [
     "torch",
@@ -23,7 +24,7 @@ example_test_requirements = core_test_requirements + [
 ]
 
 setup(
-    name="RelevanceAI Workflows Core",
+    name="ai_transform",
     version=__version__,
     url="https://tryrelevance.com/",
     author="Relevance AI",

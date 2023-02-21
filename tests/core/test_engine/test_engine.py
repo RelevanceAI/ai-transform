@@ -1,8 +1,8 @@
 from typing import Any
 
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.operator.abstract_operator import AbstractOperator
-from workflows_core.engine.abstract_engine import AbstractEngine
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.engine.abstract_engine import AbstractEngine
 
 
 class TestAbstractEngine:
@@ -19,7 +19,6 @@ class TestAbstractEngine:
 
         engine = ExampleEngine(full_dataset, test_operator)
 
-        assert engine.num_chunks > 0
         assert isinstance(engine.operator, AbstractOperator)
         assert len(ExampleEngine.__abstractmethods__) == 0
 
@@ -41,5 +40,7 @@ class TestAbstractEngine:
             def apply(self) -> Any:
                 return
 
-        engine = ExampleEngine(full_dataset, test_operator, select_fields=["_id"])
-        assert True
+        engine = ExampleEngine(
+            full_dataset, test_operator, select_fields=["_id", "_chunk_.label"]
+        )
+        assert "_chunk_" in engine._select_fields

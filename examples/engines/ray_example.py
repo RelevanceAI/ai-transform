@@ -3,11 +3,11 @@ import uuid
 
 import pandas as pd
 
-from workflows_core.api.client import Client
-from workflows_core.engine.ray_engine import RayEngine
-from workflows_core.operator.ray_operator import AbstractRayOperator
-from workflows_core.workflow.abstract_workflow import AbstractWorkflow
-from workflows_core.workflow.helpers import decode_workflow_token
+from ai_transform.api.client import Client
+from ai_transform.engine.ray_engine import RayEngine
+from ai_transform.operator.ray_operator import AbstractRayOperator
+from ai_transform.workflow.abstract_workflow import AbstractWorkflow
+from ai_transform.workflow.helpers import decode_workflow_token
 
 
 class RayOperator(AbstractRayOperator):

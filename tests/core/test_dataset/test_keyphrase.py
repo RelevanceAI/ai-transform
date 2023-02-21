@@ -1,7 +1,7 @@
 import pytest
 
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.utils.keyphrase import Keyphrase
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.utils.keyphrase import Keyphrase
 
 
 @pytest.mark.usefixtures("full_dataset")

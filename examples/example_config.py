@@ -1,7 +1,7 @@
 # For a full example - see
 # examples/workflows/sentiment_example.py
 # In that example - we inherit the BaseConfig class
-from workflows_core.config import BaseConfig
+from ai_transform.config import BaseConfig
 from typing import Optional
 from pydantic import Field
 

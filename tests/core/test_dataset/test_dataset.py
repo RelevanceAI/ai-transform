@@ -1,8 +1,8 @@
 import pytest
 import random
 
-from workflows_core.dataset.dataset import Dataset
-from workflows_core.utils.example_documents import mock_documents
+from ai_transform.dataset.dataset import Dataset
+from ai_transform.utils.example_documents import mock_documents
 
 
 @pytest.mark.usefixtures("empty_dataset")
@@ -27,6 +27,10 @@ class TestDataset2:
     def test_schema(self, full_dataset: Dataset):
         documents = mock_documents(5)
         keys = documents[0].keys()
+        keys = [
+            ".".join([sf for sf in nested_field.split(".") if not sf.isdigit()])
+            for nested_field in keys
+        ]
         schema = full_dataset.schema
         assert all([key in schema for key in keys if key not in ["_id"]])
 
