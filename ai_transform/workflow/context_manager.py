@@ -83,6 +83,7 @@ class WorkflowContextManager(API):
                     res = self.dataset[input_field].add_field_children(
                         field_children=operator.output_fields,
                         fieldchildren_id=self._job_id,
+                        metadata=self.field_children_metadata,
                         recursive=True,
                     )
                     logger.debug(format_logging_info(res))

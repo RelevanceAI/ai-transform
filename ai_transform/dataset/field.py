@@ -53,6 +53,7 @@ class Field:
         self,
         field_children: List[str],
         fieldchildren_id: str = None,
+        metadata: Dict[str, Any] = None,
         recursive: bool = False,
     ):
         if fieldchildren_id is None:
@@ -62,6 +63,7 @@ class Field:
             field=self.field,
             field_children=field_children,
             recursive=recursive,
+            metadata=metadata,
         )
 
     def _get_filter_type(self) -> str:
