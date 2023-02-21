@@ -418,7 +418,7 @@ class AbstractEngine(ABC):
         self._name = value
 
     def set_success_ratio(self) -> None:
-        denominator = min((self.size * len(self.operators)), 1)
+        denominator = max((self.size * len(self.operators)), 1)
         self._success_ratio = self._successful_documents / denominator
         logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
 
