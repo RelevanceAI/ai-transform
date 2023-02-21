@@ -102,3 +102,6 @@ class Client:
 
     def delete_project_key(self, key: str):
         return self.api._delete_project_key(key=key)
+
+    def update_api_version(self, development_version: str, production_version: str):
+        return self.api._update_version_aliases(development_version, production_version)
