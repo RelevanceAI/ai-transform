@@ -1,5 +1,6 @@
 import json
 import logging
+import warnings
 import numpy as np
 
 from copy import deepcopy
@@ -80,6 +81,11 @@ class AbstractOperator(ABC):
         enable_postprocess: Optional[bool] = True,
     ):
         if input_fields is not None:
+            if isinstance(input_fields, str):
+                warnings.warn(
+                    "Automatically casting `input_fields` to a List[str]. In futures please supply `input_fields` as List[str]"
+                )
+                input_fields = [input_fields]
             assert isinstance(input_fields, list), "`input_fields` must be of type list"
             for field_index, input_field in enumerate(input_fields):
                 assert isinstance(
@@ -87,6 +93,11 @@ class AbstractOperator(ABC):
                 ), f"input_field at index {field_index} of `input_fields` is not of type string"
 
         if output_fields is not None:
+            if isinstance(output_fields, str):
+                warnings.warn(
+                    "Automatically casting `output_fields` to a List[str]. In futures please supply `output_fields` as List[str]"
+                )
+                output_fields = [output_fields]
             assert isinstance(
                 output_fields, list
             ), "`output_fields`  must be of type list"
