@@ -5,13 +5,17 @@ import numpy as np
 from copy import deepcopy
 from abc import ABC, abstractmethod
 
-from typing import Any, Dict, List, Optional
+from typing import Any, List, TypeVar, Optional
 
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
 
+from ai_transform.config import BaseConfig
+
 logger = logging.getLogger(__file__)
+
+Self = TypeVar("Self", bound="AbstractOperator")
 
 
 def are_vectors_similar(vector_1, vector_2):
@@ -99,6 +103,25 @@ class AbstractOperator(ABC):
         self._output_fields = output_fields
         self._enable_postprocess = enable_postprocess
         self._n_processed_pricing = None
+
+    @classmethod
+    def from_config(
+        cls: type[Self],
+        config: BaseConfig,
+        **kwargs,
+    ) -> Self:
+        operator_args = set(cls.__init__.__code__.co_varnames)
+        operator_args.update(AbstractOperator.__init__.__code__.co_varnames)
+        for kw in ["self", "args", "kwargs"]:
+            try:
+                operator_args.remove(kw)
+            except:
+                pass
+        kwargs = {
+            **kwargs,
+            **config.dict(include=operator_args),
+        }
+        return cls(**kwargs)
 
     def toggle_postprocess(self):
         self._enable_postprocess ^= True

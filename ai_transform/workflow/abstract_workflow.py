@@ -2,7 +2,7 @@ import uuid
 import logging
 import warnings
 
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict, Optional, TypeVar
 
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
@@ -10,7 +10,12 @@ from ai_transform.errors import WorkflowFailedError
 from ai_transform.workflow.context_manager import WorkflowContextManager
 from ai_transform.operator.abstract_operator import AbstractOperator
 
+from ai_transform.config import BaseConfig
+
+
 logger = logging.getLogger(__name__)
+
+Self = TypeVar("Self", bound="Workflow")
 
 WORKFLOW_FAIL_MESSAGE = (
     "Workflow processed {:.2f}%"
@@ -58,6 +63,27 @@ class Workflow:
         self._success_threshold = success_threshold
         self._mark_as_complete_after_polling = mark_as_complete_after_polling
         self._email = email
+
+    @classmethod
+    def from_config(
+        cls: type[Self],
+        config: BaseConfig,
+        engine: AbstractEngine,
+        **kwargs,
+    ) -> Self:
+        operator_args = set(cls.__init__.__code__.co_varnames)
+        operator_args.update(Workflow.__init__.__code__.co_varnames)
+        for kw in ["self", "args", "kwargs"]:
+            try:
+                operator_args.remove(kw)
+            except:
+                pass
+        kwargs = {
+            "engine": engine,
+            **kwargs,
+            **config.dict(include=operator_args),
+        }
+        return cls(**kwargs)
 
     @property
     def success_threshold(self):
