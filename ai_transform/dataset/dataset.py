@@ -282,9 +282,38 @@ class Dataset:
             asc=asc,
         )
 
-    def list_field_children(self, page: int = 0, page_size: int = 10000):
+    def set_field_children(
+        self,
+        fieldchildren_id: str,
+        field: str,
+        field_children: List[str],
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
+        return self.api._set_field_children(
+            dataset_id=self._dataset_id,
+            fieldchildren_id=fieldchildren_id,
+            field=field,
+            field_children=field_children,
+            metadata=metadata,
+        )
+
+    def list_field_children(
+        self,
+        page: int = 1,
+        page_size: int = 10000,
+        sort=None,
+    ):
         return self.api._list_field_children(
-            dataset_id=self._dataset_id, page=page, page_size=page_size
+            dataset_id=self._dataset_id,
+            page=page,
+            page_size=page_size,
+            sort=sort,
+        )
+
+    def delete_field_children(self, fieldchildren_id: str):
+        return self.api._delete_field_children(
+            dataset_id=self._dataset_id,
+            fieldchildren_id=fieldchildren_id,
         )
 
     def aggregate(
