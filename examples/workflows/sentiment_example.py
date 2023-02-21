@@ -30,10 +30,13 @@ class SentimentOperator(AbstractOperator):
         alias: Optional[str] = None,
     ):
 
-        device = 0 if torch.cuda.is_available() else -1
-        self._model = pipeline(
-            "sentiment-analysis", model=model, device=device, return_all_scores=True
-        )
+        try:
+            device = 0 if torch.cuda.is_available() else -1
+            self._model = pipeline(
+                "sentiment-analysis", model=model, device=device, return_all_scores=True
+            )
+        except:
+            pass
 
         self._text_field = text_field
         self._alias = model.replace("/", "-") if alias is None else alias
