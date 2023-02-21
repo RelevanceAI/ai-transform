@@ -1,4 +1,8 @@
-import torch
+try:
+    import torch
+    from transformers import pipeline
+except:
+    pass
 
 from typing import Callable, Optional
 
@@ -10,8 +14,6 @@ from ai_transform.utils.document_list import DocumentList
 from ai_transform.config import BaseConfig
 
 from pydantic import Field
-
-from transformers import pipeline
 
 
 class SentimentOperator(AbstractOperator):
