@@ -7,17 +7,26 @@ import random
 import pytest
 import string
 
+from pydantic import Field
+
 from typing import List, Dict, Sequence
 
-from ai_transform.api.client import Client
 from ai_transform.dataset.dataset import Dataset
+
 from ai_transform.api.helpers import process_token
+from ai_transform.api.client import Client
+
 from ai_transform.engine.stable_engine import StableEngine
-from ai_transform.utils.document import Document
-from ai_transform.utils.document_list import DocumentList
+from ai_transform.engine.stable_engine import StableEngine
+
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.operator.dense_operator import DenseOperator
-from ai_transform.engine.stable_engine import StableEngine
+
+from ai_transform.utils.document import Document
+from ai_transform.utils.document_list import DocumentList
+
+from ai_transform.config import BaseTransformConfig
+
 from ai_transform.utils.example_documents import (
     mock_documents,
     static_documents,
@@ -26,6 +35,16 @@ from ai_transform.utils.example_documents import (
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
+
+
+class SentimentConfig(BaseTransformConfig):
+    text_field: str = Field(...)
+    alias: str = Field(None)
+
+
+@pytest.fixture(scope="function")
+def test_sentiment_config() -> SentimentConfig:
+    return SentimentConfig(text_field="sample_label_1")
 
 
 @pytest.fixture(scope="session")

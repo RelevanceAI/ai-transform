@@ -164,10 +164,6 @@ class AbstractEngine(ABC):
         return cls(**kwargs)
 
     @property
-    def num_chunks(self) -> int:
-        return self._num_chunks
-
-    @property
     def operator(self) -> AbstractOperator:
         return self._operator
 
