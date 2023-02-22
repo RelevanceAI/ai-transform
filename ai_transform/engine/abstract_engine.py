@@ -143,11 +143,13 @@ class AbstractEngine(ABC):
         cls,
         config: BaseConfig,
         dataset: Dataset,
-        operator: AbstractOperator,
+        operator: AbstractOperator = None,
         **kwargs,
     ) -> "AbstractEngine":
         operator_args = set(cls.__init__.__code__.co_varnames)
         operator_args.update(AbstractEngine.__init__.__code__.co_varnames)
+        if operator is None:
+            assert "operators" in kwargs, "`operator` and/or `operators` not defined"
         for kw in ["self", "args", "kwargs"]:
             try:
                 operator_args.remove(kw)
