@@ -160,8 +160,8 @@ class Document(UserDict):
             ]
         except Exception as e:
             import traceback
-
             traceback.print_exc()
+            # this is the error this exception aims to solve
             #     for m in re.finditer(text_to_find, string)
             #     return _compile(pattern, flags).finditer(string)
             #     p = sre_compile.compile(pattern, flags)
