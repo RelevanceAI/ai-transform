@@ -157,10 +157,11 @@ class AbstractEngine(ABC):
                 pass
         kwargs = {
             "dataset": dataset,
-            "operator": operator,
             **kwargs,
             **config.dict(include=operator_args),
         }
+        if operator is not None:
+            kwargs["operator"] = operator
         return cls(**kwargs)
 
     @property
