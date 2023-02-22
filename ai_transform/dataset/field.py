@@ -1,3 +1,4 @@
+import uuid
 import numpy as np
 
 from typing import Dict, Any, List, Optional, Union
@@ -21,12 +22,49 @@ class Field:
         self._filter_type = self._get_filter_type()
 
     @property
+    def dataset(self):
+        return self._dataset
+
+    @property
     def dataset_id(self):
         return self._dataset.dataset_id
 
     @property
-    def _text_field(self):
+    def field(self):
         return self._field
+
+    def list_field_parents(self) -> List[str]:
+        all_field_children = self.dataset.list_field_children()["results"]
+        field_parents = []
+        for relationship in all_field_children:
+            if self.field in relationship["field_children"]:
+                field_parents += [relationship["field"]]
+        return list(set(field_parents))
+
+    def list_field_children(self) -> List[str]:
+        all_field_children = self.dataset.list_field_children()["results"]
+        field_children = []
+        for relationship in all_field_children:
+            if relationship["field"] == self.field:
+                field_children += relationship["field_children"]
+        return list(set(field_children))
+
+    def add_field_children(
+        self,
+        field_children: List[str],
+        fieldchildren_id: str = None,
+        metadata: Dict[str, Any] = None,
+        recursive: bool = False,
+    ):
+        if fieldchildren_id is None:
+            fieldchildren_id = str(uuid.uuid4())
+        return self.dataset.set_field_children(
+            fieldchildren_id=fieldchildren_id,
+            field=self.field,
+            field_children=field_children,
+            recursive=recursive,
+            metadata=metadata,
+        )
 
     def _get_filter_type(self) -> str:
         if self._dtype == "numeric":
@@ -258,12 +296,6 @@ class Field:
         raise NotImplementedError(
             f"`list_keyphrases` not available for non-keyphrase fields"
         )
-
-    def get_parent(self):
-        # Returns None if there is no parent
-        for r in self._dataset.list_field_children()["results"]:
-            if self._field in r["field_children"]:
-                return r["field"]
 
 
 class ClusterField(Field):

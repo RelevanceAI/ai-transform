@@ -1039,3 +1039,19 @@ class API:
             json=dict(key=key),
         )
         return get_response(response)
+
+    @retry()
+    def _update_version_aliases(
+        self, development_version: str, production_version: str
+    ):
+        response = requests.post(
+            url=self.base_url + "/workflows/types/version_aliases/update",
+            headers=self.headers,
+            json={
+                "aliases": {
+                    "development_version": development_version,
+                    "production_version": production_version,
+                },
+            },
+        )
+        return get_response(response)
