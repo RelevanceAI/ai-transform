@@ -65,7 +65,7 @@ class BaseConfig(BaseModel):
     def read_token(self, token: str):
         # Enables behavior such
         # reads in required attributes from argparser
-        from workflows_core.workflow.helpers import decode_workflow_token
+        from ai_transform.workflow.helpers import decode_workflow_token
 
         config_dict = decode_workflow_token(token)
         return self.parse_obj(config_dict)
