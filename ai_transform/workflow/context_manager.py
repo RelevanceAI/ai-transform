@@ -109,7 +109,7 @@ class WorkflowContextManager(API):
             result = self._trigger_polling_workflow(
                 dataset_id=self._dataset_id,
                 input_field=self._operators[0].input_fields[0],
-                output_field=self._operators[-1].output_fields[0],
+                output_field=self._operators[-1].output_fields[-1],
                 job_id=self._job_id,
                 workflow_name=self._workflow_name,
             )

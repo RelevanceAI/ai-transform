@@ -497,7 +497,7 @@ class API:
         # set 95% coverage in case of edge cases like workflow only working
         # on certain proportion of dataset
         minimum_coverage: float = 0.95,
-        max_time: float = 6000,
+        max_time: float = 120,
         sleep_timer: float = 10,
         workflow_id="poll",
         version="production_version",
@@ -1037,5 +1037,21 @@ class API:
             url=self.base_url + "/projects/keys/delete",
             headers=self.headers,
             json=dict(key=key),
+        )
+        return get_response(response)
+
+    @retry()
+    def _update_version_aliases(
+        self, development_version: str, production_version: str
+    ):
+        response = requests.post(
+            url=self.base_url + "/workflows/types/version_aliases/update",
+            headers=self.headers,
+            json={
+                "aliases": {
+                    "development_version": development_version,
+                    "production_version": production_version,
+                },
+            },
         )
         return get_response(response)
