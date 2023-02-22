@@ -23,6 +23,8 @@ example_test_requirements = core_test_requirements + [
     "transformers[torch]==4.18.0",
 ]
 
+chunk_requirements = ["fuzzysearch==0.7.3"]
+
 setup(
     name="ai_transform",
     version=__version__,
@@ -41,5 +43,6 @@ setup(
         core_tests=core_test_requirements,
         example_tests=example_test_requirements,
         ray=ray_requirements,
+        chunk=chunk_requirements,
     ),
 )

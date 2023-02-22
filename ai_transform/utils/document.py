@@ -153,10 +153,28 @@ class Document(UserDict):
         return DocumentList(docs)
 
     def _calculate_offset(self, text_to_find, string):
-        result = [
-            {"start": m.start(), "end": m.end()}
-            for m in re.finditer(text_to_find, string)
-        ]
+        try:
+            result = [
+                {"start": m.start(), "end": m.end()}
+                for m in re.finditer(text_to_find, string)
+            ]
+        except Exception as e:
+            import traceback
+
+            traceback.print_exc()
+            #     for m in re.finditer(text_to_find, string)
+            #     return _compile(pattern, flags).finditer(string)
+            #     p = sre_compile.compile(pattern, flags)
+            #     p = sre_parse.parse(p, flags)
+            #     p = _parse_sub(source, state, flags & SRE_FLAG_VERBOSE, 0)
+            #     itemsappend(_parse(source, state, verbose, nested + 1,
+            #     raise source.error("nothing to repeat",
+            # re.error: nothing to repeat at position 0
+            # instead, we will use fuzzysearch
+            from fuzzysearch import find_near_matches
+
+            matches = find_near_matches(text_to_find, string, max_l_dist=2)
+            result = [{"start": m.start, "end": m.end} for m in matches]
         return result
 
     def set_chunk(
