@@ -182,7 +182,8 @@ class AbstractEngine(ABC):
         raise NotImplementedError
 
     def __call__(self) -> Any:
-        self.apply()
+        if self.size != 0:
+            self.apply()
         self.set_success_ratio()
 
     def _operate(self, mini_batch):
@@ -418,8 +419,11 @@ class AbstractEngine(ABC):
         self._name = value
 
     def set_success_ratio(self) -> None:
-        denominator = max((self.size * len(self.operators)), 1)
-        self._success_ratio = self._successful_documents / denominator
+        if self.size:
+            denominator = self.size * len(self.operators)
+            self._success_ratio = self._successful_documents / denominator
+        else:
+            self._success_ratio = 1
         logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
 
     @staticmethod
