@@ -5,7 +5,7 @@ import numpy as np
 from copy import deepcopy
 from abc import ABC, abstractmethod
 
-from typing import Any, List, TypeVar, Optional
+from typing import Any, List, Optional
 
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.utils.document import Document
@@ -14,8 +14,6 @@ from ai_transform.utils.document_list import DocumentList
 from ai_transform.config import BaseConfig
 
 logger = logging.getLogger(__file__)
-
-Self = TypeVar("Self", bound="AbstractOperator")
 
 
 def are_vectors_similar(vector_1, vector_2):
@@ -109,7 +107,7 @@ class AbstractOperator(ABC):
         cls,
         config: BaseConfig,
         **kwargs,
-    ) -> Self:
+    ) -> "AbstractOperator":
         operator_args = set(cls.__init__.__code__.co_varnames)
         operator_args.update(AbstractOperator.__init__.__code__.co_varnames)
         for kw in ["self", "args", "kwargs"]:

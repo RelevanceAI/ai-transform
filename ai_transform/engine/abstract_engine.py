@@ -5,7 +5,7 @@ import warnings
 import inspect
 
 from json import JSONDecodeError
-from typing import Any, List, TypeVar, Optional, Sequence, Iterator
+from typing import Any, List, Optional, Sequence, Iterator
 from abc import ABC, abstractmethod
 from json import JSONDecodeError
 
@@ -27,8 +27,6 @@ logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
 )
 logger = logging.getLogger(__name__)
-
-Self = TypeVar("Self", bound="AbstractEngine")
 
 
 class AbstractEngine(ABC):
@@ -147,7 +145,7 @@ class AbstractEngine(ABC):
         dataset: Dataset,
         operator: AbstractOperator,
         **kwargs,
-    ) -> Self:
+    ) -> "AbstractEngine":
         operator_args = set(cls.__init__.__code__.co_varnames)
         operator_args.update(AbstractEngine.__init__.__code__.co_varnames)
         for kw in ["self", "args", "kwargs"]:

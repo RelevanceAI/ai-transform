@@ -2,7 +2,7 @@ import uuid
 import logging
 import warnings
 
-from typing import Any, List, Dict, Optional, TypeVar
+from typing import Any, List, Dict, Optional
 
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
@@ -15,7 +15,6 @@ from ai_transform.config import BaseConfig
 
 logger = logging.getLogger(__name__)
 
-Self = TypeVar("Self", bound="Workflow")
 
 WORKFLOW_FAIL_MESSAGE = (
     "Workflow processed {:.2f}%"
@@ -70,7 +69,7 @@ class Workflow:
         config: BaseConfig,
         engine: AbstractEngine,
         **kwargs,
-    ) -> Self:
+    ) -> "Workflow":
         operator_args = set(cls.__init__.__code__.co_varnames)
         operator_args.update(Workflow.__init__.__code__.co_varnames)
         for kw in ["self", "args", "kwargs"]:
