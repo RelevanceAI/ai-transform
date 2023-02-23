@@ -114,26 +114,34 @@ class AbstractEngine(ABC):
             self._operator = None
             self._operators = operators
 
-        input_field_filters = []
-        if filters is None:
-            for field in select_fields:
-                input_field_filters += dataset[field].exists()
-        else:
-            assert isinstance(filters, list), "Please provide a list of Fitlers"
-
-        output_field_filters = []
+        refresh_filters = [
+            {
+                "filter_type": "or",
+                "condition_value": [],
+            }
+        ]
         if not refresh:
-            for operator in self.operators:
-                for output_field in operator.output_fields:
-                    output_field_filters.append(dataset[output_field].not_exists())
-
-        if input_field_filters or output_field_filters:
-            filters += [
+            input_field_filters = []
+            output_field_filters = []
+            filter = [
                 {
                     "filter_type": "or",
-                    "condition_value": output_field_filters + input_field_filters,
+                    "condition_value": [],
                 }
             ]
+            for field in select_fields:
+                input_field_filters += dataset[field].exists()
+            for operator in self.operators:
+                for output_field in operator.output_fields:
+                    output_field_filters += dataset[output_field].not_exists()
+
+            filter["condition_value"] = output_field_filters
+            filter += input_field_filters
+            refresh_filters["condition_value"] += filter
+
+        if refresh_filters["condition_value"]:
+            filters += refresh_filters
+
         filters += self._get_workflow_filter()
 
         self._size = (
