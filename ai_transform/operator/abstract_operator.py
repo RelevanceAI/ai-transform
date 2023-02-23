@@ -5,7 +5,7 @@ import numpy as np
 from copy import deepcopy
 from abc import ABC, abstractmethod
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.utils.document import Document
@@ -76,11 +76,13 @@ class AbstractOperator(ABC):
     def __init__(
         self,
         input_fields: Optional[List[str]] = None,
-        output_fields: Optional[List[str]] = None,
+        output_fields: Optional[Union[Dict[str, str], List[str]]] = None,
         enable_postprocess: Optional[bool] = True,
     ):
         if input_fields is not None:
-            assert isinstance(input_fields, list), "`input_fields` must be of type list"
+            assert isinstance(
+                input_fields, list
+            ), "`input_fields` must be of type list or dict"
             for field_index, input_field in enumerate(input_fields):
                 assert isinstance(
                     input_field, str
@@ -89,7 +91,7 @@ class AbstractOperator(ABC):
         if output_fields is not None:
             assert isinstance(
                 output_fields, list
-            ), "`output_fields`  must be of type list"
+            ), "`output_fields`  must be of type list or dict"
             for field_index, output_field in enumerate(output_fields):
                 assert isinstance(
                     output_field, str
