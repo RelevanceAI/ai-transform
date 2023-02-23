@@ -136,9 +136,9 @@ class AbstractEngine(ABC):
             filter["condition_value"] = output_field_filters
             filter = [filter]
             filter += input_field_filters
-            refresh_filters["condition_value"] += filter
+            refresh_filters[0]["condition_value"] += filter
 
-        if refresh_filters["condition_value"]:
+        if refresh_filters[0]["condition_value"]:
             filters += refresh_filters
 
         filters += self._get_workflow_filter()
