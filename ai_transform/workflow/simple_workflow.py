@@ -51,7 +51,7 @@ class SimpleWorkflow(API):
         The workflow is in progress
         """
         self._set_status(status=self.IN_PROGRESS, worker_number=None, email=self._email)
-        return
+        return self
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         if exc_type is not None:
