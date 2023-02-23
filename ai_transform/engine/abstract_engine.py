@@ -144,12 +144,13 @@ class AbstractEngine(ABC):
         config: BaseConfig,
         dataset: Dataset,
         operator: AbstractOperator = None,
+        operators: Sequence[AbstractOperator] = None,
         **kwargs,
     ) -> "AbstractEngine":
         operator_args = set(cls.__init__.__code__.co_varnames)
         operator_args.update(AbstractEngine.__init__.__code__.co_varnames)
-        if operator is None:
-            assert "operators" in kwargs, "`operator` and/or `operators` not defined"
+        if operator is None and operators is None:
+            raise ValueError("Please set one of `operator` or `operators`")
         for kw in ["self", "args", "kwargs"]:
             try:
                 operator_args.remove(kw)
@@ -160,8 +161,6 @@ class AbstractEngine(ABC):
             **kwargs,
             **config.dict(include=operator_args),
         }
-        if operator is not None:
-            kwargs["operator"] = operator
         return cls(**kwargs)
 
     @property
