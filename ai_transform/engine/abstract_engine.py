@@ -123,12 +123,10 @@ class AbstractEngine(ABC):
         if not refresh:
             input_field_filters = []
             output_field_filters = []
-            filter = [
-                {
-                    "filter_type": "or",
-                    "condition_value": [],
-                }
-            ]
+            filter = {
+                "filter_type": "or",
+                "condition_value": [],
+            }
             for field in select_fields:
                 input_field_filters += dataset[field].exists()
             for operator in self.operators:
@@ -136,6 +134,7 @@ class AbstractEngine(ABC):
                     output_field_filters += dataset[output_field].not_exists()
 
             filter["condition_value"] = output_field_filters
+            filter = [filter]
             filter += input_field_filters
             refresh_filters["condition_value"] += filter
 
