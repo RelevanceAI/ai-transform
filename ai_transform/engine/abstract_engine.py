@@ -79,17 +79,8 @@ class AbstractEngine(ABC):
 
         self.worker_number = worker_number
         self.total_workers = total_workers
-        if filters is None:
-            filters = []
-        filters += self._get_workflow_filter()
 
         self._limit_documents = limit_documents
-
-        self._size = (
-            dataset.len(filters=filters)
-            if self._limit_documents is None
-            else self._limit_documents
-        )
 
         if isinstance(pull_chunksize, int):
             assert pull_chunksize > 0, "Chunksize should be a Positive Integer"
@@ -107,11 +98,6 @@ class AbstractEngine(ABC):
         ):
             self._pull_chunksize = self.limit_documents
 
-        if filters is None:
-            self._filters = []
-        else:
-            self._filters = filters
-
         self._output_to_status = output_to_status  # Whether we should output_to_status
         self._output_documents = []  # document store for output
 
@@ -127,6 +113,37 @@ class AbstractEngine(ABC):
         else:
             self._operator = None
             self._operators = operators
+
+        input_field_filters = []
+        if filters is None:
+            for field in select_fields:
+                input_field_filters += dataset[field].exists()
+        else:
+            assert isinstance(filters, list), "Please provide a list of Fitlers"
+
+        output_field_filters = []
+        if not refresh:
+            for operator in self.operators:
+                for output_field in operator.output_fields:
+                    output_field_filters.append(dataset[output_field].not_exists())
+
+        if input_field_filters or output_field_filters:
+            filters += [
+                {
+                    "filter_type": "or",
+                    "condition_value": output_field_filters + input_field_filters,
+                }
+            ]
+        filters += self._get_workflow_filter()
+
+        self._size = (
+            dataset.len(filters=filters)
+            if self._limit_documents is None
+            else self._limit_documents
+        )
+
+        self._filters = []
+        self._filters += filters
 
         self._refresh = refresh
         self._after_id = after_id
