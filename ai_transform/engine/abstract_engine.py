@@ -158,6 +158,8 @@ class AbstractEngine(ABC):
                 pass
         kwargs = {
             "dataset": dataset,
+            "operator": operator,
+            "operators": operators,
             **kwargs,
             **config.dict(include=operator_args),
         }
