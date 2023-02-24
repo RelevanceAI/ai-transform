@@ -115,7 +115,7 @@ class WorkflowContextManager:
                     logger.debug(format_logging_info(res))
 
     def set_workflow_status(self, status: str):
-        return self.api._set_workflow_status(
+        result = self.api._set_workflow_status(
             status=status,
             job_id=self.job_id,
             metadata=self.metadata,
@@ -126,6 +126,8 @@ class WorkflowContextManager:
             worker_number=self.engine.worker_number,
             output=self.engine.output_documents,
         )
+        logger.debug(format_logging_info(result))
+        return result
 
     def __enter__(self):
         self._set_field_children_recursively()
