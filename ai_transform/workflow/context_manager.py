@@ -135,11 +135,17 @@ class WorkflowContextManager:
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
     ):
         logger.exception(exc_value)
-        fail_message = WORKFLOW_FAIL_MESSAGE.format(
-            100 * self.engine.success_ratio,
-            100 * self.success_threshold,
-        )
-        logger.debug(fail_message)
+        if self.engine.success_ratio < self.success_threshold:
+            fail_message = WORKFLOW_FAIL_MESSAGE.format(
+                100 * self.engine.success_ratio,
+                100 * self.success_threshold,
+            )
+            logger.debug("\n" + fail_message)
+        else:
+            logger.debug(
+                "\nWorkflow ran on appropriate number of documents, Error is likely not in the `transform` function"
+            )
+
         self.set_workflow_status(status=self.FAILED)
         return False
 
