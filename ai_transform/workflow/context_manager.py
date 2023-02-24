@@ -13,12 +13,6 @@ logging.basicConfig(
 logger = logging.getLogger(__file__)
 
 
-WORKFLOW_FAIL_MESSAGE = (
-    "Workflow processed {:.2f}%"
-    + " of documents. This is less than the success threshold of {:.2f}%"
-)
-
-
 class WorkflowContextManager:
 
     FAILED = "failed"
@@ -137,17 +131,6 @@ class WorkflowContextManager:
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
     ):
         logger.exception(exc_value)
-        if self.engine.success_ratio < self.success_threshold:
-            fail_message = WORKFLOW_FAIL_MESSAGE.format(
-                100 * self.engine.success_ratio,
-                100 * self.success_threshold,
-            )
-            logger.debug("\n" + fail_message)
-        else:
-            logger.debug(
-                "\nWorkflow ran on appropriate number of documents, Error is likely not in the `transform` function"
-            )
-
         self.set_workflow_status(status=self.FAILED)
         return False
 
@@ -173,10 +156,40 @@ class WorkflowContextManager:
 
         return True
 
+    def _calculate_pricing(self):
+        n_processed_pricing = 0
+        is_automatic = True
+
+        for operator in self.operators:
+            if operator.is_operator_based_pricing:
+                n_processed_pricing += operator.n_processed_pricing
+                is_automatic = False
+
+        if is_automatic:
+            return self._calculate_n_processed_pricing_from_timer()
+        else:
+            return None
+
+    def _calculate_n_processed_pricing_from_timer(self):
+        from ai_transform import _TIMER
+
+        return _TIMER.stop()
+
+    def update_workflow_pricing(self, n_processed_pricing: float):
+        return self.api._update_workflow_pricing(
+            workflow_id=self.job_id,
+            step=self.workflow_name,
+            worker_number=self.engine.worker_number,
+            n_processed_pricing=n_processed_pricing,
+        )
+
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         workflow_failed = self.engine.success_ratio < self.success_threshold
 
         if exc_type is not None or workflow_failed:
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
+            n_processed_pricing = self._calculate_pricing()
+            if n_processed_pricing is not None:
+                self.update_workflow_pricing(n_processed_pricing)
             return self._handle_workflow_complete()

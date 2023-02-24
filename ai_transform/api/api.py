@@ -552,7 +552,8 @@ class API:
             n_total=n_total,
         )
 
-        logger.debug("adding progress...")
+        if n_processed_pricing is not None:
+            logger.debug("adding progress...")
         logger.debug(format_logging_info(params))
 
         response = requests.post(
