@@ -114,6 +114,7 @@ class AbstractEngine(ABC):
             self._operator = None
             self._operators = operators
 
+        filters = [] if filters is None else filters
         refresh_filters = [
             {
                 "filter_type": "or",
