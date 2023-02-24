@@ -80,10 +80,18 @@ class WorkflowContextManager(API):
         for operator in self._operators:
             if operator.update_field_children:
                 for input_field in operator.input_fields:
+
+                    metadata = {}
+                    metadata.update(self.field_children_metadata)
+                    if isinstance(operator.output_fields, dict):
+                        metadata.update(operator.output_fields)
+
+                    output_fields = list(operator.output_fields)
+
                     res = self.dataset[input_field].add_field_children(
-                        field_children=operator.output_fields,
+                        field_children=output_fields,
                         fieldchildren_id=self._job_id,
-                        metadata=self.field_children_metadata,
+                        metadata=metadata,
                         recursive=True,
                     )
                     logger.debug(format_logging_info(res))
