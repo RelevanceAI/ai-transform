@@ -6,8 +6,7 @@ from typing import Any, List, Dict, Optional
 
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
-from ai_transform.errors import WorkflowFailedError
-from ai_transform.workflow import context_manager
+from ai_transform.workflow.context_manager import WorkflowContextManager
 from ai_transform.operator.abstract_operator import AbstractOperator
 
 logger = logging.getLogger(__name__)
@@ -23,7 +22,6 @@ class Workflow:
         additional_information: str = "",
         send_email: bool = True,
         success_threshold: float = 0.8,
-        # this is bugged
         mark_as_complete_after_polling: bool = False,
         email: dict = None,
     ):
@@ -46,7 +44,7 @@ class Workflow:
         self._engine.name = name
 
         self._api = engine.dataset.api
-        self._metadata = metadata
+        self._metadata = {} if metadata is None else metadata
         self._additional_information = additional_information
         self._send_email = send_email
 
@@ -106,14 +104,10 @@ class Workflow:
             return self.engine.operators
 
     def run(self):
-        try:
-            with context_manager.WorkflowContextManager(workflow=self):
-                self.engine()
+        with WorkflowContextManager(workflow=self):
+            self.engine()
 
-        except WorkflowFailedError as e:
-            logger.exception(e)
-
-        else:
+        if self.get_status()["status"] != "failed":
             n_processed_pricing = self._calculate_pricing()
             if n_processed_pricing is not None:
                 self.update_workflow_pricing(n_processed_pricing)

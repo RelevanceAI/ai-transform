@@ -2,7 +2,7 @@ import os
 import logging
 
 from inspect import Traceback
-from typing import Dict, List
+from typing import Dict
 
 from ai_transform.helpers import format_logging_info
 
@@ -94,16 +94,6 @@ class WorkflowContextManager:
             "workflow_id": workflow_id,
         }
 
-    def __enter__(self):
-        """
-        The workflow is in progress
-        """
-        self._set_field_children_recursively()
-        self._set_status(
-            status=self.IN_PROGRESS, worker_number=self.engine.worker_number
-        )
-        return
-
     def _set_field_children_recursively(self):
         for operator in self.operators:
             if operator.update_field_children:
@@ -124,6 +114,23 @@ class WorkflowContextManager:
                     )
                     logger.debug(format_logging_info(res))
 
+    def set_workflow_status(self, status: str):
+        return self.api._set_workflow_status(
+            status=status,
+            job_id=self.job_id,
+            metadata=self.metadata,
+            workflow_name=self.workflow_name,
+            additional_information=self.additional_information,
+            send_email=self.send_email,
+            email=self.email,
+            worker_number=self.engine.worker_number,
+            output=self.engine.output_documents,
+        )
+
+    def __enter__(self):
+        self._set_field_children_recursively()
+        return self.set_workflow_status(status=self.IN_PROGRESS)
+
     def _handle_workflow_fail(
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
     ):
@@ -132,16 +139,7 @@ class WorkflowContextManager:
             100 * self.engine.success_ratio,
             100 * self.success_threshold,
         )
-        self.api._set_workflow_status(
-            status=self.FAILED,
-            job_id=self.job_id,
-            workflow_name=self.workflow_name,
-            additional_information=fail_message,
-            send_email=self.send_email,
-            metadata={"error": fail_message},
-            worker_number=self.engine.worker_number,
-            email=self.email,
-        )
+        self.set_workflow_status(status=self.FAILED, metadata={"error": fail_message})
         return False
 
     def _handle_workflow_complete(self):
@@ -159,17 +157,7 @@ class WorkflowContextManager:
             logger.debug(format_logging_info({"trigger_poll_id": result}))
 
         else:
-            result = self.api._set_workflow_status(
-                status=self.COMPLETE,
-                job_id=self.job_id,
-                metadata=self.metadata,
-                workflow_name=self.workflow_name,
-                additional_information=self.additional_information,
-                send_email=self.send_email,
-                email=self.email,
-                worker_number=self.engine.worker_number,
-                output=self.engine.output_documents,
-            )
+            result = self.set_workflow_status(status=self.COMPLETE)
 
         return True
 
@@ -177,6 +165,6 @@ class WorkflowContextManager:
         workflow_failed = self.engine.success_ratio < self.success_threshold
 
         if exc_type is not None or workflow_failed:
-            return self._handle_workflow_fail()
+            return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
-            return self._handle_workflow_complete(exc_type, exc_value, traceback)
+            return self._handle_workflow_complete()
