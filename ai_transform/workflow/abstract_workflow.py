@@ -7,15 +7,10 @@ from typing import Any, List, Dict, Optional
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.errors import WorkflowFailedError
-from ai_transform.workflow.context_manager import WorkflowContextManager
+from ai_transform.workflow import context_manager
 from ai_transform.operator.abstract_operator import AbstractOperator
 
 logger = logging.getLogger(__name__)
-
-WORKFLOW_FAIL_MESSAGE = (
-    "Workflow processed {:.2f}%"
-    + " of documents. This is less than the success threshold of {:.2f}%"
-)
 
 
 class Workflow:
@@ -42,7 +37,7 @@ class Workflow:
         self._job_id = job_id
 
         # Update the header
-        self._engine.dataset.api.headers.update(
+        self.engine.dataset.api.headers.update(
             ai_transform_job_id=job_id,
             ai_transform_name=name,
         )
@@ -50,7 +45,7 @@ class Workflow:
         self._engine.job_id = job_id
         self._engine.name = name
 
-        self.api = engine.dataset.api
+        self._api = engine.dataset.api
         self._metadata = metadata
         self._additional_information = additional_information
         self._send_email = send_email
@@ -76,6 +71,34 @@ class Workflow:
         return self.engine.dataset
 
     @property
+    def api(self):
+        return self.dataset.api
+
+    @property
+    def job_id(self):
+        return self._job_id
+
+    @property
+    def metadata(self):
+        return self._metadata
+
+    @property
+    def additional_information(self):
+        return self._additional_information
+
+    @property
+    def send_email(self):
+        return self._send_email
+
+    @property
+    def email(self):
+        return self._email
+
+    @property
+    def mark_as_complete_after_polling(self):
+        return self._mark_as_complete_after_polling
+
+    @property
     def operators(self) -> List[AbstractOperator]:
         if isinstance(self.engine.operator, AbstractOperator):
             return [self.engine.operator]
@@ -84,39 +107,8 @@ class Workflow:
 
     def run(self):
         try:
-            with WorkflowContextManager(
-                workflow_name=self._name,
-                job_id=self._job_id,
-                engine=self.engine,
-                dataset=self.dataset,
-                operators=self.operators,
-                metadata=self._metadata,
-                additional_information=self._additional_information,
-                send_email=self._send_email,
-                email=self._email,
-                mark_as_complete_after_polling=self._mark_as_complete_after_polling,
-            ):
+            with context_manager.WorkflowContextManager(workflow=self):
                 self.engine()
-                success_ratio = self.engine._success_ratio
-                if success_ratio is None:
-                    success_ratio = 1
-
-                if success_ratio is not None and success_ratio < self.success_threshold:
-                    fail_message = WORKFLOW_FAIL_MESSAGE.format(
-                        100 * success_ratio,
-                        100 * self.success_threshold,
-                    )
-                    self.api._set_workflow_status(
-                        job_id=self._job_id,
-                        workflow_name=self._name,
-                        additional_information=fail_message,
-                        status="failed",
-                        send_email=self._send_email,
-                        metadata={"error": fail_message},
-                        worker_number=self.engine.worker_number,
-                        email=self._email,
-                    )
-                    raise WorkflowFailedError(fail_message)
 
         except WorkflowFailedError as e:
             logger.exception(e)

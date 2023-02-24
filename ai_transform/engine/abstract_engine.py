@@ -172,7 +172,11 @@ class AbstractEngine(ABC):
 
     @property
     def success_ratio(self) -> float:
-        return self._success_ratio
+        if self._success_ratio is None:
+            success_ratio = 1
+        else:
+            success_ratio = self._success_ratio
+        return success_ratio
 
     def extend_output_documents(self, documents: List[Document]):
         self._output_documents.extend(documents)
