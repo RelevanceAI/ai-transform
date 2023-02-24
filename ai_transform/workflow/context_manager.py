@@ -139,7 +139,8 @@ class WorkflowContextManager:
             100 * self.engine.success_ratio,
             100 * self.success_threshold,
         )
-        self.set_workflow_status(status=self.FAILED, metadata={"error": fail_message})
+        logger.debug(fail_message)
+        self.set_workflow_status(status=self.FAILED)
         return False
 
     def _handle_workflow_complete(self):

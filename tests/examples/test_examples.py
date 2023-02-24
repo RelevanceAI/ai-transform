@@ -286,11 +286,6 @@ def test_fail_example(test_sentiment_workflow_token: str):
         engine=engine,
         job_id=job_id,
     )
-    # dataset.api._trigger(
-    #     dataset_id=dataset._dataset_id,
-    #     params={},
-    #     workflow_id=job_id,
-    # )
     workflow.run()
 
     time.sleep(2)

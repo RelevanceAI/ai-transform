@@ -110,7 +110,7 @@ class Workflow:
         if self.get_status()["status"] != "failed":
             n_processed_pricing = self._calculate_pricing()
             if n_processed_pricing is not None:
-                self.update_workflow_pricing(n_processed_pricing)
+                return self.update_workflow_pricing(n_processed_pricing)
 
     def _calculate_pricing(self):
         n_processed_pricing = 0
