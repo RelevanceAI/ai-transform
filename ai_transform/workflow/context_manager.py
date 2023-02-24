@@ -151,18 +151,21 @@ class WorkflowContextManager:
         self.set_workflow_status(status=self.FAILED)
         return False
 
+    def trigger_polling_workflow(self):
+        return self.api._trigger_polling_workflow(
+            dataset_id=self.dataset_id,
+            input_field=self.operators[0].input_fields[0],
+            output_field=self.operators[-1].output_fields[-1],
+            job_id=self.job_id,
+            workflow_name=self.workflow_name,
+        )
+
     def _handle_workflow_complete(self):
         # Workflow must have run successfully
         if self.mark_as_complete_after_polling:
             # TODO: trigger a polling job while keeping this one in progress
             # When triggering this poll job - we can send the job ID
-            result = self.api._trigger_polling_workflow(
-                dataset_id=self.dataset_id,
-                input_field=self.operators[0].input_fields[0],
-                output_field=self.operators[-1].output_fields[-1],
-                job_id=self.job_id,
-                workflow_name=self.workflow_name,
-            )
+            result = self.trigger_polling_workflow()
             logger.debug(format_logging_info({"trigger_poll_id": result}))
 
         else:
