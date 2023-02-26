@@ -23,7 +23,7 @@ class Workflow:
         send_email: bool = True,
         success_threshold: float = 0.8,
         email: dict = None,
-        **kwargs,  # This for deprecated arguments
+        **kwargs,  # TODO: Update workflows, This for deprecated arguments
     ):
         self._name = name
         self._engine = engine
