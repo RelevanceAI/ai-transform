@@ -25,13 +25,13 @@ class Workflow:
         email: dict = None,
         **kwargs,  # TODO: Update workflows, This for deprecated arguments
     ):
-        self._name = name
-        self._engine = engine
 
         if job_id is None:
             job_id = str(uuid.uuid4())
             warnings.warn(f"No job id supplied, using {job_id}")
 
+        self._name = name
+        self._engine = engine
         self._job_id = job_id
 
         self.engine.update_engine_props(job_id=job_id, name=name)

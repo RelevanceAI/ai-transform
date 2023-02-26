@@ -134,6 +134,9 @@ class AbstractEngine(ABC):
         self._successful_documents = 0
         self._success_ratio = None
 
+        self._job_id = None
+        self._name = None
+
     @property
     def operator(self) -> AbstractOperator:
         return self._operator
