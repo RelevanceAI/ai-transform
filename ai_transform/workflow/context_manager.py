@@ -177,5 +177,5 @@ class WorkflowContextManager:
         else:
             n_processed_pricing = self._calculate_pricing()
             if n_processed_pricing is not None:
-                return self.update_workflow_pricing(n_processed_pricing)
+                self.update_workflow_pricing(n_processed_pricing)
             return self._handle_workflow_complete()
