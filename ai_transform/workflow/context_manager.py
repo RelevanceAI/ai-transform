@@ -133,13 +133,11 @@ class WorkflowContextManager:
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
     ):
         logger.exception(exc_value)
-        result = self.set_workflow_status(status=self.FAILED)
-        logger.debug(format_logging_info(result))
+        self.set_workflow_status(status=self.FAILED)
         return False
 
     def _handle_workflow_complete(self):
-        result = self.set_workflow_status(status=self.COMPLETE)
-        logger.debug(format_logging_info(result))
+        self.set_workflow_status(status=self.COMPLETE)
         return True
 
     def _calculate_pricing(self):
