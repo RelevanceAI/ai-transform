@@ -34,7 +34,7 @@ class Workflow:
         self._engine = engine
         self._job_id = job_id
 
-        self.engine.update_engine_props(job_id=job_id, name=name)
+        self.engine.update_engine_props(job_id=job_id, workflow_name=name)
 
         self._metadata = {} if metadata is None else metadata
         self._additional_information = additional_information

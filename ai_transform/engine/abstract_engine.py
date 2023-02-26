@@ -135,7 +135,7 @@ class AbstractEngine(ABC):
         self._success_ratio = None
 
         self._job_id = None
-        self._name = None
+        self._workflow_name = None
 
     @property
     def operator(self) -> AbstractOperator:
@@ -187,7 +187,7 @@ class AbstractEngine(ABC):
 
     @property
     def name(self):
-        return self._name
+        return self._workflow_name
 
     def extend_output_documents(self, documents: List[Document]):
         self._output_documents.extend(documents)
@@ -409,12 +409,12 @@ class AbstractEngine(ABC):
                 n_total=n_total,
             )
 
-    def update_engine_props(self, job_id: str, name: str):
+    def update_engine_props(self, job_id: str, workflow_name: str):
         self._job_id = job_id
-        self._name = name
+        self._workflow_name = workflow_name
         self.dataset.api.headers.update(
             ai_transform_job_id=job_id,
-            ai_transform_name=name,
+            ai_transform_name=workflow_name,
         )
 
     def set_success_ratio(self) -> None:
