@@ -178,6 +178,14 @@ class AbstractEngine(ABC):
             success_ratio = self._success_ratio
         return success_ratio
 
+    @property
+    def job_id(self):
+        return self._job_id
+
+    @property
+    def name(self):
+        return self._name
+
     def extend_output_documents(self, documents: List[Document]):
         self._output_documents.extend(documents)
 
@@ -398,29 +406,13 @@ class AbstractEngine(ABC):
                 n_total=n_total,
             )
 
-    #####################################3
-    # The following attributes are set by the workflow
-    # and provides the update progress functionality
-    # required for engines
-    @property
-    def job_id(self):
-        if hasattr(self, "_job_id"):
-            return self._job_id
-        return
-
-    @job_id.setter
-    def job_id(self, value):
-        self._job_id = value
-
-    @property
-    def name(self):
-        if hasattr(self, "_name"):
-            return self._name
-        return
-
-    @name.setter
-    def name(self, value):
-        self._name = value
+    def update_engine_props(self, job_id: str, name: str):
+        self._job_id = job_id
+        self._name = name
+        self.dataset.api.headers.update(
+            ai_transform_job_id=job_id,
+            ai_transform_name=name,
+        )
 
     def set_success_ratio(self) -> None:
         if self.size:

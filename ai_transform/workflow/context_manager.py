@@ -72,10 +72,6 @@ class WorkflowContextManager:
         return self._workflow.email
 
     @property
-    def mark_as_complete_after_polling(self):
-        return self._workflow.mark_as_complete_after_polling
-
-    @property
     def success_threshold(self):
         return self._workflow.success_threshold
 
@@ -131,29 +127,13 @@ class WorkflowContextManager:
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
     ):
         logger.exception(exc_value)
-        self.set_workflow_status(status=self.FAILED)
+        result = self.set_workflow_status(status=self.FAILED)
+        logger.debug(format_logging_info(result))
         return False
 
-    def trigger_polling_workflow(self):
-        return self.api._trigger_polling_workflow(
-            dataset_id=self.dataset_id,
-            input_field=self.operators[0].input_fields[0],
-            output_field=self.operators[-1].output_fields[-1],
-            job_id=self.job_id,
-            workflow_name=self.workflow_name,
-        )
-
     def _handle_workflow_complete(self):
-        # Workflow must have run successfully
-        if self.mark_as_complete_after_polling:
-            # TODO: trigger a polling job while keeping this one in progress
-            # When triggering this poll job - we can send the job ID
-            result = self.trigger_polling_workflow()
-            logger.debug(format_logging_info({"trigger_poll_id": result}))
-
-        else:
-            result = self.set_workflow_status(status=self.COMPLETE)
-
+        result = self.set_workflow_status(status=self.COMPLETE)
+        logger.debug(format_logging_info(result))
         return True
 
     def _calculate_pricing(self):
