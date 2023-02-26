@@ -22,8 +22,8 @@ class Workflow:
         additional_information: str = "",
         send_email: bool = True,
         success_threshold: float = 0.8,
-        mark_as_complete_after_polling: bool = False,
         email: dict = None,
+        **kwargs,  # This for deprecated arguments
     ):
         self._name = name
         self._engine = engine
@@ -34,22 +34,13 @@ class Workflow:
 
         self._job_id = job_id
 
-        # Update the header
-        self.engine.dataset.api.headers.update(
-            ai_transform_job_id=job_id,
-            ai_transform_name=name,
-        )
+        self.engine.update_engine_props(job_id=job_id, name=name)
 
-        self._engine.job_id = job_id
-        self._engine.name = name
-
-        self._api = engine.dataset.api
         self._metadata = {} if metadata is None else metadata
         self._additional_information = additional_information
         self._send_email = send_email
 
         self._success_threshold = success_threshold
-        self._mark_as_complete_after_polling = mark_as_complete_after_polling
         self._email = email
 
     @property
@@ -93,10 +84,6 @@ class Workflow:
         return self._email
 
     @property
-    def mark_as_complete_after_polling(self):
-        return self._mark_as_complete_after_polling
-
-    @property
     def operators(self) -> List[AbstractOperator]:
         if isinstance(self.engine.operator, AbstractOperator):
             return [self.engine.operator]
@@ -106,6 +93,38 @@ class Workflow:
     def run(self):
         with WorkflowContextManager(workflow=self):
             self.engine()
+
+        if self.get_status()["status"] != "failed":
+            n_processed_pricing = self._calculate_pricing()
+            if n_processed_pricing is not None:
+                return self.update_workflow_pricing(n_processed_pricing)
+
+    def _calculate_pricing(self):
+        n_processed_pricing = 0
+        is_automatic = True
+
+        for operator in self.operators:
+            if operator.is_operator_based_pricing:
+                n_processed_pricing += operator.n_processed_pricing
+                is_automatic = False
+
+        if is_automatic:
+            return self._calculate_n_processed_pricing_from_timer()
+        else:
+            return None
+
+    def _calculate_n_processed_pricing_from_timer(self):
+        from ai_transform import _TIMER
+
+        return _TIMER.stop()
+
+    def update_workflow_pricing(self, n_processed_pricing: float):
+        return self.api._update_workflow_pricing(
+            workflow_id=self._job_id,
+            step=self._name,
+            worker_number=self._engine.worker_number,
+            n_processed_pricing=n_processed_pricing,
+        )
 
     def get_status(self):
         return self.api._get_workflow_status(self._job_id)

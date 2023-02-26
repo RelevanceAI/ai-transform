@@ -13,6 +13,12 @@ logging.basicConfig(
 logger = logging.getLogger(__file__)
 
 
+WORKFLOW_FAIL_MESSAGE = (
+    "Workflow processed {:.2f}%"
+    + " of documents. This is less than the success threshold of {:.2f}%"
+)
+
+
 class WorkflowContextManager:
 
     FAILED = "failed"
@@ -72,10 +78,6 @@ class WorkflowContextManager:
         return self._workflow.email
 
     @property
-    def mark_as_complete_after_polling(self):
-        return self._workflow.mark_as_complete_after_polling
-
-    @property
     def success_threshold(self):
         return self._workflow.success_threshold
 
@@ -131,57 +133,14 @@ class WorkflowContextManager:
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
     ):
         logger.exception(exc_value)
-        self.set_workflow_status(status=self.FAILED)
+        result = self.set_workflow_status(status=self.FAILED)
+        logger.debug(format_logging_info(result))
         return False
 
-    def trigger_polling_workflow(self):
-        return self.api._trigger_polling_workflow(
-            dataset_id=self.dataset_id,
-            input_field=self.operators[0].input_fields[0],
-            output_field=self.operators[-1].output_fields[-1],
-            job_id=self.job_id,
-            workflow_name=self.workflow_name,
-        )
-
     def _handle_workflow_complete(self):
-        # Workflow must have run successfully
-        if self.mark_as_complete_after_polling:
-            # TODO: trigger a polling job while keeping this one in progress
-            # When triggering this poll job - we can send the job ID
-            result = self.trigger_polling_workflow()
-            logger.debug(format_logging_info({"trigger_poll_id": result}))
-
-        else:
-            result = self.set_workflow_status(status=self.COMPLETE)
-
+        result = self.set_workflow_status(status=self.COMPLETE)
+        logger.debug(format_logging_info(result))
         return True
-
-    def _calculate_pricing(self):
-        n_processed_pricing = 0
-        is_automatic = True
-
-        for operator in self.operators:
-            if operator.is_operator_based_pricing:
-                n_processed_pricing += operator.n_processed_pricing
-                is_automatic = False
-
-        if is_automatic:
-            return self._calculate_n_processed_pricing_from_timer()
-        else:
-            return None
-
-    def _calculate_n_processed_pricing_from_timer(self):
-        from ai_transform import _TIMER
-
-        return _TIMER.stop()
-
-    def update_workflow_pricing(self, n_processed_pricing: float):
-        return self.api._update_workflow_pricing(
-            workflow_id=self.job_id,
-            step=self.workflow_name,
-            worker_number=self.engine.worker_number,
-            n_processed_pricing=n_processed_pricing,
-        )
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         workflow_failed = self.engine.success_ratio < self.success_threshold
@@ -189,7 +148,4 @@ class WorkflowContextManager:
         if exc_type is not None or workflow_failed:
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
-            n_processed_pricing = self._calculate_pricing()
-            if n_processed_pricing is not None:
-                self.update_workflow_pricing(n_processed_pricing)
             return self._handle_workflow_complete()
