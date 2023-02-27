@@ -41,7 +41,6 @@ class StableEngine(AbstractEngine):
         limit_documents: Optional[int] = None,
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
-        catch_errors: bool = True,
     ):
         """
         Parameters
