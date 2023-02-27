@@ -333,6 +333,8 @@ class API:
 
             parameters["email"] = email
 
+        logger.debug(format_logging_info(parameters))
+
         response = requests.post(
             url=self.base_url + f"/workflows/{job_id}/status",
             headers=self.headers,
