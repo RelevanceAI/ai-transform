@@ -1,4 +1,4 @@
-__version__ = "0.25.5"
+__version__ = "0.26.0"
 
 from ai_transform.timer import Timer
 
