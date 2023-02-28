@@ -1,5 +1,6 @@
 import json
 import logging
+import warnings
 import numpy as np
 
 from copy import deepcopy
@@ -79,6 +80,20 @@ class AbstractOperator(ABC):
         output_fields: Optional[Union[Dict[str, str], List[str]]] = None,
         enable_postprocess: Optional[bool] = True,
     ):
+
+        if input_fields is not None and output_fields is not None:
+            if any(input_field not in output_fields for input_field in input_fields):
+                detected_fields = [
+                    input_field
+                    for input_field in input_fields
+                    if input_field in output_fields
+                ]
+                warnings.warn(
+                    f"Some input fields are present in the output fields, namely {str(detected_fields)}"
+                )
+                for field in detected_fields:
+                    output_fields.remove(field)
+
         if input_fields is not None:
             assert isinstance(
                 input_fields, list
