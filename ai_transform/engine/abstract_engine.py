@@ -114,44 +114,23 @@ class AbstractEngine(ABC):
             self._operator = None
             self._operators = operators
 
-        filters = [] if filters is None else filters
-        refresh_filters = [
-            {
-                "filter_type": "or",
-                "condition_value": [],
-            }
-        ]
+        if filters is None:
+            filters = []
+        assert isinstance(
+            filters, list
+        ), "Filters must be applied as a list of Dictionaries"
+
         if not refresh:
-            input_field_filters = []
-            output_field_filters = []
-            filter = {
-                "filter_type": "or",
-                "condition_value": [],
-            }
-            for field in select_fields:
-                input_field_filters += dataset[field].exists()
-            for operator in self.operators:
-                for output_field in operator.output_fields:
-                    output_field_filters += dataset[output_field].not_exists()
-
-            filter["condition_value"] = output_field_filters
-            filter = [filter]
-            filter += input_field_filters
-            refresh_filters[0]["condition_value"] += filter
-
-        if refresh_filters[0]["condition_value"]:
-            filters += refresh_filters
-
+            filters += self._get_refresh_filter(select_fields, dataset)
         filters += self._get_workflow_filter()
+
+        self._filters = filters
 
         self._size = (
             dataset.len(filters=filters)
             if self._limit_documents is None
             else self._limit_documents
         )
-
-        self._filters = []
-        self._filters += filters
 
         self._refresh = refresh
         self._after_id = after_id
@@ -242,6 +221,44 @@ class AbstractEngine(ABC):
             # schema updates
             self._successful_documents += len(mini_batch)
             return transformed_batch
+
+    def _get_refresh_filter(self, select_fields: List[str], dataset: Dataset):
+        # initialize the refresh filter container
+        refresh_filters = {
+            "filter_type": "or",
+            "condition_value": [],
+        }
+
+        # initialize where the filters are going
+        input_field_filters = []
+        output_field_filters = {
+            "filter_type": "or",
+            "condition_value": [],
+        }
+
+        # We want documents where all select_fields exists
+        # as these are needed for operator ...
+        for field in select_fields:
+            input_field_filters += dataset[field].exists()
+
+        # ... and where any of its output_fields dont exist
+        for operator in self.operators:
+            for output_field in operator.output_fields:
+                output_field_filters["condition_value"] += dataset[
+                    output_field
+                ].not_exists()
+
+        # We construct this as:
+        #
+        #   input_field1 and input_field2 and (not output_field1 or not output_field2)
+        #
+        # This use case here is for two input fields and two output fields
+        # tho this extends to arbitrarily many.
+        refresh_filters["condition_value"] = input_field_filters
+        refresh_filters["condition_value"] += [output_field_filters]
+
+        # Wrap in list at end
+        return [refresh_filters]
 
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable
