@@ -6,10 +6,9 @@ from ai_transform.api.api import API
 from ai_transform.api.helpers import process_token
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.types import Schema
-from ai_transform.helpers import format_logging_info
 from ai_transform.errors import AuthException
 from ai_transform.constants import WELCOME_MESSAGE
-from ai_transform.workflow.simple_workflow import SimpleWorkflow
+from ai_transform.workflow.context_manager import WorkflowContextManager
 
 
 logger = logging.getLogger(__name__)
@@ -64,21 +63,19 @@ class Client:
         self,
         workflow_name: str,
         job_id: str,
-        metadata: Optional[Dict[str, Any]] = None,
-        additional_information: str = "",
-        send_email: bool = True,
-        worker_number: int = None,
-        **kwargs
-    ) -> SimpleWorkflow:
-        return SimpleWorkflow(
+        additional_information: str,
+        send_email: bool,
+        email: Dict[str, Any],
+        metadata: Dict[str, Any] = None,
+    ) -> WorkflowContextManager:
+        return WorkflowContextManager(
             credentials=self.credentials,
             workflow_name=workflow_name,
             job_id=job_id,
             metadata=metadata,
             additional_information=additional_information,
             send_email=send_email,
-            worker_number=worker_number,
-            **kwargs,
+            email=email,
         )
 
     def insert_temp_local_media(self, file_path: str):

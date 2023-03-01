@@ -2,8 +2,13 @@ import os
 import logging
 
 from inspect import Traceback
-from typing import Dict
+from typing import Dict, Any, List
 
+from ai_transform.api.api import API
+from ai_transform.types import Credentials
+from ai_transform.dataset import dataset
+from ai_transform.operator import abstract_operator
+from ai_transform.engine import abstract_engine
 from ai_transform.helpers import format_logging_info
 
 logging.basicConfig(
@@ -25,61 +30,39 @@ class WorkflowContextManager:
     COMPLETE = "complete"
     IN_PROGRESS = "inprogress"
 
-    def __init__(self, workflow) -> None:
-        from ai_transform.workflow.abstract_workflow import Workflow
+    def __init__(
+        self,
+        workflow_name: str,
+        job_id: str,
+        additional_information: str,
+        send_email: bool,
+        email: Dict[str, Any],
+        success_threshold: float,
+        credentials: Credentials = None,
+        operators: List[abstract_operator.AbstractOperator] = None,
+        metadata: Dict[str, Any] = None,
+        engine: abstract_engine.AbstractEngine = None,
+        dataset: dataset.Dataset = None,
+    ):
 
-        self._workflow: Workflow = workflow
+        self.credentials = credentials
+        self.dataset = dataset
+        self.engine = engine
+        self.dataset_id = self.dataset_id
+        self.api = self.dataset.api or API(self.credentials)
 
-    @property
-    def api(self):
-        return self.dataset.api
+        self.workflow_name = workflow_name
+        self.operators = operators
+        self.job_id = job_id
+        self.additional_information = additional_information
+        self.send_email = send_email
+        self.email = email
+        self.success_threshold = success_threshold
 
-    @property
-    def workflow_name(self):
-        return self._workflow.name
-
-    @property
-    def engine(self):
-        return self._workflow.engine
-
-    @property
-    def dataset(self):
-        return self._workflow.dataset
-
-    @property
-    def dataset_id(self):
-        return self._workflow.dataset.dataset_id
-
-    @property
-    def operators(self):
-        return self._workflow.operators
-
-    @property
-    def job_id(self):
-        return self._workflow.job_id
-
-    @property
-    def metadata(self):
         from ai_transform import __version__
 
-        self._workflow.metadata["ai_transform_version"] = __version__
-        return self._workflow.metadata
-
-    @property
-    def additional_information(self):
-        return self._workflow.additional_information
-
-    @property
-    def send_email(self):
-        return self._workflow.send_email
-
-    @property
-    def email(self):
-        return self._workflow.email
-
-    @property
-    def success_threshold(self):
-        return self._workflow.success_threshold
+        self.metadata = metadata if metadata is not None else {}
+        self.metadata["ai_transform_version"] = __version__
 
     @property
     def field_children_metadata(self) -> Dict[str, str]:
@@ -126,7 +109,8 @@ class WorkflowContextManager:
         return result
 
     def __enter__(self):
-        self._set_field_children_recursively()
+        if self.operators is not None:
+            self._set_field_children_recursively()
         return self.set_workflow_status(status=self.IN_PROGRESS)
 
     def _handle_workflow_fail(
