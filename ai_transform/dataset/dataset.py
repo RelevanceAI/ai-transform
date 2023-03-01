@@ -238,11 +238,21 @@ class Dataset:
 
     def update_metadata(self, metadata: Dict[str, Any]):
         old_metadata: dict = self.get_metadata()["results"]
-        # You want the new avlues to overwrite the old ones
-        old_metadata.update(metadata)
+
+        def merge_dicts(dict1, dict2):
+            """Recursively merges dict2 into dict1"""
+            if not isinstance(dict1, dict) or not isinstance(dict2, dict):
+                return dict2
+            for k in dict2:
+                if k in dict1:
+                    dict1[k] = merge_dicts(dict1[k], dict2[k])
+                else:
+                    dict1[k] = dict2[k]
+            return dict1
+
         return self.api._update_dataset_metadata(
             dataset_id=self._dataset_id,
-            metadata=metadata,
+            metadata=merge_dicts(old_metadata, metadata),
         )
 
     def get_metadata(self) -> Dict[str, Any]:
