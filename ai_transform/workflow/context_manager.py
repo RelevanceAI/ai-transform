@@ -2,8 +2,13 @@ import os
 import logging
 
 from inspect import Traceback
-from typing import Dict
+from typing import Dict, Any, List
 
+from ai_transform.api.api import API
+from ai_transform.types import Credentials
+from ai_transform.dataset import dataset
+from ai_transform.operator import abstract_operator
+from ai_transform.engine import abstract_engine
 from ai_transform.helpers import format_logging_info
 
 logging.basicConfig(
@@ -25,61 +30,58 @@ class WorkflowContextManager:
     COMPLETE = "complete"
     IN_PROGRESS = "inprogress"
 
-    def __init__(self, workflow) -> None:
-        from ai_transform.workflow.abstract_workflow import Workflow
+    def __init__(
+        self,
+        workflow_name: str,
+        job_id: str,
+        additional_information: str = "",
+        send_email: bool = True,
+        email: Dict[str, Any] = None,
+        success_threshold: float = 0.8,
+        # The arguments below can vary depending on if workflow is ran as
+        # a Simple Workflow or a Regular one. They are initialized to None.
+        credentials: Credentials = None,
+        dataset: dataset.Dataset = None,
+        operators: List[abstract_operator.AbstractOperator] = None,
+        engine: abstract_engine.AbstractEngine = None,
+        metadata: Dict[str, Any] = None,
+    ):
 
-        self._workflow: Workflow = workflow
+        self.credentials = credentials
+        self.engine = engine
+        self.dataset = dataset
 
-    @property
-    def api(self):
-        return self.dataset.api
+        if self.dataset is not None:
+            self.api = self.dataset.api
+        else:
+            self.api = API(self.credentials)
 
-    @property
-    def workflow_name(self):
-        return self._workflow.name
+        self.workflow_name = workflow_name
+        self.operators = operators
+        self.job_id = job_id
+        self.additional_information = additional_information
+        self.send_email = send_email
+        self.email = email
+        self.success_threshold = success_threshold
 
-    @property
-    def engine(self):
-        return self._workflow.engine
-
-    @property
-    def dataset(self):
-        return self._workflow.dataset
-
-    @property
-    def dataset_id(self):
-        return self._workflow.dataset.dataset_id
-
-    @property
-    def operators(self):
-        return self._workflow.operators
-
-    @property
-    def job_id(self):
-        return self._workflow.job_id
-
-    @property
-    def metadata(self):
         from ai_transform import __version__
 
-        self._workflow.metadata["ai_transform_version"] = __version__
-        return self._workflow.metadata
+        self.metadata = metadata if metadata is not None else {}
+        self.metadata["ai_transform_version"] = __version__
 
     @property
-    def additional_information(self):
-        return self._workflow.additional_information
+    def worker_number(self) -> int:
+        if self.engine is not None:
+            return self.engine.worker_number
+        else:
+            return 0
 
     @property
-    def send_email(self):
-        return self._workflow.send_email
-
-    @property
-    def email(self):
-        return self._workflow.email
-
-    @property
-    def success_threshold(self):
-        return self._workflow.success_threshold
+    def output_documents(self) -> List[Dict[str, Any]]:
+        if self.engine is not None:
+            return self.engine.output_documents
+        else:
+            return None
 
     @property
     def field_children_metadata(self) -> Dict[str, str]:
@@ -119,15 +121,17 @@ class WorkflowContextManager:
             additional_information=self.additional_information,
             send_email=self.send_email,
             email=self.email,
-            worker_number=self.engine.worker_number,
-            output=self.engine.output_documents,
+            worker_number=self.worker_number,
+            output=self.output_documents,
         )
         logger.debug(format_logging_info(result))
         return result
 
     def __enter__(self):
-        self._set_field_children_recursively()
-        return self.set_workflow_status(status=self.IN_PROGRESS)
+        if self.operators is not None:
+            self._set_field_children_recursively()
+        self.set_workflow_status(status=self.IN_PROGRESS)
+        return self
 
     def _handle_workflow_fail(
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
@@ -144,10 +148,11 @@ class WorkflowContextManager:
         n_processed_pricing = 0
         is_automatic = True
 
-        for operator in self.operators:
-            if operator.is_operator_based_pricing:
-                n_processed_pricing += operator.n_processed_pricing
-                is_automatic = False
+        if self.operators is not None:
+            for operator in self.operators:
+                if operator.is_operator_based_pricing:
+                    n_processed_pricing += operator.n_processed_pricing
+                    is_automatic = False
 
         if is_automatic:
             return self._calculate_n_processed_pricing_from_timer()
@@ -163,17 +168,23 @@ class WorkflowContextManager:
         return self.api._update_workflow_pricing(
             workflow_id=self.job_id,
             step=self.workflow_name,
-            worker_number=self.engine.worker_number,
+            worker_number=self.worker_number,
             n_processed_pricing=n_processed_pricing,
         )
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
-        workflow_failed = self.engine.success_ratio < self.success_threshold
+        if self.engine is not None:
+            regular_workflow_failed = self.engine.success_ratio < self.success_threshold
+        else:
+            regular_workflow_failed = False
 
-        if exc_type is not None or workflow_failed:
+        if exc_type is not None or regular_workflow_failed:
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
             n_processed_pricing = self._calculate_pricing()
             if n_processed_pricing is not None:
                 self.update_workflow_pricing(n_processed_pricing)
             return self._handle_workflow_complete()
+
+    def get_status(self):
+        return self.api._get_workflow_status(self.job_id)
