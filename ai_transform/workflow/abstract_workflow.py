@@ -91,7 +91,18 @@ class Workflow:
             return self.engine.operators
 
     def run(self):
-        with WorkflowContextManager(workflow=self):
+        with WorkflowContextManager(
+            workflow_name=self.name,
+            job_id=self.job_id,
+            additional_information=self.additional_information,
+            send_email=self.send_email,
+            email=self.email,
+            success_threshold=self.success_threshold,
+            operators=self.operators,
+            metadata=self.metadata,
+            engine=self.engine,
+            dataset=self.dataset,
+        ):
             self.engine()
 
     def get_status(self):
