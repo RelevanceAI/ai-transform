@@ -79,7 +79,7 @@ class WorkflowContextManager:
     @property
     def output_documents(self) -> List[Dict[str, Any]]:
         if self.engine is not None:
-            return self.engine
+            return self.engine.output_documents
         else:
             return None
 
