@@ -243,10 +243,11 @@ class AbstractEngine(ABC):
 
         # ... and where any of its output_fields dont exist
         for operator in self.operators:
-            for output_field in operator.output_fields:
-                output_field_filters["condition_value"] += dataset[
-                    output_field
-                ].not_exists()
+            if operator.output_fields is not None:
+                for output_field in operator.output_fields:
+                    output_field_filters["condition_value"] += dataset[
+                        output_field
+                    ].not_exists()
 
         # We construct this as:
         #
