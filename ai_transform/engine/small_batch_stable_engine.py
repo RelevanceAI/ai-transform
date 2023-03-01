@@ -34,21 +34,6 @@ class SmallBatchStableEngine(AbstractEngine):
         *args,
         **kwargs
     ):
-        """
-        Parameters
-        -----------
-
-        pull_chunksize: int
-            the number of documents that are downloaded
-        transform_threshold: int
-            transform_threshold is the minimum amount of documents
-            that are required before it starts running the transform
-            function whereas the transform_chunksize is the
-            number of documents each transform operation will take.
-        transform_chunksize: int
-            the number of documents that get passed to the operator
-
-        """
         super().__init__(
             dataset=dataset,
             operator=operator,

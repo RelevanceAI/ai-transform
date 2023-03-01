@@ -41,17 +41,7 @@ class DenseOutputEngine(AbstractEngine):
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
     ):
-        """
-        Parameters
-        -----------
-
-        pull_chunksize
-            the number of documents that are downloaded
-
-        """
-
         self.token = dataset.token
-
         super().__init__(
             dataset=dataset,
             operator=operator,

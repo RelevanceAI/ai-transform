@@ -1,12 +1,19 @@
+import logging
+
 from typing import Optional, Dict, Any
 
 from ai_transform.api.api import API
 from ai_transform.api.helpers import process_token
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.types import Schema
+from ai_transform.helpers import format_logging_info
 from ai_transform.errors import AuthException
 from ai_transform.constants import WELCOME_MESSAGE
 from ai_transform.workflow.simple_workflow import SimpleWorkflow
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 class Client:
@@ -83,12 +90,11 @@ class Client:
         download_url = data["download_url"]
         with open(file_path, "rb") as fn_byte:
             media_content = bytes(fn_byte.read())
-        print({"media_content": media_content})
         response = self.api._upload_temporary_media(
             presigned_url=upload_url,
             media_content=media_content,
         )
-        print(response.content)
+        logger.debug(response.content)
         return {"download_url": download_url}
 
     def list_project_keys(self):

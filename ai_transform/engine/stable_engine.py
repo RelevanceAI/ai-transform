@@ -42,20 +42,6 @@ class StableEngine(AbstractEngine):
         transform_chunksize: int = 20,
         show_progress_bar: bool = True,
     ):
-        """
-        Parameters
-        -----------
-
-        pull_chunksize
-            the number of documents that are downloaded
-
-        """
-        if not refresh:
-            output_field_filters = []
-            for output_field in operator.output_fields:
-                output_field_filters.append(dataset[output_field].not_exists())
-            filters += [{"filter_type": "or", "condition_value": output_field_filters}]
-
         super().__init__(
             dataset=dataset,
             operator=operator,

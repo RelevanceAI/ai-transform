@@ -160,6 +160,7 @@ class Document(UserDict):
             ]
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             # this is the error this exception aims to solve
             #     for m in re.finditer(text_to_find, string)
