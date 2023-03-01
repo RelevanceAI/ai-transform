@@ -82,7 +82,7 @@ class AbstractOperator(ABC):
     ):
 
         if input_fields is not None and output_fields is not None:
-            if any(input_field not in output_fields for input_field in input_fields):
+            if any(input_field in output_fields for input_field in input_fields):
                 detected_fields = [
                     input_field
                     for input_field in input_fields
