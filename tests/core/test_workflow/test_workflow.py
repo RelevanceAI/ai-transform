@@ -1,10 +1,11 @@
+import time
+
+from pydantic import Field
+
 from ai_transform.api.client import Client
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.workflow.abstract_workflow import Workflow
-
-
 from ai_transform.config import BaseConfig
-from pydantic import Field
 
 
 class SimpleWorkflowConfig(BaseConfig):
@@ -68,13 +69,22 @@ class TestSimpleWorkflow:
         simple_workflow_dataset = test_client.Dataset("test-simple-workflow-dataset")
         simple_workflow_dataset.insert_documents([{"_id": "0", "value": 0}])
 
+        workflow_name = "Simple Workflow"
+        time_sleep_value = 10
+
         with test_client.SimpleWorkflow(
-            workflow_name="Simple Workflow",
+            workflow_name=workflow_name,
             job_id="test-simple-workflow",
         ) as workflow:
-            simple_workflow_dataset.update_documents([{"_id": "0", "value": 1}])
 
-        assert workflow.get_status()["status"] == "complete"
+            time.sleep(time_sleep_value)
+            simple_workflow_dataset.update_documents(
+                [{"_id": "0", "value": 1}], ingest_in_background=False
+            )
+
+        status = workflow.get_status()
+        assert status["status"] == "complete"
+        assert status["steps"][workflow_name]["n_processed_pricing"] >= time_sleep_value
 
         documents = simple_workflow_dataset.get_all_documents()["documents"]
         assert documents[0]["value"] == 1
