@@ -34,22 +34,27 @@ class WorkflowContextManager:
         self,
         workflow_name: str,
         job_id: str,
-        additional_information: str,
-        send_email: bool,
-        email: Dict[str, Any],
-        success_threshold: float,
+        additional_information: str = "",
+        send_email: bool = True,
+        email: Dict[str, Any] = None,
+        success_threshold: float = 0.8,
+        # The arguments below can vary depending on if workflow is ran as
+        # a Simple Workflow or a Regular one. They are initialized to None.
         credentials: Credentials = None,
-        operators: List[abstract_operator.AbstractOperator] = None,
-        metadata: Dict[str, Any] = None,
-        engine: abstract_engine.AbstractEngine = None,
         dataset: dataset.Dataset = None,
+        operators: List[abstract_operator.AbstractOperator] = None,
+        engine: abstract_engine.AbstractEngine = None,
+        metadata: Dict[str, Any] = None,
     ):
 
         self.credentials = credentials
-        self.dataset = dataset
         self.engine = engine
-        self.dataset_id = self.dataset_id
-        self.api = self.dataset.api or API(self.credentials)
+        self.dataset = dataset
+
+        if self.dataset is not None:
+            self.api = self.dataset.api
+        else:
+            self.api = API(self.credentials)
 
         self.workflow_name = workflow_name
         self.operators = operators
@@ -63,6 +68,20 @@ class WorkflowContextManager:
 
         self.metadata = metadata if metadata is not None else {}
         self.metadata["ai_transform_version"] = __version__
+
+    @property
+    def worker_number(self) -> int:
+        if self.engine is not None:
+            return self.engine.worker_number
+        else:
+            return 0
+
+    @property
+    def output_documents(self) -> List[Dict[str, Any]]:
+        if self.engine is not None:
+            return self.engine
+        else:
+            return None
 
     @property
     def field_children_metadata(self) -> Dict[str, str]:
@@ -102,8 +121,8 @@ class WorkflowContextManager:
             additional_information=self.additional_information,
             send_email=self.send_email,
             email=self.email,
-            worker_number=self.engine.worker_number,
-            output=self.engine.output_documents,
+            worker_number=self.worker_number,
+            output=self.output_documents,
         )
         logger.debug(format_logging_info(result))
         return result
@@ -111,7 +130,8 @@ class WorkflowContextManager:
     def __enter__(self):
         if self.operators is not None:
             self._set_field_children_recursively()
-        return self.set_workflow_status(status=self.IN_PROGRESS)
+        self.set_workflow_status(status=self.IN_PROGRESS)
+        return self
 
     def _handle_workflow_fail(
         self, exc_type: type, exc_value: BaseException, traceback: Traceback
@@ -128,10 +148,11 @@ class WorkflowContextManager:
         n_processed_pricing = 0
         is_automatic = True
 
-        for operator in self.operators:
-            if operator.is_operator_based_pricing:
-                n_processed_pricing += operator.n_processed_pricing
-                is_automatic = False
+        if self.operators is not None:
+            for operator in self.operators:
+                if operator.is_operator_based_pricing:
+                    n_processed_pricing += operator.n_processed_pricing
+                    is_automatic = False
 
         if is_automatic:
             return self._calculate_n_processed_pricing_from_timer()
@@ -147,17 +168,23 @@ class WorkflowContextManager:
         return self.api._update_workflow_pricing(
             workflow_id=self.job_id,
             step=self.workflow_name,
-            worker_number=self.engine.worker_number,
+            worker_number=self.worker_number,
             n_processed_pricing=n_processed_pricing,
         )
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
-        workflow_failed = self.engine.success_ratio < self.success_threshold
+        if self.engine is not None:
+            regular_workflow_failed = self.engine.success_ratio < self.success_threshold
+        else:
+            regular_workflow_failed = False
 
-        if exc_type is not None or workflow_failed:
+        if exc_type is not None or regular_workflow_failed:
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
             n_processed_pricing = self._calculate_pricing()
             if n_processed_pricing is not None:
                 self.update_workflow_pricing(n_processed_pricing)
             return self._handle_workflow_complete()
+
+    def get_status(self):
+        return self.api._get_workflow_status(self.job_id)

@@ -63,9 +63,9 @@ class Client:
         self,
         workflow_name: str,
         job_id: str,
-        additional_information: str,
-        send_email: bool,
-        email: Dict[str, Any],
+        additional_information: str = "",
+        send_email: bool = True,
+        email: Dict[str, Any] = None,
         metadata: Dict[str, Any] = None,
     ) -> WorkflowContextManager:
         return WorkflowContextManager(

@@ -49,14 +49,32 @@ class TestWorkflow:
 
 
 class TestSimpleWorkflow:
-    def test_simple_workflow(
+    def test_simple_workflow_simple_case(
         self, test_client: Client, test_simple_workflow_token: str
     ):
         config = SimpleWorkflowConfig.read_token(test_simple_workflow_token)
 
         x = 0
         with test_client.SimpleWorkflow(
-            workflow_name="Simple Workflow", **config.dict()
+            workflow_name="Simple Workflow",
+            job_id=config.job_id,
+            additional_information=config.additional_information,
+            send_email=config.send_email,
         ):
             x += 1
         assert x == 1
+
+    def test_simple_workflow(self, test_client: Client):
+        simple_workflow_dataset = test_client.Dataset("test-simple-workflow-dataset")
+        simple_workflow_dataset.insert_documents([{"_id": "0", "value": 0}])
+
+        with test_client.SimpleWorkflow(
+            workflow_name="Simple Workflow",
+            job_id="test-simple-workflow",
+        ) as workflow:
+            simple_workflow_dataset.update_documents([{"_id": "0", "value": 1}])
+
+        assert workflow.get_status()["status"] == "complete"
+
+        documents = simple_workflow_dataset.get_all_documents()["documents"]
+        assert documents[0]["value"] == 1
