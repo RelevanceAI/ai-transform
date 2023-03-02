@@ -923,11 +923,11 @@ class API:
         }
         if filters is not None:
             params["filters"] = filters
-        response = requests.get(
+        response = requests.post(
             url=self.base_url
             + f"/datasets/{dataset_id}/cluster/centroids/labels/create",
             headers=self.headers,
-            params=params,
+            json=params,
         )
         return get_response(response)
 
