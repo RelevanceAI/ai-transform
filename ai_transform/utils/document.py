@@ -69,6 +69,25 @@ class Document(UserDict):
                 field = fields[-1]
             return obj[field]
 
+    def __delitem__(self, key):
+        try:
+            fields = key.split(".")
+        except:
+            return super().__getitem__(key)
+        else:
+            obj = self.data
+            for field in fields[:-1]:
+                if field.isdigit():
+                    field = int(field)
+
+                obj = obj[field]
+
+            if fields[-1].isdigit():
+                field = min(len(obj) - 1, int(fields[-1]))
+            else:
+                field = fields[-1]
+            del obj[field]
+
     def get(self, key: Any, default: Optional[Any] = None) -> Any:
         try:
             return self.__getitem__(key)
@@ -92,7 +111,8 @@ class Document(UserDict):
                     keys.append(current_key)
                 else:
                     keys.append(current_key)
-
+            if prefix:
+                keys.append(prefix)
             return keys
 
         keys = set(get_keys(self.data))
