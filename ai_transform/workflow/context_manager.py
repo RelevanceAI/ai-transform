@@ -69,6 +69,8 @@ class WorkflowContextManager:
         self.metadata = metadata if metadata is not None else {}
         self.metadata["ai_transform_version"] = __version__
 
+        self._n_processed_pricing = None
+
     @property
     def worker_number(self) -> int:
         if self.engine is not None:
@@ -164,6 +166,9 @@ class WorkflowContextManager:
 
         return _TIMER.stop()
 
+    def set_workflow_pricing(self, n_processed_pricing: float):
+        self._n_processed_pricing = n_processed_pricing
+
     def update_workflow_pricing(self, n_processed_pricing: float):
         return self.api._update_workflow_pricing(
             workflow_id=self.job_id,
@@ -181,7 +186,7 @@ class WorkflowContextManager:
         if exc_type is not None or regular_workflow_failed:
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
-            n_processed_pricing = self._calculate_pricing()
+            n_processed_pricing = self._n_processed_pricing or self._calculate_pricing()
             if n_processed_pricing is not None:
                 self.update_workflow_pricing(n_processed_pricing)
             return self._handle_workflow_complete()
