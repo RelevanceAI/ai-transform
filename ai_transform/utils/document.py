@@ -112,7 +112,8 @@ class Document(UserDict):
                     keys.append(current_key)
                 else:
                     keys.append(current_key)
-
+            if prefix:
+                keys.append(prefix)
             return keys
 
         keys = set(get_keys(self.data))
