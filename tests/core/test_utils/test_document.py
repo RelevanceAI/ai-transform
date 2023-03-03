@@ -45,9 +45,6 @@ class TestDocument:
         assert "field1.field2" in test_document
 
     def test_pop(self, test_document: Document):
-        import pdb
-
-        pdb.set_trace()
         value = test_document.pop("field1.field2")
         assert value == 1
         assert "field1" in test_document
