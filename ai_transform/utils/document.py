@@ -6,6 +6,7 @@ from copy import deepcopy
 from typing import Any, Optional
 from collections import UserDict
 
+from ai_transform.helpers import format_logging_info
 from ai_transform.utils.json_encoder import json_encoder
 
 
@@ -68,6 +69,28 @@ class Document(UserDict):
             else:
                 field = fields[-1]
             return obj[field]
+
+    def __delitem__(self, key):
+        try:
+            fields = key.split(".")
+        except:
+            return super().__getitem__(key)
+        else:
+            obj = self.data
+            for field in fields[:-1]:
+                if field.isdigit():
+                    field = int(field)
+
+                obj = obj[field]
+
+            if fields[-1].isdigit():
+                field = min(len(obj) - 1, int(fields[-1]))
+            else:
+                field = fields[-1]
+            del obj[field]
+
+    def _repr_html_(self):
+        return format_logging_info(self.to_json())
 
     def get(self, key: Any, default: Optional[Any] = None) -> Any:
         try:
