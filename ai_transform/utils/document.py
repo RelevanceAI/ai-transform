@@ -89,9 +89,6 @@ class Document(UserDict):
                 field = fields[-1]
             del obj[field]
 
-    def _repr_html_(self):
-        return format_logging_info(self.to_json())
-
     def get(self, key: Any, default: Optional[Any] = None) -> Any:
         try:
             return self.__getitem__(key)
