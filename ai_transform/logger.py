@@ -1,6 +1,9 @@
 import pprint
+import logging
 
-from typing import Dict, Any
+from typing import Dict, Any, List
+from ai_transform.utils.document import Document
+from ai_transform.utils.document_list import DocumentList
 
 
 def format_logging_info(
@@ -19,3 +22,24 @@ def format_logging_info(
         compact=compact,
         sort_dicts=sort_dicts,
     )
+
+
+class Logger:
+    def __init__(self):
+        self._logger = logging.getLogger("WORKFLOW")
+        logging.basicConfig()
+        self._logger.setLevel(logging.DEBUG)
+
+    def __call__(self, info: Any, no_vectors: bool = True):
+        if isinstance(info, Document):
+            info_to_log = info.to_json()
+            if no_vectors:
+                info_to_log = {k: v for k, v in info.items() if "_vector_" not in k}
+
+        elif isinstance(info, DocumentList):
+            info_to_log = [document.to_json() for document in info]
+        elif isinstance(info, List):
+            if isinstance(info[0], Document):
+                info_to_log = [document.to_json() for document in info]
+
+        self._logger.debug(format_logging_info(info_to_log))
