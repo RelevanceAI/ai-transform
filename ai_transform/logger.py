@@ -42,4 +42,7 @@ class Logger:
             if isinstance(info[0], Document):
                 info_to_log = [document.to_json() for document in info]
 
+        else:
+            info_to_log = info
+
         self._logger.debug(format_logging_info(info_to_log))
