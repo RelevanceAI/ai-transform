@@ -30,7 +30,7 @@ class Logger:
         logging.basicConfig()
         self._logger.setLevel(logging.DEBUG)
 
-    def __call__(self, info: Any, no_vectors: bool = True):
+    def __call__(self, info: Any, no_vectors: bool = True) -> None:
         if isinstance(info, Document):
             info_to_log = info.to_json()
             if no_vectors:
