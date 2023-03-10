@@ -9,7 +9,7 @@ from ai_transform.types import Credentials
 from ai_transform.dataset import dataset
 from ai_transform.operator import abstract_operator
 from ai_transform.engine import abstract_engine
-from ai_transform.helpers import format_logging_info
+from ai_transform.logger import format_logging_info
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"

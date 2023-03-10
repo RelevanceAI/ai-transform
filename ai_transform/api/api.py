@@ -8,7 +8,7 @@ from functools import wraps
 
 from typing import Any, Dict, List, Optional
 
-from ai_transform.helpers import format_logging_info
+from ai_transform.logger import format_logging_info
 from ai_transform.utils import document
 from ai_transform.types import (
     Credentials,

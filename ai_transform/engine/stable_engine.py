@@ -13,7 +13,7 @@ import logging
 
 from typing import Optional, List
 
-from ai_transform.helpers import format_logging_info
+from ai_transform.logger import format_logging_info
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.engine.abstract_engine import AbstractEngine
