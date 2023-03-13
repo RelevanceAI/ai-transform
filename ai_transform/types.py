@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict, List, NamedTuple, NewType
+from typing import Any, Dict, List, NamedTuple, NewType, Optional
 
 
 Vector = NewType("Vector", List[float])
@@ -28,6 +28,7 @@ Metric = NewType("Metric", List[Dict[str, Any]])
 @dataclass
 class FrontendCTA:
     type: str
+    link: str
     label: str = ""
     expiry_date: Optional[str] = None
 
