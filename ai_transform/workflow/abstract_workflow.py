@@ -12,8 +12,6 @@ from ai_transform.types import FrontendCTA, LinkCTA, DownloadCTA
 from dataclasses import asdict
 logger = logging.getLogger(__name__)
 
-from enum import Enum
-
 class Workflow:
     def __init__(
         self,
