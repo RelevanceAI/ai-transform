@@ -10,7 +10,9 @@ from ai_transform.workflow.context_manager import WorkflowContextManager
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.cta import FrontendCTA, LinkCTA, DownloadCTA
 from dataclasses import asdict
+
 logger = logging.getLogger(__name__)
+
 
 class Workflow:
     def __init__(
@@ -23,7 +25,7 @@ class Workflow:
         send_email: bool = True,
         success_threshold: float = 0.8,
         email: dict = None,
-        frontend_ctas: Union[DownloadCTA, LinkCTA, FrontendCTA, dict]= None,
+        frontend_ctas: Union[DownloadCTA, LinkCTA, FrontendCTA, dict] = None,
         **kwargs,  # TODO: Update workflows, This for deprecated arguments
     ):
 
