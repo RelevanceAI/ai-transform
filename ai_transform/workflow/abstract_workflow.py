@@ -8,24 +8,11 @@ from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.workflow.context_manager import WorkflowContextManager
 from ai_transform.operator.abstract_operator import AbstractOperator
-from dataclasses import dataclass, asdict
+from ai_transform.types import FrontendCTA, LinkCTA, DownloadCTA
+from dataclasses import asdict
 logger = logging.getLogger(__name__)
 
 from enum import Enum
-
-@dataclass
-class FrontendCTA:
-    type: str
-    label: str = ""
-    expiry_date: Optional[str] = None
-
-@dataclass
-class DownloadCTA(FrontendCTA):
-    type = "download"
-
-@dataclass
-class LinkCTA(FrontendCTA):
-    type = "link"
 
 class Workflow:
     def __init__(

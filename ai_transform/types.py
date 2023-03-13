@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Any, Dict, List, NamedTuple, NewType
 
 
@@ -23,3 +24,17 @@ class Credentials(NamedTuple):
 
 GroupBy = NewType("GroupBy", List[Dict[str, Any]])
 Metric = NewType("Metric", List[Dict[str, Any]])
+
+@dataclass
+class FrontendCTA:
+    type: str
+    label: str = ""
+    expiry_date: Optional[str] = None
+
+@dataclass
+class DownloadCTA(FrontendCTA):
+    type = "download"
+
+@dataclass
+class LinkCTA(FrontendCTA):
+    type = "link"
