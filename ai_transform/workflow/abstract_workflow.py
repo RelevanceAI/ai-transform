@@ -56,7 +56,7 @@ class Workflow:
         self._additional_information = additional_information
         self._send_email = send_email
         # these are additionally stored in the output
-        if frontend_ctas is not None and type(frontend_ctas) != dict
+        if frontend_ctas is not None and type(frontend_ctas) != dict:
             self._frontend_ctas = asdict(frontend_ctas)
         else:
             self._frontend_ctas = frontend_ctas
