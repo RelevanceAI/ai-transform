@@ -8,7 +8,7 @@ from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.workflow.context_manager import WorkflowContextManager
 from ai_transform.operator.abstract_operator import AbstractOperator
-from ai_transform.types import FrontendCTA, LinkCTA, DownloadCTA
+from ai_transform.cta import FrontendCTA, LinkCTA, DownloadCTA
 from dataclasses import asdict
 logger = logging.getLogger(__name__)
 
@@ -116,8 +116,6 @@ class Workflow:
 
     def update_metadata(self, metadata: Dict[str, Any]):
         return self.api._update_workflow_metadata(self._job_id, metadata=metadata)
-
-
 
 
 AbstractWorkflow = Workflow
