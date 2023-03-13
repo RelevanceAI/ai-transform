@@ -45,6 +45,7 @@ class WorkflowContextManager:
         operators: List[abstract_operator.AbstractOperator] = None,
         engine: abstract_engine.AbstractEngine = None,
         metadata: Dict[str, Any] = None,
+        frontend_cta: dict = None
     ):
 
         self.credentials = credentials
@@ -63,6 +64,7 @@ class WorkflowContextManager:
         self.send_email = send_email
         self.email = email
         self.success_threshold = success_threshold
+        self.frontend_cta = frontend_cta
 
         from ai_transform import __version__
 
@@ -125,6 +127,7 @@ class WorkflowContextManager:
             email=self.email,
             worker_number=self.worker_number,
             output=self.output_documents,
+            frontend_cta=self.frontend_cta
         )
         logger.debug(format_logging_info(result))
         return result

@@ -2,15 +2,30 @@ import uuid
 import logging
 import warnings
 
-from typing import Any, List, Dict, Optional
+from typing import Any, List, Dict, Optional, Union
 
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.workflow.context_manager import WorkflowContextManager
 from ai_transform.operator.abstract_operator import AbstractOperator
-
+from dataclasses import dataclass, asdict
 logger = logging.getLogger(__name__)
 
+from enum import Enum
+
+@dataclass
+class FrontendCTA:
+    type: str
+    label: str = ""
+    expiry_date: Optional[str] = None
+
+@dataclass
+class DownloadCTA(FrontendCTA):
+    type = "download"
+
+@dataclass
+class LinkCTA(FrontendCTA):
+    type = "link"
 
 class Workflow:
     def __init__(
@@ -23,6 +38,7 @@ class Workflow:
         send_email: bool = True,
         success_threshold: float = 0.8,
         email: dict = None,
+        frontend_ctas: Union[DownloadCTA, LinkCTA, FrontendCTA, dict]= None,
         **kwargs,  # TODO: Update workflows, This for deprecated arguments
     ):
 
@@ -39,6 +55,8 @@ class Workflow:
         self._metadata = {} if metadata is None else metadata
         self._additional_information = additional_information
         self._send_email = send_email
+        # these are additionally stored in the output
+        self._frontend_ctas = asdict(frontend_ctas)
 
         self._success_threshold = success_threshold
         self._email = email
@@ -110,6 +128,8 @@ class Workflow:
 
     def update_metadata(self, metadata: Dict[str, Any]):
         return self.api._update_workflow_metadata(self._job_id, metadata=metadata)
+
+
 
 
 AbstractWorkflow = Workflow

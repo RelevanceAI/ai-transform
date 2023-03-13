@@ -87,6 +87,7 @@ class DenseOutputEngine(AbstractEngine):
         output_datasets = self.datasets_from_ids(output_dataset_ids)
         self.operator.store_dataset_relationship(self.dataset, output_datasets)
 
+
     def datasets_from_ids(self, dataset_ids: Sequence[str]) -> Sequence[Dataset]:
         return [
             Dataset.from_details(dataset_id, self.token) for dataset_id in dataset_ids
