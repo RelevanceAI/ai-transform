@@ -300,7 +300,7 @@ class API:
         worker_number: int = None,
         output: dict = None,
         email: dict = None,
-        frontend_cta: dict = None,
+        frontend_ctas: dict = None,
     ):
         # add edge case for API
         if job_id == "":
@@ -336,9 +336,9 @@ class API:
 
         logger.debug(format_logging_info(parameters))
 
-        if frontend_cta:
+        if frontend_ctas:
             output = parameters.get("output", {})
-            output.update({"frontend_cta": frontend_cta})
+            output.update({"frontend_ctas": frontend_ctas})
 
         response = requests.post(
             url=self.base_url + f"/workflows/{job_id}/status",

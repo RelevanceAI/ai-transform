@@ -1,4 +1,5 @@
-from typing import Any, Dict, List, NamedTuple, NewType, Optional
+from typing import Any, Dict, List, NamedTuple, NewType, Union
+from ai_transform.cta import DownloadCTA, LinkCTA, FrontendCTA
 
 
 Vector = NewType("Vector", List[float])
@@ -23,3 +24,4 @@ class Credentials(NamedTuple):
 
 GroupBy = NewType("GroupBy", List[Dict[str, Any]])
 Metric = NewType("Metric", List[Dict[str, Any]])
+FrontendCTAType = List[Union[DownloadCTA, LinkCTA, FrontendCTA, dict]]

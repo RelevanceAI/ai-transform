@@ -1,11 +1,13 @@
 import os
 import logging
+import dataclasses
+from ai_transform.utils import json_encoder
 
 from inspect import Traceback
 from typing import Dict, Any, List
 
 from ai_transform.api.api import API
-from ai_transform.types import Credentials
+from ai_transform.types import Credentials, FrontendCTAType
 from ai_transform.dataset import dataset
 from ai_transform.operator import abstract_operator
 from ai_transform.engine import abstract_engine
@@ -45,7 +47,7 @@ class WorkflowContextManager:
         operators: List[abstract_operator.AbstractOperator] = None,
         engine: abstract_engine.AbstractEngine = None,
         metadata: Dict[str, Any] = None,
-        frontend_cta: dict = None,
+        frontend_ctas: FrontendCTAType = None,
     ):
 
         self.credentials = credentials
@@ -64,7 +66,8 @@ class WorkflowContextManager:
         self.send_email = send_email
         self.email = email
         self.success_threshold = success_threshold
-        self.frontend_cta = frontend_cta
+
+        self.frontend_ctas = json_encoder(frontend_ctas)
 
         from ai_transform import __version__
 
@@ -127,7 +130,7 @@ class WorkflowContextManager:
             email=self.email,
             worker_number=self.worker_number,
             output=self.output_documents,
-            frontend_cta=self.frontend_cta,
+            frontend_ctas=self.frontend_ctas,
         )
         logger.debug(format_logging_info(result))
         return result

@@ -2,15 +2,13 @@ import uuid
 import logging
 import warnings
 
-from typing import Any, List, Dict, Optional, Union
+from typing import Any, List, Dict, Optional
 
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
+from ai_transform.types import FrontendCTAType
 from ai_transform.workflow.context_manager import WorkflowContextManager
 from ai_transform.operator.abstract_operator import AbstractOperator
-from ai_transform.cta import FrontendCTA, LinkCTA, DownloadCTA
-import dataclasses
-from dataclasses import asdict
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +24,7 @@ class Workflow:
         send_email: bool = True,
         success_threshold: float = 0.8,
         email: dict = None,
-        frontend_ctas: Union[DownloadCTA, LinkCTA, FrontendCTA, dict] = None,
+        frontend_ctas: FrontendCTAType = None,
         **kwargs,  # TODO: Update workflows, This for deprecated arguments
     ):
 
@@ -44,11 +42,7 @@ class Workflow:
         self._additional_information = additional_information
         self._send_email = send_email
         # these are additionally stored in the output
-        if dataclasses.is_dataclass(frontend_ctas):
-            self._frontend_ctas = asdict(frontend_ctas)
-        else:
-            self._frontend_ctas = frontend_ctas
-
+        self._frontend_ctas = frontend_ctas
         self._success_threshold = success_threshold
         self._email = email
 

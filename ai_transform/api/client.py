@@ -5,7 +5,7 @@ from typing import Optional, Dict, Any
 from ai_transform.api.api import API
 from ai_transform.api.helpers import process_token
 from ai_transform.dataset.dataset import Dataset
-from ai_transform.types import Schema
+from ai_transform.types import Schema, FrontendCTAType
 from ai_transform.errors import AuthException
 from ai_transform.constants import WELCOME_MESSAGE
 from ai_transform.workflow.context_manager import WorkflowContextManager
@@ -67,6 +67,7 @@ class Client:
         send_email: bool = True,
         email: Dict[str, Any] = None,
         metadata: Dict[str, Any] = None,
+        frontend_ctas=None,
     ) -> WorkflowContextManager:
         return WorkflowContextManager(
             credentials=self.credentials,
@@ -76,6 +77,7 @@ class Client:
             additional_information=additional_information,
             send_email=send_email,
             email=email,
+            frontend_ctas=frontend_ctas,
         )
 
     def insert_temp_local_media(self, file_path: str):
