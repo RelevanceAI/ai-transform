@@ -67,7 +67,7 @@ class Client:
         send_email: bool = True,
         email: Dict[str, Any] = None,
         metadata: Dict[str, Any] = None,
-        frontend_ctas=None,
+        frontend_ctas: FrontendCTAType = None,
     ) -> WorkflowContextManager:
         return WorkflowContextManager(
             credentials=self.credentials,
