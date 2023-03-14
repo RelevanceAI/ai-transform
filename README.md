@@ -96,6 +96,21 @@ poll_until_health_updates_with_input_field(
 )
 ```
 
+### CTA
+
+You can call CTAs by adding: 
+
+```
+from ai_transform.ctas import DownloadCTA
+cta = DownloadCta(link="...", text="...")
+workflow = Workflow(..., cta=cta)
+```
+
+This will then generate a button at the end of the workflow similar
+to below: 
+
+![CTA Example](cta_example.png)
+
 
 ### How to release
 
