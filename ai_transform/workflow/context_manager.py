@@ -45,6 +45,7 @@ class WorkflowContextManager:
         operators: List[abstract_operator.AbstractOperator] = None,
         engine: abstract_engine.AbstractEngine = None,
         metadata: Dict[str, Any] = None,
+        output: dict = None,
     ):
 
         self.credentials = credentials
@@ -63,6 +64,7 @@ class WorkflowContextManager:
         self.send_email = send_email
         self.email = email
         self.success_threshold = success_threshold
+        self.output = output
 
         from ai_transform import __version__
 
@@ -115,6 +117,10 @@ class WorkflowContextManager:
                     logger.debug(format_logging_info(res))
 
     def set_workflow_status(self, status: str):
+        if self.output is not None:
+            output = self.output
+        else:
+            output = self.output_documents
         result = self.api._set_workflow_status(
             status=status,
             job_id=self.job_id,
@@ -124,7 +130,7 @@ class WorkflowContextManager:
             send_email=self.send_email,
             email=self.email,
             worker_number=self.worker_number,
-            output=self.output_documents,
+            output=output,
         )
         logger.debug(format_logging_info(result))
         return result

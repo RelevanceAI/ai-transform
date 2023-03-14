@@ -67,6 +67,7 @@ class Client:
         send_email: bool = True,
         email: Dict[str, Any] = None,
         metadata: Dict[str, Any] = None,
+        output: dict = None,
     ) -> WorkflowContextManager:
         return WorkflowContextManager(
             credentials=self.credentials,
@@ -76,6 +77,7 @@ class Client:
             additional_information=additional_information,
             send_email=send_email,
             email=email,
+            output=output,
         )
 
     def insert_temp_local_media(self, file_path: str):
