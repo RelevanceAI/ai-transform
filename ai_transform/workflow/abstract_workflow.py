@@ -23,6 +23,7 @@ class Workflow:
         send_email: bool = True,
         success_threshold: float = 0.8,
         email: dict = None,
+        output: dict = None,
         **kwargs,  # TODO: Update workflows, This for deprecated arguments
     ):
 
@@ -42,6 +43,7 @@ class Workflow:
 
         self._success_threshold = success_threshold
         self._email = email
+        self._output = output
 
     @property
     def success_threshold(self):
@@ -102,6 +104,7 @@ class Workflow:
             metadata=self.metadata,
             engine=self.engine,
             dataset=self.dataset,
+            output=self._output,
         ):
             self.engine()
 
