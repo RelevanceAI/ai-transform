@@ -11,6 +11,7 @@ import math
 import datetime
 import dataclasses
 import collections
+import pandas as pd
 
 from ipaddress import (
     IPv4Address,
@@ -116,6 +117,9 @@ def json_encoder(obj: Any, force_string: bool = False):
         return ENCODERS_BY_TYPE[type(obj)](obj)  # type: ignore
 
     if force_string:
+        return repr(obj)
+
+    if isinstance(obj, pd.Timestamp):
         return repr(obj)
 
     raise ValueError(f"{obj} ({type(obj)}) cannot be converted to JSON format")
