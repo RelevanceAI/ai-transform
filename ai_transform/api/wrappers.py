@@ -11,7 +11,7 @@ def request_wrapper(
     num_retries: int = 3,
     timeout: int = 30,
 ) -> requests.Request:
-    for _ in range(3):
+    for _ in range(num_retries):
         try:
             result = fn(*args, **kwargs)
             result.json()
