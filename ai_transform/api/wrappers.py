@@ -1,24 +1,22 @@
 import time
 import requests
 
-from typing import Callable, Sequence, Mapping, Any
+from typing import Union, Sequence, Mapping, Any
 
 
-def openai_wrapper(
-    fn: Callable,
+def request_wrapper(
+    fn: Union[requests.get, requests.post],
     args: Sequence = None,
     kwargs: Mapping[str, Any] = None,
     num_retries: int = 3,
+    timeout: int = 30,
 ) -> requests.Request:
     for _ in range(3):
         try:
             result = fn(*args, **kwargs)
-            try:
-                result.json()
-            except AttributeError:
-                return result
+            result.json()
         except:
-            time.sleep(30)
+            time.sleep(timeout)
         else:
             return result
     raise ValueError(f"Request was not able to be completed within {num_retries}")
