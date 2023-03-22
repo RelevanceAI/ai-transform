@@ -23,16 +23,20 @@ def request_wrapper(
     if args is None:
         args = ()
 
-    if kwargs is None:
-        kwargs = {}
+    # if kwargs is None:
+    #     kwargs = {}
 
     for _ in range(num_retries):
         try:
-            result = fn(*args, **kwargs)
-            assert result.status_code == 200, {
-                "message": result.content.decode(),
-                "status_code": reponse.status_code,
-            }
+            if kwargs is None:
+                result = fn(*args)
+            else:
+                result = fn(*args, **kwargs)
+            if result.status_code != 200: 
+                raise Exception({
+                    "message": result.content.decode(),
+                    "status_code": result.status_code,
+                })
         except Exception as e:
             logger.exception(e)
             if raise_errors:
@@ -41,6 +45,9 @@ def request_wrapper(
         else:
             return result
 
-    raise ValueError(
-        f"Request was not able to be completed within {num_retries} retries"
-    )
+    if raise_errors:
+        raise ValueError(
+            f"""Request was not able to be completed within {num_retries} retries. 
+            Most recent code: {result.status_code}
+            Most recent message: {result.content.decode()}"""
+        )
