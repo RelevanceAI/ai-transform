@@ -5,6 +5,7 @@ from contextlib import redirect_stdout, redirect_stderr
 import io
 import sys
 
+
 class TestWrappers:
     def test_request_wrapper_fail(self):
         # ####
@@ -14,22 +15,22 @@ class TestWrappers:
         with redirect_stdout(u):
             try:
                 resp = request_wrapper(
-                    requests.post, 
+                    requests.post,
                     args=["https://www.google.com"],
                     num_retries=1,
                     timeout=1,
-                    raise_errors=True
+                    raise_errors=True,
                 )
             except Exception as e:
                 print(e)
                 pass
-        
+
         out = f.getvalue()
         err = u.getvalue()
         assert "status_code" in str(out) + str(err)
         assert "message" in str(out) + str(err)
 
-    def test_request_wrapper_fail(self):
+    def test_request_wrapper_fail_2(self):
         # ####
         f = io.StringIO()
         u = io.StringIO()
@@ -37,19 +38,17 @@ class TestWrappers:
         with redirect_stdout(u):
             try:
                 resp = request_wrapper(
-                    requests.post, 
+                    requests.post,
                     args=("https://www.google.com",),
-                    kwargs={
-                        "value": 10
-                    },
+                    kwargs={"value": 10},
                     num_retries=1,
                     timeout=1,
-                    raise_errors=True
+                    raise_errors=True,
                 )
             except Exception as e:
                 print(e)
                 pass
-        
+
         out = f.getvalue()
         err = u.getvalue()
         assert "status_code" in str(out) + str(err)
