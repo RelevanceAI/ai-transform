@@ -113,12 +113,16 @@ class API:
         return self._headers
 
     @retry()
-    def get(self, url: str, *args, **kwargs) -> Response:
-        return requests.get(url=url, headers=self.headers, *args, **kwargs)
+    def get(self, suffix: str, *args, **kwargs) -> Response:
+        return requests.get(
+            url=self.base_url + suffix, headers=self.headers, *args, **kwargs
+        )
 
     @retry()
-    def post(self, url: str, *args, **kwargs) -> Response:
-        return requests.post(url=url, headers=self.headers, *args, **kwargs)
+    def post(self, suffix: str, *args, **kwargs) -> Response:
+        return requests.post(
+            url=self.base_url + suffix, headers=self.headers, *args, **kwargs
+        )
 
     @retry()
     def _list_datasets(self):
