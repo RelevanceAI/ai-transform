@@ -27,7 +27,9 @@ def format_logging_info(
 class Logger:
     def __init__(self):
         self._logger = logging.getLogger("WORKFLOW")
-        logging.basicConfig()
+        logging.basicConfig(
+            format="%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+        )
         self._logger.setLevel(logging.DEBUG)
 
     def __call__(self, info: Any, no_vectors: bool = True) -> None:

@@ -3,6 +3,7 @@ import uuid
 import logging
 import requests
 
+from requests.models import Response
 from json import JSONDecodeError
 from functools import wraps
 
@@ -110,6 +111,18 @@ class API:
     @property
     def headers(self) -> Dict[str, str]:
         return self._headers
+
+    @retry()
+    def get(self, suffix: str, *args, **kwargs) -> Response:
+        return requests.get(
+            url=self.base_url + suffix, headers=self.headers, *args, **kwargs
+        )
+
+    @retry()
+    def post(self, suffix: str, *args, **kwargs) -> Response:
+        return requests.post(
+            url=self.base_url + suffix, headers=self.headers, *args, **kwargs
+        )
 
     @retry()
     def _list_datasets(self):

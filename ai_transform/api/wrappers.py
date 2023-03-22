@@ -2,6 +2,7 @@ import time
 import logging
 import requests
 
+from ai_transform.logger import format_logging_info
 from requests.models import Response
 
 from concurrent.futures import ThreadPoolExecutor
@@ -30,7 +31,9 @@ def request_wrapper(
     for _ in range(num_retries):
         try:
             result = fn(*args, **kwargs)
-            assert result.status_code == 200
+            assert result.status_code == 200, logger.debug(
+                format_logging_info(result.content.decode())
+            )
         except Exception as e:
             logger.exception(e)
             if raise_errors:
@@ -38,6 +41,7 @@ def request_wrapper(
             time.sleep(timeout)
         else:
             return result
+
     raise ValueError(
         f"Request was not able to be completed within {num_retries} retries"
     )
