@@ -5,8 +5,6 @@ import requests
 from ai_transform.logger import format_logging_info
 from requests.models import Response
 
-from concurrent.futures import ThreadPoolExecutor
-
 from typing import Union, Sequence, Mapping, Any
 
 logger = logging.getLogger(__file__)
@@ -31,8 +29,8 @@ def request_wrapper(
     for _ in range(num_retries):
         try:
             result = fn(*args, **kwargs)
-            assert result.status_code == 200, logger.debug(
-                format_logging_info(result.content.decode())
+            assert result.status_code == 200, format_logging_info(
+                result.content.decode()
             )
         except Exception as e:
             logger.exception(e)
