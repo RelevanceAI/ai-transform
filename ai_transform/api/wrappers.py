@@ -3,6 +3,7 @@ import logging
 import requests
 
 from requests.models import Response
+from ai_tranfsorm.logger import pprint
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -30,7 +31,7 @@ def request_wrapper(
     for _ in range(num_retries):
         try:
             result = fn(*args, **kwargs)
-            assert result.status_code == 200
+            assert result.status_code == 200, pprint(response.content.decode())
         except Exception as e:
             logger.exception(e)
             if raise_errors:
