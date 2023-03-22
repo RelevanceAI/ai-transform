@@ -38,6 +38,7 @@ def request_wrapper(
             time.sleep(timeout)
         else:
             return result
+
     raise ValueError(
         f"Request was not able to be completed within {num_retries} retries"
     )
