@@ -11,7 +11,6 @@ class TestWrappers:
         f = io.StringIO()
         u = io.StringIO()
 
-        # with redirect_stdout(f):
         with redirect_stdout(u):
             try:
                 resp = request_wrapper(
@@ -34,4 +33,6 @@ class TestWrappers:
         resp = request_wrapper(
             requests.get, ("https://www.google.com",), timeout=1, num_retries=2
         )
+        if resp is None:
+            raise ValueError("Resp should not be None")
         assert resp.status_code == 200
