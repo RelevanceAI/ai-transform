@@ -29,7 +29,10 @@ def request_wrapper(
     for _ in range(num_retries):
         try:
             result = fn(*args, **kwargs)
-            assert result.status_code == 200, {"message": result.content.decode(), "status_code": reponse.status_code}
+            assert result.status_code == 200, {
+                "message": result.content.decode(),
+                "status_code": reponse.status_code,
+            }
         except Exception as e:
             logger.exception(e)
             if raise_errors:
