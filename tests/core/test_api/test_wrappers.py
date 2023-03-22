@@ -19,7 +19,6 @@ class TestWrappers:
                     args=["https://www.google.com"],
                     num_retries=1,
                     timeout=1,
-                    raise_errors=True,
                 )
             except Exception as e:
                 print(e)
@@ -43,7 +42,6 @@ class TestWrappers:
                     kwargs={"value": 10},
                     num_retries=1,
                     timeout=1,
-                    raise_errors=True,
                 )
             except Exception as e:
                 print(e)
