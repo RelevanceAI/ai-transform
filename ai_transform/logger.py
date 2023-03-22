@@ -28,8 +28,7 @@ class Logger:
     def __init__(self):
         self._logger = logging.getLogger("WORKFLOW")
         logging.basicConfig(
-            format='%(asctime)s %(levelname)s %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
+            format="%(asctime)s %(levelname)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
         )
         self._logger.setLevel(logging.DEBUG)
 
