@@ -8,49 +8,31 @@ import sys
 
 class TestWrappers:
     def test_request_wrapper_fail(self):
-        # ####
-        f = io.StringIO()
-        u = io.StringIO()
+        resp = request_wrapper(
+            requests.post,
+            args=["https://www.google.com"],
+            num_retries=1,
+            timeout=1,
+        )
 
-        with redirect_stdout(u):
-            try:
-                resp = request_wrapper(
-                    requests.post,
-                    args=["https://www.google.com"],
-                    num_retries=1,
-                    timeout=1,
-                )
-            except Exception as e:
-                print(e)
-                pass
-
-        out = f.getvalue()
-        err = u.getvalue()
-        assert "status_code" in str(out) + str(err)
-        assert "message" in str(out) + str(err)
+        assert "status_code" in resp._content.decode()
+        assert "message" in resp._content.decode()
 
     def test_request_wrapper_fail_2(self):
         # ####
         f = io.StringIO()
         u = io.StringIO()
 
-        with redirect_stdout(u):
-            try:
-                resp = request_wrapper(
-                    requests.post,
-                    args=("https://www.google.com",),
-                    kwargs={"value": 10},
-                    num_retries=1,
-                    timeout=1,
-                )
-            except Exception as e:
-                print(e)
-                pass
+        resp = request_wrapper(
+            requests.post,
+            args=("https://www.google.com",),
+            kwargs={"json": {"value": 10}},
+            num_retries=1,
+            timeout=1,
+        )
 
-        out = f.getvalue()
-        err = u.getvalue()
-        assert "status_code" in str(out) + str(err)
-        assert "message" in str(out) + str(err)
+        assert "status_code" in resp._content.decode()
+        assert "message" in resp._content.decode()
 
     def test_request_wrapper_pass(self):
         resp = request_wrapper(
