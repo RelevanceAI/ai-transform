@@ -30,14 +30,14 @@ def request_wrapper(
         try:
             result = fn(*args, **kwargs)
             if result.status_code != 200:
-                response = {
+                to_log = {
                     "message": result.content.decode(),
                     "status_code": result.status_code,
                 }
                 if output_to_stdout:
-                    print(response)
+                    print(to_log)
                 else:
-                    format_logging_info(response)
+                    format_logging_info(to_log)
         except Exception as e:
             logger.exception(e)
             time.sleep(timeout)
