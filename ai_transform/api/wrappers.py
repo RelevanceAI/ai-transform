@@ -17,7 +17,7 @@ def request_wrapper(
     kwargs: Mapping[str, Any] = None,
     num_retries: int = 3,
     timeout: int = 30,
-    output_to_stdout: bool = False,  # support output to stdout to ensrue logging is working
+    output_to_stdout: bool = False,  # support output to stdout to ensure logging is working
 ) -> Response:
 
     if args is None:
