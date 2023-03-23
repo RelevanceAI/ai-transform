@@ -9,7 +9,6 @@ import sys
 class TestWrappers:
     def test_request_wrapper_fail_with_error_in_logs(self):
         f = io.StringIO()
-        u = io.StringIO()
         saved_stdout = sys.stdout
         sys.stdout = f
         resp = request_wrapper(
@@ -25,7 +24,6 @@ class TestWrappers:
         assert "message" in output
 
     def test_request_wrapper_fail_2(self):
-        # ####
         f = io.StringIO()
         u = io.StringIO()
 
