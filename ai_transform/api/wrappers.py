@@ -28,9 +28,10 @@ def request_wrapper(
     for _ in range(num_retries):
         try:
             result = fn(*args, **kwargs)
-            assert result.status_code == 200, format_logging_info(
-                result.content.decode()
-            )
+            if result.status_code != 200: 
+                format_logging_info(
+                    result.content.decode()
+                )
         except Exception as e:
             logger.exception(e)
             time.sleep(timeout)
