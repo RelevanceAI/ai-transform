@@ -37,11 +37,10 @@ def request_wrapper(
                 if output_to_stdout:
                     print(to_log)
                 else:
-                    format_logging_info(to_log)
+                    logger.debug(format_logging_info(to_log))
         except Exception as e:
             logger.exception(e)
             time.sleep(timeout)
         else:
             return result
-
     return result
