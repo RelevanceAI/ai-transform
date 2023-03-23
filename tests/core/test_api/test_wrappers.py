@@ -7,32 +7,40 @@ import sys
 
 
 class TestWrappers:
-    def test_request_wrapper_fail(self):
+    def test_request_wrapper_fail_with_error_in_logs(self):
+        f = io.StringIO()
+        u = io.StringIO()
+        saved_stdout = sys.stdout
+        sys.stdout = f
         resp = request_wrapper(
             requests.post,
             args=["https://www.google.com"],
             num_retries=1,
             timeout=1,
+            output_to_stdout=True,
         )
-
-        assert "status_code" in resp._content.decode()
-        assert "message" in resp._content.decode()
+        output = f.getvalue()
+        sys.stdout = saved_stdout
+        assert "status_code" in output
+        assert "message" in output
 
     def test_request_wrapper_fail_2(self):
         # ####
         f = io.StringIO()
         u = io.StringIO()
 
-        resp = request_wrapper(
-            requests.post,
-            args=("https://www.google.com",),
-            kwargs={"json": {"value": 10}},
-            num_retries=1,
-            timeout=1,
-        )
+        with redirect_stdout(f), redirect_stderr(u):
+            resp = request_wrapper(
+                requests.post,
+                args=("https://www.google.com",),
+                kwargs={"json": {"value": 10}},
+                num_retries=1,
+                output_to_stdout=True,
+                timeout=1,
+            )
 
-        assert "status_code" in resp._content.decode()
-        assert "message" in resp._content.decode()
+        assert "status_code" in str(u.getvalue()) + str(f.getvalue())
+        assert "message" in str(u.getvalue()) + str(f.getvalue())
 
     def test_request_wrapper_pass(self):
         resp = request_wrapper(

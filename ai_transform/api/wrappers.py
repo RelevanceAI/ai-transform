@@ -17,6 +17,7 @@ def request_wrapper(
     kwargs: Mapping[str, Any] = None,
     num_retries: int = 3,
     timeout: int = 30,
+    output_to_stdout: bool = False,  # support output to stdout to ensrue logging is working
 ) -> Response:
 
     if args is None:
@@ -28,10 +29,15 @@ def request_wrapper(
     for _ in range(num_retries):
         try:
             result = fn(*args, **kwargs)
-            if result.status_code != 200: 
-                format_logging_info(
-                    result.content.decode()
-                )
+            if result.status_code != 200:
+                response = {
+                    "message": result.content.decode(),
+                    "status_code": result.status_code,
+                }
+                if output_to_stdout:
+                    print(response)
+                else:
+                    format_logging_info(response)
         except Exception as e:
             logger.exception(e)
             time.sleep(timeout)
