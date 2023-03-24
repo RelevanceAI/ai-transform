@@ -224,7 +224,7 @@ class API:
             headers=self.headers,
             json=dict(
                 select_fields=[] if select_fields is None else select_fields,
-                page_size=page_size,
+                page_size=min(9999, page_size),
                 sort=[] if sort is None else sort,
                 include_vector=include_vector,
                 filters=[] if filters is None else filters,
@@ -294,7 +294,7 @@ class API:
                 cluster_ids=[] if cluster_ids is None else cluster_ids,
                 vector_fields=vector_fields,
                 alias=alias,
-                page_size=page_size,
+                page_size=min(9999, page_size),
                 page=page,
                 include_vector=include_vector,
             ),
@@ -784,7 +784,7 @@ class API:
         """
         params = {
             "page": page,
-            "page_size": page_size,
+            "page_size": min(9999, page_size),
         }
         if sort is not None:
             params["sort"] = sort
@@ -811,7 +811,7 @@ class API:
             json=dict(
                 fields=fields,
                 data_interval=data_interval,
-                page_size=page_size,
+                page_size=min(9999, page_size),
                 asc=asc,
             ),
         )
@@ -896,7 +896,7 @@ class API:
             url=self.base_url + "/deployables/list",
             headers=self.headers,
             params=dict(
-                page_size=page_size,
+                page_size=min(9999, page_size),
             ),
         )
         return get_response(response)
@@ -961,7 +961,7 @@ class API:
             json=dict(
                 filters=[] if filters is None else filters,
                 aggregation_query=aggregation_query,
-                page_size=page_size,
+                page_size=min(9999, page_size),
                 page=page,
                 asc=asc,
                 dataset_ids=[] if dataset_ids is None else dataset_ids,
@@ -1009,7 +1009,7 @@ class API:
                 include_count=include_count,
                 include_relevance=include_relevance,
                 cluster_field=cluster_field,
-                page_size=page_size,
+                page_size=min(9999, page_size),
                 cluster_properties_filter=cluster_properties_filter
                 if cluster_properties_filter is not None
                 else {},
