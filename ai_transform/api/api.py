@@ -975,9 +975,9 @@ class API:
         self,
         dataset_id: str,
         vector_fields: List[str],
-        centroid_vector_fields: List[str],
-        cluster_field: str,
         alias: str,
+        centroid_vector_fields: List[str] = None,
+        cluster_field: str = None,
         approx: int = 0,
         sum_fields: bool = True,
         page: int = 1,
@@ -998,7 +998,9 @@ class API:
             headers=self.headers,
             json=dict(
                 vector_fields=vector_fields,
-                centroid_vector_fields=centroid_vector_fields,
+                centroid_vector_fields=centroid_vector_fields
+                if centroid_vector_fields is not None
+                else [],
                 alias=alias,
                 approx=approx,
                 sum_fields=sum_fields,
