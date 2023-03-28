@@ -315,8 +315,8 @@ class API:
         status: str = "inprogress",
         send_email: bool = True,
         worker_number: int = None,
-        output: dict = None,
-        email: dict = None,
+        output: Dict[str, Any] = None,
+        email: Dict[str, Any] = None,
     ):
         # add edge case for API
         if job_id == "":
@@ -339,7 +339,7 @@ class API:
             parameters["worker_number"] = worker_number
 
         if output:
-            parameters["output"] = {"results": output}
+            parameters["output"] = output
 
         if email:
             # adding some assertions here for better developer experience
