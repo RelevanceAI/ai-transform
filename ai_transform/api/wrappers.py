@@ -18,6 +18,7 @@ def request_wrapper(
     num_retries: int = 3,
     timeout: int = 30,
     output_to_stdout: bool = False,  # support output to stdout to ensure logging is working
+    exponential_backoff: float = 1,
 ) -> Response:
 
     if args is None:
@@ -26,7 +27,7 @@ def request_wrapper(
     if kwargs is None:
         kwargs = {}
 
-    for _ in range(num_retries):
+    for n in range(1, num_retries + 1):
         try:
             result = fn(*args, **kwargs)
             if result.status_code != 200:
@@ -42,7 +43,7 @@ def request_wrapper(
                     logger.debug(to_log)
         except Exception as e:
             logger.exception(e)
-            time.sleep(timeout)
+            time.sleep(timeout * exponential_backoff**n)
         else:
             return result
     return result
