@@ -979,8 +979,6 @@ class API:
         self,
         dataset_id: str,
         vector_fields: List[str],
-        centroid_vector_fields: List[str],
-        cluster_field: str,
         alias: str,
         approx: int = 0,
         sum_fields: bool = True,
@@ -1002,7 +1000,6 @@ class API:
             headers=self.headers,
             json=dict(
                 vector_fields=vector_fields,
-                centroid_vector_fields=centroid_vector_fields,
                 alias=alias,
                 approx=approx,
                 sum_fields=sum_fields,
@@ -1012,7 +1009,6 @@ class API:
                 include_vector=include_vector,
                 include_count=include_count,
                 include_relevance=include_relevance,
-                cluster_field=cluster_field,
                 page_size=min(9999, page_size),
                 cluster_properties_filter=cluster_properties_filter
                 if cluster_properties_filter is not None
