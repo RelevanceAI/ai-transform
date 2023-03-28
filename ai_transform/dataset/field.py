@@ -421,8 +421,8 @@ class ClusterField(Field):
 
     def list_closest_to_center(
         self,
-        centroid_vector_fields: List[str],
-        cluster_field: str,
+        centroid_vector_fields: List[str] = None,
+        cluster_field: str = None,
         approx: int = 0,
         sum_fields: bool = True,
         page: int = 1,
