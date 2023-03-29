@@ -20,6 +20,7 @@ class UserFacingError(Exception):
             job_id=job_id,
             user_errors=error_message,
             workflow_name=workflow_name,
+            status="failed",
             **kwargs
         )
         self.error_message = error_message
