@@ -317,6 +317,7 @@ class API:
         worker_number: int = None,
         output: Dict[str, Any] = None,
         email: Dict[str, Any] = None,
+        user_errors: str = None,
     ):
         # add edge case for API
         if job_id == "":
@@ -330,6 +331,7 @@ class API:
             workflow_name=workflow_name,
             additional_information=additional_information,
             send_email=send_email,
+            user_errors=user_errors,
         )
         # metadata can't be an empty dictionary as it overwrites
         if metadata is not None and metadata != {}:
