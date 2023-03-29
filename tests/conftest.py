@@ -155,6 +155,28 @@ def test_operator() -> AbstractOperator:
 
 
 @pytest.fixture(scope="function")
+def test_paid_operator() -> AbstractOperator:
+    class ExampleOperator(AbstractOperator):
+        def __init__(self):
+            super().__init__()
+
+        def transform(self, documents: DocumentList) -> DocumentList:
+            """
+            Main transform function
+            """
+            for document in documents:
+                if "new_field" not in document:
+                    document["new_field"] = 0
+
+                document["new_field"] += 3
+                self.n_processed_pricing += 1
+
+            return documents
+
+    return ExampleOperator()
+
+
+@pytest.fixture(scope="function")
 def test_dense_operator(
     dense_output_dataset1: Dataset,
     dense_output_dataset2: Dataset,
@@ -188,6 +210,16 @@ def test_engine(full_dataset: Dataset, test_operator: AbstractOperator) -> Stabl
     return StableEngine(
         dataset=full_dataset,
         operator=test_operator,
+    )
+
+
+@pytest.fixture(scope="function")
+def test_paid_engine(
+    full_dataset: Dataset, test_paid_operator: AbstractOperator
+) -> StableEngine:
+    return StableEngine(
+        dataset=full_dataset,
+        operator=test_paid_operator,
     )
 
 

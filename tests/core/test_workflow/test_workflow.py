@@ -39,14 +39,19 @@ class SimpleWorkflowConfig(BaseConfig):
 
 
 class TestWorkflow:
-    def test_workflow(self, test_engine: AbstractEngine):
+    def test_workflow(self, test_paid_engine: AbstractEngine):
+
+        workflow_name = "test_workflow"
         workflow = Workflow(
-            name="test_workflow",
-            engine=test_engine,
+            name=workflow_name,
+            engine=test_paid_engine,
             job_id="test_job",
         )
         res = workflow.run()
         assert res is None
+
+        status = workflow.get_status()
+        assert status["steps"][workflow_name]["n_processed_pricing"] == 20
 
 
 class TestSimpleWorkflow:
