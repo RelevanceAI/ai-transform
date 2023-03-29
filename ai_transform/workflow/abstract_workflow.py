@@ -8,6 +8,7 @@ from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.workflow.context_manager import WorkflowContextManager
 from ai_transform.operator.abstract_operator import AbstractOperator
+from ai_transform.errors import UserFacingError
 
 logger = logging.getLogger(__name__)
 
@@ -113,6 +114,21 @@ class Workflow:
 
     def update_metadata(self, metadata: Dict[str, Any]):
         return self.api._update_workflow_metadata(self._job_id, metadata=metadata)
+
+    def raise_user_facing_error(self, message: str):
+        """
+        Usage:
+
+        workflow.raise_user_facing_error("Missing XYZ")
+        """
+        raise UserFacingError(
+            error_message=message,
+            client=self.engine.dataset,
+            job_id=self.job_id,
+            workflow_name=self.name,
+            additional_information=self.additional_information,
+            send_email=self.send_email,
+        )
 
 
 AbstractWorkflow = Workflow

@@ -317,6 +317,7 @@ class API:
         worker_number: int = None,
         output: Dict[str, Any] = None,
         email: Dict[str, Any] = None,
+        user_errors: str = None,
     ):
         # add edge case for API
         if job_id == "":
@@ -340,6 +341,9 @@ class API:
 
         if output:
             parameters["output"] = output
+        
+        if user_errors:
+            parameters['user_errors'] = user_errors
 
         if email:
             # adding some assertions here for better developer experience
