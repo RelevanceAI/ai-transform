@@ -165,7 +165,7 @@ class WorkflowContextManager:
         if is_automatic:
             return self._calculate_n_processed_pricing_from_timer()
         else:
-            return None
+            return n_processed_pricing
 
     def _calculate_n_processed_pricing_from_timer(self):
         from ai_transform import _TIMER
