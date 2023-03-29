@@ -1,3 +1,4 @@
+import os
 import logging
 
 from typing import Optional, Dict, Any
@@ -110,3 +111,21 @@ class Client:
 
     def update_api_version(self, development_version: str, production_version: str):
         return self.api._update_version_aliases(development_version, production_version)
+
+    def openai_completion(
+        self,
+        prompt: str,
+        model: str = "text-davinci-003",
+        workflows_admin_token: str = None,
+        max_tokens: int = 20,
+        temperature: float = 0.0,
+    ):
+        if workflows_admin_token is None:
+            workflows_admin_token = os.getenv("WORKFLOWS_ADMIN_TOKEN")
+        return self.api._openai_completion(
+            workflows_admin_token,
+            model,
+            prompt,
+            max_tokens,
+            temperature,
+        )
