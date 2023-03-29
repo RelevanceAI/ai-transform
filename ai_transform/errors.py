@@ -1,6 +1,3 @@
-from ai_transform.api.client import Client
-
-
 class AuthException(Exception):
     pass
 
@@ -17,12 +14,7 @@ class UserFacingError(Exception):
     """This error is shown to the user"""
 
     def __init__(
-        self,
-        error_message: str,
-        client: Client,
-        job_id: str,
-        workflow_name: str,
-        **kwargs
+        self, error_message: str, client, job_id: str, workflow_name: str, **kwargs
     ):
         client._api._set_workflow_status(
             job_id=job_id,

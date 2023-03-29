@@ -123,7 +123,7 @@ class Workflow:
         """
         raise UserFacingError(
             error_message=message,
-            client=self,
+            client=self.engine.dataset,
             job_id=self.job_id,
             workflow_name=self.name,
             additional_information=self.additional_information,
