@@ -111,3 +111,7 @@ def poll_until_health_updates_with_input_field(
         sleep_timer=sleep_timer,
         max_time=max_time,
     )
+
+
+def encode_config(data: dict):
+    return base64.b64encode(json.dumps(data).encode()).decode()
