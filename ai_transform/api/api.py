@@ -1070,3 +1070,27 @@ class API:
             },
         )
         return get_response(response)
+
+    @retry()
+    def _openai_completion(
+        self,
+        workflows_admin_token: str,
+        model: str,
+        prompt: str,
+        max_tokens: int,
+        temperature: int,
+    ):
+        response = requests.post(
+            url=self.base_url + "/admin/proxy/openai/v1/completions",
+            headers=self.headers,
+            json={
+                "token": workflows_admin_token,
+                "body": {
+                    "model": model,
+                    "prompt": prompt,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                },
+            },
+        )
+        return get_response(response)
