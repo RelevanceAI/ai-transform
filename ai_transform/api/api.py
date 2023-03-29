@@ -331,7 +331,6 @@ class API:
             workflow_name=workflow_name,
             additional_information=additional_information,
             send_email=send_email,
-            user_errors=user_errors,
         )
         # metadata can't be an empty dictionary as it overwrites
         if metadata is not None and metadata != {}:
@@ -342,6 +341,9 @@ class API:
 
         if output:
             parameters["output"] = output
+        
+        if user_errors:
+            parameters['user_errors'] = user_errors
 
         if email:
             # adding some assertions here for better developer experience
