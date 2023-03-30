@@ -1,3 +1,4 @@
+import os
 import time
 import uuid
 import logging
@@ -7,7 +8,7 @@ from requests.models import Response
 from json import JSONDecodeError
 from functools import wraps
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 
 from ai_transform.logger import format_logging_info
 from ai_transform.utils import document
@@ -20,8 +21,36 @@ from ai_transform.types import (
 
 from ai_transform import __version__
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
+LOG_REQUESTS = bool(os.getenv("LOG_REQUESTS"))
+if LOG_REQUESTS:
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler("request_logs.log")],
+    )
+else:
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+
+def to_curl(request: requests.PreparedRequest):
+    command = "curl -X {method} '{url}'".format(method=request.method, url=request.url)
+
+    for header, value in request.headers.items():
+        if header.lower() == "authorization":
+            value = "MASKED"
+        command += " -H '{header}: {value}'".format(header=header, value=value)
+
+    if request.body:
+        command += " -d '{data}'".format(data=request.body)
+
+    return command
+
+
+def log_request(request: requests.PreparedRequest):
+    curl_command = to_curl(request)
+    logging.debug(curl_command)
 
 
 def get_response(response: requests.Response) -> Dict[str, Any]:
@@ -104,6 +133,8 @@ class API:
         if name is not None:
             self.headers.update(ai_transform_name=name)
 
+        self.session = requests.Session()
+
     @property
     def credentials(self) -> Credentials:
         return self._credentials
@@ -117,16 +148,27 @@ class API:
         return self._headers
 
     @retry()
-    def _get_request(self, suffix: str, *args, **kwargs) -> Response:
-        return requests.get(
-            url=self.base_url + suffix, headers=self.headers, *args, **kwargs
+    def _request(
+        self, method: Literal["GET", "POST"], suffix: str, *args, **kwargs
+    ) -> Response:
+        request = requests.Request(
+            method=method,
+            url=self.base_url + suffix,
+            headers=self.headers,
+            *args,
+            **kwargs,
         )
+        prepared_request = request.prepare()
+        if LOG_REQUESTS:
+            log_request(prepared_request)
+        response = self.session.send(prepared_request)
+        return response
 
-    @retry()
+    def _get_request(self, suffix: str, *args, **kwargs) -> Response:
+        return self._request(method="GET", suffix=suffix, *args, **kwargs)
+
     def _post_request(self, suffix: str, *args, **kwargs) -> Response:
-        return requests.post(
-            url=self.base_url + suffix, headers=self.headers, *args, **kwargs
-        )
+        return self._request(method="POST", suffix=suffix, *args, **kwargs)
 
     def _list_datasets(self):
         response = self._get_request(
