@@ -57,9 +57,8 @@ def log_request(request: requests.PreparedRequest):
 
 
 def log_response(response: requests.Response):
-    logging.debug("Response Status Code: %s", response.status_code)
     logging.debug("Response Headers: %s", response.headers)
-    logging.debug("Response Content:\n%s", response.text)
+    logging.debug("Response Content: %s\n", response.text)
 
 
 def get_response(response: requests.Response) -> Dict[str, Any]:
