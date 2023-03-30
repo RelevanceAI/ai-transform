@@ -24,10 +24,13 @@ from ai_transform import __version__
 
 LOG_REQUESTS = bool(os.getenv("LOG_REQUESTS"))
 if LOG_REQUESTS:
+    # Get the current Unix timestamp as a string
+    timestamp = str(int(time.time()))
+
     logging.basicConfig(
         level=logging.DEBUG,
         format="%(asctime)s - %(levelname)s - %(message)s",
-        handlers=[logging.FileHandler("request_logs.log")],
+        handlers=[logging.FileHandler(f"{timestamp}_request_logs.log")],
     )
 else:
     logger = logging.getLogger(__name__)
@@ -183,27 +186,24 @@ class API:
         return self._request(method="POST", suffix=suffix, *args, **kwargs)
 
     def _list_datasets(self):
-        response = self._get_request(suffix="/datasets/list", headers=self.headers)
+        response = self._get_request(suffix="/datasets/list")
         return get_response(response)
 
     def _create_dataset(
         self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True
     ) -> Any:
-        return self._post_request(
+        response = self._post_request(
             suffix=f"/datasets/create",
             json=dict(id=dataset_id, schema=schema, upsert=upsert),
-        ).json()
-
-    def _delete_dataset(self, dataset_id: str) -> Any:
-        response = self._post_request(
-            suffix=f"/datasets/{dataset_id}/delete", headers=self.headers
         )
         return get_response(response)
 
+    def _delete_dataset(self, dataset_id: str) -> Any:
+        response = self._post_request(suffix=f"/datasets/{dataset_id}/delete")
+        return get_response(response)
+
     def _get_schema(self, dataset_id: str) -> Schema:
-        response = self._get_request(
-            suffix=f"/datasets/{dataset_id}/schema", headers=self.headers
-        )
+        response = self._get_request(suffix=f"/datasets/{dataset_id}/schema")
         return get_response(response)
 
     def _bulk_insert(
@@ -455,9 +455,7 @@ class API:
         return get_response(response)
 
     def _get_workflow_status(self, job_id: str):
-        response = self._post_request(
-            suffix=f"/workflows/{job_id}/get", headers=self.headers
-        )
+        response = self._post_request(suffix=f"/workflows/{job_id}/get")
         return get_response(response)
 
     def _update_workflow_metadata(self, job_id: str, metadata: Dict[str, Any]):
