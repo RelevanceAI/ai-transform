@@ -1,3 +1,4 @@
+import os
 import time
 import uuid
 import logging
@@ -7,7 +8,7 @@ from requests.models import Response
 from json import JSONDecodeError
 from functools import wraps
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Literal
 
 from ai_transform.logger import format_logging_info
 from ai_transform.utils import document
@@ -20,8 +21,44 @@ from ai_transform.types import (
 
 from ai_transform import __version__
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
+LOG_REQUESTS = bool(os.getenv("LOG_REQUESTS"))
+if LOG_REQUESTS:
+    # Get the current Unix timestamp as a string
+    timestamp = str(int(time.time()))
+
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[logging.FileHandler(f"{timestamp}_request_logs.log")],
+    )
+else:
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+
+
+def to_curl(request: requests.PreparedRequest):
+    command = "curl -X {method} '{url}'".format(method=request.method, url=request.url)
+
+    for header, value in request.headers.items():
+        if header.lower() == "authorization":
+            value = "MASKED"
+        command += " -H '{header}: {value}'".format(header=header, value=value)
+
+    if request.body:
+        command += " -d '{data}'".format(data=request.body)
+
+    return command
+
+
+def log_request(request: requests.PreparedRequest):
+    curl_command = to_curl(request)
+    logging.debug(curl_command)
+
+
+def log_response(response: requests.Response):
+    logging.debug("Response Headers: %s", response.headers)
+    logging.debug("Response Content: %s\n", response.text)
 
 
 def get_response(response: requests.Response) -> Dict[str, Any]:
@@ -104,6 +141,8 @@ class API:
         if name is not None:
             self.headers.update(ai_transform_name=name)
 
+        self.session = requests.Session()
+
     @property
     def credentials(self) -> Credentials:
         return self._credentials
@@ -117,49 +156,55 @@ class API:
         return self._headers
 
     @retry()
+    def _request(
+        self, method: Literal["GET", "POST"], suffix: str, *args, **kwargs
+    ) -> Response:
+        request = requests.Request(
+            method=method,
+            url=self.base_url + suffix,
+            headers=self.headers,
+            *args,
+            **kwargs,
+        )
+        prepared_request = request.prepare()
+
+        if LOG_REQUESTS:
+            log_request(prepared_request)
+
+        response = self.session.send(prepared_request)
+
+        if LOG_REQUESTS:
+            log_response(response)
+
+        return response
+
     def get(self, suffix: str, *args, **kwargs) -> Response:
-        return requests.get(
-            url=self.base_url + suffix, headers=self.headers, *args, **kwargs
-        )
+        return self._request(method="GET", suffix=suffix, *args, **kwargs)
 
-    @retry()
     def post(self, suffix: str, *args, **kwargs) -> Response:
-        return requests.post(
-            url=self.base_url + suffix, headers=self.headers, *args, **kwargs
-        )
+        return self._request(method="POST", suffix=suffix, *args, **kwargs)
 
-    @retry()
     def _list_datasets(self):
-        response = requests.get(
-            url=self.base_url + "/datasets/list", headers=self.headers
-        )
+        response = self.get(suffix="/datasets/list")
         return get_response(response)
 
-    @retry()
     def _create_dataset(
         self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True
     ) -> Any:
-        return requests.post(
-            url=self.base_url + f"/datasets/create",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/create",
             json=dict(id=dataset_id, schema=schema, upsert=upsert),
-        ).json()
+        )
+        return get_response(response)
 
-    @retry()
     def _delete_dataset(self, dataset_id: str) -> Any:
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/delete", headers=self.headers
-        )
+        response = self.post(suffix=f"/datasets/{dataset_id}/delete")
         return get_response(response)
 
-    @retry()
     def _get_schema(self, dataset_id: str) -> Schema:
-        response = requests.get(
-            url=self.base_url + f"/datasets/{dataset_id}/schema", headers=self.headers
-        )
+        response = self.get(suffix=f"/datasets/{dataset_id}/schema")
         return get_response(response)
 
-    @retry()
     def _bulk_insert(
         self,
         dataset_id: str,
@@ -171,9 +216,8 @@ class API:
         field_transformers: List[FieldTransformer] = None,
         ingest_in_background: bool = False,
     ) -> Any:
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/documents/bulk_insert",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/documents/bulk_insert",
             json=dict(
                 documents=documents,
                 insert_date=insert_date,
@@ -188,7 +232,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _bulk_update(
         self,
         dataset_id: str,
@@ -197,9 +240,8 @@ class API:
         ingest_in_background: bool = True,
         update_schema: bool = True,
     ) -> Any:
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/documents/bulk_update",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/documents/bulk_update",
             json=dict(
                 updates=documents,
                 insert_date=insert_date,
@@ -209,7 +251,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _get_where(
         self,
         dataset_id: str,
@@ -223,9 +264,8 @@ class API:
         after_id: Optional[List] = None,
         worker_number: int = 0,
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/documents/get_where",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/documents/get_where",
             json=dict(
                 select_fields=[] if select_fields is None else select_fields,
                 page_size=min(9999, page_size),
@@ -240,27 +280,22 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _update_dataset_metadata(self, dataset_id: str, metadata: Dict[str, Any]):
         """
         Edit and add metadata about a dataset. Notably description, data source, etc
         """
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/metadata",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/metadata",
             json=dict(dataset_id=dataset_id, metadata=metadata),
         )
         return get_response(response)
 
-    @retry()
     def _get_metadata(self, dataset_id: str) -> Dict[str, Any]:
-        response = requests.get(
-            url=self.base_url + f"/datasets/{dataset_id}/metadata",
-            headers=self.headers,
+        response = self.get(
+            suffix=f"/datasets/{dataset_id}/metadata",
         )
         return get_response(response)
 
-    @retry()
     def _insert_centroids(
         self,
         dataset_id: str,
@@ -268,9 +303,8 @@ class API:
         vector_fields: List[str],
         alias: str,
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/cluster/centroids/insert",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/cluster/centroids/insert",
             json=dict(
                 dataset_id=dataset_id,
                 cluster_centers=cluster_centers,
@@ -280,7 +314,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _get_centroids(
         self,
         dataset_id: str,
@@ -291,9 +324,8 @@ class API:
         cluster_ids: Optional[List] = None,
         include_vector: bool = False,
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/cluster/centroids/documents",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/cluster/centroids/documents",
             json=dict(
                 cluster_ids=[] if cluster_ids is None else cluster_ids,
                 vector_fields=vector_fields,
@@ -305,7 +337,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _set_workflow_status(
         self,
         job_id: str,
@@ -341,9 +372,9 @@ class API:
 
         if output:
             parameters["output"] = output
-        
+
         if user_errors:
-            parameters['user_errors'] = user_errors
+            parameters["user_errors"] = user_errors
 
         if email:
             # adding some assertions here for better developer experience
@@ -356,14 +387,12 @@ class API:
 
         logger.debug(format_logging_info(parameters))
 
-        response = requests.post(
-            url=self.base_url + f"/workflows/{job_id}/status",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/workflows/{job_id}/status",
             json=parameters,
         )
         return get_response(response)
 
-    @retry()
     def _set_field_children(
         self,
         dataset_id: str,
@@ -390,24 +419,18 @@ class API:
             metadata={} if metadata is None else metadata,
         )
         logger.debug(format_logging_info(params))
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
             json=params,
         )
         return get_response(response)
 
-    @retry()
     def _delete_field_children(self, dataset_id: str, fieldchildren_id: str):
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/delete",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/delete",
         )
         return get_response(response)
 
-    @retry()
     def _list_field_children(
         self, dataset_id: str, page: int = 1, page_size: int = 10000, sort=None
     ):
@@ -416,69 +439,54 @@ class API:
         if sort:
             parameters["sort"] = sort
 
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/field_children/list",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/field_children/list",
             json=parameters,
         )
         return get_response(response)
 
-    @retry()
     def _get_health(self, dataset_id: str):
-        response = requests.get(
-            url=self.base_url + f"/datasets/{dataset_id}/monitor/health",
-            headers=self.headers,
+        response = self.get(
+            suffix=f"/datasets/{dataset_id}/monitor/health",
         )
         return get_response(response)
 
-    @retry()
     def _get_workflow_status(self, job_id: str):
-        response = requests.post(
-            url=self.base_url + f"/workflows/{job_id}/get", headers=self.headers
-        )
+        response = self.post(suffix=f"/workflows/{job_id}/get")
         return get_response(response)
 
-    @retry()
     def _update_workflow_metadata(self, job_id: str, metadata: Dict[str, Any]):
-        response = requests.post(
-            url=self.base_url + f"/workflows/{job_id}/metadata",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/workflows/{job_id}/metadata",
             json=dict(metadata=metadata),
         )
         return get_response(response)
 
-    @retry()
     def _get_file_upload_urls(self, dataset_id: str, files: List[str]):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/get_file_upload_urls",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/get_file_upload_urls",
             json=dict(files=files),
         )
         return get_response(response)
 
-    @retry()
     def _get_temp_file_upload_url(self):
         """Use this for temporary file uploads.
         returns: {'download_url': ..., 'upload_url': ...}
         """
-        response = requests.post(
-            url=self.base_url + f"/services/get_temporary_file_upload_url",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/services/get_temporary_file_upload_url",
         )
         return get_response(response)
 
-    @retry()
     def _upload_temporary_media(self, presigned_url: str, media_content: bytes):
         return requests.put(
             presigned_url, headers={"x-amz-tagging": "Expire=true"}, data=media_content
         )
 
-    @retry()
     def _upload_media(self, presigned_url: str, media_content: bytes):
         # dont use get response since response cannot be json decoded
         return requests.put(presigned_url, data=media_content)
 
-    @retry()
     def _trigger(
         self,
         dataset_id: str,
@@ -505,11 +513,8 @@ class API:
             data["instance_type"] = instance_type
         if host_type is not None:
             data["host_type"] = host_type
-        return requests.post(
-            url=self.base_url + f"/workflows/trigger", headers=self.headers, json=data
-        ).json()
+        return self.post(suffix=f"/workflows/trigger", json=data).json()
 
-    @retry()
     def _trigger_polling_workflow(
         self,
         dataset_id: str,
@@ -547,7 +552,6 @@ class API:
             host_type="batch",
         )
 
-    @retry()
     def _update_workflow_progress(
         self,
         workflow_id: str,
@@ -576,14 +580,12 @@ class API:
         logger.debug("adding progress...")
         logger.debug(format_logging_info(params))
 
-        response = requests.post(
-            url=self.base_url + f"/workflows/{workflow_id}/progress",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/workflows/{workflow_id}/progress",
             json=params,
         )
         return get_response(response)
 
-    @retry()
     def _update_workflow_pricing(
         self,
         workflow_id: str,
@@ -606,14 +608,12 @@ class API:
         )
         logger.debug("adding progress...")
         logger.debug(format_logging_info(params))
-        response = requests.post(
-            url=self.base_url + f"/workflows/{workflow_id}/progress",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/workflows/{workflow_id}/progress",
             json=params,
         )
         return get_response(response)
 
-    @retry()
     def _append_tags(
         self,
         dataset_id: str,
@@ -621,9 +621,8 @@ class API:
         tags_to_add: List[str],
         filters: List[Filter],
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/tags/append",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/tags/append",
             json=dict(
                 field=field,
                 tags_to_add=tags_to_add,
@@ -632,7 +631,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _delete_tags(
         self,
         dataset_id: str,
@@ -640,9 +638,8 @@ class API:
         tags_to_delete: List[str],
         filters: List[Filter],
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/tags/delete",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/tags/delete",
             json=dict(
                 field=field,
                 tags_to_delete=tags_to_delete,
@@ -651,7 +648,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _merge_tags(
         self,
         dataset_id: str,
@@ -659,9 +655,8 @@ class API:
         tags_to_merge: Dict[str, str],
         filters: List[Filter],
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/tags/merge",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/tags/merge",
             json=dict(
                 field=field,
                 tags_to_merge=tags_to_merge,
@@ -670,7 +665,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _bulk_update_keyphrase(
         self,
         dataset_id: str,
@@ -681,15 +675,12 @@ class API:
         """
         Update keyphrases
         """
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_update",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_update",
             json=dict(updates=updates),
         )
         return get_response(response)
 
-    @retry()
     def _bulk_delete_keyphrase(
         self,
         dataset_id: str,
@@ -700,15 +691,12 @@ class API:
         """
         Update keyphrases
         """
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_delete",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_delete",
             json=dict(ids=ids),
         )
         return get_response(response)
 
-    @retry()
     def _get_keyphrase(
         self, dataset_id: str, field: str, alias: str, keyphrase_id: str
     ):
@@ -716,28 +704,22 @@ class API:
         Get keyphrase
         """
         if isinstance(keyphrase_id, str) and keyphrase_id != "":
-            response = requests.get(
-                url=self.base_url
-                + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
-                headers=self.headers,
+            response = self.get(
+                suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
             )
             return get_response(response)
 
-    @retry()
     def _delete_keyphrase(
         self, dataset_id: str, field: str, keyphrase_id: str, alias: str
     ):
         """
         Deleting Keyphrases
         """
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/delete",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/delete",
         )
         return get_response(response)
 
-    @retry()
     def _update_keyphrase(
         self,
         dataset_id: str,
@@ -769,15 +751,12 @@ class API:
             params["parents"] = parents
         if metadata is not None:
             params["metadata"] = metadata
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
             json=params,
         )
         return get_response(response)
 
-    @retry()
     def _list_keyphrase(
         self,
         dataset_id: str,
@@ -796,15 +775,12 @@ class API:
         }
         if sort is not None:
             params["sort"] = sort
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
             json=params,
         )
         return get_response(response)
 
-    @retry()
     def _facets(
         self,
         dataset_id: str,
@@ -813,9 +789,8 @@ class API:
         page_size: int = 1000,
         asc: bool = False,
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/facets",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/facets",
             json=dict(
                 fields=fields,
                 data_interval=data_interval,
@@ -825,37 +800,31 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _upsert_dataset_settings(
         self,
         dataset_id: str,
         settings: Optional[Dict[str, Any]] = None,
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/settings",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/settings",
             json=dict(settings={} if settings is None else settings),
         )
         return get_response(response)
 
-    @retry()
     def _get_dataset_settings(
         self,
         dataset_id: str,
     ):
-        response = requests.get(
-            url=self.base_url + f"/datasets/{dataset_id}/settings",
-            headers=self.headers,
+        response = self.get(
+            suffix=f"/datasets/{dataset_id}/settings",
         )
         return get_response(response)
 
-    @retry()
     def _create_deployable(
         self, dataset_id: Optional[str] = None, config: Optional[Dict[str, Any]] = None
     ):
-        response = requests.post(
-            url=self.base_url + "/deployables/create",
-            headers=self.headers,
+        response = self.post(
+            suffix="/deployables/create",
             json=dict(
                 dataset_id=dataset_id,
                 configuration={} if config is None else config,
@@ -863,53 +832,42 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _share_dashboard(self, deployable_id: str):
-        response = requests.post(
-            url=self.base_url + f"/deployablegroups/{deployable_id}/share",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/deployablegroups/{deployable_id}/share",
         )
         return get_response(response)
 
-    @retry()
     def _unshare_dashboard(self, deployable_id: str):
-        response = requests.post(
-            url=self.base_url + f"/deployablegroups/{deployable_id}/private",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/deployablegroups/{deployable_id}/private",
         )
         return get_response(response)
 
-    @retry()
     def _get_deployable(self, deployable_id: str):
-        response = requests.get(
-            url=self.base_url + f"/deployables/{deployable_id}/get",
-            headers=self.headers,
+        response = self.get(
+            suffix=f"/deployables/{deployable_id}/get",
         )
         return get_response(response)
 
-    @retry()
     def _delete_deployable(self, deployable_id: str):
-        response = requests.post(
-            url=self.base_url + f"/deployables/delete",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/deployables/delete",
             json=dict(
                 id=deployable_id,
             ),
         )
         return get_response(response)
 
-    @retry()
     def _list_deployables(self, page_size: int):
-        response = requests.get(
-            url=self.base_url + "/deployables/list",
-            headers=self.headers,
+        response = self.get(
+            suffix="/deployables/list",
             params=dict(
                 page_size=min(9999, page_size),
             ),
         )
         return get_response(response)
 
-    @retry()
     def _label_openai(
         self,
         dataset_id: str,
@@ -944,15 +902,12 @@ class API:
         }
         if filters is not None:
             params["filters"] = filters
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/cluster/centroids/labels/create",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/cluster/centroids/labels/create",
             json=params,
         )
         return get_response(response)
 
-    @retry()
     def _aggregate(
         self,
         dataset_id: str,
@@ -963,9 +918,8 @@ class API:
         dataset_ids: List[str] = None,
         filters: List[Filter] = None,
     ):
-        response = requests.post(
-            url=self.base_url + f"/datasets/{dataset_id}/aggregate",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/aggregate",
             json=dict(
                 filters=[] if filters is None else filters,
                 aggregation_query=aggregation_query,
@@ -978,7 +932,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _list_closest_to_center(
         self,
         dataset_id: str,
@@ -998,10 +951,8 @@ class API:
         filters: List[Filter] = None,
         select_fields: List[str] = None,
     ):
-        response = requests.post(
-            url=self.base_url
-            + f"/datasets/{dataset_id}/cluster/centroids/list_closest_to_center",
-            headers=self.headers,
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/cluster/centroids/list_closest_to_center",
             json=dict(
                 vector_fields=vector_fields,
                 alias=alias,
@@ -1024,48 +975,38 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _list_project_keys(self):
-        response = requests.get(
-            url=self.base_url + "/projects/keys/list",
-            headers=self.headers,
+        response = self.get(
+            suffix="/projects/keys/list",
         )
         return get_response(response)
 
-    @retry()
     def _get_project_key(self, key: str, token: str):
-        response = requests.post(
-            url=self.base_url + "/projects/keys/get",
-            headers=self.headers,
+        response = self.post(
+            suffix="/projects/keys/get",
             json=dict(key=key, token=token),
         )
         return get_response(response)
 
-    @retry()
     def _set_project_key(self, key: str, value: str):
-        response = requests.post(
-            url=self.base_url + "/projects/keys/set",
-            headers=self.headers,
+        response = self.post(
+            suffix="/projects/keys/set",
             json=dict(key=key, value=value),
         )
         return get_response(response)
 
-    @retry()
     def _delete_project_key(self, key: str):
-        response = requests.post(
-            url=self.base_url + "/projects/keys/delete",
-            headers=self.headers,
+        response = self.post(
+            suffix="/projects/keys/delete",
             json=dict(key=key),
         )
         return get_response(response)
 
-    @retry()
     def _update_version_aliases(
         self, development_version: str, production_version: str
     ):
-        response = requests.post(
-            url=self.base_url + "/workflows/types/version_aliases/update",
-            headers=self.headers,
+        response = self.post(
+            suffix="/workflows/types/version_aliases/update",
             json={
                 "aliases": {
                     "development_version": development_version,
@@ -1075,7 +1016,6 @@ class API:
         )
         return get_response(response)
 
-    @retry()
     def _openai_completion(
         self,
         workflows_admin_token: str,
@@ -1084,9 +1024,8 @@ class API:
         max_tokens: int,
         temperature: int,
     ):
-        response = requests.post(
-            url=self.base_url + "/admin/proxy/openai/v1/completions",
-            headers=self.headers,
+        response = self.post(
+            suffix="/admin/proxy/openai/v1/completions",
             json={
                 "token": workflows_admin_token,
                 "body": {
