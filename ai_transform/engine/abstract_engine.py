@@ -73,6 +73,8 @@ class AbstractEngine(ABC):
                     fields_to_add += [chunk_field]
             select_fields += fields_to_add
             select_fields = list(set(select_fields))
+        else:
+            select_fields = []
 
         self._select_fields = select_fields
 

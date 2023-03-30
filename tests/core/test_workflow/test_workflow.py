@@ -45,7 +45,21 @@ class TestWorkflow:
         workflow = Workflow(
             name=workflow_name,
             engine=test_paid_engine,
-            job_id="test_job",
+            job_id="test_job1",
+        )
+        res = workflow.run()
+        assert res is None
+
+        status = workflow.get_status()
+        assert status["steps"][workflow_name]["n_processed_pricing"] == 20
+
+    def test_workflow_no_refresh(self, test_paid_engine_no_refresh: AbstractEngine):
+
+        workflow_name = "test_workflow"
+        workflow = Workflow(
+            name=workflow_name,
+            engine=test_paid_engine_no_refresh,
+            job_id="test_job2",
         )
         res = workflow.run()
         assert res is None

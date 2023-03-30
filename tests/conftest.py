@@ -224,6 +224,17 @@ def test_paid_engine(
 
 
 @pytest.fixture(scope="function")
+def test_no_refresh_engine(
+    full_dataset: Dataset, test_paid_operator: AbstractOperator
+) -> StableEngine:
+    return StableEngine(
+        dataset=full_dataset,
+        operator=test_paid_operator,
+        refresh=False,
+    )
+
+
+@pytest.fixture(scope="function")
 def test_sentiment_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
