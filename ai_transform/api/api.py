@@ -53,6 +53,12 @@ def log_request(request: requests.PreparedRequest):
     logging.debug(curl_command)
 
 
+def log_response(response: requests.Response):
+    logging.debug("Response Status Code: %s", response.status_code)
+    logging.debug("Response Headers: %s", response.headers)
+    logging.debug("Response Content:\n%s", response.text)
+
+
 def get_response(response: requests.Response) -> Dict[str, Any]:
     # get a json response
     # if errors - print what the response contains
@@ -159,9 +165,15 @@ class API:
             **kwargs,
         )
         prepared_request = request.prepare()
+
         if LOG_REQUESTS:
             log_request(prepared_request)
+
         response = self.session.send(prepared_request)
+
+        if LOG_REQUESTS:
+            log_response(response)
+
         return response
 
     def _get_request(self, suffix: str, *args, **kwargs) -> Response:
