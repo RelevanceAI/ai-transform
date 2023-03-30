@@ -38,6 +38,7 @@ def request_wrapper(
     for n in range(1, num_retries + 1):
         try:
             result = fn(*args, **kwargs)
+
             if result.status_code != 200:
                 to_log = format_logging_info(
                     {
@@ -51,11 +52,17 @@ def request_wrapper(
                     logger.debug(to_log)
 
             if retry_func(result):
+                to_log_for_retry = "Manual Retry Triggered..."
+                if output_to_stdout:
+                    print(to_log_for_retry)
+                else:
+                    logger.debug(to_log_for_retry)
                 raise ManualRetry
 
-        except Exception as e:
+        except (Exception, ManualRetry) as e:
             logger.exception(e)
             time.sleep(timeout * exponential_backoff**n)
         else:
             return result
+
     return result
