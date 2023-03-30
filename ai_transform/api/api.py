@@ -161,7 +161,7 @@ class API:
     ) -> Response:
         request = requests.Request(
             method=method,
-            suffix=suffix,
+            url=self.base_url + suffix,
             headers=self.headers,
             *args,
             **kwargs,
