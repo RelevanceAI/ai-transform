@@ -189,11 +189,11 @@ class API:
         return get_response(response)
 
     def _create_dataset(
-        self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True
+        self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True, expire: bool = False
     ) -> Any:
         response = self.post(
             suffix=f"/datasets/create",
-            json=dict(id=dataset_id, schema=schema, upsert=upsert),
+            json=dict(id=dataset_id, schema=schema, upsert=upsert, expire=expire),
         )
         return get_response(response)
 
