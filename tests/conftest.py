@@ -224,7 +224,7 @@ def test_paid_engine(
 
 
 @pytest.fixture(scope="function")
-def test_no_refresh_engine(
+def test_paid_engine_no_refresh(
     full_dataset: Dataset, test_paid_operator: AbstractOperator
 ) -> StableEngine:
     return StableEngine(
