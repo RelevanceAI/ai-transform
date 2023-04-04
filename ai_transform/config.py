@@ -123,3 +123,4 @@ class BaseTransformConfig(BaseConfig):
         default=None,
         description="If passed in, the transform will be limited to the number of documents specified here",
     )
+    webhook_url: str = None

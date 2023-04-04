@@ -25,6 +25,7 @@ class Workflow:
         success_threshold: float = 0.8,
         email: dict = None,
         output: dict = None,
+        webhook_url: str = None,
         **kwargs,  # TODO: Update workflows, This for deprecated arguments
     ):
 
@@ -45,6 +46,12 @@ class Workflow:
         self._success_threshold = success_threshold
         self._email = email
         self._output = output
+
+        self._webhook_url = webhook_url
+
+    @property
+    def webhook_url(self):
+        return self._webhook_url
 
     @property
     def success_threshold(self):
@@ -106,6 +113,7 @@ class Workflow:
             engine=self.engine,
             dataset=self.dataset,
             output=self._output,
+            webhook_url=self._webhook_url,
         ):
             self.engine()
 
