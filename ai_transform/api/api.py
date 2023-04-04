@@ -1019,21 +1019,13 @@ class API:
     def _openai_completion(
         self,
         workflows_admin_token: str,
-        model: str,
-        prompt: str,
-        max_tokens: int,
-        temperature: int,
+        body: dict
     ):
         response = self.post(
             suffix="/admin/proxy/openai/v1/completions",
             json={
                 "token": workflows_admin_token,
-                "body": {
-                    "model": model,
-                    "prompt": prompt,
-                    "max_tokens": max_tokens,
-                    "temperature": temperature,
-                },
+                "body": body
             },
         )
         return get_response(response)
