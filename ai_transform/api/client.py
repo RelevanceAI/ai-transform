@@ -46,11 +46,13 @@ class Client:
         dataset_id: str,
         schema: Optional[Schema] = None,
         upsert: bool = True,
+        expire: bool = False,
     ) -> None:
         return self.api._create_dataset(
             dataset_id=dataset_id,
             schema={} if schema is None else schema,
             upsert=upsert,
+            expire=expire,
         )
 
     def delete_dataset(self, dataset_id: str) -> None:
