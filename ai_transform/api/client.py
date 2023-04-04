@@ -46,18 +46,20 @@ class Client:
         dataset_id: str,
         schema: Optional[Schema] = None,
         upsert: bool = True,
+        expire: bool = False,
     ) -> None:
         return self.api._create_dataset(
             dataset_id=dataset_id,
             schema={} if schema is None else schema,
             upsert=upsert,
+            expire=expire,
         )
 
     def delete_dataset(self, dataset_id: str) -> None:
         return self.api._delete_dataset(dataset_id=dataset_id)
 
-    def Dataset(self, dataset_id: str) -> Dataset:
-        self.create_dataset(dataset_id=dataset_id)
+    def Dataset(self, dataset_id: str, expire: bool = False) -> Dataset:
+        self.create_dataset(dataset_id=dataset_id, expire=expire)
         return Dataset(api=self.api, dataset_id=dataset_id)
 
     def SimpleWorkflow(

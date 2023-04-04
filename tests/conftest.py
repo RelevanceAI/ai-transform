@@ -49,7 +49,7 @@ def test_dataset_id() -> str:
 def empty_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     yield dataset
     test_client.delete_dataset(dataset_id)
 
@@ -58,7 +58,7 @@ def empty_dataset(test_client: Client) -> Dataset:
 def full_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     dataset.insert_documents(mock_documents(20))
     yield dataset
     test_client.delete_dataset(dataset_id)
@@ -68,7 +68,7 @@ def full_dataset(test_client: Client) -> Dataset:
 def mixed_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     documents = mock_documents(10)
     stripped = mock_documents(10)
     for document in stripped:
@@ -83,7 +83,7 @@ def mixed_dataset(test_client: Client) -> Dataset:
 def static_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     dataset.insert_documents(static_documents(20))
     yield dataset
     test_client.delete_dataset(dataset_id)
@@ -93,7 +93,7 @@ def static_dataset(test_client: Client) -> Dataset:
 def dense_input_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     dataset.insert_documents(static_documents(2))
     yield dataset
     test_client.delete_dataset(dataset_id)
@@ -103,7 +103,7 @@ def dense_input_dataset(test_client: Client) -> Dataset:
 def dense_output_dataset1(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     yield dataset
     test_client.delete_dataset(dataset_id)
 
@@ -112,7 +112,7 @@ def dense_output_dataset1(test_client: Client) -> Dataset:
 def dense_output_dataset2(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     yield dataset
     test_client.delete_dataset(dataset_id)
 
@@ -238,7 +238,7 @@ def test_paid_engine_no_refresh(
 def test_sentiment_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     dataset.insert_documents(mock_documents(20))
     time.sleep(1)
     job_id = str(uuid.uuid4())
@@ -276,7 +276,7 @@ def test_sentiment_workflow_document_token(test_client: Client) -> str:
 def test_simple_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     dataset.insert_documents(mock_documents(20))
     time.sleep(1)
     job_id = str(uuid.uuid4())
@@ -297,7 +297,7 @@ def test_simple_workflow_token(test_client: Client) -> str:
 def test_cluster_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id)
+    dataset = test_client.Dataset((dataset_id), expire=True)
     dataset.insert_documents(mock_documents(20))
     job_id = str(uuid.uuid4())
     print(job_id)
@@ -343,7 +343,7 @@ def test_keyphrases() -> List[Dict]:
 @pytest.fixture()
 def test_keyphrase_dataset(test_client: Client, test_dataset_id: str) -> Dataset:
     docs = mock_documents(100)
-    dataset = test_client.Dataset(test_dataset_id)
+    dataset = test_client.Dataset((test_dataset_id), expire=True)
     dataset.insert_documents(docs, ingest_in_background=False)
     yield dataset
     dataset.delete()
