@@ -1,5 +1,6 @@
 import os
 import logging
+import requests
 
 from inspect import Traceback
 from typing import Dict, Any, List
@@ -10,6 +11,7 @@ from ai_transform.dataset import dataset
 from ai_transform.operator import abstract_operator
 from ai_transform.engine import abstract_engine
 from ai_transform.logger import format_logging_info
+from ai_transform.api.wrappers import request_wrapper
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
@@ -46,6 +48,7 @@ class WorkflowContextManager:
         engine: abstract_engine.AbstractEngine = None,
         metadata: Dict[str, Any] = None,
         output: dict = None,
+        webhook_url: str = None,
     ):
 
         self.credentials = credentials
@@ -72,6 +75,7 @@ class WorkflowContextManager:
         self.metadata["ai_transform_version"] = __version__
 
         self._n_processed_pricing = None
+        self._webhook_url = webhook_url
 
     @property
     def worker_number(self) -> int:
@@ -132,6 +136,14 @@ class WorkflowContextManager:
             worker_number=self.worker_number,
             output=output,
         )
+        if self._webhook_url is not None:
+            request_wrapper(
+                requests.post,
+                kwargs=dict(
+                    url=self._webhook_url,
+                    json={"status": status, "id": self.workflow_name},
+                ),
+            )
         logger.debug(format_logging_info(result))
         return result
 
