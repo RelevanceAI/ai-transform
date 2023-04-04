@@ -1027,3 +1027,7 @@ class API:
             json={"token": workflows_admin_token, "body": body},
         )
         return get_response(response)
+
+    def _proxy_openai(self, endpoint: str, body: dict):
+        response = self.post(suffix="/admin/proxy/openai" + endpoint, json=body)
+        return get_response(response)
