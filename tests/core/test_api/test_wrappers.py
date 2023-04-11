@@ -64,10 +64,43 @@ class TestWrappers:
             resp = request_wrapper(
                 requests.get,
                 ("https://www.google.com",),
-                timeout=1,
                 num_retries=2,
                 retry_func=retry_func,
+                timeout=1,
                 output_to_stdout=True,
             )
 
         assert "Manual Retry" in str(u.getvalue()) + str(f.getvalue())
+
+    def test_request_wrapper_retry(self):
+        f = io.StringIO()
+        u = io.StringIO()
+
+        class TestRequest:
+            def __init__(self):
+                self.count = 0
+
+            def __call__(self, *args, **kwargs):
+                if self.count >= 2:
+                    return requests.get(*args, **kwargs)
+                else:
+                    self.count += 1
+                    placeholder = requests.Response()
+                    placeholder.status_code = 429
+                    placeholder._content = b"Simulated Rate Error"
+                    return placeholder
+
+        with redirect_stdout(f), redirect_stderr(u):
+            resp = request_wrapper(
+                TestRequest(),
+                ("https://www.google.com",),
+                num_retries=3,
+                timeout=1,
+                output_to_stdout=True,
+            )
+
+        assert resp.status_code == 200
+
+        logs = str(u.getvalue()) + str(f.getvalue())
+
+        assert logs.count("Simulated Rate Error") == 2
