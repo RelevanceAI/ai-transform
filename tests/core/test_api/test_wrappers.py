@@ -94,10 +94,12 @@ class TestWrappers:
             resp = request_wrapper(
                 TestRequest(),
                 ("https://www.google.com",),
-                num_retries=2,
+                num_retries=3,
                 timeout=1,
                 output_to_stdout=True,
             )
+
+        assert resp.status_code == 200
 
         logs = str(u.getvalue()) + str(f.getvalue())
 
