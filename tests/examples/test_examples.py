@@ -26,7 +26,7 @@ def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
     additional_information = config.get("additional_information", "")
 
     client = Client(token=token)
-    dataset = client.Dataset(dataset_id)
+    dataset = client.Dataset(dataset_id, expire=True)
 
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
@@ -107,7 +107,7 @@ def test_sentiment_example_wsmall_batch_stable_engine(
     additional_information = config.get("additional_information", "")
 
     client = Client(token=token)
-    dataset = client.Dataset(dataset_id)
+    dataset = client.Dataset(dataset_id, expire=True)
 
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
@@ -161,7 +161,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     additional_information = config.get("additional_information", "")
 
     client = Client(token=token)
-    dataset = client.Dataset(dataset_id)
+    dataset = client.Dataset(dataset_id, expire=True)
 
     operator = SentimentOperator(text_field=text_field, alias=alias)
 
@@ -220,7 +220,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
 
     vector_field = vector_fields[0]
     client = Client(token=token)
-    dataset = client.Dataset(dataset_id)
+    dataset = client.Dataset(dataset_id, expire=True)
 
     operator = ClusterOperator(
         n_clusters=n_clusters, vector_field=vector_field, alias=alias
@@ -266,7 +266,7 @@ def test_fail_example(test_sentiment_workflow_token: str):
     alias = config.get("alias", None)
 
     client = Client(token=token)
-    dataset = client.Dataset(dataset_id)
+    dataset = client.Dataset(dataset_id, expire=True)
 
     # Implement a trigger
     operator = BadOperator(text_field=text_field, alias=alias)
