@@ -51,7 +51,6 @@ def request_wrapper(
                 else:
                     logger.debug(to_log)
 
-            else:
                 raise ValueError
 
             if retry_func(result):
