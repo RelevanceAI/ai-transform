@@ -81,12 +81,13 @@ class TestWrappers:
                 self.count = 0
 
             def __call__(self, *args, **kwargs):
-                if self.count > 0:
+                if self.count >= 2:
                     return requests.get(*args, **kwargs)
                 else:
                     self.count += 1
                     placeholder = requests.Response()
-                    placeholder.status_code == 429
+                    placeholder.status_code = 429
+                    placeholder._content = b"Simulated Rate Error"
                     return placeholder
 
         with redirect_stdout(f), redirect_stderr(u):
@@ -95,6 +96,9 @@ class TestWrappers:
                 ("https://www.google.com",),
                 num_retries=2,
                 timeout=1,
+                output_to_stdout=True,
             )
 
-        assert "ValueError" in str(u.getvalue()) + str(f.getvalue())
+        logs = str(u.getvalue()) + str(f.getvalue())
+
+        assert logs.count("Simulated Rate Error") == 2
