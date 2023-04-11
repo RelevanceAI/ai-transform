@@ -64,10 +64,12 @@ class TestWrappers:
             resp = request_wrapper(
                 requests.get,
                 ("https://www.google.com",),
-                timeout=1,
                 num_retries=2,
-                retry_func=retry_func,
-                output_to_stdout=True,
+                kwargs=dict(
+                    timeout=1,
+                    retry_func=retry_func,
+                    output_to_stdout=True,
+                ),
             )
 
         assert "Manual Retry" in str(u.getvalue()) + str(f.getvalue())

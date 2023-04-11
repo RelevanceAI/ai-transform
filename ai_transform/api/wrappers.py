@@ -51,6 +51,9 @@ def request_wrapper(
                 else:
                     logger.debug(to_log)
 
+            else:
+                raise ValueError
+
             if retry_func(result):
                 to_log_for_retry = "Manual Retry Triggered..."
                 if output_to_stdout:
