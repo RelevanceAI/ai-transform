@@ -284,6 +284,19 @@ class API:
         )
         return get_response(response)
 
+    def _delete_where(
+        self,
+        dataset_id: str,
+        filters: Optional[List[Filter]] = None,
+    ):
+        response = self.post(
+            suffix=f"/datasets/{dataset_id}/documents/delete_where",
+            json=dict(
+                filters=[] if filters is None else filters,
+            ),
+        )
+        return get_response(response)
+
     def _update_dataset_metadata(self, dataset_id: str, metadata: Dict[str, Any]):
         """
         Edit and add metadata about a dataset. Notably description, data source, etc
