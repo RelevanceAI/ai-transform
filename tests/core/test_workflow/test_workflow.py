@@ -85,7 +85,9 @@ class TestSimpleWorkflow:
         assert x == 1
 
     def test_simple_workflow(self, test_client: Client):
-        simple_workflow_dataset = test_client.Dataset("test-simple-workflow-dataset")
+        simple_workflow_dataset = test_client.Dataset(
+            "test-simple-workflow-dataset", expire=True
+        )
         simple_workflow_dataset.insert_documents([{"_id": "0", "value": 0}])
 
         workflow_name = "Simple Workflow"
