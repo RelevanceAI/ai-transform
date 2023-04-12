@@ -165,7 +165,7 @@ class Dataset:
         res["documents"] = DocumentList(res["documents"])
         return res
 
-    def get_documents(self, filters: Optional[List[Filter]]) -> Dict[str, Any]:
+    def delete_documents(self, filters: Optional[List[Filter]]) -> Dict[str, Any]:
         res = self.api._delete_where(dataset_id=self._dataset_id, filters=filters)
         return res
 
