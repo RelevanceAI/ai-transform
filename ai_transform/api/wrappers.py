@@ -38,11 +38,13 @@ def request_wrapper(
     if retry_func is None:
         retry_func = lambda result: False
 
+    result: requests.Response
+
     for n in range(1, num_retries + 1):
         try:
             result = fn(*args, **kwargs)
 
-            if result.status_code != 200:
+            if not result.ok:
                 to_log = format_logging_info({"message": result.content.decode(), "status_code": result.status_code})
                 if output_to_stdout:
                     print(to_log)
