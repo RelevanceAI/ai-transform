@@ -54,10 +54,7 @@ def create_id():
 def generate_random_string(string_length: int = 5) -> str:
 
     """Generate a random string of letters and numbers"""
-    return "".join(
-        random.choice(string.ascii_uppercase + string.digits)
-        for _ in range(string_length)
-    )
+    return "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(string_length))
 
 
 def generate_random_vector(vector_length: int = 5) -> Vector:
@@ -88,12 +85,7 @@ def vector_document(vector_length: int) -> Document:
         "sample_1_value": generate_random_integer(),
         "sample_2_value": generate_random_integer(),
         "sample_3_value": generate_random_integer(),
-        "_chunk_": [
-            {
-                "label": generate_random_label(),
-                "label_chunkvector_": generate_random_vector(),
-            }
-        ],
+        "_chunk_": [{"label": generate_random_label(), "label_chunkvector_": generate_random_vector()}],
     }
 
     return Document(document)
@@ -112,8 +104,7 @@ def tag_document(n_tags: int = 5):
         "text": "This is some random text",
         "_surveytag_": {
             "text": [
-                {"label": generate_random_label(), "value": random.random()}
-                for _ in range(random.randint(0, n_tags))
+                {"label": generate_random_label(), "value": random.random()} for _ in range(random.randint(0, n_tags))
             ]
         },
     }

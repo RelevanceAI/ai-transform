@@ -28,16 +28,11 @@ def is_different(field: str, value1: Any, value2: Any) -> bool:
     # TODO: Implement a better fix for chunks - but this will do for now
     if isinstance(value1, list) and isinstance(value2, list):
         return any(
-            is_different(field, chunk1_value, chunk2_value)
-            for chunk1_value, chunk2_value in zip(value1, value2)
+            is_different(field, chunk1_value, chunk2_value) for chunk1_value, chunk2_value in zip(value1, value2)
         )
 
     # check if its a vector field but only if it ends with it
-    elif (
-        field.endswith(("_vector_", "_chunkvector_"))
-        and isinstance(value1, list)
-        and isinstance(value2, list)
-    ):
+    elif field.endswith(("_vector_", "_chunkvector_")) and isinstance(value1, list) and isinstance(value2, list):
         return are_vectors_similar(value1, value2)
 
     elif isinstance(value1, dict) and isinstance(value2, dict):
@@ -83,30 +78,20 @@ class AbstractOperator(ABC):
 
         if input_fields is not None and output_fields is not None:
             if any(input_field in output_fields for input_field in input_fields):
-                detected_fields = [
-                    input_field
-                    for input_field in input_fields
-                    if input_field in output_fields
-                ]
-                warnings.warn(
-                    f"Some input fields are present in the output fields, namely {str(detected_fields)}"
-                )
+                detected_fields = [input_field for input_field in input_fields if input_field in output_fields]
+                warnings.warn(f"Some input fields are present in the output fields, namely {str(detected_fields)}")
                 for field in detected_fields:
                     output_fields.remove(field)
 
         if input_fields is not None:
-            assert isinstance(
-                input_fields, list
-            ), "`input_fields` must be of type list or dict"
+            assert isinstance(input_fields, list), "`input_fields` must be of type list or dict"
             for field_index, input_field in enumerate(input_fields):
                 assert isinstance(
                     input_field, str
                 ), f"input_field at index {field_index} of `input_fields` is not of type string"
 
         if output_fields is not None:
-            assert isinstance(
-                output_fields, list
-            ), "`output_fields`  must be of type list or dict"
+            assert isinstance(output_fields, list), "`output_fields`  must be of type list or dict"
             for field_index, output_field in enumerate(output_fields):
                 assert isinstance(
                     output_field, str

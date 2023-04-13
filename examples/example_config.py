@@ -11,12 +11,8 @@ class SentimentConfig(BaseConfig):
     # We put the SentimentConfig here so that we can auto-generate
     # a JSONSchema
     textFields: str = Field(..., description="The text field to run sentiment on.")
-    alias: Optional[str] = Field(
-        None, description="The alias for each sentiment component."
-    )
-    transform_chunksize: Optional[int] = Field(
-        8, description="The amount to transform at any 1 time."
-    )
+    alias: Optional[str] = Field(None, description="The alias for each sentiment component.")
+    transform_chunksize: Optional[int] = Field(8, description="The amount to transform at any 1 time.")
 
 
 result = SentimentConfig.to_schema()

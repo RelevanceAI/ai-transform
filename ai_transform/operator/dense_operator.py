@@ -16,7 +16,9 @@ DatasetID = str
 DenseOperatorOutput = Dict[DatasetID, Sequence[Document]]
 
 
-BAD_OPERATOR_MESSAGE = "please ensure the output of the operator is a dict that is a mapping of dataset_ids to documents"
+BAD_OPERATOR_MESSAGE = (
+    "please ensure the output of the operator is a dict that is a mapping of dataset_ids to documents"
+)
 
 
 class DenseOperator(AbstractOperator):
@@ -31,17 +33,9 @@ class DenseOperator(AbstractOperator):
     def transform(self, documents: DocumentList) -> DenseOperatorOutput:
         raise NotImplementedError
 
-    def store_dataset_relationship(
-        self, input_dataset: Dataset, output_datasets: Sequence[Dataset]
-    ):
+    def store_dataset_relationship(self, input_dataset: Dataset, output_datasets: Sequence[Dataset]):
         input_dataset.update_metadata(
-            {
-                "_child_datasets_": [
-                    output_dataset.dataset_id for output_dataset in output_datasets
-                ]
-            }
+            {"_child_datasets_": [output_dataset.dataset_id for output_dataset in output_datasets]}
         )
         for output_dataset in output_datasets:
-            output_dataset.update_metadata(
-                {"_parent_dataset_": input_dataset.dataset_id}
-            )
+            output_dataset.update_metadata({"_parent_dataset_": input_dataset.dataset_id})

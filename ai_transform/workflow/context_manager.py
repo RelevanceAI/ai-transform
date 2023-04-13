@@ -13,16 +13,13 @@ from ai_transform.engine import abstract_engine
 from ai_transform.logger import format_logging_info
 from ai_transform.api.wrappers import request_wrapper
 
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
-)
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
 
 logger = logging.getLogger(__file__)
 
 
 WORKFLOW_FAIL_MESSAGE = (
-    "Workflow processed {:.2f}%"
-    + " of documents. This is less than the success threshold of {:.2f}%"
+    "Workflow processed {:.2f}%" + " of documents. This is less than the success threshold of {:.2f}%"
 )
 
 
@@ -68,9 +65,7 @@ class WorkflowContextManager:
         self.success_threshold = success_threshold
 
         if output is not None:
-            assert isinstance(
-                output, dict
-            ), "When specifying an `output` object, please make sure it of type `dict`"
+            assert isinstance(output, dict), "When specifying an `output` object, please make sure it of type `dict`"
         self.output = output
 
         from ai_transform import __version__
@@ -98,10 +93,7 @@ class WorkflowContextManager:
     def field_children_metadata(self) -> Dict[str, str]:
         script_path = os.getenv("script_path", "")
         workflow_id = script_path.split("/")[0]
-        return {
-            "job_id": self.job_id,
-            "workflow_id": workflow_id,
-        }
+        return {"job_id": self.job_id, "workflow_id": workflow_id}
 
     def _set_field_children_recursively(self):
         for operator in self.operators:
@@ -116,10 +108,7 @@ class WorkflowContextManager:
                     output_fields = list(operator.output_fields)
 
                     res = self.dataset[input_field].add_field_children(
-                        field_children=output_fields,
-                        fieldchildren_id=self.job_id,
-                        metadata=metadata,
-                        recursive=True,
+                        field_children=output_fields, fieldchildren_id=self.job_id, metadata=metadata, recursive=True
                     )
                     logger.debug(format_logging_info(res))
 
@@ -153,9 +142,7 @@ class WorkflowContextManager:
         self.set_workflow_status(status=self.IN_PROGRESS)
         return self
 
-    def _handle_workflow_fail(
-        self, exc_type: type, exc_value: BaseException, traceback: Traceback
-    ):
+    def _handle_workflow_fail(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         logger.exception(exc_value)
         self.set_workflow_status(status=self.FAILED)
         return False

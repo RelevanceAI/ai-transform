@@ -4,11 +4,7 @@ import random
 from copy import deepcopy
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.utils.document import Document
-from ai_transform.utils.example_documents import (
-    mock_documents,
-    generate_random_label,
-    generate_random_vector,
-)
+from ai_transform.utils.example_documents import mock_documents, generate_random_label, generate_random_vector
 
 
 class TestDocumentDiff:
@@ -19,22 +15,15 @@ class TestDocumentDiff:
         expected_diff = []
 
         for document in new_documents:
-            new_chunk = {
-                "label": generate_random_label(),
-                "label_chunkvector_": generate_random_vector(),
-            }
+            new_chunk = {"label": generate_random_label(), "label_chunkvector_": generate_random_vector()}
             document["_chunk_"].append(new_chunk)
-            expected_diff.append(
-                {"_id": document["_id"], "_chunk_": document["_chunk_"]}
-            )
+            expected_diff.append({"_id": document["_id"], "_chunk_": document["_chunk_"]})
 
         diff = AbstractOperator._postprocess(new_documents, old_documents).to_json()
         diff = list(sorted(diff, key=lambda x: x["_id"]))
         expected_diff = list(sorted(expected_diff, key=lambda x: x["_id"]))
 
-        assert json.dumps(diff, sort_keys=True) == json.dumps(
-            expected_diff, sort_keys=True
-        )
+        assert json.dumps(diff, sort_keys=True) == json.dumps(expected_diff, sort_keys=True)
 
     def test_update_diff(self):
         old_documents = [Document({"label": "yes"}) for _ in range(5)]
@@ -53,10 +42,7 @@ class TestDocumentDiff:
         assert not diff
 
     def test_chunk_diff(self):
-        old_documents = [
-            Document({"example_vector_": [random.random() for _ in range(5)]})
-            for _ in range(5)
-        ]
+        old_documents = [Document({"example_vector_": [random.random() for _ in range(5)]}) for _ in range(5)]
         new_documents = deepcopy(old_documents)
         for document in new_documents:
             document["label"] = "yes"

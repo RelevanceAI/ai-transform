@@ -45,13 +45,7 @@ class DocumentList(UserList):
         flat_list = itertools.chain(*list_of_lists)
         return list(flat_list)
 
-    def set_chunk_values(
-        self,
-        chunk_field: str,
-        output_field: str,
-        chunk_values: List[List[Any]],
-        sortby: str = None,
-    ):
+    def set_chunk_values(self, chunk_field: str, output_field: str, chunk_values: List[List[Any]], sortby: str = None):
         if sortby is None:
             if any("_order_" in key for key in self.data[0].keys()):
                 sortby = "_order_"
@@ -100,9 +94,7 @@ class DocumentList(UserList):
             doc.set(chunk_field, chunk_docs)
 
         if chunk_counter > len(values):
-            raise ValueError(
-                "Number of chunks do not match with number of values - check logic."
-            )
+            raise ValueError("Number of chunks do not match with number of values - check logic.")
 
     def get_chunks_as_flat(self, chunk_field: str, field: str, default=None):
         """
@@ -140,9 +132,7 @@ class DocumentList(UserList):
 
             document[tag_field] = new_tags
 
-    def append_tag(
-        self, field: str, value: Union[Dict[str, Any], List[Dict[str, Any]]]
-    ) -> None:
+    def append_tag(self, field: str, value: Union[Dict[str, Any], List[Dict[str, Any]]]) -> None:
         warnings.warn("This behaviour is experimental and is subject to change")
 
         if isinstance(value, list):
@@ -163,7 +153,5 @@ class DocumentList(UserList):
 
             if tags is not None:
                 document[tag_field] = sorted(
-                    document[tag_field],
-                    key=lambda tag_json: tag_json[sort_field],
-                    reverse=reverse,
+                    document[tag_field], key=lambda tag_json: tag_json[sort_field], reverse=reverse
                 )

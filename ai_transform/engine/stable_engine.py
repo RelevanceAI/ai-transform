@@ -64,9 +64,7 @@ class StableEngine(AbstractEngine):
     def handle_upsert(self, batch_index: int, batch_to_insert: List[Document]):
         if self.output_to_status:
             # Store in output documents
-            self.extend_output_documents(
-                [document.to_json() for document in batch_to_insert]
-            )
+            self.extend_output_documents([document.to_json() for document in batch_to_insert])
         else:
             # Store in dataset
             # We want to make sure the schema updates
@@ -93,9 +91,7 @@ class StableEngine(AbstractEngine):
         for batch_index, mega_batch in enumerate(self.api_progress(iterator)):
             batch_to_insert: List[Document] = []
 
-            for mini_batch in AbstractEngine.chunk_documents(
-                self._transform_chunksize, mega_batch
-            ):
+            for mini_batch in AbstractEngine.chunk_documents(self._transform_chunksize, mega_batch):
                 transformed_batch = self._operate(mini_batch)
                 if transformed_batch is not None:
                     batch_to_insert += transformed_batch

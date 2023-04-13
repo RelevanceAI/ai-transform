@@ -34,22 +34,14 @@ class BaseConfig(BaseModel):
 
     authorizationToken: str = None
     dataset_id: Optional[str] = None
-    job_id: Optional[str] = Field(
-        default_factory=generate_random_string, description="the job ID"
-    )
+    job_id: Optional[str] = Field(default_factory=generate_random_string, description="the job ID")
     total_workers: Optional[int] = Field(default=None, description="Total workers.")
     send_email: Optional[bool] = Field(
-        default=True,
-        description="If True, sends an email upon completion. Otherwise, False.",
+        default=True, description="If True, sends an email upon completion. Otherwise, False."
     )
-    additional_information: Optional[str] = Field(
-        default="", description="What to include in the e-mail."
-    )
+    additional_information: Optional[str] = Field(default="", description="What to include in the e-mail.")
     filters: Optional[list] = Field(default=[], description="Filters to apply.")
-    documents: Optional[list] = Field(
-        default=None,
-        description="You can submit documents and have it run immediately.",
-    )
+    documents: Optional[list] = Field(default=None, description="You can submit documents and have it run immediately.")
 
     @classmethod
     def to_schema(self):
@@ -102,22 +94,15 @@ class BaseTransformConfig(BaseConfig):
     """
 
     pull_chunksize: Optional[int] = Field(
-        default=1000,
-        description="How many do you want to download and upload to the server.",
+        default=1000, description="How many do you want to download and upload to the server."
     )
-    transform_chunksize: Optional[int] = Field(
-        default=20, description="How many do you want to transform each time?"
-    )
-    refresh: Optional[bool] = Field(
-        default=False,
-        description="If True, re-runs the workflow on the entire dataset.",
-    )
+    transform_chunksize: Optional[int] = Field(default=20, description="How many do you want to transform each time?")
+    refresh: Optional[bool] = Field(default=False, description="If True, re-runs the workflow on the entire dataset.")
     output_to_status: Optional[bool] = Field(
         default=False, description="If True, it will output results to status object."
     )
     documents: Optional[List[object]] = Field(
-        default_factory=lambda: [],
-        description="If passed in, documents will be used instead of dataset.",
+        default_factory=lambda: [], description="If passed in, documents will be used instead of dataset."
     )
     limit_documents: Optional[int] = Field(
         default=None,

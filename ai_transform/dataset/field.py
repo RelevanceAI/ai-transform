@@ -77,95 +77,33 @@ class Field:
             filter_type = "exact_match"
         return filter_type
 
-    def __eq__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
-    ) -> Filter:
+    def __eq__(self, other: Union[str, float, int, bool, None], filter_type: Optional[str] = None) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
-        return [
-            {
-                "field": self._field,
-                "filter_type": filter_type,
-                "condition": "==",
-                "condition_value": other,
-            }
-        ]
+        return [{"field": self._field, "filter_type": filter_type, "condition": "==", "condition_value": other}]
 
-    def __lt__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
-    ) -> Filter:
+    def __lt__(self, other: Union[str, float, int, bool, None], filter_type: Optional[str] = None) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
-        return [
-            {
-                "field": self._field,
-                "filter_type": filter_type,
-                "condition": "<",
-                "condition_value": other,
-            }
-        ]
+        return [{"field": self._field, "filter_type": filter_type, "condition": "<", "condition_value": other}]
 
-    def __le__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
-    ) -> Filter:
+    def __le__(self, other: Union[str, float, int, bool, None], filter_type: Optional[str] = None) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
-        return [
-            {
-                "field": self._field,
-                "filter_type": filter_type,
-                "condition": "<=",
-                "condition_value": other,
-            }
-        ]
+        return [{"field": self._field, "filter_type": filter_type, "condition": "<=", "condition_value": other}]
 
-    def __gt__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
-    ) -> Filter:
+    def __gt__(self, other: Union[str, float, int, bool, None], filter_type: Optional[str] = None) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
-        return [
-            {
-                "field": self._field,
-                "filter_type": filter_type,
-                "condition": ">",
-                "condition_value": other,
-            }
-        ]
+        return [{"field": self._field, "filter_type": filter_type, "condition": ">", "condition_value": other}]
 
-    def __ge__(
-        self,
-        other: Union[str, float, int, bool, None],
-        filter_type: Optional[str] = None,
-    ) -> Filter:
+    def __ge__(self, other: Union[str, float, int, bool, None], filter_type: Optional[str] = None) -> Filter:
         if filter_type is None:
             filter_type = self._filter_type
-        return [
-            {
-                "field": self._field,
-                "filter_type": filter_type,
-                "condition": ">=",
-                "condition_value": other,
-            }
-        ]
+        return [{"field": self._field, "filter_type": filter_type, "condition": ">=", "condition_value": other}]
 
     def contains(self, other: str) -> Filter:
-        return [
-            {
-                "field": self._field,
-                "filter_type": "contains",
-                "condition": "==",
-                "condition_value": other,
-            }
-        ]
+        return [{"field": self._field, "filter_type": "contains", "condition": "==", "condition_value": other}]
 
     def exists(self) -> Filter:
         if "_chunk_" in self._field:
@@ -175,37 +113,14 @@ class Field:
             else:
                 parent_field = self._field
 
-            return [
-                {
-                    "chunk": {
-                        "path": parent_field,
-                        "filters": [{"fieldExists": {"field": self._field}}],
-                    }
-                }
-            ]
-        return [
-            {
-                "field": self._field,
-                "filter_type": "exists",
-                "condition": "==",
-                "condition_value": " ",
-            }
-        ]
+            return [{"chunk": {"path": parent_field, "filters": [{"fieldExists": {"field": self._field}}]}}]
+        return [{"field": self._field, "filter_type": "exists", "condition": "==", "condition_value": " "}]
 
     def not_exists(self) -> Filter:
-        return [
-            {
-                "field": self._field,
-                "filter_type": "exists",
-                "condition": "!=",
-                "condition_value": " ",
-            }
-        ]
+        return [{"field": self._field, "filter_type": "exists", "condition": "!=", "condition_value": " "}]
 
     def insert_centroids(self, centroid_documents: DocumentList):
-        raise NotImplementedError(
-            f"`insert_centroids` not available for non-vector fields"
-        )
+        raise NotImplementedError(f"`insert_centroids` not available for non-vector fields")
 
     def label_openai(
         self,
@@ -219,25 +134,15 @@ class Field:
         raise NotImplementedError(f"`label_openai` not available for non-vector fields")
 
     def get_centroids(
-        self,
-        page_size: int = 5,
-        page: int = 1,
-        cluster_ids: Optional[List] = None,
-        include_vector: bool = False,
+        self, page_size: int = 5, page: int = 1, cluster_ids: Optional[List] = None, include_vector: bool = False
     ):
-        raise NotImplementedError(
-            f"`get_centroids` not available for non-vector fields"
-        )
+        raise NotImplementedError(f"`get_centroids` not available for non-vector fields")
 
     def get_all_centroids(self):
-        raise NotImplementedError(
-            f"`get_all_centroids` not available for non-vector fields"
-        )
+        raise NotImplementedError(f"`get_all_centroids` not available for non-vector fields")
 
     def create_centroid_documents(self):
-        raise NotImplementedError(
-            f"`create_centroid_documents` not available for non-vector fields"
-        )
+        raise NotImplementedError(f"`create_centroid_documents` not available for non-vector fields")
 
     def list_closest_to_center(
         self,
@@ -257,14 +162,10 @@ class Field:
         filters: List[Filter] = None,
         select_fields: List[str] = None,
     ):
-        raise NotImplementedError(
-            "`list_closest_to_center` not available for non-vector fields"
-        )
+        raise NotImplementedError("`list_closest_to_center` not available for non-vector fields")
 
     def get_keyphrase(self, keyphrase_id: str):
-        raise NotImplementedError(
-            f"`get_keyphrase` not available for non-keyphrase fields"
-        )
+        raise NotImplementedError(f"`get_keyphrase` not available for non-keyphrase fields")
 
     def update_keyphrase(
         self,
@@ -278,24 +179,16 @@ class Field:
         keyphrase_score: float = 0,
         level: int = 0,
     ):
-        raise NotImplementedError(
-            f"`update_keyphrase` not available for non-keyphrase fields"
-        )
+        raise NotImplementedError(f"`update_keyphrase` not available for non-keyphrase fields")
 
     def delete_keyphrase(self, keyphrase_id: str):
-        raise NotImplementedError(
-            f"`delete_keyphrase` not available for non-keyphrase fields"
-        )
+        raise NotImplementedError(f"`delete_keyphrase` not available for non-keyphrase fields")
 
     def bulk_update_keyphrases(self, updates: List[Union[Keyphrase, dict]]):
-        raise NotImplementedError(
-            f"`bulk_update_keyphrases` not available for non-keyphrase fields"
-        )
+        raise NotImplementedError(f"`bulk_update_keyphrases` not available for non-keyphrase fields")
 
     def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):
-        raise NotImplementedError(
-            f"`list_keyphrases` not available for non-keyphrase fields"
-        )
+        raise NotImplementedError(f"`list_keyphrases` not available for non-keyphrase fields")
 
 
 class ClusterField(Field):
@@ -305,9 +198,7 @@ class ClusterField(Field):
         self._cluster_field = ".".join(middle_fields)
         self._cluster_alias = alias
 
-    def insert_centroids(
-        self, centroid_documents: Union[List[Dict[str, Any]], DocumentList]
-    ):
+    def insert_centroids(self, centroid_documents: Union[List[Dict[str, Any]], DocumentList]):
         if isinstance(centroid_documents, DocumentList):
             centroid_documents = centroid_documents.to_json()
         return self._dataset.api._insert_centroids(
@@ -318,11 +209,7 @@ class ClusterField(Field):
         )
 
     def get_centroids(
-        self,
-        page_size: int = 5,
-        page: int = 1,
-        cluster_ids: Optional[List] = None,
-        include_vector: bool = False,
+        self, page_size: int = 5, page: int = 1, cluster_ids: Optional[List] = None, include_vector: bool = False
     ):
         return self._dataset.api._get_centroids(
             dataset_id=self.dataset_id,
@@ -334,12 +221,7 @@ class ClusterField(Field):
             include_vector=include_vector,
         )
 
-    def get_all_centroids(
-        self,
-        page_size: int = 5,
-        cluster_ids: Optional[List] = None,
-        include_vector: bool = False,
-    ):
+    def get_all_centroids(self, page_size: int = 5, cluster_ids: Optional[List] = None, include_vector: bool = False):
         """
         Get all centroids and returns as a dictionary for easy access
         """
@@ -385,9 +267,7 @@ class ClusterField(Field):
 
     def create_centroid_documents(self):
 
-        documents = self._dataset.get_all_documents(
-            select_fields=[self._cluster_field, self._field]
-        )
+        documents = self._dataset.get_all_documents(select_fields=[self._cluster_field, self._field])
         documents = documents["documents"]
 
         vectors = np.array([document[self._cluster_field] for document in documents])
@@ -411,10 +291,7 @@ class ClusterField(Field):
             selected_vectors = vectors[label_indices == index]
             centroid_vector = selected_vectors.mean(0)
 
-            centroid_document = {
-                "_id": f"cluster_{index}",
-                f"{self._cluster_field}": centroid_vector.tolist(),
-            }
+            centroid_document = {"_id": f"cluster_{index}", f"{self._cluster_field}": centroid_vector.tolist()}
             centroid_documents.append(centroid_document)
 
         return centroid_documents
@@ -517,10 +394,7 @@ class KeyphraseField(Field):
             elif isinstance(update, dict):
                 updates_list.append(update)
         return self._dataset.api._bulk_update_keyphrase(
-            dataset_id=self.dataset_id,
-            field=self._keyphrase_field,
-            alias=self._keyphrase_alias,
-            updates=updates_list,
+            dataset_id=self.dataset_id, field=self._keyphrase_field, alias=self._keyphrase_alias, updates=updates_list
         )
 
     def list_keyphrases(self, page_size: int = 100, page: int = 1, sort: list = None):

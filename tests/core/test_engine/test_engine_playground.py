@@ -7,17 +7,9 @@ from ai_transform.utils import mock_documents
 
 
 class TestEnginePlayground:
-    def test_engine_playground(
-        self,
-        full_dataset: Dataset,
-        test_operator: AbstractOperator,
-    ):
+    def test_engine_playground(self, full_dataset: Dataset, test_operator: AbstractOperator):
 
-        engine = StableEngine(
-            full_dataset,
-            test_operator,
-            documents=mock_documents(1000),
-        )
+        engine = StableEngine(full_dataset, test_operator, documents=mock_documents(1000))
 
         assert engine.output_to_status
 

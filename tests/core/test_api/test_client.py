@@ -23,14 +23,7 @@ class TestClient:
         n_to_delete = 10
 
         documents = mock_documents(n_test_docs)
-        _ids = list(
-            set(
-                [
-                    document["_id"]
-                    for document in random.choices(documents, k=n_to_delete)
-                ]
-            )
-        )
+        _ids = list(set([document["_id"] for document in random.choices(documents, k=n_to_delete)]))
 
         dataset.insert_documents(documents)
         dataset.delete_documents(filters=dataset["_id"] == _ids)
