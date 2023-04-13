@@ -48,7 +48,6 @@ class WorkflowContextManager:
         engine: abstract_engine.AbstractEngine = None,
         metadata: Dict[str, Any] = None,
         output: dict = None,
-        webhook_url: str = None,
     ):
 
         self.credentials = credentials
@@ -67,6 +66,11 @@ class WorkflowContextManager:
         self.send_email = send_email
         self.email = email
         self.success_threshold = success_threshold
+
+        if output is not None:
+            assert isinstance(
+                output, dict
+            ), "When specifying an `output` object, please make sure it of type `dict`"
         self.output = output
 
         from ai_transform import __version__
@@ -75,7 +79,6 @@ class WorkflowContextManager:
         self.metadata["ai_transform_version"] = __version__
 
         self._n_processed_pricing = None
-        self._webhook_url = webhook_url
 
     @property
     def worker_number(self) -> int:
@@ -120,11 +123,16 @@ class WorkflowContextManager:
                     )
                     logger.debug(format_logging_info(res))
 
-    def set_workflow_status(self, status: str):
+    def _get_output_to_status_obj(self):
         if self.output is not None:
             output = self.output
+            if self.output_documents is not None:
+                output["documents"] = self.output_documents
         else:
             output = self.output_documents
+        return output
+
+    def set_workflow_status(self, status: str):
         result = self.api._set_workflow_status(
             status=status,
             job_id=self.job_id,
@@ -134,16 +142,8 @@ class WorkflowContextManager:
             send_email=self.send_email,
             email=self.email,
             worker_number=self.worker_number,
-            output=output,
+            output=self._get_output_to_status_obj(),
         )
-        if self._webhook_url is not None:
-            request_wrapper(
-                requests.post,
-                kwargs=dict(
-                    url=self._webhook_url,
-                    json={"status": status, "id": self.workflow_name},
-                ),
-            )
         logger.debug(format_logging_info(result))
         return result
 
