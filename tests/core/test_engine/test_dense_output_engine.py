@@ -18,15 +18,8 @@ class TestDenseOutputEngine:
         dense_output_dataset1: Dataset,
         dense_output_dataset2: Dataset,
     ):
-        engine = DenseOutputEngine(
-            dataset=dense_input_dataset,
-            operator=test_dense_operator,
-        )
-        workflow = Workflow(
-            name="workflow_test123",
-            engine=engine,
-            job_id="test_job123",
-        )
+        engine = DenseOutputEngine(dataset=dense_input_dataset, operator=test_dense_operator)
+        workflow = Workflow(name="workflow_test123", engine=engine, job_id="test_job123")
         workflow.run()
 
         time.sleep(4)

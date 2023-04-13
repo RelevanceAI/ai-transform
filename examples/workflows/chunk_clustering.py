@@ -25,31 +25,17 @@ from sentence_splitter import split_text_into_sentences
 
 
 class SentenceSplitterOperator(AbstractOperator):
-    def __init__(
-        self,
-        field: str,
-        output_chunk_field: str = "sentence_chunk_",
-        language: str = "en",
-    ):
+    def __init__(self, field: str, output_chunk_field: str = "sentence_chunk_", language: str = "en"):
         self.split_function = partial(split_text_into_sentences, language=language)
         self._field = field
         self._output_chunk_field = output_chunk_field
-        super().__init__(
-            input_fields=[self._field], output_fields=[self._output_chunk_field]
-        )
+        super().__init__(input_fields=[self._field], output_fields=[self._output_chunk_field])
 
     def transform(self, documents: DocumentList) -> DocumentList:
         """
         Split sentences into output chunk fields
         """
-        [
-            d.split(
-                self.split_function,
-                chunk_field=self._output_chunk_field,
-                field=self._field,
-            )
-            for d in documents
-        ]
+        [d.split(self.split_function, chunk_field=self._output_chunk_field, field=self._field) for d in documents]
         return documents
 
 
@@ -58,9 +44,7 @@ class ChunkVectorizerOperator(AbstractOperator):
         self._text_field = text_field
         self._chunk_field = chunk_field
         self._output_field = output_field
-        super().__init__(
-            input_fields=[self._chunk_field], output_fields=[self._chunk_field]
-        )
+        super().__init__(input_fields=[self._chunk_field], output_fields=[self._chunk_field])
 
     def _random_vector(self):
         return [random.randint(0, 99) for _ in range(10)]
@@ -85,13 +69,7 @@ class ChunkVectorizerOperator(AbstractOperator):
 
 
 class ChunkClusterOperator(AbstractOperator):
-    def __init__(
-        self,
-        n_clusters: int,
-        chunk_field: str,
-        vector_field: str,
-        alias: Optional[str] = None,
-    ):
+    def __init__(self, n_clusters: int, chunk_field: str, vector_field: str, alias: Optional[str] = None):
         self._model = KMeans(n_clusters=n_clusters)
 
         self._chunk_field = chunk_field
@@ -99,24 +77,17 @@ class ChunkClusterOperator(AbstractOperator):
         self._alias = f"kmeans-{n_clusters}" if alias is None else alias
         self._output_field = f"_cluster_.{vector_field}.{self._alias}"
 
-        super().__init__(
-            input_fields=[self._vector_field],
-            output_fields=[self._output_field],
-        )
+        super().__init__(input_fields=[self._vector_field], output_fields=[self._output_field])
 
     def transform(self, documents: DocumentList) -> DocumentList:
         """
         Main transform function
         """
-        vectors = documents.get_chunks_as_flat(
-            chunk_field=self._chunk_field, field=self._vector_field
-        )
+        vectors = documents.get_chunks_as_flat(chunk_field=self._chunk_field, field=self._vector_field)
         vectors = np.array(vectors)
         labels = self._model.fit_predict(vectors).tolist()
 
-        for i, chunk_labels in enumerate(
-            documents.split_by_chunk(chunk_field=self._chunk_field, values=labels)
-        ):
+        for i, chunk_labels in enumerate(documents.split_by_chunk(chunk_field=self._chunk_field, values=labels)):
             chunk_labels = [f"cluster_{l}" for l in chunk_labels]
             documents[i][self._output_field] = chunk_labels
         return documents
@@ -133,9 +104,7 @@ class ChunkClusterOperator(AbstractOperator):
         alias = self._alias
         vector_field = self._vector_field
 
-        dataset[vector_field].insert_centroids(
-            centroid_documents=centroid_documents, alias=alias
-        )
+        dataset[vector_field].insert_centroids(centroid_documents=centroid_documents, alias=alias)
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
@@ -158,9 +127,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     CHUNK_FIELD = "sentence_chunk_"
     VECTOR_FIELD = text_field + "_vector_"
     TRANSFORM_CHUNKSIZE = 200
-    sentence_splitter_operator = SentenceSplitterOperator(
-        field=text_field, output_chunk_field=CHUNK_FIELD
-    )
+    sentence_splitter_operator = SentenceSplitterOperator(field=text_field, output_chunk_field=CHUNK_FIELD)
 
     stable_engine = StableEngine(
         dataset=dataset,
@@ -173,11 +140,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     )
 
     sentence_splitter_workflow = Workflow(
-        name="Sentence Splitting",
-        engine=stable_engine,
-        job_id=job_id,
-        send_email=False,
-        additional_information="",
+        name="Sentence Splitting", engine=stable_engine, job_id=job_id, send_email=False, additional_information=""
     )
     sentence_splitter_workflow.run()
 
@@ -205,10 +168,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     vectorize_workflow.run()
 
     operator = ChunkClusterOperator(
-        n_clusters=n_clusters,
-        vector_field=VECTOR_FIELD,
-        alias=alias,
-        chunk_field=CHUNK_FIELD,
+        n_clusters=n_clusters, vector_field=VECTOR_FIELD, alias=alias, chunk_field=CHUNK_FIELD
     )
 
     # filters = dataset[VECTOR_FIELD].exists()
@@ -236,9 +196,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Clustering workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)

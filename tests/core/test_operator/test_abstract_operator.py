@@ -7,10 +7,7 @@ class TestAbstractOperator:
 
             class TestInputAssertionOperator(AbstractOperator):
                 def __init__(self):
-                    super().__init__(
-                        "input_field",
-                        ["output_field"],
-                    )
+                    super().__init__("input_field", ["output_field"])
 
         except:
             assert True
@@ -20,10 +17,7 @@ class TestAbstractOperator:
 
             class TestOutputAssertionOperator(AbstractOperator):
                 def __init__(self):
-                    super().__init__(
-                        ["input_field"],
-                        "output_field",
-                    )
+                    super().__init__(["input_field"], "output_field")
 
         except:
             assert True

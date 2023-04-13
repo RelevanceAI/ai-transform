@@ -10,19 +10,11 @@ from ai_transform.utils.example_documents import mock_documents
 
 
 def list_methods(cls):
-    return set(
-        x
-        for x, y in cls.__dict__.items()
-        if isinstance(y, (FunctionType, classmethod, staticmethod))
-    )
+    return set(x for x, y in cls.__dict__.items() if isinstance(y, (FunctionType, classmethod, staticmethod)))
 
 
 def list_parent_methods(cls):
-    return set(
-        itertools.chain.from_iterable(
-            list_methods(c).union(list_parent_methods(c)) for c in cls.__bases__
-        )
-    )
+    return set(itertools.chain.from_iterable(list_methods(c).union(list_parent_methods(c)) for c in cls.__bases__))
 
 
 def list_subclass_methods(cls, is_narrow: bool = False):

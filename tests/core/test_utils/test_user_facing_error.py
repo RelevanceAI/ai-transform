@@ -11,10 +11,7 @@ from ai_transform.errors import UserFacingError
 
 class BadOperator(AbstractOperator):
     def __init__(
-        self,
-        text_field: str,
-        model: str = "cardiffnlp/twitter-roberta-base-sentiment",
-        alias: Optional[str] = None,
+        self, text_field: str, model: str = "cardiffnlp/twitter-roberta-base-sentiment", alias: Optional[str] = None
     ):
         super().__init__()
 
@@ -48,10 +45,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         check_for_missing_fields=False,
     )
 
-    workflow = AbstractWorkflow(
-        engine=engine,
-        job_id=job_id,
-    )
+    workflow = AbstractWorkflow(engine=engine, job_id=job_id)
     try:
         workflow.raise_user_facing_error("Text field not right.")
     except Exception as e:

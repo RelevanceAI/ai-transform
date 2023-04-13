@@ -152,32 +152,21 @@ class Document(UserDict):
             return document_list
         return [d.get(field, default=default) for d in document_list.data]
 
-    def _create_chunk_documents(
-        self,
-        field: str,
-        values: list,
-        generate_id: bool = False,
-    ):
+    def _create_chunk_documents(self, field: str, values: list, generate_id: bool = False):
         """
         create chunk documents based on a given field and value.
         """
         from ai_transform.utils.document_list import DocumentList
 
         if generate_id:
-            docs = [
-                {"_id": uuid.uuid4().__str__(), field: values[i], "_order_": i}
-                for i in range(len(values))
-            ]
+            docs = [{"_id": uuid.uuid4().__str__(), field: values[i], "_order_": i} for i in range(len(values))]
         else:
             docs = [{field: values[i], "_order_": i} for i in range(len(values))]
         return DocumentList(docs)
 
     def _calculate_offset(self, text_to_find, string):
         try:
-            result = [
-                {"start": m.start(), "end": m.end()}
-                for m in re.finditer(text_to_find, string)
-            ]
+            result = [{"start": m.start(), "end": m.end()} for m in re.finditer(text_to_find, string)]
         except Exception as e:
             import traceback
 
@@ -198,13 +187,7 @@ class Document(UserDict):
             result = [{"start": m.start, "end": m.end} for m in matches]
         return result
 
-    def set_chunk(
-        self,
-        chunk_field: str,
-        field: str,
-        values: list,
-        generate_id: bool = False,
-    ):
+    def set_chunk(self, chunk_field: str, field: str, values: list, generate_id: bool = False):
         """
         doc.list_chunks()
         doc.get_chunk("value_chunk_", field="sentence") # returns a list of values
@@ -213,11 +196,7 @@ class Document(UserDict):
         # We use upsert behavior for now
         from ai_transform.utils.document_list import DocumentList
 
-        new_chunk_docs = self._create_chunk_documents(
-            field,
-            values=values,
-            generate_id=generate_id,
-        )
+        new_chunk_docs = self._create_chunk_documents(field, values=values, generate_id=generate_id)
         # Update on the old chunk docs
         old_chunk_docs = DocumentList(self.get(chunk_field))
         # Relying on immutable property
@@ -242,9 +221,7 @@ class Document(UserDict):
             default = []
         value = self.get(field, default)
         split_values = split_operation(value)
-        chunk_documents = self._create_chunk_documents(
-            field=field, values=split_values, generate_id=generate_id
-        )
+        chunk_documents = self._create_chunk_documents(field=field, values=split_values, generate_id=generate_id)
 
         if include_offsets:
             for i, d in enumerate(chunk_documents):
@@ -254,12 +231,7 @@ class Document(UserDict):
         self.set(chunk_field, chunk_documents)
 
     def operate_on_chunk(
-        self,
-        operator_function: callable,
-        chunk_field: str,
-        field: str,
-        output_field: str,
-        default: Any = None,
+        self, operator_function: callable, chunk_field: str, field: str, output_field: str, default: Any = None
     ):
         """
         Add an operate function.

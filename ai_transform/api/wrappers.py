@@ -40,12 +40,7 @@ def request_wrapper(
             result = fn(*args, **kwargs)
 
             if result.status_code != 200:
-                to_log = format_logging_info(
-                    {
-                        "message": result.content.decode(),
-                        "status_code": result.status_code,
-                    }
-                )
+                to_log = format_logging_info({"message": result.content.decode(), "status_code": result.status_code})
                 if output_to_stdout:
                     print(to_log)
                 else:

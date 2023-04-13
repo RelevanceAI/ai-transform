@@ -15,31 +15,21 @@ from sklearn.cluster import KMeans
 
 
 class ClusterOperator(AbstractOperator):
-    def __init__(
-        self,
-        n_clusters: int,
-        vector_field: str,
-        alias: Optional[str] = None,
-    ):
+    def __init__(self, n_clusters: int, vector_field: str, alias: Optional[str] = None):
         self._model = KMeans(n_clusters=n_clusters)
 
         self._vector_field = vector_field
         self._alias = f"kmeans-{n_clusters}" if alias is None else alias
         self._output_field = f"_cluster_.{vector_field}.{self._alias}"
 
-        super().__init__(
-            input_fields=[self._vector_field],
-            output_fields=[self._output_field],
-        )
+        super().__init__(input_fields=[self._vector_field], output_fields=[self._output_field])
 
     def transform(self, documents: DocumentList) -> DocumentList:
         """
         Main transform function
         """
 
-        vectors = np.array(
-            [np.array(document[self._vector_field]) for document in documents]
-        )
+        vectors = np.array([np.array(document[self._vector_field]) for document in documents])
         labels = self._model.fit_predict(vectors).tolist()
 
         for document, label in zip(documents, labels):
@@ -55,9 +45,7 @@ class ClusterOperator(AbstractOperator):
             dict(_id=f"cluster_{_id}", centroid_vector=centroid_vector)
             for _id, centroid_vector in enumerate(self._model.cluster_centers_.tolist())
         ]
-        dataset[self._output_field].insert_centroids(
-            centroid_documents=centroid_documents
-        )
+        dataset[self._output_field].insert_centroids(centroid_documents=centroid_documents)
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
@@ -77,9 +65,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = ClusterOperator(
-        n_clusters=n_clusters, vector_field=vector_field, alias=alias
-    )
+    operator = ClusterOperator(n_clusters=n_clusters, vector_field=vector_field, alias=alias)
 
     filters = dataset[vector_field].exists()
     engine = InMemoryEngine(
@@ -111,9 +97,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Clustering workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)

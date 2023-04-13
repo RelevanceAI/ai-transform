@@ -42,10 +42,7 @@ def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
     )
 
     workflow = Workflow(
-        engine=engine,
-        job_id=job_id,
-        send_email=send_email,
-        additional_information=additional_information,
+        engine=engine, job_id=job_id, send_email=send_email, additional_information=additional_information
     )
     workflow.run()
 
@@ -93,9 +90,7 @@ def test_sentiment_documents(test_sentiment_workflow_document_token: str):
     assert True
 
 
-def test_sentiment_example_wsmall_batch_stable_engine(
-    test_sentiment_workflow_token: str,
-):
+def test_sentiment_example_wsmall_batch_stable_engine(test_sentiment_workflow_token: str):
     config = decode_workflow_token(test_sentiment_workflow_token)
 
     job_id = config["job_id"]
@@ -124,10 +119,7 @@ def test_sentiment_example_wsmall_batch_stable_engine(
     )
 
     workflow = Workflow(
-        engine=engine,
-        job_id=job_id,
-        send_email=send_email,
-        additional_information=additional_information,
+        engine=engine, job_id=job_id, send_email=send_email, additional_information=additional_information
     )
     workflow.run()
 
@@ -178,10 +170,7 @@ def test_sentiment_example_multiple_workers(test_sentiment_workflow_token: str):
     )
 
     workflow = Workflow(
-        engine=engine,
-        job_id=job_id,
-        send_email=send_email,
-        additional_information=additional_information,
+        engine=engine, job_id=job_id, send_email=send_email, additional_information=additional_information
     )
     workflow.run()
 
@@ -222,9 +211,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
     client = Client(token=token)
     dataset = client.Dataset(dataset_id, expire=True)
 
-    operator = ClusterOperator(
-        n_clusters=n_clusters, vector_field=vector_field, alias=alias
-    )
+    operator = ClusterOperator(n_clusters=n_clusters, vector_field=vector_field, alias=alias)
 
     filters = dataset[vector_field].exists()
     engine = InMemoryEngine(
@@ -238,10 +225,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
     )
 
     workflow = Workflow(
-        engine=engine,
-        job_id=job_id,
-        send_email=send_email,
-        additional_information=additional_information,
+        engine=engine, job_id=job_id, send_email=send_email, additional_information=additional_information
     )
     workflow.run()
 
@@ -282,10 +266,7 @@ def test_fail_example(test_sentiment_workflow_token: str):
         total_workers=1,
     )
 
-    workflow = Workflow(
-        engine=engine,
-        job_id=job_id,
-    )
+    workflow = Workflow(engine=engine, job_id=job_id)
     workflow.run()
 
     time.sleep(2)

@@ -18,11 +18,7 @@ from ai_transform.utils.document_list import DocumentList
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.operator.dense_operator import DenseOperator
 from ai_transform.engine.stable_engine import StableEngine
-from ai_transform.utils.example_documents import (
-    mock_documents,
-    static_documents,
-    tag_documents,
-)
+from ai_transform.utils.example_documents import mock_documents, static_documents, tag_documents
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
@@ -119,10 +115,7 @@ def dense_output_dataset2(test_client: Client) -> Dataset:
 
 @pytest.fixture(scope="function")
 def test_document() -> Document:
-    raw_dict = {
-        "field1": {"field2": 1},
-        "field3": 3,
-    }
+    raw_dict = {"field1": {"field2": 1}, "field3": 3}
     return Document(raw_dict)
 
 
@@ -177,10 +170,7 @@ def test_paid_operator() -> AbstractOperator:
 
 
 @pytest.fixture(scope="function")
-def test_dense_operator(
-    dense_output_dataset1: Dataset,
-    dense_output_dataset2: Dataset,
-) -> DenseOperator:
+def test_dense_operator(dense_output_dataset1: Dataset, dense_output_dataset2: Dataset) -> DenseOperator:
     class TestDenseOperator(DenseOperator):
         def __init__(self, output_dataset_ids: Sequence[str]):
             self.output_dataset_ids = output_dataset_ids
@@ -198,40 +188,23 @@ def test_dense_operator(
 
             return {dataset_id: documents for dataset_id in self.output_dataset_ids}
 
-    output_dataset_ids = (
-        dense_output_dataset1.dataset_id,
-        dense_output_dataset2.dataset_id,
-    )
+    output_dataset_ids = (dense_output_dataset1.dataset_id, dense_output_dataset2.dataset_id)
     return TestDenseOperator(output_dataset_ids)
 
 
 @pytest.fixture(scope="function")
 def test_engine(full_dataset: Dataset, test_operator: AbstractOperator) -> StableEngine:
-    return StableEngine(
-        dataset=full_dataset,
-        operator=test_operator,
-    )
+    return StableEngine(dataset=full_dataset, operator=test_operator)
 
 
 @pytest.fixture(scope="function")
-def test_paid_engine(
-    full_dataset: Dataset, test_paid_operator: AbstractOperator
-) -> StableEngine:
-    return StableEngine(
-        dataset=full_dataset,
-        operator=test_paid_operator,
-    )
+def test_paid_engine(full_dataset: Dataset, test_paid_operator: AbstractOperator) -> StableEngine:
+    return StableEngine(dataset=full_dataset, operator=test_paid_operator)
 
 
 @pytest.fixture(scope="function")
-def test_paid_engine_no_refresh(
-    full_dataset: Dataset, test_paid_operator: AbstractOperator
-) -> StableEngine:
-    return StableEngine(
-        dataset=full_dataset,
-        operator=test_paid_operator,
-        refresh=False,
-    )
+def test_paid_engine_no_refresh(full_dataset: Dataset, test_paid_operator: AbstractOperator) -> StableEngine:
+    return StableEngine(dataset=full_dataset, operator=test_paid_operator, refresh=False)
 
 
 @pytest.fixture(scope="function")
@@ -281,10 +254,7 @@ def test_simple_workflow_token(test_client: Client) -> str:
     time.sleep(1)
     job_id = str(uuid.uuid4())
     config = dict(
-        job_id=job_id,
-        authorizationToken=test_client.credentials.token,
-        dataset_id=dataset_id,
-        send_email=True,
+        job_id=job_id, authorizationToken=test_client.credentials.token, dataset_id=dataset_id, send_email=True
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()

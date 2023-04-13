@@ -14,10 +14,7 @@ from sentence_transformers import SentenceTransformer
 
 class VectorizeTextOperator(AbstractOperator):
     def __init__(
-        self,
-        text_field: str,
-        model: str = "sentence-transformers/all-mpnet-base-v2",
-        alias: Optional[str] = None,
+        self, text_field: str, model: str = "sentence-transformers/all-mpnet-base-v2", alias: Optional[str] = None
     ):
 
         self._model = SentenceTransformer(model)
@@ -27,10 +24,7 @@ class VectorizeTextOperator(AbstractOperator):
         self._alias = model.replace("/", "-") if alias is None else alias
         self._output_field = f"{text_field}_{self._alias}_vector_"
 
-        super().__init__(
-            input_fields=[self._text_field],
-            output_fields=[self._output_field],
-        )
+        super().__init__(input_fields=[self._text_field], output_fields=[self._output_field])
 
     def transform(self, documents: DocumentList) -> DocumentList:
         """
@@ -58,10 +52,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = VectorizeTextOperator(
-        text_field=text_field,
-        alias=alias,
-    )
+    operator = VectorizeTextOperator(text_field=text_field, alias=alias)
 
     filters = dataset[text_field].exists()
     engine = StableEngine(
@@ -74,10 +65,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         total_workers=total_workers,
     )
 
-    workflow = AbstractWorkflow(
-        engine=engine,
-        job_id=job_id,
-    )
+    workflow = AbstractWorkflow(engine=engine, job_id=job_id)
     workflow.run()
 
     field_children = dataset.list_field_children()["results"]
@@ -90,9 +78,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Vectorize Text Workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)

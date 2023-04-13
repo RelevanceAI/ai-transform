@@ -26,9 +26,7 @@ class EmotionOperator(AbstractOperator):
     ):
 
         device = 0 if torch.cuda.is_available() else -1
-        self._model = pipeline(
-            "sentiment-analysis", model=model, device=device, return_all_scores=True
-        )
+        self._model = pipeline("sentiment-analysis", model=model, device=device, return_all_scores=True)
 
         self._text_field = text_field
         self._alias = model.replace("/", "-") if alias is None else alias
@@ -36,11 +34,7 @@ class EmotionOperator(AbstractOperator):
         self._min_score = min_score
 
         super().__init__(
-            input_fields=[text_field],
-            output_fields=[
-                f"{self._output_field}.label",
-                f"{self._output_field}.score",
-            ],
+            input_fields=[text_field], output_fields=[f"{self._output_field}.label", f"{self._output_field}.score"]
         )
 
     def transform(self, documents: DocumentList) -> DocumentList:
@@ -87,12 +81,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = EmotionOperator(
-        text_field=text_fields[0],
-        model=model,
-        alias=alias,
-        min_score=min_score,
-    )
+    operator = EmotionOperator(text_field=text_fields[0], model=model, alias=alias, min_score=min_score)
 
     filters = dataset[text_fields[0]].exists()
 
@@ -106,10 +95,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         total_workers=total_workers,
     )
 
-    workflow = AbstractWorkflow(
-        engine=engine,
-        job_id=job_id,
-    )
+    workflow = AbstractWorkflow(engine=engine, job_id=job_id)
     workflow.run()
 
     field_children = dataset.list_field_children()["results"]
@@ -122,9 +108,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Emotion workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)
