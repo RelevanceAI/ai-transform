@@ -19,7 +19,7 @@ def test_proxy_openai(test_client: Client):
             {"role": "system", "content": "You are a translator."},
             {
                 "role": "assistant",
-                "content": """Example response: 
+                "content": """Example response:
 {"detected_language" : The detected language, "translated_text": The translated text}
 """,
             },
@@ -31,8 +31,6 @@ def test_proxy_openai(test_client: Client):
         "frequency_penalty": 0,
     }
     response = test_client._api._proxy_openai(
-        workflows_admin_token=os.environ["WORKFLOW_ADMIN_TOKEN"],
-        body=body,
-        endpoint="/v1/chat/completions",
+        workflows_admin_token=os.environ["WORKFLOW_ADMIN_TOKEN"], body=body, endpoint="/v1/chat/completions"
     )
     assert "choices" in response

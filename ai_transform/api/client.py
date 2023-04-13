@@ -42,17 +42,10 @@ class Client:
         return self.api._list_datasets()
 
     def create_dataset(
-        self,
-        dataset_id: str,
-        schema: Optional[Schema] = None,
-        upsert: bool = True,
-        expire: bool = False,
+        self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True, expire: bool = False
     ) -> None:
         return self.api._create_dataset(
-            dataset_id=dataset_id,
-            schema={} if schema is None else schema,
-            upsert=upsert,
-            expire=expire,
+            dataset_id=dataset_id, schema={} if schema is None else schema, upsert=upsert, expire=expire
         )
 
     def delete_dataset(self, dataset_id: str) -> None:
@@ -92,10 +85,7 @@ class Client:
         download_url = data["download_url"]
         with open(file_path, "rb") as fn_byte:
             media_content = bytes(fn_byte.read())
-        response = self.api._upload_temporary_media(
-            presigned_url=upload_url,
-            media_content=media_content,
-        )
+        response = self.api._upload_temporary_media(presigned_url=upload_url, media_content=media_content)
         logger.debug(response.content)
         return {"download_url": download_url}
 
@@ -124,10 +114,4 @@ class Client:
     ):
         if workflows_admin_token is None:
             workflows_admin_token = os.getenv("WORKFLOWS_ADMIN_TOKEN")
-        return self.api._openai_completion(
-            workflows_admin_token,
-            model,
-            prompt,
-            max_tokens,
-            temperature,
-        )
+        return self.api._openai_completion(workflows_admin_token, model, prompt, max_tokens, temperature)

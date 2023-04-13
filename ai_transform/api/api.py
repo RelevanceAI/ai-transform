@@ -12,12 +12,7 @@ from typing import Any, Dict, List, Optional, Literal
 
 from ai_transform.logger import format_logging_info
 from ai_transform.utils import document
-from ai_transform.types import (
-    Credentials,
-    FieldTransformer,
-    Filter,
-    Schema,
-)
+from ai_transform.types import Credentials, FieldTransformer, Filter, Schema
 
 from ai_transform import __version__
 
@@ -69,9 +64,7 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
             return response.json()
         except Exception as e:
             logger.exception(e)
-            logger.error(
-                format_logging_info({"x-trace-id": response.headers["x-trace-id"]})
-            )
+            logger.error(format_logging_info({"x-trace-id": response.headers["x-trace-id"]}))
             raise e
     else:
         datum = {"error": response.content.decode("utf-8")}
@@ -125,16 +118,11 @@ def retry(num_of_retries: int = 3, timeout: int = 30):
 
 
 class API:
-    def __init__(
-        self, credentials: Credentials, job_id: str = None, name: str = None
-    ) -> None:
+    def __init__(self, credentials: Credentials, job_id: str = None, name: str = None) -> None:
         self._credentials = credentials
-        self._base_url = (
-            f"https://api-{self.credentials.region}.stack.tryrelevance.com/latest"
-        )
+        self._base_url = f"https://api-{self.credentials.region}.stack.tryrelevance.com/latest"
         self._headers = dict(
-            Authorization=f"{self.credentials.project}:{self.credentials.api_key}",
-            ai_transform_version=__version__,
+            Authorization=f"{self.credentials.project}:{self.credentials.api_key}", ai_transform_version=__version__
         )
         if job_id is not None:
             self.headers.update(ai_transform_job_id=job_id)
@@ -156,16 +144,8 @@ class API:
         return self._headers
 
     @retry()
-    def _request(
-        self, method: Literal["GET", "POST"], suffix: str, *args, **kwargs
-    ) -> Response:
-        request = requests.Request(
-            method=method,
-            url=self.base_url + suffix,
-            headers=self.headers,
-            *args,
-            **kwargs,
-        )
+    def _request(self, method: Literal["GET", "POST"], suffix: str, *args, **kwargs) -> Response:
+        request = requests.Request(method=method, url=self.base_url + suffix, headers=self.headers, *args, **kwargs)
         prepared_request = request.prepare()
 
         if LOG_REQUESTS:
@@ -189,15 +169,10 @@ class API:
         return get_response(response)
 
     def _create_dataset(
-        self,
-        dataset_id: str,
-        schema: Optional[Schema] = None,
-        upsert: bool = True,
-        expire: bool = False,
+        self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True, expire: bool = False
     ) -> Any:
         response = self.post(
-            suffix=f"/datasets/create",
-            json=dict(id=dataset_id, schema=schema, upsert=upsert, expire=expire),
+            suffix=f"/datasets/create", json=dict(id=dataset_id, schema=schema, upsert=upsert, expire=expire)
         )
         return get_response(response)
 
@@ -227,9 +202,7 @@ class API:
                 insert_date=insert_date,
                 overwrite=overwrite,
                 update_schema=update_schema,
-                field_transformers=[]
-                if field_transformers is None
-                else field_transformers,
+                field_transformers=[] if field_transformers is None else field_transformers,
                 ingest_in_background=ingest_in_background,
                 wait_for_update=wait_for_update,
             ),
@@ -284,16 +257,10 @@ class API:
         )
         return get_response(response)
 
-    def _delete_where(
-        self,
-        dataset_id: str,
-        filters: Optional[List[Filter]] = None,
-    ):
+    def _delete_where(self, dataset_id: str, filters: Optional[List[Filter]] = None):
         response = self.post(
             suffix=f"/datasets/{dataset_id}/documents/delete_where",
-            json=dict(
-                filters=[] if filters is None else filters,
-            ),
+            json=dict(filters=[] if filters is None else filters),
         )
         return get_response(response)
 
@@ -302,32 +269,20 @@ class API:
         Edit and add metadata about a dataset. Notably description, data source, etc
         """
         response = self.post(
-            suffix=f"/datasets/{dataset_id}/metadata",
-            json=dict(dataset_id=dataset_id, metadata=metadata),
+            suffix=f"/datasets/{dataset_id}/metadata", json=dict(dataset_id=dataset_id, metadata=metadata)
         )
         return get_response(response)
 
     def _get_metadata(self, dataset_id: str) -> Dict[str, Any]:
-        response = self.get(
-            suffix=f"/datasets/{dataset_id}/metadata",
-        )
+        response = self.get(suffix=f"/datasets/{dataset_id}/metadata")
         return get_response(response)
 
     def _insert_centroids(
-        self,
-        dataset_id: str,
-        cluster_centers: List[document.Document],
-        vector_fields: List[str],
-        alias: str,
+        self, dataset_id: str, cluster_centers: List[document.Document], vector_fields: List[str], alias: str
     ):
         response = self.post(
             suffix=f"/datasets/{dataset_id}/cluster/centroids/insert",
-            json=dict(
-                dataset_id=dataset_id,
-                cluster_centers=cluster_centers,
-                vector_fields=vector_fields,
-                alias=alias,
-            ),
+            json=dict(dataset_id=dataset_id, cluster_centers=cluster_centers, vector_fields=vector_fields, alias=alias),
         )
         return get_response(response)
 
@@ -371,9 +326,7 @@ class API:
         if job_id == "":
             return
         if status not in {"inprogress", "complete", "failed"}:
-            raise ValueError(
-                "state should be one of `['inprogress', 'complete', 'failed']`"
-            )
+            raise ValueError("state should be one of `['inprogress', 'complete', 'failed']`")
         parameters = dict(
             status=status,
             workflow_name=workflow_name,
@@ -404,10 +357,7 @@ class API:
 
         logger.debug(format_logging_info(parameters))
 
-        response = self.post(
-            suffix=f"/workflows/{job_id}/status",
-            json=parameters,
-        )
+        response = self.post(suffix=f"/workflows/{job_id}/status", json=parameters)
         return get_response(response)
 
     def _set_field_children(
@@ -436,36 +386,24 @@ class API:
             metadata={} if metadata is None else metadata,
         )
         logger.debug(format_logging_info(params))
-        response = self.post(
-            suffix=f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update",
-            json=params,
-        )
+        response = self.post(suffix=f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update", json=params)
         return get_response(response)
 
     def _delete_field_children(self, dataset_id: str, fieldchildren_id: str):
-        response = self.post(
-            suffix=f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/delete",
-        )
+        response = self.post(suffix=f"/datasets/{dataset_id}/field_children/{fieldchildren_id}/delete")
         return get_response(response)
 
-    def _list_field_children(
-        self, dataset_id: str, page: int = 1, page_size: int = 10000, sort=None
-    ):
+    def _list_field_children(self, dataset_id: str, page: int = 1, page_size: int = 10000, sort=None):
         parameters = {"page": page, "page_size": page_size}
 
         if sort:
             parameters["sort"] = sort
 
-        response = self.post(
-            suffix=f"/datasets/{dataset_id}/field_children/list",
-            json=parameters,
-        )
+        response = self.post(suffix=f"/datasets/{dataset_id}/field_children/list", json=parameters)
         return get_response(response)
 
     def _get_health(self, dataset_id: str):
-        response = self.get(
-            suffix=f"/datasets/{dataset_id}/monitor/health",
-        )
+        response = self.get(suffix=f"/datasets/{dataset_id}/monitor/health")
         return get_response(response)
 
     def _get_workflow_status(self, job_id: str):
@@ -473,32 +411,22 @@ class API:
         return get_response(response)
 
     def _update_workflow_metadata(self, job_id: str, metadata: Dict[str, Any]):
-        response = self.post(
-            suffix=f"/workflows/{job_id}/metadata",
-            json=dict(metadata=metadata),
-        )
+        response = self.post(suffix=f"/workflows/{job_id}/metadata", json=dict(metadata=metadata))
         return get_response(response)
 
     def _get_file_upload_urls(self, dataset_id: str, files: List[str]):
-        response = self.post(
-            suffix=f"/datasets/{dataset_id}/get_file_upload_urls",
-            json=dict(files=files),
-        )
+        response = self.post(suffix=f"/datasets/{dataset_id}/get_file_upload_urls", json=dict(files=files))
         return get_response(response)
 
     def _get_temp_file_upload_url(self):
         """Use this for temporary file uploads.
         returns: {'download_url': ..., 'upload_url': ...}
         """
-        response = self.post(
-            suffix=f"/services/get_temporary_file_upload_url",
-        )
+        response = self.post(suffix=f"/services/get_temporary_file_upload_url")
         return get_response(response)
 
     def _upload_temporary_media(self, presigned_url: str, media_content: bytes):
-        return requests.put(
-            presigned_url, headers={"x-amz-tagging": "Expire=true"}, data=media_content
-        )
+        return requests.put(presigned_url, headers={"x-amz-tagging": "Expire=true"}, data=media_content)
 
     def _upload_media(self, presigned_url: str, media_content: bytes):
         # dont use get response since response cannot be json decoded
@@ -518,12 +446,7 @@ class API:
         trigger a workflow
         """
 
-        data = dict(
-            params=params,
-            dataset_id=dataset_id,
-            workflow_id=workflow_id,
-            version=version,
-        )
+        data = dict(params=params, dataset_id=dataset_id, workflow_id=workflow_id, version=version)
         if notebook_path is not None:
             data["notebook_path"] = notebook_path
         if instance_type is not None:
@@ -587,20 +510,12 @@ class API:
         if n_processed_pricing:
             params["n_processed_pricing "] = n_processed_pricing
 
-        params = dict(
-            worker_number=worker_number,
-            step=step,
-            n_processed=n_processed,
-            n_total=n_total,
-        )
+        params = dict(worker_number=worker_number, step=step, n_processed=n_processed, n_total=n_total)
 
         logger.debug("adding progress...")
         logger.debug(format_logging_info(params))
 
-        response = self.post(
-            suffix=f"/workflows/{workflow_id}/progress",
-            json=params,
-        )
+        response = self.post(suffix=f"/workflows/{workflow_id}/progress", json=params)
         return get_response(response)
 
     def _update_workflow_pricing(
@@ -618,123 +533,64 @@ class API:
         if worker_number is None:
             worker_number = 0
 
-        params = dict(
-            worker_number=worker_number,
-            step=step,
-            n_processed_pricing=n_processed_pricing,
-        )
+        params = dict(worker_number=worker_number, step=step, n_processed_pricing=n_processed_pricing)
         logger.debug("adding progress...")
         logger.debug(format_logging_info(params))
-        response = self.post(
-            suffix=f"/workflows/{workflow_id}/progress",
-            json=params,
-        )
+        response = self.post(suffix=f"/workflows/{workflow_id}/progress", json=params)
         return get_response(response)
 
-    def _append_tags(
-        self,
-        dataset_id: str,
-        field: str,
-        tags_to_add: List[str],
-        filters: List[Filter],
-    ):
+    def _append_tags(self, dataset_id: str, field: str, tags_to_add: List[str], filters: List[Filter]):
         response = self.post(
             suffix=f"/datasets/{dataset_id}/tags/append",
-            json=dict(
-                field=field,
-                tags_to_add=tags_to_add,
-                filters=filters,
-            ),
+            json=dict(field=field, tags_to_add=tags_to_add, filters=filters),
         )
         return get_response(response)
 
-    def _delete_tags(
-        self,
-        dataset_id: str,
-        field: str,
-        tags_to_delete: List[str],
-        filters: List[Filter],
-    ):
+    def _delete_tags(self, dataset_id: str, field: str, tags_to_delete: List[str], filters: List[Filter]):
         response = self.post(
             suffix=f"/datasets/{dataset_id}/tags/delete",
-            json=dict(
-                field=field,
-                tags_to_delete=tags_to_delete,
-                filters=filters,
-            ),
+            json=dict(field=field, tags_to_delete=tags_to_delete, filters=filters),
         )
         return get_response(response)
 
-    def _merge_tags(
-        self,
-        dataset_id: str,
-        field: str,
-        tags_to_merge: Dict[str, str],
-        filters: List[Filter],
-    ):
+    def _merge_tags(self, dataset_id: str, field: str, tags_to_merge: Dict[str, str], filters: List[Filter]):
         response = self.post(
             suffix=f"/datasets/{dataset_id}/tags/merge",
-            json=dict(
-                field=field,
-                tags_to_merge=tags_to_merge,
-                filters=filters,
-            ),
+            json=dict(field=field, tags_to_merge=tags_to_merge, filters=filters),
         )
         return get_response(response)
 
-    def _bulk_update_keyphrase(
-        self,
-        dataset_id: str,
-        field: str,
-        alias: str,
-        updates: List,
-    ):
+    def _bulk_update_keyphrase(self, dataset_id: str, field: str, alias: str, updates: List):
         """
         Update keyphrases
         """
         response = self.post(
-            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_update",
-            json=dict(updates=updates),
+            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_update", json=dict(updates=updates)
         )
         return get_response(response)
 
-    def _bulk_delete_keyphrase(
-        self,
-        dataset_id: str,
-        field: str,
-        alias: str,
-        ids: List[str],
-    ):
+    def _bulk_delete_keyphrase(self, dataset_id: str, field: str, alias: str, ids: List[str]):
         """
         Update keyphrases
         """
         response = self.post(
-            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_delete",
-            json=dict(ids=ids),
+            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/bulk_delete", json=dict(ids=ids)
         )
         return get_response(response)
 
-    def _get_keyphrase(
-        self, dataset_id: str, field: str, alias: str, keyphrase_id: str
-    ):
+    def _get_keyphrase(self, dataset_id: str, field: str, alias: str, keyphrase_id: str):
         """
         Get keyphrase
         """
         if isinstance(keyphrase_id, str) and keyphrase_id != "":
-            response = self.get(
-                suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get",
-            )
+            response = self.get(suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/get")
             return get_response(response)
 
-    def _delete_keyphrase(
-        self, dataset_id: str, field: str, keyphrase_id: str, alias: str
-    ):
+    def _delete_keyphrase(self, dataset_id: str, field: str, keyphrase_id: str, alias: str):
         """
         Deleting Keyphrases
         """
-        response = self.post(
-            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/delete",
-        )
+        response = self.post(suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/delete")
         return get_response(response)
 
     def _update_keyphrase(
@@ -769,33 +625,20 @@ class API:
         if metadata is not None:
             params["metadata"] = metadata
         response = self.post(
-            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update",
-            json=params,
+            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/{keyphrase_id}/update", json=params
         )
         return get_response(response)
 
     def _list_keyphrase(
-        self,
-        dataset_id: str,
-        field: str,
-        alias: str,
-        page: int = 0,
-        page_size: int = 100,
-        sort: list = None,
+        self, dataset_id: str, field: str, alias: str, page: int = 0, page_size: int = 100, sort: list = None
     ):
         """
         List keyphrases
         """
-        params = {
-            "page": page,
-            "page_size": min(9999, page_size),
-        }
+        params = {"page": page, "page_size": min(9999, page_size)}
         if sort is not None:
             params["sort"] = sort
-        response = self.post(
-            suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list",
-            json=params,
-        )
+        response = self.post(suffix=f"/datasets/{dataset_id}/fields/{field}.{alias}/keyphrase/list", json=params)
         return get_response(response)
 
     def _facets(
@@ -808,81 +651,45 @@ class API:
     ):
         response = self.post(
             suffix=f"/datasets/{dataset_id}/facets",
-            json=dict(
-                fields=fields,
-                data_interval=data_interval,
-                page_size=min(9999, page_size),
-                asc=asc,
-            ),
+            json=dict(fields=fields, data_interval=data_interval, page_size=min(9999, page_size), asc=asc),
         )
         return get_response(response)
 
-    def _upsert_dataset_settings(
-        self,
-        dataset_id: str,
-        settings: Optional[Dict[str, Any]] = None,
-    ):
+    def _upsert_dataset_settings(self, dataset_id: str, settings: Optional[Dict[str, Any]] = None):
         response = self.post(
-            suffix=f"/datasets/{dataset_id}/settings",
-            json=dict(settings={} if settings is None else settings),
+            suffix=f"/datasets/{dataset_id}/settings", json=dict(settings={} if settings is None else settings)
         )
         return get_response(response)
 
-    def _get_dataset_settings(
-        self,
-        dataset_id: str,
-    ):
-        response = self.get(
-            suffix=f"/datasets/{dataset_id}/settings",
-        )
+    def _get_dataset_settings(self, dataset_id: str):
+        response = self.get(suffix=f"/datasets/{dataset_id}/settings")
         return get_response(response)
 
-    def _create_deployable(
-        self, dataset_id: Optional[str] = None, config: Optional[Dict[str, Any]] = None
-    ):
+    def _create_deployable(self, dataset_id: Optional[str] = None, config: Optional[Dict[str, Any]] = None):
         response = self.post(
             suffix="/deployables/create",
-            json=dict(
-                dataset_id=dataset_id,
-                configuration={} if config is None else config,
-            ),
+            json=dict(dataset_id=dataset_id, configuration={} if config is None else config),
         )
         return get_response(response)
 
     def _share_dashboard(self, deployable_id: str):
-        response = self.post(
-            suffix=f"/deployablegroups/{deployable_id}/share",
-        )
+        response = self.post(suffix=f"/deployablegroups/{deployable_id}/share")
         return get_response(response)
 
     def _unshare_dashboard(self, deployable_id: str):
-        response = self.post(
-            suffix=f"/deployablegroups/{deployable_id}/private",
-        )
+        response = self.post(suffix=f"/deployablegroups/{deployable_id}/private")
         return get_response(response)
 
     def _get_deployable(self, deployable_id: str):
-        response = self.get(
-            suffix=f"/deployables/{deployable_id}/get",
-        )
+        response = self.get(suffix=f"/deployables/{deployable_id}/get")
         return get_response(response)
 
     def _delete_deployable(self, deployable_id: str):
-        response = self.post(
-            suffix=f"/deployables/delete",
-            json=dict(
-                id=deployable_id,
-            ),
-        )
+        response = self.post(suffix=f"/deployables/delete", json=dict(id=deployable_id))
         return get_response(response)
 
     def _list_deployables(self, page_size: int):
-        response = self.get(
-            suffix="/deployables/list",
-            params=dict(
-                page_size=min(9999, page_size),
-            ),
-        )
+        response = self.get(suffix="/deployables/list", params=dict(page_size=min(9999, page_size)))
         return get_response(response)
 
     def _label_openai(
@@ -919,10 +726,7 @@ class API:
         }
         if filters is not None:
             params["filters"] = filters
-        response = self.post(
-            suffix=f"/datasets/{dataset_id}/cluster/centroids/labels/create",
-            json=params,
-        )
+        response = self.post(suffix=f"/datasets/{dataset_id}/cluster/centroids/labels/create", json=params)
         return get_response(response)
 
     def _aggregate(
@@ -982,9 +786,7 @@ class API:
                 include_count=include_count,
                 include_relevance=include_relevance,
                 page_size=min(9999, page_size),
-                cluster_properties_filter=cluster_properties_filter
-                if cluster_properties_filter is not None
-                else {},
+                cluster_properties_filter=cluster_properties_filter if cluster_properties_filter is not None else {},
                 filters=filters if filters is not None else [],
                 cluster_ids=cluster_ids if cluster_ids is not None else [],
                 select_fields=select_fields if select_fields is not None else [],
@@ -993,61 +795,36 @@ class API:
         return get_response(response)
 
     def _list_project_keys(self):
-        response = self.get(
-            suffix="/projects/keys/list",
-        )
+        response = self.get(suffix="/projects/keys/list")
         return get_response(response)
 
     def _get_project_key(self, key: str, token: str):
-        response = self.post(
-            suffix="/projects/keys/get",
-            json=dict(key=key, token=token),
-        )
+        response = self.post(suffix="/projects/keys/get", json=dict(key=key, token=token))
         return get_response(response)
 
     def _set_project_key(self, key: str, value: str):
-        response = self.post(
-            suffix="/projects/keys/set",
-            json=dict(key=key, value=value),
-        )
+        response = self.post(suffix="/projects/keys/set", json=dict(key=key, value=value))
         return get_response(response)
 
     def _delete_project_key(self, key: str):
-        response = self.post(
-            suffix="/projects/keys/delete",
-            json=dict(key=key),
-        )
+        response = self.post(suffix="/projects/keys/delete", json=dict(key=key))
         return get_response(response)
 
-    def _update_version_aliases(
-        self, development_version: str, production_version: str
-    ):
+    def _update_version_aliases(self, development_version: str, production_version: str):
         response = self.post(
             suffix="/workflows/types/version_aliases/update",
-            json={
-                "aliases": {
-                    "development_version": development_version,
-                    "production_version": production_version,
-                },
-            },
+            json={"aliases": {"development_version": development_version, "production_version": production_version}},
         )
         return get_response(response)
 
     def _openai_completion(
-        self,
-        workflows_admin_token: str,
-        body: dict,
-        suffix: str = "/admin/proxy/openai/v1/completions",
+        self, workflows_admin_token: str, body: dict, suffix: str = "/admin/proxy/openai/v1/completions"
     ):
-        response = self.post(
-            suffix=suffix,
-            json={"token": workflows_admin_token, "body": body},
-        )
+        response = self.post(suffix=suffix, json={"token": workflows_admin_token, "body": body})
         return get_response(response)
 
     def _proxy_openai(self, workflows_admin_token: str, endpoint: str, body: dict):
         response = self.post(
-            suffix="/admin/proxy/openai" + endpoint,
-            json={"token": workflows_admin_token, "body": body},
+            suffix="/admin/proxy/openai" + endpoint, json={"token": workflows_admin_token, "body": body}
         )
         return get_response(response)

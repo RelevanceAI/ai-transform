@@ -13,16 +13,13 @@ from ai_transform.engine import abstract_engine
 from ai_transform.logger import format_logging_info
 from ai_transform.api.wrappers import request_wrapper
 
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
-)
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
 
 logger = logging.getLogger(__file__)
 
 
 WORKFLOW_FAIL_MESSAGE = (
-    "Workflow processed {:.2f}%"
-    + " of documents. This is less than the success threshold of {:.2f}%"
+    "Workflow processed {:.2f}%" + " of documents. This is less than the success threshold of {:.2f}%"
 )
 
 
@@ -48,7 +45,6 @@ class WorkflowContextManager:
         engine: abstract_engine.AbstractEngine = None,
         metadata: Dict[str, Any] = None,
         output: dict = None,
-        webhook_url: str = None,
     ):
 
         self.credentials = credentials
@@ -67,6 +63,9 @@ class WorkflowContextManager:
         self.send_email = send_email
         self.email = email
         self.success_threshold = success_threshold
+
+        if output is not None:
+            assert isinstance(output, dict), "When specifying an `output` object, please make sure it of type `dict`"
         self.output = output
 
         from ai_transform import __version__
@@ -75,7 +74,6 @@ class WorkflowContextManager:
         self.metadata["ai_transform_version"] = __version__
 
         self._n_processed_pricing = None
-        self._webhook_url = webhook_url
 
     @property
     def worker_number(self) -> int:
@@ -95,10 +93,7 @@ class WorkflowContextManager:
     def field_children_metadata(self) -> Dict[str, str]:
         script_path = os.getenv("script_path", "")
         workflow_id = script_path.split("/")[0]
-        return {
-            "job_id": self.job_id,
-            "workflow_id": workflow_id,
-        }
+        return {"job_id": self.job_id, "workflow_id": workflow_id}
 
     def _set_field_children_recursively(self):
         for operator in self.operators:
@@ -113,18 +108,20 @@ class WorkflowContextManager:
                     output_fields = list(operator.output_fields)
 
                     res = self.dataset[input_field].add_field_children(
-                        field_children=output_fields,
-                        fieldchildren_id=self.job_id,
-                        metadata=metadata,
-                        recursive=True,
+                        field_children=output_fields, fieldchildren_id=self.job_id, metadata=metadata, recursive=True
                     )
                     logger.debug(format_logging_info(res))
 
-    def set_workflow_status(self, status: str):
+    def _get_output_to_status_obj(self):
         if self.output is not None:
             output = self.output
+            if self.output_documents is not None:
+                output["documents"] = self.output_documents
         else:
             output = self.output_documents
+        return output
+
+    def set_workflow_status(self, status: str):
         result = self.api._set_workflow_status(
             status=status,
             job_id=self.job_id,
@@ -134,16 +131,8 @@ class WorkflowContextManager:
             send_email=self.send_email,
             email=self.email,
             worker_number=self.worker_number,
-            output=output,
+            output=self._get_output_to_status_obj(),
         )
-        if self._webhook_url is not None:
-            request_wrapper(
-                requests.post,
-                kwargs=dict(
-                    url=self._webhook_url,
-                    json={"status": status, "id": self.workflow_name},
-                ),
-            )
         logger.debug(format_logging_info(result))
         return result
 
@@ -153,9 +142,7 @@ class WorkflowContextManager:
         self.set_workflow_status(status=self.IN_PROGRESS)
         return self
 
-    def _handle_workflow_fail(
-        self, exc_type: type, exc_value: BaseException, traceback: Traceback
-    ):
+    def _handle_workflow_fail(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         logger.exception(exc_value)
         self.set_workflow_status(status=self.FAILED)
         return False

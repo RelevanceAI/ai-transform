@@ -13,15 +13,11 @@ class TestDocumentList:
 
         assert all(
             test_document.get("field3") != copy_test_document["field3"]
-            for test_document, copy_test_document in zip(
-                test_documents, copy_test_documents
-            )
+            for test_document, copy_test_document in zip(test_documents, copy_test_documents)
         )
         assert all(
             test_document.get("field1.field") != copy_test_document["field1.field2"]
-            for test_document, copy_test_document in zip(
-                test_documents, copy_test_documents
-            )
+            for test_document, copy_test_document in zip(test_documents, copy_test_documents)
         )
 
     def test_serializer(self, test_documents: DocumentList):
@@ -39,18 +35,12 @@ class TestDocumentListTagOperations:
             tag_values.update(list(map(lambda x: x["label"], document[self.tag_field])))
         random_tag = random.choice(list(tag_values))
 
-        test_tag_documents.remove_tag(
-            f"{self.tag_field}.{self.label_field}", random_tag
-        )
+        test_tag_documents.remove_tag(f"{self.tag_field}.{self.label_field}", random_tag)
         for document in test_tag_documents:
-            assert all(
-                tag[self.label_field] != random_tag for tag in document[self.tag_field]
-            )
+            assert all(tag[self.label_field] != random_tag for tag in document[self.tag_field])
 
     def test_sort_tags(self, test_tag_documents: DocumentList):
-        test_tag_documents.sort_tags(
-            f"{self.tag_field}.{self.label_field}"
-        )  # string case
+        test_tag_documents.sort_tags(f"{self.tag_field}.{self.label_field}")  # string case
         test_tag_documents.sort_tags(f"{self.tag_field}.value")  # numeric case
         assert True
 
@@ -62,14 +52,10 @@ class TestDocumentChunkOperations:
             assert isinstance(r, str), f"Not a string, {r}"
 
     def test_set_chunk_values(self, test_documents: DocumentList):
-        LETTERS: list = (
-            string.ascii_letters + string.ascii_uppercase + string.ascii_lowercase
-        )
+        LETTERS: list = string.ascii_letters + string.ascii_uppercase + string.ascii_lowercase
         LETTERS = LETTERS * 10
         random_values = LETTERS[: len(test_documents)]
-        test_documents.set_chunks_from_flat(
-            chunk_field="_chunk_", field="test_label", values=random_values
-        )
+        test_documents.set_chunks_from_flat(chunk_field="_chunk_", field="test_label", values=random_values)
         results = test_documents.get_chunks_as_flat("_chunk_", "test_label")
         assert results == [x for x in random_values]
 

@@ -27,9 +27,7 @@ class InMemoryEngine(AbstractEngine):
         # Update this in series
         for batch_index, batch in enumerate(
             self.api_progress(
-                AbstractEngine.chunk_documents(
-                    self.pull_chunksize, documents_to_insert
-                ),
+                AbstractEngine.chunk_documents(self.pull_chunksize, documents_to_insert),
                 show_progress_bar=self._show_progress_bar,
             )
         ):

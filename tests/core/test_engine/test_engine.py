@@ -22,9 +22,7 @@ class TestAbstractEngine:
         assert isinstance(engine.operator, AbstractOperator)
         assert len(ExampleEngine.__abstractmethods__) == 0
 
-    def test_engine_abstract(
-        self, full_dataset: Dataset, test_operator: AbstractOperator
-    ):
+    def test_engine_abstract(self, full_dataset: Dataset, test_operator: AbstractOperator):
         class ExampleEngine(AbstractEngine):
             pass
 
@@ -33,14 +31,10 @@ class TestAbstractEngine:
         except:
             assert True
 
-    def test_engine_select_fields(
-        self, full_dataset: Dataset, test_operator: AbstractOperator
-    ):
+    def test_engine_select_fields(self, full_dataset: Dataset, test_operator: AbstractOperator):
         class ExampleEngine(AbstractEngine):
             def apply(self) -> Any:
                 return
 
-        engine = ExampleEngine(
-            full_dataset, test_operator, select_fields=["_id", "_chunk_.label"]
-        )
+        engine = ExampleEngine(full_dataset, test_operator, select_fields=["_id", "_chunk_.label"])
         assert "_chunk_" in engine._select_fields

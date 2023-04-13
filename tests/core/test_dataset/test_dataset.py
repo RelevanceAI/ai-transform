@@ -27,10 +27,7 @@ class TestDataset2:
     def test_schema(self, full_dataset: Dataset):
         documents = mock_documents(5)
         keys = documents[0].keys()
-        keys = [
-            ".".join([sf for sf in nested_field.split(".") if not sf.isdigit()])
-            for nested_field in keys
-        ]
+        keys = [".".join([sf for sf in nested_field.split(".") if not sf.isdigit()]) for nested_field in keys]
         schema = full_dataset.schema
         assert all([key in schema for key in keys if key not in ["_id"]])
 
@@ -134,9 +131,7 @@ class TestFilters:
 
 class TestDatasetMedia:
     def test_upload_medias(self, empty_dataset: Dataset):
-        urls = empty_dataset.insert_local_medias(
-            ["hierarchy.png", "hierarchy.png", "hierarchy.png"]
-        )
+        urls = empty_dataset.insert_local_medias(["hierarchy.png", "hierarchy.png", "hierarchy.png"])
         assert len(urls) == 3
 
 

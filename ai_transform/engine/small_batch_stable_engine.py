@@ -32,15 +32,9 @@ class SmallBatchStableEngine(AbstractEngine):
         transform_threshold: int = 1000,
         transform_chunksize: int = 20,
         *args,
-        **kwargs
+        **kwargs,
     ):
-        super().__init__(
-            dataset=dataset,
-            operator=operator,
-            pull_chunksize=pull_chunksize,
-            *args,
-            **kwargs
-        )
+        super().__init__(dataset=dataset, operator=operator, pull_chunksize=pull_chunksize, *args, **kwargs)
 
         self._transform_threshold = transform_threshold
         self._transform_chunksize = transform_chunksize
@@ -92,10 +86,7 @@ class SmallBatchStableEngine(AbstractEngine):
         self.operator.pre_hooks(self.dataset)
 
         upload_index = 0
-        for minibatch in self.api_progress(
-            iterator,
-            show_progress_bar=self._show_progress_bar,
-        ):
+        for minibatch in self.api_progress(iterator, show_progress_bar=self._show_progress_bar):
             batch += minibatch
 
             if len(batch) >= self._transform_threshold:

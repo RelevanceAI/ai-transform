@@ -18,9 +18,7 @@ from ai_transform.utils.document_list import DocumentList
 
 from ai_transform.errors import MaxRetriesError
 
-logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s"
-)
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -52,9 +50,7 @@ class AbstractEngine(ABC):
             # without worrying about breaking things.
             if check_for_missing_fields:
                 assert all(
-                    field in dataset.schema
-                    for field in select_fields
-                    if field not in {"_id", "insert_date_"}
+                    field in dataset.schema for field in select_fields if field not in {"_id", "insert_date_"}
                 ), f"Some fields not in dataset schema - namely {select_fields}. If this is not desired behavior, set check_for_missing_fields=False."
             else:
                 for field in select_fields:
@@ -87,16 +83,11 @@ class AbstractEngine(ABC):
             assert pull_chunksize > 0, "Chunksize should be a Positive Integer"
             self._pull_chunksize = pull_chunksize
         else:
-            warnings.warn(
-                f"`chunksize=None` assumes the operation transforms on the entire dataset at once"
-            )
+            warnings.warn(f"`chunksize=None` assumes the operation transforms on the entire dataset at once")
             self._pull_chunksize = self._size
 
         # If limiting documents, make sure pull chunk size is not larger than document count
-        if (
-            self._limit_documents is not None
-            and self._limit_documents < self._pull_chunksize
-        ):
+        if self._limit_documents is not None and self._limit_documents < self._pull_chunksize:
             self._pull_chunksize = self.limit_documents
 
         self._output_to_status = output_to_status  # Whether we should output_to_status
@@ -117,9 +108,7 @@ class AbstractEngine(ABC):
 
         if filters is None:
             filters = []
-        assert isinstance(
-            filters, list
-        ), "Filters must be applied as a list of Dictionaries"
+        assert isinstance(filters, list), "Filters must be applied as a list of Dictionaries"
 
         if not refresh:
             filters += self._get_refresh_filter(select_fields, dataset)
@@ -127,11 +116,7 @@ class AbstractEngine(ABC):
 
         self._filters = filters
 
-        self._size = (
-            dataset.len(filters=filters)
-            if self._limit_documents is None
-            else self._limit_documents
-        )
+        self._size = dataset.len(filters=filters) if self._limit_documents is None else self._limit_documents
 
         self._refresh = refresh
         self._after_id = after_id
@@ -212,9 +197,7 @@ class AbstractEngine(ABC):
             transformed_batch = self.operator(mini_batch)
         except Exception as e:
             logger.exception(e)
-            logger.error(
-                format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)})
-            )
+            logger.error(format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)}))
         else:
             # if there is no exception then this block will be executed
             # we only update schema on the first chunk
@@ -225,17 +208,11 @@ class AbstractEngine(ABC):
 
     def _get_refresh_filter(self, select_fields: List[str], dataset: Dataset):
         # initialize the refresh filter container
-        refresh_filters = {
-            "filter_type": "or",
-            "condition_value": [],
-        }
+        refresh_filters = {"filter_type": "or", "condition_value": []}
 
         # initialize where the filters are going
         input_field_filters = []
-        output_field_filters = {
-            "filter_type": "or",
-            "condition_value": [],
-        }
+        output_field_filters = {"filter_type": "or", "condition_value": []}
 
         # We want documents where all select_fields exists
         # as these are needed for operator ...
@@ -246,9 +223,7 @@ class AbstractEngine(ABC):
         for operator in self.operators:
             if operator.output_fields is not None:
                 for output_field in operator.output_fields:
-                    output_field_filters["condition_value"] += dataset[
-                        output_field
-                    ].not_exists()
+                    output_field_filters["condition_value"] += dataset[output_field].not_exists()
 
         # We construct this as:
         #
@@ -268,15 +243,7 @@ class AbstractEngine(ABC):
         # total number of workers must be greater than 1 for data sharding to work
         if self.worker_number is not None and self.total_workers is not None:
             if self.total_workers > 1:
-                return [
-                    {
-                        "matchModulo": {
-                            "field": field,
-                            "modulo": self.total_workers,
-                            "value": self.worker_number,
-                        }
-                    }
-                ]
+                return [{"matchModulo": {"field": field, "modulo": self.total_workers, "value": self.worker_number}}]
         return []
 
     def get_iterator(self) -> Iterator:
@@ -285,9 +252,7 @@ class AbstractEngine(ABC):
             iterator = self.iterate()
         else:
             # Iterate through passed in documents
-            iterator = self.chunk_documents(
-                chunksize=min(100, len(self.documents)), documents=self.documents
-            )
+            iterator = self.chunk_documents(chunksize=min(100, len(self.documents)), documents=self.documents)
         return iterator
 
     def iterate(
@@ -314,10 +279,7 @@ class AbstractEngine(ABC):
         while True:
             try:
                 # Adjust chunksize to get correct amount of documents
-                if (
-                    self.limit_documents is None
-                    or documents_processed + self.pull_chunksize < self.limit_documents
-                ):
+                if self.limit_documents is None or documents_processed + self.pull_chunksize < self.limit_documents:
                     pull_chunksize = self._pull_chunksize
                 else:
                     pull_chunksize = self.limit_documents - documents_processed
@@ -353,10 +315,7 @@ class AbstractEngine(ABC):
                 retry_count = 0
                 # If document limit is hit, break the loop
                 documents_processed += chunk["count"]
-                if (
-                    self.limit_documents is not None
-                    and documents_processed >= self.limit_documents
-                ):
+                if self.limit_documents is not None and documents_processed >= self.limit_documents:
                     break
 
     @staticmethod
@@ -380,9 +339,7 @@ class AbstractEngine(ABC):
             for _ in range(max_retries):
                 try:
                     update_json = self._dataset.update_documents(
-                        documents=chunk,
-                        ingest_in_background=ingest_in_background,
-                        update_schema=update_schema,
+                        documents=chunk, ingest_in_background=ingest_in_background, update_schema=update_schema
                     )
                 except Exception as e:
                     logger.exception(e)
@@ -407,29 +364,18 @@ class AbstractEngine(ABC):
 
         total = n_total * n_passes
         inital_value = pass_index * n_total
-        self.update_progress(
-            n_processed=inital_value,
-            n_total=total,
-        )
+        self.update_progress(n_processed=inital_value, n_total=total)
 
         desc = " -> ".join([repr(operator) for operator in self.operators])
 
-        tqdm_bar = tqdm(
-            range(total),
-            desc=desc,
-            disable=(not show_progress_bar),
-            total=total,
-        )
+        tqdm_bar = tqdm(range(total), desc=desc, disable=(not show_progress_bar), total=total)
         tqdm_bar.update(inital_value)
 
         total_so_far = 0
         for batch in iterator:
             yield batch
             api_n_processed = total_so_far + len(batch) + pass_index * n_total
-            self.update_progress(
-                n_processed=api_n_processed,
-                n_total=total,
-            )
+            self.update_progress(n_processed=api_n_processed, n_total=total)
             total_so_far += len(batch)
             tqdm_bar.update(len(batch))
 
@@ -456,10 +402,7 @@ class AbstractEngine(ABC):
     def update_engine_props(self, job_id: str, workflow_name: str):
         self._job_id = job_id
         self._workflow_name = workflow_name
-        self.dataset.api.headers.update(
-            ai_transform_job_id=job_id,
-            ai_transform_name=workflow_name,
-        )
+        self.dataset.api.headers.update(ai_transform_job_id=job_id, ai_transform_name=workflow_name)
 
     def set_success_ratio(self) -> None:
         if self.size:
@@ -474,9 +417,7 @@ class AbstractEngine(ABC):
         # if there are more keys than just _id in each document
         # then return that as a list of Documents
         # length of a dictionary is just 1 if there is only 1 key
-        return DocumentList(
-            [document for document in documents if len(document.keys()) > 1]
-        )
+        return DocumentList([document for document in documents if len(document.keys()) > 1])
 
     @staticmethod
     def _get_chunks_ids(documents: List[Document]) -> List[Document]:

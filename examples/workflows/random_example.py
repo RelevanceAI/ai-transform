@@ -19,16 +19,10 @@ from ai_transform.utils.document_list import DocumentList
 
 
 class RandomOperator(AbstractOperator):
-    def __init__(
-        self,
-        numeric_field: str,
-    ):
+    def __init__(self, numeric_field: str):
         self.numeric_field = numeric_field
 
-        super().__init__(
-            input_fields=[numeric_field],
-            output_fields=[f"_random_.{numeric_field}"],
-        )
+        super().__init__(input_fields=[numeric_field], output_fields=[f"_random_.{numeric_field}"])
 
     def transform(self, documents: DocumentList) -> DocumentList:
         """
@@ -75,9 +69,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Sentiment workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)

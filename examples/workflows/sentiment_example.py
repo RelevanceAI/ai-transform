@@ -19,23 +19,14 @@ from pydantic import Field
 
 
 class SentimentOperator(AbstractOperator):
-    LABELS = {
-        "LABEL_0": "negative",
-        "LABEL_1": "neutral",
-        "LABEL_2": "positive",
-    }
+    LABELS = {"LABEL_0": "negative", "LABEL_1": "neutral", "LABEL_2": "positive"}
 
     def __init__(
-        self,
-        text_field: str,
-        model: str = "cardiffnlp/twitter-roberta-base-sentiment",
-        alias: Optional[str] = None,
+        self, text_field: str, model: str = "cardiffnlp/twitter-roberta-base-sentiment", alias: Optional[str] = None
     ):
 
         device = 0 if torch.cuda.is_available() else -1
-        self._model = pipeline(
-            "sentiment-analysis", model=model, device=device, return_all_scores=True
-        )
+        self._model = pipeline("sentiment-analysis", model=model, device=device, return_all_scores=True)
 
         self._text_field = text_field
         self._alias = model.replace("/", "-") if alias is None else alias
@@ -43,10 +34,7 @@ class SentimentOperator(AbstractOperator):
 
         super().__init__(
             input_fields=[text_field],
-            output_fields=[
-                f"{self._output_field}.sentiment",
-                f"{self._output_field}.overall_sentiment_score",
-            ],
+            output_fields=[f"{self._output_field}.sentiment", f"{self._output_field}.overall_sentiment_score"],
         )
 
     def transform(self, documents: DocumentList) -> DocumentList:
@@ -81,12 +69,8 @@ class SentimentConfig(BaseConfig):
     # We put the SentimentConfig here so that we can auto-generate
     # a JSONSchema
     textFields: str = Field(..., description="The text field to run sentiment on.")
-    alias: Optional[str] = Field(
-        None, description="The alias for each sentiment component."
-    )
-    transform_chunksize: Optional[int] = Field(
-        8, description="The amount to transform at any 1 time."
-    )
+    alias: Optional[str] = Field(None, description="The alias for each sentiment component.")
+    transform_chunksize: Optional[int] = Field(8, description="The amount to transform at any 1 time.")
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
@@ -104,10 +88,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
     client = Client(token=token)
     dataset = client.Dataset(dataset_id)
 
-    operator = SentimentOperator(
-        text_field=text_field,
-        alias=alias,
-    )
+    operator = SentimentOperator(text_field=text_field, alias=alias)
     if config.documents:
         return operator.transform_for_playground(
             config.documents,
@@ -133,10 +114,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         total_workers=total_workers,
     )
 
-    workflow = AbstractWorkflow(
-        engine=engine,
-        job_id=job_id,
-    )
+    workflow = AbstractWorkflow(engine=engine, job_id=job_id)
     workflow.run()
 
     field_children = dataset.list_field_children()["results"]
@@ -150,9 +128,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Sentiment workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)

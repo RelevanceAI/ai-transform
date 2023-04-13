@@ -16,11 +16,7 @@ from sklearn.cluster import MiniBatchKMeans
 
 
 class BatchClusterFitOperator(AbstractOperator):
-    def __init__(
-        self,
-        n_clusters: int,
-        vector_field: str,
-    ):
+    def __init__(self, n_clusters: int, vector_field: str):
 
         self._model = MiniBatchKMeans(n_clusters=n_clusters)
         self._vector_field = vector_field
@@ -31,20 +27,13 @@ class BatchClusterFitOperator(AbstractOperator):
         """
         Main transform function
         """
-        vectors = np.array(
-            [np.array(document[self._vector_field]) for document in documents]
-        )
+        vectors = np.array([np.array(document[self._vector_field]) for document in documents])
         self._model.partial_fit(vectors)
         return documents
 
 
 class BatchClusterPredictOperator(AbstractOperator):
-    def __init__(
-        self,
-        model: MiniBatchKMeans,
-        vector_field: str,
-        alias: Optional[str] = None,
-    ):
+    def __init__(self, model: MiniBatchKMeans, vector_field: str, alias: Optional[str] = None):
         self._model = model
         self._vector_field = vector_field
         self._alias = f"minibatchkmeans-{model.n_clusters}" if alias is None else alias
@@ -57,9 +46,7 @@ class BatchClusterPredictOperator(AbstractOperator):
         Main transform function
         """
 
-        vectors = np.array(
-            [np.array(document.get(self._vector_field)) for document in documents]
-        )
+        vectors = np.array([np.array(document.get(self._vector_field)) for document in documents])
         labels = self._model.predict(vectors).tolist()
 
         for document, label in zip(documents, labels):
@@ -79,9 +66,7 @@ class BatchClusterPredictOperator(AbstractOperator):
         alias = self._alias
         vector_field = self._vector_field
 
-        dataset[vector_field].insert_centroids(
-            centroid_documents=centroid_documents, alias=alias
-        )
+        dataset[vector_field].insert_centroids(centroid_documents=centroid_documents, alias=alias)
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
@@ -99,25 +84,14 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 
     dataset = client.Dataset(dataset_id)
 
-    fit_operator = BatchClusterFitOperator(
-        n_clusters=n_clusters,
-        vector_field=vector_field,
-    )
-    predict_operator = BatchClusterPredictOperator(
-        model=fit_operator._model,
-        vector_field=vector_field,
-        alias=alias,
-    )
+    fit_operator = BatchClusterFitOperator(n_clusters=n_clusters, vector_field=vector_field)
+    predict_operator = BatchClusterPredictOperator(model=fit_operator._model, vector_field=vector_field, alias=alias)
 
     filters = dataset[vector_field].exists()
     chunksize = 8
 
     fit_engine = StableEngine(
-        dataset=dataset,
-        operator=fit_operator,
-        chunksize=chunksize,
-        select_fields=[vector_field],
-        filters=filters,
+        dataset=dataset, operator=fit_operator, chunksize=chunksize, select_fields=[vector_field], filters=filters
     )
 
     predict_engine = StableEngine(
@@ -130,16 +104,10 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         total_workers=total_workers,
     )
 
-    fit_workflow = AbstractWorkflow(
-        engine=fit_engine,
-        job_id=f"{job_id}_fit",
-    )
+    fit_workflow = AbstractWorkflow(engine=fit_engine, job_id=f"{job_id}_fit")
     fit_workflow.run()
 
-    predict_workflow = AbstractWorkflow(
-        engine=predict_engine,
-        job_id=f"{job_id}_predict",
-    )
+    predict_workflow = AbstractWorkflow(engine=predict_engine, job_id=f"{job_id}_predict")
     predict_workflow.run()
 
 
@@ -148,9 +116,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Batch Clustering Workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)

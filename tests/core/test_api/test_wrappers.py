@@ -12,11 +12,7 @@ class TestWrappers:
         saved_stdout = sys.stdout
         sys.stdout = f
         resp = request_wrapper(
-            requests.post,
-            args=["https://www.google.com"],
-            num_retries=1,
-            timeout=1,
-            output_to_stdout=True,
+            requests.post, args=["https://www.google.com"], num_retries=1, timeout=1, output_to_stdout=True
         )
         output = f.getvalue()
         sys.stdout = saved_stdout
@@ -41,9 +37,7 @@ class TestWrappers:
         assert "message" in str(u.getvalue()) + str(f.getvalue())
 
     def test_request_wrapper_pass(self):
-        resp = request_wrapper(
-            requests.get, ("https://www.google.com",), timeout=1, num_retries=2
-        )
+        resp = request_wrapper(requests.get, ("https://www.google.com",), timeout=1, num_retries=2)
         if resp is None:
             raise ValueError("Resp should not be None")
         assert resp.status_code == 200
@@ -92,11 +86,7 @@ class TestWrappers:
 
         with redirect_stdout(f), redirect_stderr(u):
             resp = request_wrapper(
-                TestRequest(),
-                ("https://www.google.com",),
-                num_retries=3,
-                timeout=1,
-                output_to_stdout=True,
+                TestRequest(), ("https://www.google.com",), num_retries=3, timeout=1, output_to_stdout=True
             )
 
         assert resp.status_code == 200

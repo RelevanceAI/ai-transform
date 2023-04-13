@@ -41,10 +41,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
 
     engine = StableEngine(dataset=dataset, operator=operator)
 
-    workflow = AbstractWorkflow(
-        engine=engine,
-        job_id=job_id,
-    )
+    workflow = AbstractWorkflow(engine=engine, job_id=job_id)
     workflow.run()
 
 
@@ -53,9 +50,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Stable Example Workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)

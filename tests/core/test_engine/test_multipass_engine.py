@@ -14,21 +14,9 @@ else:
     from ai_transform.workflow.abstract_workflow import Workflow
 
     class TestMultiPassEngine:
-        def test_multipass_engine(
-            self, full_dataset: Dataset, test_operator: AbstractOperator
-        ):
-            engine = MultiPassEngine(
-                dataset=full_dataset,
-                operators=[
-                    test_operator,
-                    test_operator,
-                ],
-            )
-            workflow = Workflow(
-                name="test_multipass_engine",
-                engine=engine,
-                job_id="test_multipass_engine",
-            )
+        def test_multipass_engine(self, full_dataset: Dataset, test_operator: AbstractOperator):
+            engine = MultiPassEngine(dataset=full_dataset, operators=[test_operator, test_operator])
+            workflow = Workflow(name="test_multipass_engine", engine=engine, job_id="test_multipass_engine")
             workflow.run()
 
             time.sleep(4)
@@ -47,26 +35,18 @@ else:
                     super().__init__(input_fields=[vector_field], output_fields=[])
 
                 def transform(self, documents):
-                    vectors = np.array(
-                        [document[self._vector_field] for document in documents]
-                    )
+                    vectors = np.array([document[self._vector_field] for document in documents])
                     self._model.partial_fit(vectors)
 
             class PredictOperator(AbstractOperator):
-                def __init__(
-                    self, model: MiniBatchKMeans, vector_field: str, output_field: str
-                ):
+                def __init__(self, model: MiniBatchKMeans, vector_field: str, output_field: str):
                     self._model = model
                     self._vector_field = vector_field
                     self._output_field = output_field
-                    super().__init__(
-                        input_fields=[vector_field], output_fields=[output_field]
-                    )
+                    super().__init__(input_fields=[vector_field], output_fields=[output_field])
 
                 def transform(self, documents):
-                    vectors = np.array(
-                        [document[self._vector_field] for document in documents]
-                    )
+                    vectors = np.array([document[self._vector_field] for document in documents])
                     labels = self._model.predict(vectors)
                     for document, label in zip(documents, labels):
                         document[self._output_field] = f"cluster_{label}"
@@ -83,12 +63,7 @@ else:
             predict_operator = PredictOperator(kmeans_model, vector_field, output_field)
 
             engine = MultiPassEngine(
-                dataset=full_dataset,
-                operators=[
-                    fit_operator,
-                    predict_operator,
-                ],
-                transform_chunksize=batch_size,
+                dataset=full_dataset, operators=[fit_operator, predict_operator], transform_chunksize=batch_size
             )
             workflow = Workflow(
                 name="test_multipass_engine_with_clustering",

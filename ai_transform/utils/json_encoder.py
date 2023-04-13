@@ -13,14 +13,7 @@ import dataclasses
 import collections
 import pandas as pd
 
-from ipaddress import (
-    IPv4Address,
-    IPv4Interface,
-    IPv4Network,
-    IPv6Address,
-    IPv6Interface,
-    IPv6Network,
-)
+from ipaddress import IPv4Address, IPv4Interface, IPv4Network, IPv6Address, IPv6Interface, IPv6Network
 
 from enum import Enum
 from types import GeneratorType

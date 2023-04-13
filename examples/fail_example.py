@@ -12,10 +12,7 @@ from ai_transform.utils.example_documents import Document
 
 class BadOperator(AbstractOperator):
     def __init__(
-        self,
-        text_field: str,
-        model: str = "cardiffnlp/twitter-roberta-base-sentiment",
-        alias: Optional[str] = None,
+        self, text_field: str, model: str = "cardiffnlp/twitter-roberta-base-sentiment", alias: Optional[str] = None
     ):
         super().__init__()
 
@@ -49,10 +46,7 @@ def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwarg
         total_workers=total_workers,
     )
 
-    workflow = AbstractWorkflow(
-        engine=engine,
-        job_id=job_id,
-    )
+    workflow = AbstractWorkflow(engine=engine, job_id=job_id)
     workflow.run()
 
 
@@ -61,9 +55,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Vectorize Text Workflow.")
     parser.add_argument(
-        "token",
-        type=str,
-        help="a base64 encoded token that contains parameters for running the workflow",
+        "token", type=str, help="a base64 encoded token that contains parameters for running the workflow"
     )
     args = parser.parse_args()
     execute(args.token, print)

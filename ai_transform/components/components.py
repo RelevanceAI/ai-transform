@@ -4,9 +4,7 @@
 from dataclasses import dataclass, asdict, field
 from typing import Any, List
 
-COLAB_PREFIX = (
-    "https://colab.research.google.com/github/RelevanceAI/workflows/blob/main/"
-)
+COLAB_PREFIX = "https://colab.research.google.com/github/RelevanceAI/workflows/blob/main/"
 
 # This is useful if you are ignoring
 GENERATED_TYPES = ["sentiment", "cluster", "tag", "emotion"]
@@ -93,12 +91,7 @@ class FieldSelector(Component):
 
     @property
     def hooks(self):
-        return [
-            self._add_optional,
-            self._add_only_types,
-            self._add_multiple,
-            self._add_exclude_types,
-        ]
+        return [self._add_optional, self._add_only_types, self._add_multiple, self._add_exclude_types]
 
 
 @dataclass
@@ -164,10 +157,7 @@ class BaseDropdown(Component):
     description: str = ""
     value_key: str = ""
     options: List[Option] = field(
-        default_factory=lambda x: [
-            Option(label="Yes", value=True),
-            Option(label="No", value=False),
-        ]
+        default_factory=lambda x: [Option(label="Yes", value=True), Option(label="No", value=False)]
     )
     type: str = "baseDropdown"
 
@@ -178,34 +168,16 @@ class BoolDropdown(Component):
     description: str = ""
     value_key: str = ""
     type: str = "baseDropdown"
-    options: list = field(
-        default_factory=lambda x: [
-            {
-                "label": "Yes",
-                "value": True,
-            },
-            {
-                "label": "No",
-                "value": False,
-            },
-        ],
-    )
+    options: list = field(default_factory=lambda x: [{"label": "Yes", "value": True}, {"label": "No", "value": False}])
 
     def _add_options(self):
         self.doc["props"]["options"] = self.options
 
     @property
     def hooks(self):
-        return [
-            self._add_optional,
-            self._add_multiple,
-            self._add_options,
-            self._add_default_value,
-        ]
+        return [self._add_optional, self._add_multiple, self._add_options, self._add_default_value]
 
-    props: dict = field(
-        default_factory=lambda: {"multiple": False, "optional": True, "value": True}
-    )
+    props: dict = field(default_factory=lambda: {"multiple": False, "optional": True, "value": True})
 
 
 @dataclass
@@ -252,13 +224,7 @@ class SliderInput(Component):
 
     @property
     def hooks(self):
-        return [
-            self._add_type,
-            self._add_default_value,
-            self._add_max,
-            self._add_min,
-            self._add_optional,
-        ]
+        return [self._add_type, self._add_default_value, self._add_max, self._add_min, self._add_optional]
 
 
 @dataclass
@@ -345,11 +311,7 @@ class AggregateTagsSelector(Component):
 
     @property
     def hooks(self):
-        return [
-            self._add_aggregation_query,
-            self._add_aggregation_result_field,
-            self._add_max_run_results,
-        ]
+        return [self._add_aggregation_query, self._add_aggregation_result_field, self._add_max_run_results]
 
 
 @dataclass
@@ -413,24 +375,13 @@ class DatasetInput(Component):
 
 @dataclass
 class EmailDropdown(Component):
-    title: str = (
-        "Do you want to receive an notification email when the workflow is completed?"
-    )
+    title: str = "Do you want to receive an notification email when the workflow is completed?"
     description: str = "If you choose yes, then we will send you an email when the workflow is successfully completed."
     value_key: str = "send_email"
     type: str = "baseDropdown"
     props: dict = field(
         default_factory=lambda: {
-            "options": [
-                {
-                    "label": "Yes",
-                    "value": True,
-                },
-                {
-                    "label": "No",
-                    "value": False,
-                },
-            ],
+            "options": [{"label": "Yes", "value": True}, {"label": "No", "value": False}],
             "multiple": False,
             "optional": True,
             "value": True,
@@ -441,21 +392,14 @@ class EmailDropdown(Component):
 @dataclass
 class RefreshComponent(Component):
     title: str = "Do you want to refresh?"
-    description: str = "If you choose False, then we will run it on new rows only. If True, we will run it on the whole dataset."
+    description: str = (
+        "If you choose False, then we will run it on new rows only. If True, we will run it on the whole dataset."
+    )
     value_key: str = "refresh"
     type: str = "baseDropdown"
     props: dict = field(
         default_factory=lambda: {
-            "options": [
-                {
-                    "label": "Yes",
-                    "value": True,
-                },
-                {
-                    "label": "No",
-                    "value": False,
-                },
-            ],
+            "options": [{"label": "Yes", "value": True}, {"label": "No", "value": False}],
             "multiple": False,
             "optional": True,
             "value": False,
