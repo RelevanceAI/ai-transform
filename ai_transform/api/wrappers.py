@@ -2,6 +2,7 @@ import time
 import logging
 import requests
 
+from json import JSONDecodeError
 from ai_transform.logger import format_logging_info
 from requests.models import Response
 
@@ -15,6 +16,29 @@ class ManualRetry(Exception):
     pass
 
 
+def is_response_bad(
+    result: Response,
+    key_for_error: str = None,
+    output_to_stdout: bool = False,  # support output to stdout to ensure logging is working
+):
+    try:
+        json_response = result.json()
+        if key_for_error in json_response:
+            raise KeyError
+
+    except JSONDecodeError:
+        error_message = "Response is not JSON decodable"
+        if output_to_stdout:
+            print(error_message)
+        raise JSONDecodeError(error_message)
+
+    except KeyError:
+        error_message = f"{key_for_error} not in JSON response"
+        if output_to_stdout:
+            print(error_message)
+        raise KeyError(error_message)
+
+
 def request_wrapper(
     fn: Union[requests.get, requests.post],
     args: Sequence = None,
@@ -24,6 +48,8 @@ def request_wrapper(
     output_to_stdout: bool = False,  # support output to stdout to ensure logging is working
     exponential_backoff: float = 1,
     retry_func: Callable = None,
+    key_for_error: str = None,
+    is_json_decodable: bool = False,
 ) -> Response:
 
     if args is None:
@@ -35,28 +61,28 @@ def request_wrapper(
     if retry_func is None:
         retry_func = lambda result: False
 
+    result: requests.Response
+
     for n in range(1, num_retries + 1):
         try:
             result = fn(*args, **kwargs)
 
-            if result.status_code != 200:
+            if not result.ok:
                 to_log = format_logging_info({"message": result.content.decode(), "status_code": result.status_code})
                 if output_to_stdout:
                     print(to_log)
-                else:
-                    logger.debug(to_log)
-
                 raise ValueError(to_log)
 
             if retry_func(result):
                 to_log_for_retry = "Manual Retry Triggered..."
                 if output_to_stdout:
                     print(to_log_for_retry)
-                else:
-                    logger.debug(to_log_for_retry)
-                raise ManualRetry
+                raise ManualRetry(to_log_for_retry)
 
-        except (Exception, ManualRetry) as e:
+            if is_json_decodable or key_for_error:
+                is_response_bad(result=result, key_for_error=key_for_error, output_to_stdout=output_to_stdout)
+
+        except (Exception, ManualRetry, JSONDecodeError, KeyError) as e:
             logger.exception(e)
             time.sleep(timeout * exponential_backoff**n)
         else:

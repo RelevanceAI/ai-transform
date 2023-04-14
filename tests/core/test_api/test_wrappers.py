@@ -1,5 +1,6 @@
 import io
 import sys
+import json
 import requests
 
 from ai_transform.api.wrappers import request_wrapper
@@ -94,3 +95,73 @@ class TestWrappers:
         logs = str(u.getvalue()) + str(f.getvalue())
 
         assert logs.count("Simulated Rate Error") == 2
+
+    def test_request_wrapper_json(self):
+        f = io.StringIO()
+        u = io.StringIO()
+
+        class TestRequest:
+            def __init__(self):
+                self.count = 0
+
+            def __call__(self, *args, **kwargs):
+                if self.count >= 2:
+                    return requests.get(*args, **kwargs)
+                else:
+                    self.count += 1
+                    placeholder = requests.Response()
+                    placeholder.encoding = "utf-8"
+                    placeholder.status_code = 200
+                    placeholder._content = b"\\\\\d"
+                    return placeholder
+
+        with redirect_stdout(f), redirect_stderr(u):
+            resp = request_wrapper(
+                TestRequest(),
+                args=("https://raw.communitydragon.org/latest/cdragon/tft/en_us.json",),
+                num_retries=3,
+                timeout=1,
+                output_to_stdout=True,
+                is_json_decodable=True,
+            )
+
+        assert resp.status_code == 200
+
+        logs = str(u.getvalue()) + str(f.getvalue())
+
+        assert logs.count("Response is not JSON decodable") == 2
+
+    def test_request_wrapper_key_for_error(self):
+        f = io.StringIO()
+        u = io.StringIO()
+
+        class TestRequest:
+            def __init__(self):
+                self.count = 0
+
+            def __call__(self, *args, **kwargs):
+                if self.count >= 2:
+                    return requests.get(*args, **kwargs)
+                else:
+                    self.count += 1
+                    placeholder = requests.Response()
+                    placeholder.encoding = "utf-8"
+                    placeholder.status_code = 200
+                    placeholder._content = json.dumps({"bad_key": False}).encode("utf-8")
+                    return placeholder
+
+        with redirect_stdout(f), redirect_stderr(u):
+            resp = request_wrapper(
+                TestRequest(),
+                ("https://raw.communitydragon.org/latest/cdragon/tft/en_us.json",),
+                num_retries=3,
+                timeout=1,
+                output_to_stdout=True,
+                key_for_error="bad_key",
+            )
+
+        assert resp.status_code == 200
+
+        logs = str(u.getvalue()) + str(f.getvalue())
+
+        assert logs.count("bad_key") == 2
