@@ -116,7 +116,10 @@ class AbstractEngine(ABC):
 
         self._filters = filters
 
-        self._size = dataset.len(filters=filters) if self._limit_documents is None else self._limit_documents
+        if self.documents:
+            self._size = len(documents)
+        else:
+            self._size = dataset.len(filters=filters) if self._limit_documents is None else self._limit_documents
 
         self._refresh = refresh
         self._after_id = after_id
