@@ -12,7 +12,11 @@ logger = logging.getLogger(__file__)
 logging.basicConfig()
 
 
-class ManualRetry(Exception):
+class ManualRetryError(Exception):
+    pass
+
+
+class ResultNotOKError(Exception):
     pass
 
 
@@ -26,11 +30,11 @@ def is_response_bad(
         if key_for_error in json_response:
             raise KeyError
 
-    except JSONDecodeError:
+    except JSONDecodeError as e:
         error_message = "Response is not JSON decodable"
         if output_to_stdout:
             print(error_message)
-        raise JSONDecodeError(error_message)
+        raise JSONDecodeError(e.msg, e.doc, e.pos)
 
     except KeyError:
         error_message = f"{key_for_error} not in JSON response"
@@ -71,18 +75,18 @@ def request_wrapper(
                 to_log = format_logging_info({"message": result.content.decode(), "status_code": result.status_code})
                 if output_to_stdout:
                     print(to_log)
-                raise ValueError(to_log)
+                raise ResultNotOKError(to_log)
 
             if retry_func(result):
                 to_log_for_retry = "Manual Retry Triggered..."
                 if output_to_stdout:
                     print(to_log_for_retry)
-                raise ManualRetry(to_log_for_retry)
+                raise ManualRetryError(to_log_for_retry)
 
             if is_json_decodable or key_for_error:
                 is_response_bad(result=result, key_for_error=key_for_error, output_to_stdout=output_to_stdout)
 
-        except (Exception, ManualRetry, JSONDecodeError, KeyError) as e:
+        except (ResultNotOKError, ManualRetryError, JSONDecodeError, KeyError) as e:
             logger.exception(e)
             time.sleep(timeout * exponential_backoff**n)
         else:
