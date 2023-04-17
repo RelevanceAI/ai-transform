@@ -9,6 +9,11 @@ from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.utils.example_documents import Document
 from ai_transform.workflow.context_manager import WORKFLOW_FAIL_MESSAGE
 from ai_transform.utils import mock_documents
+import random
+
+
+def generate_random_string():
+    return "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=10))
 
 
 class BadOperator(AbstractOperator):
@@ -122,20 +127,20 @@ def execute_partial_error(token: str, logger: Callable, worker_number: int = 0, 
 def setup_dataset(test_client: Client) -> Client.Dataset:
     simple_workflow_dataset = test_client.Dataset("test-simple-workflow-dataset", expire=True)
     docs = mock_documents()
-    simple_workflow_dataset.insert_documents(docs)
+    simple_workflow_dataset.insert_documents(docs, ingest_in_background=False)
     yield simple_workflow_dataset
     simple_workflow_dataset.delete()
 
 
-def test_user_facing_error_partial_bad_operator(setup):
+def test_user_facing_error_partial_bad_operator(setup_dataset):
     from ai_transform.workflow.helpers import encode_config
 
-    dataset_id = setup._dataset_id
+    dataset_id = setup_dataset._dataset_id
 
     config = {
-        "text_field": "sample_1_label",
+        "text_field": "sample_1_description",
         "alias": "check",
-        "job_id": "test",
+        "job_id": generate_random_string(),
         "authorizationToken": os.getenv("TEST_TOKEN"),
         "dataset_id": dataset_id,
     }

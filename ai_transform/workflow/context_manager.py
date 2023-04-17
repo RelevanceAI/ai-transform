@@ -188,9 +188,10 @@ class WorkflowContextManager:
             regular_workflow_failed = self.engine.success_ratio < self.success_threshold
             if regular_workflow_failed:
                 # users should know when regular workflow failed
-                raise UserFacingError(
+                # raise the user facing error
+                UserFacingError(
                     error_message=WORKFLOW_FAIL_MESSAGE,
-                    client=self,
+                    client=self.dataset,
                     job_id=self.job_id,
                     workflow_name=self.workflow_name,
                 )
