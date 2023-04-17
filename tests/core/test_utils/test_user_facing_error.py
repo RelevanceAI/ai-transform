@@ -6,7 +6,7 @@ from ai_transform.workflow.helpers import decode_workflow_token
 from ai_transform.workflow.abstract_workflow import AbstractWorkflow
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.utils.example_documents import Document
-from ai_transform.errors import UserFacingError
+from ai_transform.workflow.context_manager import WORKFLOW_FAIL_MESSAGE
 
 
 class BadOperator(AbstractOperator):
@@ -67,3 +67,64 @@ def test_user_facing_error():
     }
     token = encode_config(config)
     execute(token, None)
+
+
+class PartialBadOperator(AbstractOperator):
+    def __init__(
+        self, text_field: str, model: str = "cardiffnlp/twitter-roberta-base-sentiment", alias: Optional[str] = None
+    ):
+        self._counter = 0
+        super().__init__()
+
+    def transform(self, documents: List[Document]) -> List[Document]:
+        self._counter += 1
+        if self._counter % 2 == 0:
+            raise ValueError("Incorrect")
+        return documents
+
+
+def execute_partial_error(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):
+    config = decode_workflow_token(token)
+
+    job_id = config["job_id"]
+    token = config["authorizationToken"]
+    dataset_id = config["dataset_id"]
+    text_field = config["text_field"]
+    alias = config.get("alias", None)
+    total_workers = config.get("total_workers", None)
+
+    client = Client(token=token)
+    dataset = client.Dataset(dataset_id)
+
+    operator = PartialBadOperator(text_field=text_field, alias=alias)
+
+    filters = dataset[text_field].exists()
+    engine = StableEngine(
+        dataset=dataset,
+        operator=operator,
+        select_fields=[text_field],
+        filters=filters,
+        worker_number=worker_number,
+        total_workers=total_workers,
+        check_for_missing_fields=False,
+    )
+
+    workflow = AbstractWorkflow(engine=engine, job_id=job_id)
+    workflow.run()
+    status = workflow.get_status()
+    assert "user_errors" in status, status
+    assert WORKFLOW_FAIL_MESSAGE[:10] in status["user_errors"], status["user_errors"]
+
+
+def test_user_facing_error_partial_bad_oeprator():
+    from ai_transform.workflow.helpers import encode_config
+
+    config = {
+        "text_field": "sample_1_label",
+        "alias": "check",
+        "job_id": "test",
+        "authorizationToken": os.getenv("TEST_TOKEN"),
+        "dataset_id": "sample",
+    }
+    token = encode_config(config)
+    execute_partial_error(token, None)

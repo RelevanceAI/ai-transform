@@ -12,6 +12,7 @@ from ai_transform.operator import abstract_operator
 from ai_transform.engine import abstract_engine
 from ai_transform.logger import format_logging_info
 from ai_transform.api.wrappers import request_wrapper
+from ai_transform.errors import UserFacingError
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
 
@@ -185,10 +186,16 @@ class WorkflowContextManager:
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
         if self.engine is not None:
             regular_workflow_failed = self.engine.success_ratio < self.success_threshold
-        else:
-            regular_workflow_failed = False
+            if regular_workflow_failed:
+                # users should know when regular workflow failed
+                raise UserFacingError(
+                    error_message=WORKFLOW_FAIL_MESSAGE,
+                    client=self,
+                    job_id=self.job_id,
+                    workflow_name=self.workflow_name,
+                )
 
-        if exc_type is not None or regular_workflow_failed:
+        if exc_type is not None:
             return self._handle_workflow_fail(exc_type, exc_value, traceback)
         else:
             n_processed_pricing = self._n_processed_pricing or self._calculate_pricing()
