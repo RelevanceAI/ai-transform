@@ -1,4 +1,5 @@
 import os
+import pytest
 from typing import Callable, List, Optional
 from ai_transform.api.client import Client
 from ai_transform.engine.stable_engine import StableEngine
@@ -7,6 +8,7 @@ from ai_transform.workflow.abstract_workflow import AbstractWorkflow
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.utils.example_documents import Document
 from ai_transform.workflow.context_manager import WORKFLOW_FAIL_MESSAGE
+from ai_transform.utils import mock_documents
 
 
 class BadOperator(AbstractOperator):
@@ -116,15 +118,26 @@ def execute_partial_error(token: str, logger: Callable, worker_number: int = 0, 
     assert WORKFLOW_FAIL_MESSAGE[:10] in status["user_errors"], status["user_errors"]
 
 
-def test_user_facing_error_partial_bad_oeprator():
+@pytest.fixture
+def setup_dataset(test_client: Client) -> Client.Dataset:
+    simple_workflow_dataset = test_client.Dataset("test-simple-workflow-dataset", expire=True)
+    docs = mock_documents()
+    simple_workflow_dataset.insert_documents(docs)
+    yield simple_workflow_dataset
+    simple_workflow_dataset.delete()
+
+
+def test_user_facing_error_partial_bad_operator(setup):
     from ai_transform.workflow.helpers import encode_config
+
+    dataset_id = setup._dataset_id
 
     config = {
         "text_field": "sample_1_label",
         "alias": "check",
         "job_id": "test",
         "authorizationToken": os.getenv("TEST_TOKEN"),
-        "dataset_id": "sample",
+        "dataset_id": dataset_id,
     }
     token = encode_config(config)
     execute_partial_error(token, None)
