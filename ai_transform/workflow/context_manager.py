@@ -122,7 +122,7 @@ class WorkflowContextManager:
             output = self.output_documents
         return output
 
-    def set_workflow_status(self, status: str):
+    def set_workflow_status(self, status: str, user_errors: str = None):
         result = self.api._set_workflow_status(
             status=status,
             job_id=self.job_id,
@@ -132,6 +132,7 @@ class WorkflowContextManager:
             send_email=self.send_email,
             email=self.email,
             worker_number=self.worker_number,
+            user_errors=user_errors,
             output=self._get_output_to_status_obj(),
         )
         logger.debug(format_logging_info(result))
@@ -143,9 +144,11 @@ class WorkflowContextManager:
         self.set_workflow_status(status=self.IN_PROGRESS)
         return self
 
-    def _handle_workflow_fail(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
+    def _handle_workflow_fail(
+        self, exc_type: type, exc_value: BaseException, traceback: Traceback, user_errors: str = None
+    ):
         logger.exception(exc_value)
-        self.set_workflow_status(status=self.FAILED)
+        self.set_workflow_status(status=self.FAILED, user_errors=user_errors)
         return False
 
     def _handle_workflow_complete(self):
@@ -184,22 +187,15 @@ class WorkflowContextManager:
         )
 
     def __exit__(self, exc_type: type, exc_value: BaseException, traceback: Traceback):
+        regular_workflow_failed = False
+        user_errors = None
+
         if self.engine is not None:
             regular_workflow_failed = self.engine.success_ratio < self.success_threshold
-            if regular_workflow_failed:
-                # users should know when regular workflow failed
-                # raise the user facing error
-                UserFacingError(
-                    error_message=WORKFLOW_FAIL_MESSAGE.format(
-                        100 * self.engine.success_ratio, 100 * self.success_threshold
-                    ),
-                    client=self.dataset,
-                    job_id=self.job_id,
-                    workflow_name=self.workflow_name,
-                )
+            user_errors = WORKFLOW_FAIL_MESSAGE.format(100 * self.engine.success_ratio, 100 * self.success_threshold)
 
-        if exc_type is not None:
-            return self._handle_workflow_fail(exc_type, exc_value, traceback)
+        if exc_type is not None or regular_workflow_failed:
+            return self._handle_workflow_fail(exc_type, exc_value, traceback, user_errors)
         else:
             n_processed_pricing = self._n_processed_pricing or self._calculate_pricing()
             if n_processed_pricing is not None:
