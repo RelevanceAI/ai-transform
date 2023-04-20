@@ -190,7 +190,9 @@ class WorkflowContextManager:
                 # users should know when regular workflow failed
                 # raise the user facing error
                 UserFacingError(
-                    error_message=WORKFLOW_FAIL_MESSAGE,
+                    error_message=WORKFLOW_FAIL_MESSAGE.format(
+                        100 * self.engine.success_ratio, 100 * self.success_threshold
+                    ),
                     client=self.dataset,
                     job_id=self.job_id,
                     workflow_name=self.workflow_name,
