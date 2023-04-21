@@ -64,3 +64,9 @@ class TestDocumentChunkOperations:
         test_documents.set_chunk_values("_chunk_", "_cluster_id_.default", chunk_values)
         for i, document in enumerate(test_documents):
             assert document["_chunk_.0._cluster_id_.default"] == i
+
+    def test_get_chunk(self, test_documents: DocumentList):
+        assert test_documents[0].get_chunk("_chunk_", "label")
+
+    def test_list_chunks(self, test_documents: DocumentList):
+        assert test_documents[0].list_chunks()

@@ -1,17 +1,20 @@
 import time
 
+from pydantic import Field
+
 from examples.fail_example import BadOperator, UserFacingErrorOperator
 from examples.workflows.sentiment_example import SentimentOperator
 from examples.workflows.clustering_example import ClusterOperator
 
 from ai_transform.errors import UserFacingError
+from ai_transform.config import BaseConfig
 from ai_transform.api.client import Client
 from ai_transform.engine.stable_engine import StableEngine
 from ai_transform.engine.small_batch_stable_engine import SmallBatchStableEngine
 from ai_transform.engine.in_memory_engine import InMemoryEngine
 from ai_transform.workflow.abstract_workflow import Workflow
 from ai_transform.workflow.helpers import decode_workflow_token
-from ai_transform.workflow.helpers import decode_workflow_token
+from ai_transform.helpers import poll_until_health_updates_with_input_field
 
 
 def test_sentiment_example_wstable_engine(test_sentiment_workflow_token: str):
@@ -335,3 +338,76 @@ def test_user_facing_error_in_params(test_user_facing_error_workflow_token: str)
 
     assert status["status"] == "failed"
     assert status["user_errors"] == "Testing user facing error"
+
+
+def execute(token, logger=None, worker_number: int = 0, **kwargs):
+    class PollConfig(BaseConfig):
+        input_field: str = Field(..., description="The field you want to are using to transform on")
+        output_field: str = Field(..., description="The output field")
+        minimum_coverage: float = Field(
+            0.95, description="The minimum amount of coverage of the output field relative to the input field."
+        )
+        max_time: float = Field(6000, description="THe maximum amount of time to allow for this to poll.")
+        sleep_timer: float = Field(10, description="How long to wait before each poll")
+        parent_job_id: str = Field(
+            None,
+            description="If supplied - it will update the status of the workflow as complete only once the workflow has complete.",
+        )
+        parent_job_name: str = Field(
+            None,
+            description="If supplied - it will update the status of the workflow as complete only once the workflow has complete.",
+        )
+
+    config = PollConfig.read_token(token)
+    client = Client(config.authorizationToken)
+    ds = client.Dataset(config.dataset_id)
+    parent_job_id = config.parent_job_id
+    parent_job_name = config.parent_job_name
+    job_id = config.job_id
+    WORKFLOW_NAME = "Poll"
+    try:
+        poll_until_health_updates_with_input_field(
+            dataset=ds,
+            input_field=config.input_field,
+            output_field=config.output_field,
+            minimum_coverage=config.minimum_coverage,
+            max_time=config.max_time,
+            sleep_timer=config.sleep_timer,
+        )
+        client._api._set_workflow_status(
+            job_id=parent_job_id,
+            status="complete",
+            workflow_name=parent_job_name,
+            metadata={},
+            additional_information="Workflow completed",
+            send_email=False,
+            worker_number=worker_number,
+        )
+        client._api._set_workflow_status(
+            job_id=job_id,
+            status="complete",
+            workflow_name=WORKFLOW_NAME,
+            metadata={},
+            additional_information="Workflow completed",
+            send_email=False,
+            worker_number=worker_number,
+        )
+    except Exception as e:
+        client._api._set_workflow_status(
+            job_id=parent_job_id,
+            status="failed",
+            workflow_name=parent_job_name,
+            metadata={},
+            additional_information="Workflow completed",
+            send_email=False,
+            worker_number=worker_number,
+        )
+        client._api._set_workflow_status(
+            job_id=job_id,
+            status="failed",
+            workflow_name=WORKFLOW_NAME,
+            metadata={},
+            additional_information="Workflow completed",
+            send_email=False,
+            worker_number=worker_number,
+        )
