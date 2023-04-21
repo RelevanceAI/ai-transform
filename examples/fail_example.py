@@ -8,6 +8,7 @@ from ai_transform.workflow.helpers import decode_workflow_token
 from ai_transform.workflow.abstract_workflow import AbstractWorkflow
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.utils.example_documents import Document
+from ai_transform.errors import UserFacingError
 
 
 class BadOperator(AbstractOperator):
@@ -18,6 +19,33 @@ class BadOperator(AbstractOperator):
 
     def transform(self, documents: List[Document]) -> List[Document]:
         raise ValueError
+
+
+class UserFacingErrorOperator(AbstractOperator):
+    def __init__(
+        self,
+        client: Client,
+        job_id: str,
+        workflow_name: str,
+        text_field: str,
+        model: str = "cardiffnlp/twitter-roberta-base-sentiment",
+        alias: Optional[str] = None,
+    ):
+        self.client = client
+        self.job_id = job_id
+        self.workflow_name = workflow_name
+
+        self.text_field = text_field
+        super().__init__()
+
+    def transform(self, documents: List[Document]) -> List[Document]:
+        try:
+            text = [document[self.text_field] for document in documents]
+        except:
+            # pass
+            raise UserFacingError(
+                f"dataset must contain `{self.text_field}`", self.client, self.job_id, self.workflow_name
+            )
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):

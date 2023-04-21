@@ -10,14 +10,17 @@ import string
 from typing import List, Dict, Sequence
 
 from ai_transform.api.client import Client
-from ai_transform.dataset.dataset import Dataset
 from ai_transform.api.helpers import process_token
+
+from ai_transform.dataset.dataset import Dataset
+
 from ai_transform.engine.stable_engine import StableEngine
-from ai_transform.utils.document import Document
-from ai_transform.utils.document_list import DocumentList
+
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.operator.dense_operator import DenseOperator
-from ai_transform.engine.stable_engine import StableEngine
+
+from ai_transform.utils.document import Document
+from ai_transform.utils.document_list import DocumentList
 from ai_transform.utils.example_documents import mock_documents, static_documents, tag_documents
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
@@ -45,7 +48,7 @@ def test_dataset_id() -> str:
 def empty_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     yield dataset
     test_client.delete_dataset(dataset_id)
 
@@ -54,7 +57,7 @@ def empty_dataset(test_client: Client) -> Dataset:
 def full_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     dataset.insert_documents(mock_documents(20))
     yield dataset
     test_client.delete_dataset(dataset_id)
@@ -64,7 +67,7 @@ def full_dataset(test_client: Client) -> Dataset:
 def mixed_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     documents = mock_documents(10)
     stripped = mock_documents(10)
     for document in stripped:
@@ -79,7 +82,7 @@ def mixed_dataset(test_client: Client) -> Dataset:
 def static_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     dataset.insert_documents(static_documents(20))
     yield dataset
     test_client.delete_dataset(dataset_id)
@@ -89,7 +92,7 @@ def static_dataset(test_client: Client) -> Dataset:
 def dense_input_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     dataset.insert_documents(static_documents(2))
     yield dataset
     test_client.delete_dataset(dataset_id)
@@ -99,7 +102,7 @@ def dense_input_dataset(test_client: Client) -> Dataset:
 def dense_output_dataset1(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     yield dataset
     test_client.delete_dataset(dataset_id)
 
@@ -108,7 +111,7 @@ def dense_output_dataset1(test_client: Client) -> Dataset:
 def dense_output_dataset2(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     yield dataset
     test_client.delete_dataset(dataset_id)
 
@@ -211,7 +214,7 @@ def test_paid_engine_no_refresh(full_dataset: Dataset, test_paid_operator: Abstr
 def test_sentiment_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     dataset.insert_documents(mock_documents(20))
     time.sleep(1)
     job_id = str(uuid.uuid4())
@@ -220,6 +223,27 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
         authorizationToken=test_client.credentials.token,
         dataset_id=dataset_id,
         text_field="sample_1_label",
+    )
+    config_string = json.dumps(config)
+    config_bytes = config_string.encode()
+    workflow_token = base64.b64encode(config_bytes).decode()
+    yield workflow_token
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="function")
+def test_user_facing_error_workflow_token(test_client: Client) -> str:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id, expire=True)
+    dataset.insert_documents(mock_documents(20))
+    time.sleep(1)
+    job_id = str(uuid.uuid4())
+    config = dict(
+        job_id=job_id,
+        dataset_id=dataset_id,
+        authorizationToken=test_client.credentials.token,
+        text_field="sample_1_description_not_in_dataset",
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
@@ -249,7 +273,7 @@ def test_sentiment_workflow_document_token(test_client: Client) -> str:
 def test_simple_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     dataset.insert_documents(mock_documents(20))
     time.sleep(1)
     job_id = str(uuid.uuid4())
@@ -267,7 +291,7 @@ def test_simple_workflow_token(test_client: Client) -> str:
 def test_cluster_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset((dataset_id), expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=True)
     dataset.insert_documents(mock_documents(20))
     job_id = str(uuid.uuid4())
     print(job_id)

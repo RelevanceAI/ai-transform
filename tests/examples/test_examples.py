@@ -1,14 +1,16 @@
 import time
 
-from examples.fail_example import BadOperator
+from examples.fail_example import BadOperator, UserFacingErrorOperator
 from examples.workflows.sentiment_example import SentimentOperator
 from examples.workflows.clustering_example import ClusterOperator
 
+from ai_transform.errors import UserFacingError
 from ai_transform.api.client import Client
 from ai_transform.engine.stable_engine import StableEngine
 from ai_transform.engine.small_batch_stable_engine import SmallBatchStableEngine
-from ai_transform.workflow.abstract_workflow import Workflow
 from ai_transform.engine.in_memory_engine import InMemoryEngine
+from ai_transform.workflow.abstract_workflow import Workflow
+from ai_transform.workflow.helpers import decode_workflow_token
 from ai_transform.workflow.helpers import decode_workflow_token
 
 
@@ -272,3 +274,64 @@ def test_fail_example(test_sentiment_workflow_token: str):
     time.sleep(2)
 
     assert workflow.get_status()["status"] == "failed"
+
+
+def test_user_facing_error_in_op(test_user_facing_error_workflow_token: str):
+    config = decode_workflow_token(test_user_facing_error_workflow_token)
+
+    job_id = config["job_id"] + "_user_facing_error"
+    token = config["authorizationToken"]
+
+    client = Client(token=token)
+    dataset_id = config["dataset_id"]
+    text_field = config["text_field"]
+
+    alias = config.get("alias", None)
+
+    dataset = client.Dataset(dataset_id, expire=True)
+
+    # Implement a trigger
+    operator = UserFacingErrorOperator(
+        client=client, job_id=job_id, workflow_name="UserFacingError Test", text_field=text_field, alias=alias
+    )
+
+    engine = StableEngine(
+        dataset=dataset,
+        operator=operator,
+        pull_chunksize=8,
+        select_fields=[text_field],
+        worker_number=0,
+        total_workers=1,
+        check_for_missing_fields=False,
+    )
+
+    workflow = Workflow(engine=engine, job_id=job_id, name="Vectorize Text")
+    workflow.run()
+
+    status = workflow.get_status()
+
+    assert status["status"] == "failed"
+    assert status["user_errors"]
+
+
+def test_user_facing_error_in_params(test_user_facing_error_workflow_token: str):
+    config = decode_workflow_token(test_user_facing_error_workflow_token)
+
+    job_id = config["job_id"] + "_user_facing_error"
+    token = config["authorizationToken"]
+
+    client = Client(token=token)
+    dataset_id = config["dataset_id"]
+    text_field = config["text_field"]
+
+    alias = config.get("alias", None)
+
+    try:
+        raise UserFacingError("Testing user facing error", client, job_id, "User Facing Error Test")
+    except:
+        pass
+
+    status = client.api._get_workflow_status(job_id)
+
+    assert status["status"] == "failed"
+    assert status["user_errors"] == "Testing user facing error"
