@@ -1,5 +1,6 @@
 import os
 import logging
+import warnings
 
 from typing import Optional, Dict, Any
 
@@ -17,18 +18,23 @@ logger.setLevel(logging.DEBUG)
 
 
 class Client:
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str, authenticate: bool = True) -> None:
 
         self._credentials = process_token(token)
         self._token = token
         self._api = API(credentials=self.credentials)
 
-        try:
-            self.list_datasets()["datasets"]
-        except:
-            raise AuthException
+        if authenticate:
+            try:
+                self.list_datasets()["datasets"]
+            except:
+                raise AuthException
+            else:
+                print(WELCOME_MESSAGE.format(self.credentials.project))
         else:
-            print(WELCOME_MESSAGE.format(self.credentials.project))
+            warnings.warn(
+                "You have opted to not authenticate on client instantiation. Your token may or may not be valid."
+            )
 
     @property
     def credentials(self):
