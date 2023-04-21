@@ -35,3 +35,7 @@ class TestClient:
 
         assert len(all_documents) == (n_test_docs - len(_ids))
         assert all([_id not in all_ids for _id in _ids])
+
+    def test_no_auth_client(self):
+        client = Client(token="this:token:doesn't:work", authenticate=False)
+        assert True
