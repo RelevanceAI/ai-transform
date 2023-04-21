@@ -192,7 +192,11 @@ class WorkflowContextManager:
 
         if self.engine is not None:
             regular_workflow_failed = self.engine.success_ratio < self.success_threshold
-            user_errors = WORKFLOW_FAIL_MESSAGE.format(100 * self.engine.success_ratio, 100 * self.success_threshold)
+
+            if regular_workflow_failed:
+                user_errors = WORKFLOW_FAIL_MESSAGE.format(
+                    100 * self.engine.success_ratio, 100 * self.success_threshold
+                )
 
         if exc_type is not None or regular_workflow_failed:
             return self._handle_workflow_fail(exc_type, exc_value, traceback, user_errors)
