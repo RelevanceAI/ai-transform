@@ -42,10 +42,10 @@ class UserFacingErrorOperator(AbstractOperator):
         try:
             text = [document[self.text_field] for document in documents]
         except:
-            pass
-            # raise UserFacingError(
-            #     f"dataset must contain `{self.text_field}`", self.client, self.job_id, self.workflow_name
-            # )
+            # pass
+            raise UserFacingError(
+                f"dataset must contain `{self.text_field}`", self.client, self.job_id, self.workflow_name
+            )
 
 
 def execute(token: str, logger: Callable, worker_number: int = 0, *args, **kwargs):

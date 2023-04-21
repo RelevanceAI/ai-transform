@@ -276,7 +276,7 @@ def test_fail_example(test_sentiment_workflow_token: str):
     assert workflow.get_status()["status"] == "failed"
 
 
-def test_user_facing_error_example(test_user_facing_error_workflow_token: str):
+def test_user_facing_error_in_op(test_user_facing_error_workflow_token: str):
     config = decode_workflow_token(test_user_facing_error_workflow_token)
 
     job_id = config["job_id"] + "_user_facing_error"
@@ -308,4 +308,30 @@ def test_user_facing_error_example(test_user_facing_error_workflow_token: str):
     workflow = Workflow(engine=engine, job_id=job_id, name="Vectorize Text")
     workflow.run()
 
-    assert workflow.get_status()["status"] == "failed"
+    status = workflow.get_status()
+
+    assert status["status"] == "failed"
+    assert status["user_errors"]
+
+
+def test_user_facing_error_in_params(test_user_facing_error_workflow_token: str):
+    config = decode_workflow_token(test_user_facing_error_workflow_token)
+
+    job_id = config["job_id"] + "_user_facing_error"
+    token = config["authorizationToken"]
+
+    client = Client(token=token)
+    dataset_id = config["dataset_id"]
+    text_field = config["text_field"]
+
+    alias = config.get("alias", None)
+
+    try:
+        raise UserFacingError("Testing user facing error", client, job_id, "User Facing Error Test")
+    except:
+        pass
+
+    status = client.api._get_workflow_status(job_id)
+
+    assert status["status"] == "failed"
+    assert status["user_errors"] == "Testing user facing error"
