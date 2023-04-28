@@ -42,4 +42,3 @@ def time_format():
 
 ic.configureOutput(prefix=time_format)
 # Change all printing statements
-print = ic
