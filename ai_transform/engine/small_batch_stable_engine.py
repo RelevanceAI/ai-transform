@@ -55,7 +55,7 @@ class SmallBatchStableEngine(AbstractEngine):
             update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
             ingest_in_background=ingest_in_background,
         )
-        ic(format_logging_info(result))
+        ic(result)
 
     def _transform_and_upsert(self, batch_index: int, batch: List[Document]):
         batch_to_insert = []

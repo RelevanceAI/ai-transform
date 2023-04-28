@@ -410,7 +410,7 @@ class AbstractEngine(ABC):
             self._success_ratio = self._successful_documents / denominator
         else:
             self._success_ratio = 1
-        ic(format_logging_info({"success_ratio": self._success_ratio}))
+        ic({"success_ratio": self._success_ratio})
 
     @staticmethod
     def _filter_for_non_empty_list(documents: List[Document]) -> List[Document]:

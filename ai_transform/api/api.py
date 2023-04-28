@@ -356,7 +356,7 @@ class API:
 
             parameters["email"] = email
 
-        ic(format_logging_info(parameters))
+        ic(parameters)
 
         response = self.post(suffix=f"/workflows/{job_id}/status", json=parameters)
         return get_response(response)
@@ -386,7 +386,7 @@ class API:
             category=fieldchildren_id,
             metadata={} if metadata is None else metadata,
         )
-        ic(format_logging_info(params))
+        ic(params)
         response = self.post(suffix=f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update", json=params)
         return get_response(response)
 
@@ -514,7 +514,7 @@ class API:
         params = dict(worker_number=worker_number, step=step, n_processed=n_processed, n_total=n_total)
 
         ic("adding progress...")
-        ic(format_logging_info(params))
+        ic(params)
 
         response = self.post(suffix=f"/workflows/{workflow_id}/progress", json=params)
         return get_response(response)
@@ -536,7 +536,7 @@ class API:
 
         params = dict(worker_number=worker_number, step=step, n_processed_pricing=n_processed_pricing)
         ic("adding progress...")
-        ic(format_logging_info(params))
+        ic(params)
         response = self.post(suffix=f"/workflows/{workflow_id}/progress", json=params)
         return get_response(response)
 

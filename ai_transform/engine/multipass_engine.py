@@ -72,7 +72,7 @@ class MultiPassEngine(AbstractEngine):
                 update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
                 ingest_in_background=ingest_in_background,
             )
-            ic(format_logging_info(result))
+            ic(result)
 
     def _operate(self, operator: AbstractOperator, mini_batch: List[Document]):
         try:
@@ -80,7 +80,7 @@ class MultiPassEngine(AbstractEngine):
             transformed_batch = operator(mini_batch)
         except Exception as e:
             ic(e)
-            ic(format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)}))
+            ic({"chunk_ids": self._get_chunks_ids(mini_batch)})
         else:
             # if there is no exception then this block will be executed
             # we only update schema on the first chunk

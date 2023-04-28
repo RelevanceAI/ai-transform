@@ -107,7 +107,7 @@ class WorkflowContextManager:
                     res = self.dataset[input_field].add_field_children(
                         field_children=output_fields, fieldchildren_id=self.job_id, metadata=metadata, recursive=True
                     )
-                    ic(format_logging_info(res))
+                    ic(res)
 
     def _get_output_to_status_obj(self):
         if self.output is not None:
@@ -131,7 +131,7 @@ class WorkflowContextManager:
             user_errors=user_errors,
             output=self._get_output_to_status_obj(),
         )
-        ic(format_logging_info(result))
+        ic(result)
         return result
 
     def __enter__(self):

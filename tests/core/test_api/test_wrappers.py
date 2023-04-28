@@ -10,13 +10,13 @@ from contextlib import redirect_stdout, redirect_stderr
 class TestWrappers:
     def test_request_wrapper_fail_with_error_in_logs(self):
         f = io.StringIO()
-        saved_stdout = sys.stdout
-        sys.stdout = f
+        saved_stdout = sys.stderr
+        sys.stderr = f
         resp = request_wrapper(
             requests.post, args=["https://www.google.com"], num_retries=1, timeout=1, output_to_stdout=True
         )
         output = f.getvalue()
-        sys.stdout = saved_stdout
+        sys.stderr = saved_stdout
         assert "status_code" in output
         assert "message" in output
 

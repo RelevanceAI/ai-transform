@@ -77,7 +77,7 @@ class StableEngine(AbstractEngine):
                 update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
                 ingest_in_background=ingest_in_background,
             )
-            ic(format_logging_info(result))
+            ic(result)
 
     def apply(self) -> None:
         """
