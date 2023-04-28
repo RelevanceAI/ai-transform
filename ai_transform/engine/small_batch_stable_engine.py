@@ -9,18 +9,13 @@
     our servers.
 
 """
-import logging
-
 from typing import List
-
-from ai_transform.logger import format_logging_info
+from ai_transform.logger import format_logging_info, ic
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.utils.document_list import DocumentList
 from ai_transform.utils.document import Document
-
-logger = logging.getLogger(__file__)
 
 
 class SmallBatchStableEngine(AbstractEngine):
@@ -60,7 +55,7 @@ class SmallBatchStableEngine(AbstractEngine):
             update_schema=chunk_counter < self.MAX_SCHEMA_UPDATE_LIMITER,
             ingest_in_background=ingest_in_background,
         )
-        logger.debug(format_logging_info(result))
+        ic(format_logging_info(result))
 
     def _transform_and_upsert(self, batch_index: int, batch: List[Document]):
         batch_to_insert = []

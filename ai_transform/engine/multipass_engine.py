@@ -2,14 +2,12 @@ import logging
 
 from typing import Optional, Sequence, List
 
-from ai_transform.logger import format_logging_info
+from ai_transform.logger import format_logging_info, ic
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.utils.document import Document
 from ai_transform.types import Filter
-
-logger = logging.getLogger(__file__)
 
 
 class MultiPassEngine(AbstractEngine):
@@ -74,15 +72,15 @@ class MultiPassEngine(AbstractEngine):
                 update_schema=batch_index < self.MAX_SCHEMA_UPDATE_LIMITER,
                 ingest_in_background=ingest_in_background,
             )
-            logger.debug(format_logging_info(result))
+            ic(format_logging_info(result))
 
     def _operate(self, operator: AbstractOperator, mini_batch: List[Document]):
         try:
             # note: do not put an IF inside ths try-except-else loop - the if code will not work
             transformed_batch = operator(mini_batch)
         except Exception as e:
-            logger.exception(e)
-            logger.error(format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)}))
+            ic(e)
+            ic(format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)}))
         else:
             # if there is no exception then this block will be executed
             # we only update schema on the first chunk

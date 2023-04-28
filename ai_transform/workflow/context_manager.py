@@ -13,11 +13,7 @@ from ai_transform.engine import abstract_engine
 from ai_transform.logger import format_logging_info
 from ai_transform.api.wrappers import request_wrapper
 from ai_transform.errors import UserFacingError
-
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
-
-logger = logging.getLogger(__file__)
-
+from ai_transform.logger import ic
 
 WORKFLOW_FAIL_MESSAGE = (
     "Workflow processed {:.2f}%" + " of documents. This is less than the success threshold of {:.2f}%"
@@ -111,7 +107,7 @@ class WorkflowContextManager:
                     res = self.dataset[input_field].add_field_children(
                         field_children=output_fields, fieldchildren_id=self.job_id, metadata=metadata, recursive=True
                     )
-                    logger.debug(format_logging_info(res))
+                    ic(format_logging_info(res))
 
     def _get_output_to_status_obj(self):
         if self.output is not None:
@@ -135,7 +131,7 @@ class WorkflowContextManager:
             user_errors=user_errors,
             output=self._get_output_to_status_obj(),
         )
-        logger.debug(format_logging_info(result))
+        ic(format_logging_info(result))
         return result
 
     def __enter__(self):
