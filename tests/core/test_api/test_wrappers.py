@@ -164,4 +164,4 @@ class TestWrappers:
 
         logs = str(u.getvalue()) + str(f.getvalue())
 
-        assert logs.count("bad_key") == 2
+        assert logs.count("bad_key") == 4
