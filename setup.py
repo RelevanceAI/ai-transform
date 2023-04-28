@@ -6,9 +6,9 @@ requirements = ["tqdm>=4.49.0", "requests>=2.0.0", "pandas>=1.5.0", "pydantic>=1
 
 ray_requirements = ["numpy>=1.19.0", "pyarrow==9.0.0", "ray==2.0.0"]
 
-core_test_requirements = requirements + ["pytest", "pytest-xdist", "pytest-cov", "sentence-splitter"]
+core_test_requirements = ["pytest", "pytest-xdist", "pytest-cov", "sentence-splitter"]
 
-example_test_requirements = requirements + core_test_requirements + ["torch", "scikit-learn>=0.20.0", "transformers[torch]==4.18.0"]
+example_test_requirements = core_test_requirements + ["torch", "scikit-learn>=0.20.0", "transformers[torch]==4.18.0"]
 
 chunk_requirements = ["fuzzysearch==0.7.3"]
 
