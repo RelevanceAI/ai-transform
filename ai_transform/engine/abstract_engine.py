@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 
 from tqdm.auto import tqdm
 
-from ai_transform.logger import format_logging_info
+from ai_transform.logger import format_logging_info, ic
 from ai_transform.types import Filter
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.operator.abstract_operator import AbstractOperator
@@ -17,9 +17,6 @@ from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
 
 from ai_transform.errors import MaxRetriesError
-
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
-logger = logging.getLogger(__name__)
 
 
 class AbstractEngine(ABC):
@@ -199,8 +196,8 @@ class AbstractEngine(ABC):
             # note: do not put an IF inside ths try-except-else loop - the if code will not work
             transformed_batch = self.operator(mini_batch)
         except Exception as e:
-            logger.exception(e)
-            logger.error(format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)}))
+            ic(e)
+            ic({"chunk_ids": self._get_chunks_ids(mini_batch)})
         else:
             # if there is no exception then this block will be executed
             # we only update schema on the first chunk
@@ -299,7 +296,7 @@ class AbstractEngine(ABC):
                     is_random=is_random,
                 )
             except (ConnectionError, JSONDecodeError) as e:
-                logger.exception(e)
+                ic(e)
                 retry_count += 1
                 time.sleep(1)
 
@@ -345,7 +342,7 @@ class AbstractEngine(ABC):
                         documents=chunk, ingest_in_background=ingest_in_background, update_schema=update_schema
                     )
                 except Exception as e:
-                    logger.exception(e)
+                    ic(e)
                 else:
                     return update_json
 
@@ -413,7 +410,7 @@ class AbstractEngine(ABC):
             self._success_ratio = self._successful_documents / denominator
         else:
             self._success_ratio = 1
-        logger.debug(format_logging_info({"success_ratio": self._success_ratio}))
+        ic({"success_ratio": self._success_ratio})
 
     @staticmethod
     def _filter_for_non_empty_list(documents: List[Document]) -> List[Document]:

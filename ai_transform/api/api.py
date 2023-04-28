@@ -15,6 +15,7 @@ from ai_transform.utils import document
 from ai_transform.types import Credentials, FieldTransformer, Filter, Schema
 
 from ai_transform import __version__
+from ai_transform.logger import ic
 
 
 LOG_REQUESTS = bool(os.getenv("LOG_REQUESTS"))
@@ -27,9 +28,6 @@ if LOG_REQUESTS:
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.FileHandler(f"{timestamp}_request_logs.log")],
     )
-else:
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
 
 
 def to_curl(request: requests.PreparedRequest):
@@ -63,8 +61,8 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
         try:
             return response.json()
         except Exception as e:
-            logger.exception(e)
-            logger.error(format_logging_info({"x-trace-id": response.headers["x-trace-id"]}))
+            ic(e)
+            ic(format_logging_info({"x-trace-id": response.headers["x-trace-id"]}))
             raise e
     else:
         datum = {"error": response.content.decode("utf-8")}
@@ -73,10 +71,10 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
 
         try:
             # Log this somewhere if it errors
-            logger.error(format_logging_info(datum))
+            ic(format_logging_info(datum))
         except Exception as no_content_e:
             # in case there's no content
-            logger.exception(no_content_e)
+            ic(no_content_e)
             # we still want to raise the right error for retrying
             # continue to raise exception so that any retry logic still holds
             raise no_content_e
@@ -102,15 +100,15 @@ def retry(num_of_retries: int = 3, timeout: int = 30):
                     return func(*args, **kwargs)
                 # Using general error to avoid any possible error dependencies.
                 except (ConnectionError, JSONDecodeError) as error:
-                    logger.exception(error)
-                    print(f"Sleeping in {timeout}")
+                    ic(error)
+                    ic(f"Sleeping in {timeout}")
                     time.sleep(timeout)
                     if i == num_of_retries - 1:
                         raise error
                     continue
                 except Exception as error:
-                    print(error)
-                    logger.exception(error)
+                    ic(error)
+                    ic(error)
 
         return function_wrapper
 
@@ -355,7 +353,7 @@ class API:
 
             parameters["email"] = email
 
-        logger.debug(format_logging_info(parameters))
+        ic(parameters)
 
         response = self.post(suffix=f"/workflows/{job_id}/status", json=parameters)
         return get_response(response)
@@ -385,7 +383,7 @@ class API:
             category=fieldchildren_id,
             metadata={} if metadata is None else metadata,
         )
-        logger.debug(format_logging_info(params))
+        ic(params)
         response = self.post(suffix=f"/datasets/{dataset_id}/field_children/{str(uuid.uuid4())}/update", json=params)
         return get_response(response)
 
@@ -512,8 +510,8 @@ class API:
 
         params = dict(worker_number=worker_number, step=step, n_processed=n_processed, n_total=n_total)
 
-        logger.debug("adding progress...")
-        logger.debug(format_logging_info(params))
+        ic("adding progress...")
+        ic(params)
 
         response = self.post(suffix=f"/workflows/{workflow_id}/progress", json=params)
         return get_response(response)
@@ -534,8 +532,8 @@ class API:
             worker_number = 0
 
         params = dict(worker_number=worker_number, step=step, n_processed_pricing=n_processed_pricing)
-        logger.debug("adding progress...")
-        logger.debug(format_logging_info(params))
+        ic("adding progress...")
+        ic(params)
         response = self.post(suffix=f"/workflows/{workflow_id}/progress", json=params)
         return get_response(response)
 

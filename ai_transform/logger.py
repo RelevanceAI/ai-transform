@@ -1,6 +1,7 @@
 import pprint
 import logging
-
+import datetime
+from icecream import ic
 from typing import Dict, Any, List
 from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
@@ -32,3 +33,12 @@ class Logger:
             info_to_log = info
 
         self._logger.debug(format_logging_info(info_to_log))
+
+
+def time_format():
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return f"{timestamp} | "
+
+
+ic.configureOutput(prefix=time_format, includeContext=True)
+# Change all printing statements

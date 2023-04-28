@@ -1,5 +1,5 @@
 import os
-import logging
+import warnings
 
 from typing import Optional, Dict, Any
 
@@ -10,25 +10,27 @@ from ai_transform.types import Schema
 from ai_transform.errors import AuthException
 from ai_transform.constants import WELCOME_MESSAGE
 from ai_transform.workflow.context_manager import WorkflowContextManager
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from ai_transform.logger import ic
 
 
 class Client:
-    def __init__(self, token: str) -> None:
+    def __init__(self, token: str, authenticate: bool = True) -> None:
 
         self._credentials = process_token(token)
         self._token = token
         self._api = API(credentials=self.credentials)
 
-        try:
-            self.list_datasets()["datasets"]
-        except:
-            raise AuthException
+        if authenticate:
+            try:
+                self.list_datasets()["datasets"]
+            except:
+                raise AuthException
+            else:
+                print(WELCOME_MESSAGE.format(self.credentials.project))
         else:
-            print(WELCOME_MESSAGE.format(self.credentials.project))
+            warnings.warn(
+                "You have opted to not authenticate on client instantiation. Your token may or may not be valid."
+            )
 
     @property
     def credentials(self):
@@ -86,7 +88,7 @@ class Client:
         with open(file_path, "rb") as fn_byte:
             media_content = bytes(fn_byte.read())
         response = self.api._upload_temporary_media(presigned_url=upload_url, media_content=media_content)
-        logger.debug(response.content)
+        ic(response.content)
         return {"download_url": download_url}
 
     def list_project_keys(self):

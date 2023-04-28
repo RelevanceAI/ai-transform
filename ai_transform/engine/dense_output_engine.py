@@ -17,9 +17,7 @@ from ai_transform.dataset.dataset import Dataset
 from ai_transform.operator.dense_operator import DenseOperator
 from ai_transform.engine.abstract_engine import AbstractEngine
 from ai_transform.types import Filter
-
-
-logger = logging.getLogger(__file__)
+from ai_transform.logger import ic
 
 
 class DenseOutputEngine(AbstractEngine):
@@ -78,7 +76,7 @@ class DenseOutputEngine(AbstractEngine):
                     output_dataset_ids.append(dataset_id)
                     dataset = Dataset.from_details(dataset_id, self.token)
                     result = dataset.bulk_insert(documents)
-                    logger.debug({"dataset_id": dataset_id, "result": result})
+                    ic({"dataset_id": dataset_id, "result": result})
 
         self.operator.post_hooks(self._dataset)
 
