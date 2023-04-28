@@ -196,8 +196,8 @@ class AbstractEngine(ABC):
             # note: do not put an IF inside ths try-except-else loop - the if code will not work
             transformed_batch = self.operator(mini_batch)
         except Exception as e:
-            logger.exception(e)
-            logger.error(format_logging_info({"chunk_ids": self._get_chunks_ids(mini_batch)}))
+            ic(e)
+            ic({"chunk_ids": self._get_chunks_ids(mini_batch)})
         else:
             # if there is no exception then this block will be executed
             # we only update schema on the first chunk
@@ -296,7 +296,7 @@ class AbstractEngine(ABC):
                     is_random=is_random,
                 )
             except (ConnectionError, JSONDecodeError) as e:
-                logger.exception(e)
+                ic(e)
                 retry_count += 1
                 time.sleep(1)
 
@@ -342,7 +342,7 @@ class AbstractEngine(ABC):
                         documents=chunk, ingest_in_background=ingest_in_background, update_schema=update_schema
                     )
                 except Exception as e:
-                    logger.exception(e)
+                    ic(e)
                 else:
                     return update_json
 

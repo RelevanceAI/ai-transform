@@ -86,7 +86,7 @@ def request_wrapper(
                 is_response_bad(result=result, key_for_error=key_for_error, output_to_stdout=output_to_stdout)
 
         except (ResultNotOKError, ManualRetryError, JSONDecodeError, KeyError) as e:
-            logger.exception(e)
+            ic(e)
             time.sleep(timeout * exponential_backoff**n)
         else:
             return result

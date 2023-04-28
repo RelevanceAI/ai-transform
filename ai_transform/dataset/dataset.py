@@ -11,7 +11,7 @@ from ai_transform.errors import MaxRetriesError
 from ai_transform.dataset.field import Field, KeyphraseField, ClusterField
 from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
-
+from ai_transform.logger import ic
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -177,7 +177,7 @@ class Dataset:
                     is_random=is_random,
                 )
             except ConnectionError as e:
-                logger.exception(e)
+                ic(e)
                 retry_count += 1
                 time.sleep(retry_delay)
 
@@ -185,7 +185,7 @@ class Dataset:
                     raise MaxRetriesError("max number of retries exceeded")
 
             except JSONDecodeError as e:
-                logger.exception(e)
+                ic(e)
                 retry_count += 1
                 time.sleep(retry_delay)
 

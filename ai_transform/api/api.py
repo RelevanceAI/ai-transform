@@ -28,9 +28,6 @@ if LOG_REQUESTS:
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.FileHandler(f"{timestamp}_request_logs.log")],
     )
-else:
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
 
 
 def to_curl(request: requests.PreparedRequest):
@@ -64,8 +61,8 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
         try:
             return response.json()
         except Exception as e:
-            logger.exception(e)
-            logger.error(format_logging_info({"x-trace-id": response.headers["x-trace-id"]}))
+            ic(e)
+            ic(format_logging_info({"x-trace-id": response.headers["x-trace-id"]}))
             raise e
     else:
         datum = {"error": response.content.decode("utf-8")}
@@ -74,10 +71,10 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
 
         try:
             # Log this somewhere if it errors
-            logger.error(format_logging_info(datum))
+            ic(format_logging_info(datum))
         except Exception as no_content_e:
             # in case there's no content
-            logger.exception(no_content_e)
+            ic(no_content_e)
             # we still want to raise the right error for retrying
             # continue to raise exception so that any retry logic still holds
             raise no_content_e
@@ -103,7 +100,7 @@ def retry(num_of_retries: int = 3, timeout: int = 30):
                     return func(*args, **kwargs)
                 # Using general error to avoid any possible error dependencies.
                 except (ConnectionError, JSONDecodeError) as error:
-                    logger.exception(error)
+                    ic(error)
                     ic(f"Sleeping in {timeout}")
                     time.sleep(timeout)
                     if i == num_of_retries - 1:
@@ -111,7 +108,7 @@ def retry(num_of_retries: int = 3, timeout: int = 30):
                     continue
                 except Exception as error:
                     ic(error)
-                    logger.exception(error)
+                    ic(error)
 
         return function_wrapper
 

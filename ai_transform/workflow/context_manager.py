@@ -143,7 +143,7 @@ class WorkflowContextManager:
     def _handle_workflow_fail(
         self, exc_type: type, exc_value: BaseException, traceback: Traceback, user_errors: str = None
     ):
-        logger.exception(exc_value)
+        ic(exc_value)
         self.set_workflow_status(status=self.FAILED, user_errors=user_errors)
         return False
 
