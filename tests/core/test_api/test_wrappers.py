@@ -94,7 +94,7 @@ class TestWrappers:
 
         logs = str(u.getvalue()) + str(f.getvalue())
 
-        assert logs.count("Simulated Rate Error") == 2
+        assert logs.count("Simulated Rate Error") == 4
 
     def test_request_wrapper_json(self):
         f = io.StringIO()
