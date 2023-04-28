@@ -3,9 +3,8 @@ import logging
 import requests
 
 from json import JSONDecodeError
-from ai_transform.logger import format_logging_info
+from ai_transform.logger import format_logging_info, ic
 from requests.models import Response
-
 from typing import Union, Sequence, Mapping, Callable, Any
 
 logger = logging.getLogger(__file__)
@@ -33,13 +32,13 @@ def is_response_bad(
     except JSONDecodeError as e:
         error_message = "Response is not JSON decodable"
         if output_to_stdout:
-            print(error_message)
+            ic(error_message)
         raise JSONDecodeError(e.msg, e.doc, e.pos)
 
     except KeyError:
         error_message = f"{key_for_error} not in JSON response"
         if output_to_stdout:
-            print(error_message)
+            ic(error_message)
         raise KeyError(error_message)
 
 
@@ -74,13 +73,13 @@ def request_wrapper(
             if not result.ok:
                 to_log = format_logging_info({"message": result.content.decode(), "status_code": result.status_code})
                 if output_to_stdout:
-                    print(to_log)
+                    ic(to_log)
                 raise ResultNotOKError(to_log)
 
             if retry_func(result):
                 to_log_for_retry = "Manual Retry Triggered..."
                 if output_to_stdout:
-                    print(to_log_for_retry)
+                    ic(to_log_for_retry)
                 raise ManualRetryError(to_log_for_retry)
 
             if is_json_decodable or key_for_error:

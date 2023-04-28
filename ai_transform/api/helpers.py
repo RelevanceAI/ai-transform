@@ -17,7 +17,7 @@ def requests_post_mock(url="", headers=None, json=None):
             "version": "vtest"
         }
     )
-    print(response)
+    ic(response)
     """
     # TODO: Add get request etc.
     if headers is None:

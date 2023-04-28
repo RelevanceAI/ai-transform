@@ -1,5 +1,4 @@
 import os
-import logging
 import warnings
 
 from typing import Optional, Dict, Any
@@ -11,10 +10,7 @@ from ai_transform.types import Schema
 from ai_transform.errors import AuthException
 from ai_transform.constants import WELCOME_MESSAGE
 from ai_transform.workflow.context_manager import WorkflowContextManager
-
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+from ai_transform.logger import ic
 
 
 class Client:
@@ -92,7 +88,7 @@ class Client:
         with open(file_path, "rb") as fn_byte:
             media_content = bytes(fn_byte.read())
         response = self.api._upload_temporary_media(presigned_url=upload_url, media_content=media_content)
-        logger.debug(response.content)
+        ic(response.content)
         return {"download_url": download_url}
 
     def list_project_keys(self):

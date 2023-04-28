@@ -1,7 +1,7 @@
-__version__ = "0.30.9"
+__version__ = "0.30.10"
 
 from ai_transform.timer import Timer
-
+from ai_transform.logger import ic
 
 _TIMER = Timer()
 _TIMER.start()
@@ -21,11 +21,11 @@ def add_config_paths(verbose: bool = False):
     path = script_path.replace("/main.py", "")
     main_path = f"{efs_mount_path}/scripts/{workflows_version}/{path}"
     if verbose:
-        print(main_path)
+        ic(main_path)
     if os.path.exists(main_path):
         sys.path.append(main_path)
     if verbose:
-        print(f"paths: {sys.path}")
+        ic(f"paths: {sys.path}")
 
 
 add_config_paths()

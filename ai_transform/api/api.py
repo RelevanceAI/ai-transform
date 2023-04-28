@@ -15,6 +15,7 @@ from ai_transform.utils import document
 from ai_transform.types import Credentials, FieldTransformer, Filter, Schema
 
 from ai_transform import __version__
+from ai_transform.logger import ic
 
 
 LOG_REQUESTS = bool(os.getenv("LOG_REQUESTS"))
@@ -103,13 +104,13 @@ def retry(num_of_retries: int = 3, timeout: int = 30):
                 # Using general error to avoid any possible error dependencies.
                 except (ConnectionError, JSONDecodeError) as error:
                     logger.exception(error)
-                    print(f"Sleeping in {timeout}")
+                    ic(f"Sleeping in {timeout}")
                     time.sleep(timeout)
                     if i == num_of_retries - 1:
                         raise error
                     continue
                 except Exception as error:
-                    print(error)
+                    ic(error)
                     logger.exception(error)
 
         return function_wrapper
