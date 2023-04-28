@@ -40,5 +40,5 @@ def time_format():
     return f"{timestamp} | "
 
 
-ic.configureOutput(prefix=time_format)
+ic.configureOutput(prefix=time_format, includeContext=True)
 # Change all printing statements
