@@ -13,6 +13,7 @@ from typing import Any, Dict, List, Optional, Literal
 from ai_transform.logger import format_logging_info
 from ai_transform.utils import document
 from ai_transform.types import Credentials, FieldTransformer, Filter, Schema
+from ai_transform.api.wrappers import request_wrapper
 
 from ai_transform import __version__
 from ai_transform.logger import ic
@@ -89,26 +90,13 @@ def retry(num_of_retries: int = 3, timeout: int = 30):
         num_of_retries: The number of times the function should retry
         timeout: The number of seconds to wait between each retry
     """
-    num_of_retries = 3
-    timeout = 30
 
     def _retry(func):
         @wraps(func)
         def function_wrapper(*args, **kwargs):
-            for i in range(num_of_retries):
-                try:
-                    return func(*args, **kwargs)
-                # Using general error to avoid any possible error dependencies.
-                except (ConnectionError, JSONDecodeError) as error:
-                    ic(error)
-                    ic(f"Sleeping in {timeout}")
-                    time.sleep(timeout)
-                    if i == num_of_retries - 1:
-                        raise error
-                    continue
-                except Exception as error:
-                    ic(error)
-                    ic(error)
+            return request_wrapper(
+                func, args, kwargs, num_retries=num_of_retries, timeout=timeout, exponential_backoff=2
+            )
 
         return function_wrapper
 
