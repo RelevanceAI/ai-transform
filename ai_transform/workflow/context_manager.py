@@ -162,7 +162,11 @@ class WorkflowContextManager:
                     is_automatic = False
 
         if is_automatic:
-            return self._calculate_n_processed_pricing_from_size()
+            # Use document-based pricing if not manually specified
+            if getattr(self, "engine", None) is not None:
+                return self._calculate_n_processed_pricing_from_size()
+            else:
+                return self._calculate_n_processed_pricing_from_timer()
         else:
             return n_processed_pricing
     
