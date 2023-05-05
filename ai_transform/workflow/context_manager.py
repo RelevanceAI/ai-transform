@@ -134,7 +134,7 @@ class WorkflowContextManager:
         ic(result)
         return result
 
-    def __enter__(self):
+    def __enter__(self) -> "WorkflowContextManager":
         if self.operators is not None:
             self._set_field_children_recursively()
         self.set_workflow_status(status=self.IN_PROGRESS)
@@ -162,9 +162,16 @@ class WorkflowContextManager:
                     is_automatic = False
 
         if is_automatic:
-            return self._calculate_n_processed_pricing_from_timer()
+            # Use document-based pricing if not manually specified
+            if getattr(self, "engine", None) is not None:
+                return self._calculate_n_processed_pricing_from_size()
+            else:
+                return self._calculate_n_processed_pricing_from_timer()
         else:
             return n_processed_pricing
+
+    def _calculate_n_processed_pricing_from_size(self):
+        return self.engine.size
 
     def _calculate_n_processed_pricing_from_timer(self):
         from ai_transform import _TIMER

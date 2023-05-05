@@ -1,5 +1,6 @@
 import re
 import uuid
+import pprint
 
 from typing import Dict, Any
 from copy import deepcopy
@@ -11,7 +12,7 @@ from ai_transform.utils.json_encoder import json_encoder
 
 class Document(UserDict):
     def __repr__(self):
-        return repr(self.data)
+        return pprint.pformat(self.to_json(), indent=4, width=40)
 
     def __setitem__(self, key: Any, value: Any) -> None:
         try:
