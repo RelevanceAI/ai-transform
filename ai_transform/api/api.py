@@ -5,10 +5,9 @@ import logging
 import requests
 
 from requests.models import Response
-from json import JSONDecodeError
 from functools import wraps
 
-from typing import Any, Dict, List, Optional, Literal
+from typing import Any, Dict, List, Optional, Literal, Callable
 
 from ai_transform.logger import format_logging_info
 from ai_transform.utils import document
@@ -83,7 +82,7 @@ def get_response(response: requests.Response) -> Dict[str, Any]:
 
 # We implement retry as a function for several reasons
 # first - we can get a
-def retry(num_of_retries: int = 3, timeout: int = 30):
+def retry(num_of_retries: int = 3, timeout: int = 30, retry_func: Callable = None):
     """
     Allows the function to retry upon failure.
     Args:
@@ -95,7 +94,13 @@ def retry(num_of_retries: int = 3, timeout: int = 30):
         @wraps(func)
         def function_wrapper(*args, **kwargs):
             return request_wrapper(
-                func, args, kwargs, num_retries=num_of_retries, timeout=timeout, exponential_backoff=2
+                func,
+                args,
+                kwargs,
+                num_retries=num_of_retries,
+                timeout=timeout,
+                exponential_backoff=2,
+                retry_func=retry_func,
             )
 
         return function_wrapper
