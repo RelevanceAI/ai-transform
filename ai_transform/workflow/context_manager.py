@@ -134,7 +134,7 @@ class WorkflowContextManager:
         ic(result)
         return result
 
-    def __enter__(self):
+    def __enter__(self) -> "WorkflowContextManager":
         if self.operators is not None:
             self._set_field_children_recursively()
         self.set_workflow_status(status=self.IN_PROGRESS)
