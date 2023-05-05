@@ -1,5 +1,7 @@
+import pprint
 import warnings
 import itertools
+
 from collections import UserList
 from typing import Any, Dict, List, Union
 
@@ -17,7 +19,7 @@ class DocumentList(UserList):
         super().__init__(initlist)
 
     def __repr__(self):
-        return repr(self.data)
+        return pprint.pformat(self.to_json(), indent=4, width=40)
 
     def __getitem__(self, key: Union[str, int]) -> Document:
         if isinstance(key, str):
