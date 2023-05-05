@@ -14,7 +14,9 @@ from ai_transform.logger import ic
 
 
 class Client:
-    def __init__(self, token: str, authenticate: bool = True) -> None:
+    def __init__(self, token: str = None, authenticate: bool = True) -> None:
+        if token is None:
+            token = os.getenv("DEVELOPMENT_TOKEN")
 
         self._credentials = process_token(token)
         self._token = token

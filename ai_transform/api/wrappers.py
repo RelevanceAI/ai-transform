@@ -1,6 +1,7 @@
 import time
 import logging
 import requests
+import traceback
 
 from json import JSONDecodeError
 from ai_transform.logger import format_logging_info, ic
@@ -64,7 +65,7 @@ def request_wrapper(
     if retry_func is None:
         retry_func = lambda result: False
 
-    result: requests.Response
+    result: requests.Response = None
 
     for n in range(1, num_retries + 1):
         try:
@@ -85,8 +86,8 @@ def request_wrapper(
             if is_json_decodable or key_for_error:
                 is_response_bad(result=result, key_for_error=key_for_error, output_to_stdout=output_to_stdout)
 
-        except (ResultNotOKError, ManualRetryError, JSONDecodeError, KeyError) as e:
-            ic(e)
+        except (ResultNotOKError, ManualRetryError, JSONDecodeError, KeyError, ConnectionResetError) as e:
+            ic(traceback.format_exc())
             time.sleep(timeout * exponential_backoff**n)
         else:
             return result
