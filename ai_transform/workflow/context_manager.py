@@ -29,7 +29,8 @@ class WorkflowContextManager:
         additional_information: str = "",
         send_email: bool = True,
         email: Dict[str, Any] = None,
-        success_threshold: float = 0.8,
+        # set low success threshold
+        success_threshold: float = 0.5,
         # The arguments below can vary depending on if workflow is ran as
         # a Simple Workflow or a Regular one. They are initialized to None.
         credentials: Credentials = None,
