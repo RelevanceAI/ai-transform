@@ -1,6 +1,4 @@
 import os
-import logging
-import requests
 
 from inspect import Traceback
 from typing import Dict, Any, List
@@ -10,14 +8,12 @@ from ai_transform.types import Credentials
 from ai_transform.dataset import dataset
 from ai_transform.operator import abstract_operator
 from ai_transform.engine import abstract_engine
-from ai_transform.logger import format_logging_info
-from ai_transform.api.wrappers import request_wrapper
-from ai_transform.errors import UserFacingError
 from ai_transform.logger import ic
 
-WORKFLOW_FAIL_MESSAGE = (
-    "Workflow processed {:.2f}%" + " of documents. This is less than the success threshold of {:.2f}%"
-)
+
+WORKFLOW_PROCESSED_MESSAGE = "Workflow processed {:.2f}%" + " of documents. "
+
+WORKFLOW_FAIL_MESSAGE = WORKFLOW_PROCESSED_MESSAGE + "This is less than the success threshold of {:.2f}%"
 
 
 class WorkflowContextManager:
@@ -194,6 +190,8 @@ class WorkflowContextManager:
         user_errors = None
 
         if self.engine is not None:
+            self.addtional_message = WORKFLOW_PROCESSED_MESSAGE.format(100 * self.engine.success_ratio)
+
             regular_workflow_failed = self.engine.success_ratio < self.success_threshold
 
             if regular_workflow_failed:
