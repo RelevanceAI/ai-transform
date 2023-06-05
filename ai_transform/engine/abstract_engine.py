@@ -1,5 +1,4 @@
 import time
-import logging
 import warnings
 
 from json import JSONDecodeError
@@ -8,7 +7,7 @@ from abc import ABC, abstractmethod
 
 from tqdm.auto import tqdm
 
-from ai_transform.logger import format_logging_info, ic
+from ai_transform.logger import ic
 from ai_transform.types import Filter
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.operator.abstract_operator import AbstractOperator
@@ -107,8 +106,10 @@ class AbstractEngine(ABC):
             filters = []
         assert isinstance(filters, list), "Filters must be applied as a list of Dictionaries"
 
-        if not refresh:
-            filters += self._get_refresh_filter(select_fields, dataset)
+        self._refresh = refresh
+        self._after_id = after_id
+
+        filters += self._get_refresh_filter()
         filters += self._get_workflow_filter()
 
         self._filters = filters
@@ -117,9 +118,6 @@ class AbstractEngine(ABC):
             self._size = len(documents)
         else:
             self._size = dataset.len(filters=filters) if self._limit_documents is None else self._limit_documents
-
-        self._refresh = refresh
-        self._after_id = after_id
 
         self._successful_documents = 0
         self._success_ratio = None
@@ -206,36 +204,36 @@ class AbstractEngine(ABC):
             self._successful_documents += len(mini_batch)
             return transformed_batch
 
-    def _get_refresh_filter(self, select_fields: List[str], dataset: Dataset):
+    def _get_refresh_filter(self):
         # initialize the refresh filter container
-        refresh_filters = {"filter_type": "or", "condition_value": []}
+        input_field_filters = {"filter_type": "or", "condition_value": []}
 
         # initialize where the filters are going
-        input_field_filters = []
         output_field_filters = {"filter_type": "or", "condition_value": []}
 
-        # We want documents where all select_fields exists
+        # We want documents where any of the select_fields exists
         # as these are needed for operator ...
-        for field in select_fields:
-            input_field_filters += dataset[field].exists()
-
-        # ... and where any of its output_fields dont exist
-        for operator in self.operators:
-            if operator.output_fields is not None:
-                for output_field in operator.output_fields:
-                    output_field_filters["condition_value"] += dataset[output_field].not_exists()
-
         # We construct this as:
         #
-        #   input_field1 and input_field2 and (not output_field1 or not output_field2)
+        #   (input_field1 or input_field2) and (not output_field1 or not output_field2)
         #
         # This use case here is for two input fields and two output fields
         # tho this extends to arbitrarily many.
-        refresh_filters["condition_value"] = input_field_filters
-        refresh_filters["condition_value"] += [output_field_filters]
+        for field in self._select_fields:
+            input_field_filters["condition_value"] += self.dataset[field].exists()
 
-        # Wrap in list at end
-        return [refresh_filters]
+        # ... and where any of its output_fields dont exist
+        if not self._refresh:
+            for operator in self.operators:
+                if operator.output_fields is not None:
+                    for output_field in operator.output_fields:
+                        output_field_filters["condition_value"] += self.dataset[output_field].not_exists()
+
+            return [input_field_filters, output_field_filters]
+
+        else:
+            # Wrap in list at end
+            return [input_field_filters]
 
     def _get_workflow_filter(self, field: str = "_id"):
         # Get the required workflow filter as an environment variable
