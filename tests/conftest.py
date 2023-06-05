@@ -86,8 +86,8 @@ def simple_partial_dataset(test_client: Client) -> Dataset:
     documents = mock_documents(1000)
     fields = ["sample_1_label"]
     for document in documents:
-        for field in random.sample(fields, k=random.randint(1, 3)):
-            document.pop(field)
+        if random.random() < 0.5:
+            document.pop(fields[0])
     dataset.insert_documents(documents)
     yield dataset
     test_client.delete_dataset(dataset_id)
