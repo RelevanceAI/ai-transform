@@ -64,6 +64,55 @@ def full_dataset(test_client: Client) -> Dataset:
 
 
 @pytest.fixture(scope="class")
+def partial_dataset(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id, expire=True)
+    documents = mock_documents(1000)
+    fields = ["sample_1_label", "sample_2_label", "sample_3_label"]
+    for document in documents:
+        for field in random.sample(fields, k=random.randint(1, 3)):
+            document.pop(field)
+    dataset.insert_documents(documents)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
+def simple_partial_dataset(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id, expire=True)
+    documents = mock_documents(1000)
+    fields = ["sample_1_label"]
+    for document in documents:
+        if random.random() < 0.5:
+            document.pop(fields[0])
+    dataset.insert_documents(documents)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
+def partial_dataset_with_outputs(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id, expire=True)
+    documents = mock_documents(1000)
+    fields = ["sample_1_label", "sample_2_label", "sample_3_label"]
+    for document in documents:
+        for field in random.sample(fields, k=random.randint(1, 3)):
+            document.pop(field)
+    for document in documents:
+        for field in fields:
+            if document.get(field) and random.random() < 0.5:
+                document[field + "_output"] = document[field] + "_output"
+    dataset.insert_documents(documents)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
 def mixed_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
@@ -148,6 +197,26 @@ def test_operator() -> AbstractOperator:
             return documents
 
     return ExampleOperator()
+
+
+@pytest.fixture(scope="function")
+def test_partial_operator() -> AbstractOperator:
+    class PartialOperator(AbstractOperator):
+        def __init__(self, fields):
+            super().__init__(input_fields=fields, output_fields=[field + "_output" for field in fields])
+
+        def transform(self, documents: DocumentList) -> DocumentList:
+            """
+            Main transform function
+            """
+            for input_field, output_field in zip(self.input_fields, self.output_fields):
+                for document in documents:
+                    if document.get(input_field):
+                        document[output_field] = document[input_field] + "_output"
+
+            return documents
+
+    return PartialOperator
 
 
 @pytest.fixture(scope="function")
@@ -243,7 +312,7 @@ def test_user_facing_error_workflow_token(test_client: Client) -> str:
         job_id=job_id,
         dataset_id=dataset_id,
         authorizationToken=test_client.credentials.token,
-        text_field="sample_1_description_not_in_dataset",
+        text_field="sample_1_description",
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()

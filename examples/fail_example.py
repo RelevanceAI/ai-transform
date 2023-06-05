@@ -40,7 +40,8 @@ class UserFacingErrorOperator(AbstractOperator):
 
     def transform(self, documents: List[Document]) -> List[Document]:
         try:
-            text = [document[self.text_field] for document in documents]
+            raise ValueError
+
         except:
             # pass
             raise UserFacingError(
