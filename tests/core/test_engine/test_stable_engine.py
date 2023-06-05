@@ -62,3 +62,19 @@ class TestStableEngineFilters:
             assert prev_health[input_field]["exists"] == post_health[output_field]["exists"]
 
         assert engine.success_ratio == 1
+
+    def test_stable_engine_filters3(
+        self, simple_partial_dataset: Dataset, test_partial_operator: Type[AbstractOperator]
+    ):
+        prev_health = simple_partial_dataset.health()
+        operator = test_partial_operator(["sample_1_label"])
+
+        engine = StableEngine(simple_partial_dataset, operator, select_fields=["sample_1_label"], refresh=False)
+        workflow = Workflow(name=_random_id(), engine=engine, job_id=_random_id())
+        workflow.run()
+
+        post_health = simple_partial_dataset.health()
+        for input_field, output_field in zip(operator.input_fields, operator.output_fields):
+            assert prev_health[input_field]["exists"] == post_health[output_field]["exists"]
+
+        assert engine.success_ratio == 1

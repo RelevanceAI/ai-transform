@@ -79,6 +79,21 @@ def partial_dataset(test_client: Client) -> Dataset:
 
 
 @pytest.fixture(scope="class")
+def simple_partial_dataset(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id, expire=True)
+    documents = mock_documents(1000)
+    fields = ["sample_1_label"]
+    for document in documents:
+        for field in random.sample(fields, k=random.randint(1, 3)):
+            document.pop(field)
+    dataset.insert_documents(documents)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
 def partial_dataset_with_outputs(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
@@ -297,7 +312,7 @@ def test_user_facing_error_workflow_token(test_client: Client) -> str:
         job_id=job_id,
         dataset_id=dataset_id,
         authorizationToken=test_client.credentials.token,
-        text_field="sample_1_description_not_in_dataset",
+        text_field="sample_1_description",
     )
     config_string = json.dumps(config)
     config_bytes = config_string.encode()
