@@ -1,5 +1,4 @@
 import time
-import logging
 import warnings
 
 from json import JSONDecodeError
@@ -8,7 +7,7 @@ from abc import ABC, abstractmethod
 
 from tqdm.auto import tqdm
 
-from ai_transform.logger import format_logging_info, ic
+from ai_transform.logger import ic
 from ai_transform.types import Filter
 from ai_transform.dataset.dataset import Dataset
 from ai_transform.operator.abstract_operator import AbstractOperator

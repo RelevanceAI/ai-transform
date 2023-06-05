@@ -64,6 +64,20 @@ def full_dataset(test_client: Client) -> Dataset:
 
 
 @pytest.fixture(scope="class")
+def partial_dataset(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id, expire=True)
+    documents = mock_documents(1000)
+    for document in documents:
+        for field in random.choices(document.keys(), k=min(len(document), 5)):
+            document.pop(field)
+    dataset.insert_documents(documents)
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="class")
 def mixed_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
