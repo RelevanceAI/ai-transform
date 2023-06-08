@@ -265,6 +265,29 @@ def test_dense_operator(dense_output_dataset1: Dataset, dense_output_dataset2: D
 
 
 @pytest.fixture(scope="function")
+def test_chunk_dense_operator(dense_output_dataset1: Dataset, dense_output_dataset2: Dataset) -> DenseOperator:
+    class TestDenseOperator(DenseOperator):
+        def __init__(self, output_dataset_ids: Sequence[str]):
+            self.output_dataset_ids = output_dataset_ids
+            super().__init__()
+
+        def transform(self, documents: DocumentList) -> DocumentList:
+            """
+            Main transform function
+            """
+            for document in documents:
+                if "new_field" not in document:
+                    document["new_field"] = 0
+
+                document["new_field"] += 3
+
+            return {dataset_id: documents for dataset_id in self.output_dataset_ids}
+
+    output_dataset_ids = (dense_output_dataset1.dataset_id, dense_output_dataset2.dataset_id)
+    return TestDenseOperator(output_dataset_ids)
+
+
+@pytest.fixture(scope="function")
 def test_engine(full_dataset: Dataset, test_operator: AbstractOperator) -> StableEngine:
     return StableEngine(dataset=full_dataset, operator=test_operator)
 
