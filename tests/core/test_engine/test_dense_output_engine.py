@@ -11,17 +11,17 @@ class TestDenseOutputEngine:
     def test_dense_output_engine(
         self,
         test_dense_operator: AbstractOperator,
-        dense_input_dataset: Dataset,
+        dense_input_dataset1: Dataset,
         dense_output_dataset1: Dataset,
         dense_output_dataset2: Dataset,
     ):
-        engine = DenseOutputEngine(dataset=dense_input_dataset, operator=test_dense_operator)
+        engine = DenseOutputEngine(dataset=dense_input_dataset1, operator=test_dense_operator)
         workflow = Workflow(name="workflow_test123", engine=engine, job_id="test_job123")
         workflow.run()
 
         time.sleep(4)
 
-        documents = dense_input_dataset.get_all_documents(select_fields=["new_field"])
+        documents = dense_input_dataset1.get_all_documents(select_fields=["new_field"])
         assert len(documents["documents"]) == 2
         for document in documents["documents"]:
             assert "new_field" not in document
@@ -36,42 +36,25 @@ class TestDenseOutputEngine:
         for document in documents["documents"]:
             assert document["new_field"] == 3
 
-        input_dataset_metadata = dense_input_dataset.get_metadata()["results"]
+        input_dataset_metadata = dense_input_dataset1.get_metadata()["results"]
         assert "_child_datasets_" in input_dataset_metadata
 
         for output_dataset in [dense_output_dataset1, dense_output_dataset2]:
             output_dataset_metadata = output_dataset.get_metadata()["results"]
             assert "_parent_dataset_" in output_dataset_metadata
 
-    def test_dense_output_engine(
+    def test_dense_output_engine_chunks(
         self,
         test_chunk_dense_operator: AbstractOperator,
-        dense_input_dataset: Dataset,
+        dense_input_dataset2: Dataset,
         dense_output_dataset1: Dataset,
         dense_output_dataset2: Dataset,
     ):
-        engine = DenseOutputEngine(dataset=dense_input_dataset, operator=test_chunk_dense_operator)
+        engine = DenseOutputEngine(dataset=dense_input_dataset2, operator=test_chunk_dense_operator)
         workflow = Workflow(name="workflow_test123", engine=engine, job_id="test_job123")
         workflow.run()
 
-        time.sleep(4)
-
-        documents = dense_input_dataset.get_all_documents(select_fields=["new_field"])
-        assert len(documents["documents"]) == 2
-        for document in documents["documents"]:
-            assert "new_field" not in document
-
-        documents = dense_output_dataset1.get_all_documents(select_fields=["new_field"])
-        assert len(documents["documents"]) == 2
-        for document in documents["documents"]:
-            assert document["new_field"] == 3
-
-        documents = dense_output_dataset2.get_all_documents(select_fields=["new_field"])
-        assert len(documents["documents"]) == 2
-        for document in documents["documents"]:
-            assert document["new_field"] == 3
-
-        input_dataset_metadata = dense_input_dataset.get_metadata()["results"]
+        input_dataset_metadata = dense_input_dataset2.get_metadata()["results"]
         assert "_child_datasets_" in input_dataset_metadata
 
         for output_dataset in [dense_output_dataset1, dense_output_dataset2]:

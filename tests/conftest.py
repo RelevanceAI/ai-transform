@@ -21,7 +21,14 @@ from ai_transform.operator.dense_operator import DenseOperator
 
 from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
-from ai_transform.utils.example_documents import mock_documents, static_documents, tag_documents
+from ai_transform.utils.example_documents import (
+    mock_documents,
+    static_documents,
+    tag_documents,
+    generate_random_vector,
+    incomplete_documents,
+)
+
 
 TEST_TOKEN = os.getenv("TEST_TOKEN")
 test_creds = process_token(TEST_TOKEN)
@@ -137,8 +144,8 @@ def static_dataset(test_client: Client) -> Dataset:
     test_client.delete_dataset(dataset_id)
 
 
-@pytest.fixture(scope="class")
-def dense_input_dataset(test_client: Client) -> Dataset:
+@pytest.fixture(scope="function")
+def dense_input_dataset1(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id, expire=True)
@@ -147,7 +154,17 @@ def dense_input_dataset(test_client: Client) -> Dataset:
     test_client.delete_dataset(dataset_id)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
+def dense_input_dataset2(test_client: Client) -> Dataset:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id, expire=True)
+    dataset.insert_documents(mock_documents(100))
+    yield dataset
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="function")
 def dense_output_dataset1(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
@@ -156,7 +173,7 @@ def dense_output_dataset1(test_client: Client) -> Dataset:
     test_client.delete_dataset(dataset_id)
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def dense_output_dataset2(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
@@ -269,17 +286,25 @@ def test_chunk_dense_operator(dense_output_dataset1: Dataset, dense_output_datas
     class TestDenseOperator(DenseOperator):
         def __init__(self, output_dataset_ids: Sequence[str]):
             self.output_dataset_ids = output_dataset_ids
+            self._chunk_field = "_chunk_"
+            self._text_field = "label"
+            self._alias = "default"
             super().__init__()
 
-        def transform(self, documents: DocumentList) -> DocumentList:
-            """
-            Main transform function
-            """
+        def transform(self, documents: List[Document]) -> List[Document]:
+            outputs = []
             for document in documents:
-                if "new_field" not in document:
-                    document["new_field"] = 0
+                texts = document.get_chunk(chunk_field=self._chunk_field, field=self._text_field)
+                text_vectors = [generate_random_vector() for _ in range(len(texts))]
 
-                document["new_field"] += 3
+                for sent_index, text_vector in enumerate(text_vectors):
+                    outputs.append(
+                        {
+                            "_id": document["_id"] + f":{sent_index}",
+                            f"{self._text_field}_{self._alias}_vector_": text_vector,
+                            "_order": sent_index,
+                        }
+                    )
 
             return {dataset_id: documents for dataset_id in self.output_dataset_ids}
 
@@ -307,7 +332,7 @@ def test_sentiment_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id, expire=True)
-    dataset.insert_documents(mock_documents(20))
+    dataset.insert_documents(incomplete_documents(20))
     time.sleep(1)
     job_id = str(uuid.uuid4())
     config = dict(
@@ -384,7 +409,7 @@ def test_cluster_workflow_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
     dataset = test_client.Dataset(dataset_id, expire=True)
-    dataset.insert_documents(mock_documents(20))
+    dataset.insert_documents(incomplete_documents(20))
     job_id = str(uuid.uuid4())
     print(job_id)
     config = dict(

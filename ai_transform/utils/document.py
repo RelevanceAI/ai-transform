@@ -141,17 +141,7 @@ class Document(UserDict):
         return [k for k in self.keys() if k.endswith("_chunk_")]
 
     def get_chunk(self, chunk_field: str, field: str = None, default: str = None):
-        """
-        Returns a list of values.
-        """
-        # provide a recursive implementation for getting chunks
-        from ai_transform.utils.document_list import DocumentList
-
-        document_list = DocumentList(self.get(chunk_field, default=default))
-        # Get the field across chunks
-        if field is None:
-            return document_list
-        return [d.get(field, default=default) for d in document_list.data]
+        return [document.get(field, default) for document in self.get(chunk_field, default=default)]
 
     def _create_chunk_documents(self, field: str, values: list, generate_id: bool = False):
         """
