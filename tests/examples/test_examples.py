@@ -235,7 +235,7 @@ def test_cluster_example(test_cluster_workflow_token: str):
 
     health = dataset.health()
     cluster_field = operator._output_field
-    assert health[cluster_field]["exists"] == 20
+    assert health[cluster_field]["exists"] == health[vector_field]["exists"]
 
     field_children = dataset.list_field_children()["results"]
     assert field_children[0]["field"] == vector_field
