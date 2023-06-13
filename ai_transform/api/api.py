@@ -162,9 +162,10 @@ class API:
     def _create_dataset(
         self, dataset_id: str, schema: Optional[Schema] = None, upsert: bool = True, expire: bool = False
     ) -> Any:
-        response = self.post(
-            suffix=f"/datasets/create", json=dict(id=dataset_id, schema=schema, upsert=upsert, expire=expire)
-        )
+        obj = dict(id=dataset_id, upsert=upsert, expire=expire)
+        if schema:
+            obj["schema"] = schema
+        response = self.post(suffix=f"/datasets/create", json=obj)
         return get_response(response)
 
     def _delete_dataset(self, dataset_id: str) -> Any:

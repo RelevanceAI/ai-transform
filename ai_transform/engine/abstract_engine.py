@@ -63,7 +63,7 @@ class AbstractEngine(ABC):
                     chunk_index = field.index("_chunk_") + len("_chunk_")
                     chunk_field = field[:chunk_index]
                     fields_to_add += [chunk_field]
-            select_fields += fields_to_add
+            select_fields = select_fields + fields_to_add
             select_fields = list(set(select_fields))
         else:
             select_fields = []
@@ -109,8 +109,8 @@ class AbstractEngine(ABC):
         self._refresh = refresh
         self._after_id = after_id
 
-        filters += self._get_refresh_filter()
-        filters += self._get_workflow_filter()
+        filters = filters + self._get_refresh_filter()
+        filters = filters + self._get_workflow_filter()
 
         self._filters = filters
 

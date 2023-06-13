@@ -5,13 +5,7 @@ from ai_transform.dataset.dataset import Dataset
 from ai_transform.utils.example_documents import mock_documents
 
 
-@pytest.mark.usefixtures("empty_dataset")
 class TestDataset1:
-    def test_create_delete(self, empty_dataset: Dataset):
-        empty_dataset.delete()
-        empty_dataset.create()
-        assert True
-
     def test_insert(self, empty_dataset: Dataset):
         documents = mock_documents(100)
         result = empty_dataset.insert_documents(documents)
@@ -20,6 +14,11 @@ class TestDataset1:
     def test_get_all(self, full_dataset: Dataset):
         res = full_dataset.get_all_documents()
         assert len(res["documents"]) == 20
+
+    def test_create_delete(self, empty_dataset: Dataset):
+        empty_dataset.delete()
+        empty_dataset.create()
+        assert True
 
 
 @pytest.mark.usefixtures("full_dataset")

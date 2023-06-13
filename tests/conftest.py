@@ -51,11 +51,11 @@ def test_dataset_id() -> str:
     return dataset_id
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="function")
 def empty_dataset(test_client: Client) -> Dataset:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     dataset_id = f"_sample_dataset_{salt}"
-    dataset = test_client.Dataset(dataset_id, expire=True)
+    dataset = test_client.Dataset(dataset_id, expire=False)
     yield dataset
     test_client.delete_dataset(dataset_id)
 
