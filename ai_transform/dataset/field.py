@@ -107,11 +107,10 @@ class Field:
 
     def exists(self) -> Filter:
         if "_chunk_" in self._field:
-            count = self._field.count(".")
-            if count:
-                parent_field = self._field.split(".")[0]
-            else:
+            if self._field.endswith("_chunk_"):
                 parent_field = self._field
+            else:
+                parent_field = self._field.split(".")[0]
 
             return [{"chunk": {"path": parent_field, "filters": [{"fieldExists": {"field": self._field}}]}}]
         return [{"field": self._field, "filter_type": "exists", "condition": "==", "condition_value": " "}]

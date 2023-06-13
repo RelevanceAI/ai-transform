@@ -52,7 +52,6 @@ def create_id():
 
 
 def generate_random_string(string_length: int = 5) -> str:
-
     """Generate a random string of letters and numbers"""
     return "".join(random.choice(string.ascii_uppercase + string.digits) for _ in range(string_length))
 
@@ -92,7 +91,16 @@ def vector_document(vector_length: int) -> Document:
 
 
 def mock_documents(n: int = 100, vector_length: int = 5) -> DocumentList:
-    return DocumentList([vector_document(vector_length) for _ in range(n)])
+    documents = [vector_document(vector_length) for _ in range(n)]
+    return DocumentList(documents)
+
+
+def incomplete_documents(n: int = 100, vector_length: int = 5) -> DocumentList:
+    documents = [vector_document(vector_length).data for _ in range(n)]
+    for document in documents:
+        for key in random.sample(document.keys(), 3):
+            document.pop(key)
+    return DocumentList(documents)
 
 
 def static_documents(n: int = 100) -> DocumentList:

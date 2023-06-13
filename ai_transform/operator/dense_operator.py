@@ -5,7 +5,6 @@ from abc import abstractmethod
 from typing import Dict, Sequence
 
 from ai_transform.operator.abstract_operator import AbstractOperator
-from ai_transform.dataset.dataset import Dataset
 from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
 
@@ -24,18 +23,13 @@ BAD_OPERATOR_MESSAGE = (
 class DenseOperator(AbstractOperator):
     def __call__(self, old_documents: DocumentList) -> DenseOperatorOutput:
         datum = self.transform(old_documents)
-        assert isinstance(datum, dict), BAD_OPERATOR_MESSAGE
+        if not isinstance(datum, dict):
+            raise ValueError(BAD_OPERATOR_MESSAGE)
         for _, documents in datum.items():
-            assert isinstance(documents, Sequence)
+            if not isinstance(documents, Sequence):
+                raise ValueError(BAD_OPERATOR_MESSAGE)
         return datum
 
     @abstractmethod
     def transform(self, documents: DocumentList) -> DenseOperatorOutput:
         raise NotImplementedError
-
-    def store_dataset_relationship(self, input_dataset: Dataset, output_datasets: Sequence[Dataset]):
-        input_dataset.update_metadata(
-            {"_child_datasets_": [output_dataset.dataset_id for output_dataset in output_datasets]}
-        )
-        for output_dataset in output_datasets:
-            output_dataset.update_metadata({"_parent_dataset_": input_dataset.dataset_id})

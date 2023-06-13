@@ -2,15 +2,13 @@
 # transformers[torch]==4.18.0
 # relevance-workflows-core
 
-import uuid
 import torch
 
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 
 from transformers import pipeline
 from ai_transform.api.client import Client
 from ai_transform.engine.stable_engine import StableEngine
-from ai_transform.workflow.helpers import decode_workflow_token
 from ai_transform.workflow.abstract_workflow import AbstractWorkflow
 from ai_transform.operator.abstract_operator import AbstractOperator
 from ai_transform.utils.document_list import DocumentList

@@ -21,6 +21,8 @@ from ai_transform.logger import ic
 
 
 class DenseOutputEngine(AbstractEngine):
+    operator: DenseOperator
+
     def __init__(
         self,
         dataset: Dataset = None,
@@ -72,6 +74,7 @@ class DenseOutputEngine(AbstractEngine):
         for mega_batch in self.api_progress(iterator):
             for mini_batch in AbstractEngine.chunk_documents(self._transform_chunksize, mega_batch):
                 document_mapping = self._operate(mini_batch)
+
                 for dataset_id, documents in document_mapping.items():
                     output_dataset_ids.append(dataset_id)
                     dataset = Dataset.from_details(dataset_id, self.token)
@@ -81,7 +84,14 @@ class DenseOutputEngine(AbstractEngine):
         self.operator.post_hooks(self._dataset)
 
         output_datasets = self.datasets_from_ids(output_dataset_ids)
-        self.operator.store_dataset_relationship(self.dataset, output_datasets)
+        self.store_dataset_relationship(output_datasets)
 
     def datasets_from_ids(self, dataset_ids: Sequence[str]) -> Sequence[Dataset]:
         return [Dataset.from_details(dataset_id, self.token) for dataset_id in dataset_ids]
+
+    def store_dataset_relationship(self, output_datasets: Sequence[Dataset]):
+        self.dataset.update_metadata(
+            {"_child_datasets_": [output_dataset.dataset_id for output_dataset in output_datasets]}
+        )
+        for output_dataset in output_datasets:
+            output_dataset.update_metadata({"_parent_dataset_": self.dataset.dataset_id})
