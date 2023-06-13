@@ -75,7 +75,6 @@ class AbstractOperator(ABC):
         output_fields: Optional[Union[Dict[str, str], List[str]]] = None,
         enable_postprocess: Optional[bool] = True,
     ):
-
         if input_fields is not None and output_fields is not None:
             if any(input_field in output_fields for input_field in input_fields):
                 detected_fields = [input_field for input_field in input_fields if input_field in output_fields]
@@ -171,6 +170,12 @@ class AbstractOperator(ABC):
         from ai_transform.api.client import Client
 
         output = self.transform(documents=documents)
+        if hasattr(documents, "to_json"):
+            output = output.to_json()
+        else:
+            for index in range(len(output)):
+                if hasattr(output[index], "to_json"):
+                    output[index] = output[index].to_json()
         client = Client(authorization_token)
         return client.api._set_workflow_status(
             job_id=job_id,
@@ -180,7 +185,7 @@ class AbstractOperator(ABC):
             status=status,
             send_email=send_email,
             worker_number=worker_number,
-            output=output,
+            output={"output": output},
         )
 
     def pre_hooks(self, dataset: Dataset):
