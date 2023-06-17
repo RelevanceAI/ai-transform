@@ -5,7 +5,7 @@ from ai_transform.utils.document import Document
 
 class TestDocument:
     def test_cast(self, test_document: Document):
-        assert test_document["field1.field2"] == 1
+        assert test_document.__getitem__("field1.field2") == 1
         assert test_document["field3"] == 3
         assert test_document.get("field4", 5) == 5
 
@@ -15,7 +15,7 @@ class TestDocument:
         dne = test_document.get("not_field", 3)
         assert dne == 3
 
-        test_document["field4.field5"] = 0
+        test_document.__setitem__("field4.field5", 0)
 
         value = test_document["field4.field5"]
         test_document["field4.field5"] = value + 1
@@ -48,7 +48,14 @@ class TestDocument:
         value = test_document.pop("field1.field2")
         assert value == 1
         assert "field1" in test_document
+        assert test_document.__contains__("field1")
         assert "field1.field2" not in test_document
+
+    def test_repr(self, test_document: Document):
+        assert repr(test_document)
+
+    def test_to_json(self, test_document: Document):
+        assert test_document.to_json()
 
     def test_split(self):
         from ai_transform.utils import Document

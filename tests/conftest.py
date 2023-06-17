@@ -370,6 +370,27 @@ def test_user_facing_error_workflow_token(test_client: Client) -> str:
 
 
 @pytest.fixture(scope="function")
+def test_poll_token(test_client: Client) -> str:
+    salt = "".join(random.choices(string.ascii_lowercase, k=10))
+    dataset_id = f"_sample_dataset_{salt}"
+    dataset = test_client.Dataset(dataset_id, expire=True)
+    dataset.insert_documents(mock_documents(20))
+    time.sleep(1)
+    job_id = str(uuid.uuid4())
+    config = dict(
+        job_id=job_id,
+        dataset_id=dataset_id,
+        authorizationToken=test_client.credentials.token,
+        text_field="sample_1_description_not_in_dataset",
+    )
+    config_string = json.dumps(config)
+    config_bytes = config_string.encode()
+    workflow_token = base64.b64encode(config_bytes).decode()
+    yield workflow_token
+    test_client.delete_dataset(dataset_id)
+
+
+@pytest.fixture(scope="function")
 def test_sentiment_workflow_document_token(test_client: Client) -> str:
     salt = "".join(random.choices(string.ascii_lowercase, k=10))
     time.sleep(1)

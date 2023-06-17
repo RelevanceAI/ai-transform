@@ -1,13 +1,13 @@
 """
-Base64 decoding for workflows
+Helper functions that are used across managed workflows and ai-transform
 """
-import argparse
 import os
-import base64
-import json
 import time
-from ai_transform.dataset.dataset import Dataset
+import json
+import base64
+
 from typing import Any, Mapping
+from ai_transform.dataset.dataset import Dataset
 
 
 def decode_workflow_token(token: str) -> Mapping[str, Any]:
@@ -27,19 +27,6 @@ def decode_workflow_token(token: str) -> Mapping[str, Any]:
     config = json.loads(base64.b64decode(token + "==="))
     # Set workflow ID for tracking
     os.environ["WORKFLOW_ID"] = config.get("job_id", "")
-    return config
-
-
-def read_token_from_script():
-    """
-    Reads in a token from script and returns a config as a
-    dictionary object.
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument("token", help="The token used for the workflow config.")
-    args = parser.parse_args()
-    token = args.token
-    config = decode_workflow_token(token)
     return config
 
 
@@ -103,7 +90,3 @@ def poll_until_health_updates_with_input_field(
     return poll_until_health_updates(
         dataset=dataset, field=output_field, minimum_coverage=min_coverage, sleep_timer=sleep_timer, max_time=max_time
     )
-
-
-def encode_config(data: dict):
-    return base64.b64encode(json.dumps(data).encode()).decode()
