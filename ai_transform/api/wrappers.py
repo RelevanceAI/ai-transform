@@ -20,6 +20,10 @@ class ResultNotOKError(Exception):
     pass
 
 
+class OrgEntitlementError(Exception):
+    pass
+
+
 def is_response_bad(
     result: Response,
     key_for_error: str = None,
@@ -55,7 +59,6 @@ def request_wrapper(
     key_for_error: str = None,
     is_json_decodable: bool = False,
 ) -> Response:
-
     if args is None:
         args = ()
 
@@ -72,9 +75,16 @@ def request_wrapper(
             result = fn(*args, **kwargs)
 
             if not result.ok:
-                to_log = format_logging_info({"message": result.content.decode(), "status_code": result.status_code})
+                content = result.content.decode()
+                status_code = result.status_code
+
+                to_log = format_logging_info({"message": content, "status_code": result.status_code})
                 if output_to_stdout:
                     ic(to_log)
+
+                if status_code == 400 and "Organization Entitlement setting documents" in content:
+                    raise OrgEntitlementError(to_log)
+
                 raise ResultNotOKError(to_log)
 
             if retry_func(result):

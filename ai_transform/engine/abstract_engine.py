@@ -16,6 +16,7 @@ from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
 
 from ai_transform.errors import MaxRetriesError
+from ai_transform.api.wrappers import OrgEntitlementError
 
 
 class AbstractEngine(ABC):
