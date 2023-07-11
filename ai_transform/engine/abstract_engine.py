@@ -16,6 +16,7 @@ from ai_transform.utils.document import Document
 from ai_transform.utils.document_list import DocumentList
 
 from ai_transform.errors import MaxRetriesError
+from ai_transform.api.wrappers import OrgEntitlementError
 
 
 class AbstractEngine(ABC):
@@ -326,25 +327,11 @@ class AbstractEngine(ABC):
             if len(chunk) > 0:
                 yield chunk
 
-    def update_chunk(
-        self,
-        chunk: List[Document],
-        max_retries: int = 3,
-        ingest_in_background: bool = True,
-        update_schema: bool = False,
-    ):
+    def update_chunk(self, chunk: List[Document], ingest_in_background: bool = True, update_schema: bool = False):
         if chunk:
-            for _ in range(max_retries):
-                try:
-                    update_json = self._dataset.update_documents(
-                        documents=chunk, ingest_in_background=ingest_in_background, update_schema=update_schema
-                    )
-                except Exception as e:
-                    ic(e)
-                else:
-                    return update_json
-
-            raise MaxRetriesError("max number of retries exceeded")
+            return self._dataset.update_documents(
+                documents=chunk, ingest_in_background=ingest_in_background, update_schema=update_schema
+            )
 
     def api_progress(
         self,
