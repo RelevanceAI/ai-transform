@@ -9,6 +9,7 @@ from ai_transform.dataset import dataset
 from ai_transform.operator import abstract_operator
 from ai_transform.engine import abstract_engine
 from ai_transform.logger import ic
+from ai_transform.api.wrappers import OrgEntitlementError
 
 
 WORKFLOW_PROCESSED_MESSAGE = "Workflow processed {:.2f}%" + " of documents. "
@@ -17,7 +18,6 @@ WORKFLOW_FAIL_MESSAGE = WORKFLOW_PROCESSED_MESSAGE + "This is less than the succ
 
 
 class WorkflowContextManager:
-
     FAILED = "failed"
     COMPLETE = "complete"
     IN_PROGRESS = "inprogress"
@@ -40,7 +40,6 @@ class WorkflowContextManager:
         metadata: Dict[str, Any] = None,
         output: dict = None,
     ):
-
         self.credentials = credentials
         self.engine = engine
         self.dataset = dataset
@@ -93,7 +92,6 @@ class WorkflowContextManager:
         for operator in self.operators:
             if operator.update_field_children:
                 for input_field in operator.input_fields:
-
                     metadata = {}
                     metadata.update(self.field_children_metadata)
                     if isinstance(operator.output_fields, dict):
@@ -200,7 +198,18 @@ class WorkflowContextManager:
                     100 * self.engine.success_ratio, 100 * self.success_threshold
                 )
 
-        if exc_type is not None or regular_workflow_failed:
+        # Here is where we should define all the errors than could occur
+        # outside of the Operators transform function
+        #
+        # Since OrgEntitlementError occurs when upserting and not transforming,
+        # the logic for error handling it is defined here.
+        if isinstance(exc_value, OrgEntitlementError):
+            user_errors = "Organization Entitlement setting documents"
+
+        if exc_type is not None or user_errors is not None:
+            regular_workflow_failed = True
+
+        if regular_workflow_failed:
             return self._handle_workflow_fail(exc_type, exc_value, traceback, user_errors)
         else:
             n_processed_pricing = self._n_processed_pricing or self._calculate_pricing()
