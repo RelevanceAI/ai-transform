@@ -5,7 +5,6 @@ from ai_transform.utils.json_encoder import json_encoder
 
 class TestJSONEncoder:
     def test_json_encoder_timstamps(self):
-
         my_json_data = """[
 {
     "itemId": "alpha:136:1",

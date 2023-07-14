@@ -265,7 +265,6 @@ class ClusterField(Field):
         )
 
     def create_centroid_documents(self):
-
         documents = self._dataset.get_all_documents(select_fields=[self._cluster_field, self._field])
         documents = documents["documents"]
 
