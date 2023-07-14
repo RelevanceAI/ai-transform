@@ -410,11 +410,14 @@ class API:
         response = self.post(suffix=f"/datasets/{dataset_id}/get_file_upload_urls", json=dict(files=files))
         return get_response(response)
 
-    def _get_temp_file_upload_url(self):
+    def _get_temp_file_upload_url(self, ext: str = None):
         """Use this for temporary file uploads.
         returns: {'download_url': ..., 'upload_url': ...}
         """
-        response = self.post(suffix=f"/services/get_temporary_file_upload_url")
+        body = {}
+        if ext is not None:
+            body["extension"] = ext
+        response = self.post(suffix=f"/services/get_temporary_file_upload_url", json=body)
         return get_response(response)
 
     def _upload_temporary_media(self, presigned_url: str, media_content: bytes):

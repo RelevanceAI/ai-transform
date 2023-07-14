@@ -160,7 +160,6 @@ class Dataset:
         max_retries: int = 3,
         retry_delay: int = 2,
     ) -> Dict[str, Any]:
-
         documents = []
         retry_count = 0
         while True:

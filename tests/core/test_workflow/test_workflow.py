@@ -28,7 +28,6 @@ class SimpleWorkflowConfig(BaseConfig):
 
 class TestWorkflow:
     def test_workflow(self, test_paid_engine: AbstractEngine):
-
         workflow_name = "test_workflow"
         workflow = Workflow(name=workflow_name, engine=test_paid_engine, job_id="test_job1")
         res = workflow.run()
@@ -38,7 +37,6 @@ class TestWorkflow:
         assert status["steps"][workflow_name]["n_processed_pricing"] == 20
 
     def test_workflow_no_refresh(self, test_paid_engine_no_refresh: AbstractEngine):
-
         workflow_name = "test_workflow"
         workflow = Workflow(name=workflow_name, engine=test_paid_engine_no_refresh, job_id="test_job2")
         res = workflow.run()
@@ -70,7 +68,6 @@ class TestSimpleWorkflow:
         time_sleep_value = 10
 
         with test_client.SimpleWorkflow(workflow_name=workflow_name, job_id="test-simple-workflow") as workflow:
-
             time.sleep(time_sleep_value)
             simple_workflow_dataset.update_documents([{"_id": "0", "value": 1}], ingest_in_background=False)
 

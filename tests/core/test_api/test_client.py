@@ -1,5 +1,6 @@
 import time
 import random
+import requests
 
 from ai_transform.api.client import Client
 from ai_transform.utils.example_documents import mock_documents
@@ -39,3 +40,20 @@ class TestClient:
     def test_no_auth_client(self):
         client = Client(token="this:token:doesn't:work", authenticate=False)
         assert True
+
+
+class TestTempMediaUpload:
+    def test_upload_bytes_simple(self, test_client: Client):
+        bytes = b"Hi"
+        response = test_client.insert_temp_local_media(bytes, ext="txt")
+        assert requests.get(response["download_url"]).content == bytes
+
+    def test_upload_fpath(self, test_client: Client):
+        response = test_client.insert_temp_local_media("hierarchy.png")
+        assert isinstance(response["download_url"], str)
+
+    def test_upload_bytes(self, test_client: Client):
+        with open("hierarchy.png", "rb") as f:
+            bytes = f.read()
+        response = test_client.insert_temp_local_media(bytes, "png")
+        assert isinstance(response["download_url"], str)
