@@ -1,7 +1,7 @@
 import os
 import warnings
 
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union
 
 from ai_transform.api.api import API
 from ai_transform.api.helpers import process_token
@@ -80,15 +80,29 @@ class Client:
             output=output,
         )
 
-    def insert_temp_local_media(self, file_path: str):
+    def insert_temp_local_media(self, file_path_or_bytes: Union[str, bytes], ext: str = None):
         """
         Insert temporary local media.
         """
-        data = self.api._get_temp_file_upload_url()
+        if isinstance(file_path_or_bytes, str):
+            with open(file_path_or_bytes, "rb") as fn_byte:
+                media_content = bytes(fn_byte.read())
+            if ext is None:
+                _, ext = os.path.splitext(file_path_or_bytes)
+                ext = ext[1:] # remove leading `.`
+            
+        elif isinstance(file_path_or_bytes, bytes):
+            media_content = file_path_or_bytes
+            if ext is None:
+                raise ValueError("Must set file ext i.e. `csv` or `png`")
+
+        else:
+            raise ValueError("`file_path_or_bytes` must be one of type `str` or `bytes`")
+
+        data = self.api._get_temp_file_upload_url(ext)
         upload_url = data["upload_url"]
         download_url = data["download_url"]
-        with open(file_path, "rb") as fn_byte:
-            media_content = bytes(fn_byte.read())
+            
         response = self.api._upload_temporary_media(presigned_url=upload_url, media_content=media_content)
         ic(response.content)
         return {"download_url": download_url}

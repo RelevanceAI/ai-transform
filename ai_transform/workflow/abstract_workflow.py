@@ -27,7 +27,6 @@ class Workflow:
         output: dict = None,
         **kwargs,  # TODO: Update workflows, This for deprecated arguments
     ):
-
         if job_id is None:
             job_id = str(uuid.uuid4())
             warnings.warn(f"No job id supplied, using {job_id}")

@@ -13,7 +13,6 @@ class TestAbstractEngine:
     def test_engine(self, full_dataset: Dataset, test_operator: AbstractOperator):
         class ExampleEngine(AbstractEngine):
             def apply(self) -> Any:
-
                 iterator = self.iterate()
                 for chunk in iterator:
                     new_batch = self.operator(chunk)
