@@ -89,8 +89,8 @@ class Client:
                 media_content = bytes(fn_byte.read())
             if ext is None:
                 _, ext = os.path.splitext(file_path_or_bytes)
-                ext = ext[1:] # remove leading `.`
-            
+                ext = ext[1:]  # remove leading `.`
+
         elif isinstance(file_path_or_bytes, bytes):
             media_content = file_path_or_bytes
             if ext is None:
@@ -102,7 +102,7 @@ class Client:
         data = self.api._get_temp_file_upload_url(ext)
         upload_url = data["upload_url"]
         download_url = data["download_url"]
-            
+
         response = self.api._upload_temporary_media(presigned_url=upload_url, media_content=media_content)
         ic(response.content)
         return {"download_url": download_url}
