@@ -2,7 +2,14 @@ from setuptools import find_packages, setup
 
 from ai_transform import __version__
 
-requirements = ["tqdm>=4.49.0", "requests>=2.0.0", "pandas>=1.5.0", "pydantic==1.10.2", "icecream==2.1.3"]
+requirements = [
+    "tqdm>=4.49.0",
+    "requests>=2.0.0",
+    "pandas>=1.5.0",
+    "pydantic==1.10.2",
+    "icecream==2.1.3",
+    "typing_extensions<4.6.0",
+]
 
 ray_requirements = ["numpy>=1.19.0", "pyarrow==9.0.0", "ray==2.0.0"]
 
