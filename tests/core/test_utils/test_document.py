@@ -83,3 +83,9 @@ class TestDocument:
                 ]
             },
         }
+
+    def test_numeric_keys(self):
+        doc = Document()
+        doc["123"] = "asdf"
+        assert "123" in doc
+        assert doc["123"] == "asdf"
