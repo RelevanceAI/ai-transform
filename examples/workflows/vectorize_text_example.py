@@ -16,7 +16,6 @@ class VectorizeTextOperator(AbstractOperator):
     def __init__(
         self, text_field: str, model: str = "sentence-transformers/all-mpnet-base-v2", alias: Optional[str] = None
     ):
-
         self._model = SentenceTransformer(model)
         self._model.eval()
 

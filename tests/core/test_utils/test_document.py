@@ -89,3 +89,15 @@ class TestDocument:
         doc["123"] = "asdf"
         assert "123" in doc
         assert doc["123"] == "asdf"
+
+    def test_value_index_list1(self):
+        doc = Document()
+        doc["123"] = []
+        doc["123"].append(0)
+        assert doc["123.0"] == 0
+
+    def test_value_index_list2(self):
+        doc = Document()
+        doc["123.days"] = []
+        doc["123.days"].append(0)
+        assert doc["123.days.0"] == 0
