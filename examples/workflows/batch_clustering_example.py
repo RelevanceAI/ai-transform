@@ -17,7 +17,6 @@ from sklearn.cluster import MiniBatchKMeans
 
 class BatchClusterFitOperator(AbstractOperator):
     def __init__(self, n_clusters: int, vector_field: str):
-
         self._model = MiniBatchKMeans(n_clusters=n_clusters)
         self._vector_field = vector_field
 

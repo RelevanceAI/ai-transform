@@ -24,7 +24,6 @@ class EmotionOperator(AbstractOperator):
         alias: Optional[str] = None,
         min_score: float = 0.1,
     ):
-
         device = 0 if torch.cuda.is_available() else -1
         self._model = pipeline("sentiment-analysis", model=model, device=device, return_all_scores=True)
 

@@ -21,8 +21,8 @@ class Document(UserDict):
             super().__setitem__(key, value)
         else:
             obj = self.data
-            for curr_field, next_field in zip(fields, fields[1:]):
-                if curr_field.isdigit():
+            for level, (curr_field, next_field) in enumerate(zip(fields, fields[1:])):
+                if curr_field.isdigit() and level >= 1:
                     curr_field = int(curr_field)
 
                 if (isinstance(obj, dict) and (curr_field not in obj)) or (
@@ -45,7 +45,7 @@ class Document(UserDict):
                 except KeyError:
                     obj = obj[curr_field]
 
-            if fields[-1].isdigit():
+            if fields[-1].isdigit() and (len(fields) > 1):
                 field = min(len(obj) - 1, int(fields[-1]))
             else:
                 field = fields[-1]
@@ -58,13 +58,13 @@ class Document(UserDict):
             return super().__getitem__(key)
         else:
             obj = self.data
-            for field in fields[:-1]:
-                if field.isdigit():
+            for level, field in enumerate(fields[:-1]):
+                if field.isdigit() and level >= 1:
                     field = int(field)
 
                 obj = obj[field]
 
-            if fields[-1].isdigit():
+            if fields[-1].isdigit() and len(fields) > 1:
                 field = min(len(obj) - 1, int(fields[-1]))
             else:
                 field = fields[-1]
