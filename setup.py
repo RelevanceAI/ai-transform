@@ -6,7 +6,7 @@ requirements = [
     "tqdm>=4.49.0",
     "requests>=2.0.0",
     "pandas>=1.5.0",
-    "pydantic==1.10.2",
+    "pydantic==1.10.13",
     "icecream==2.1.3",
     "typing_extensions<4.6.0",
 ]
